@@ -534,8 +534,54 @@ function addShield(c: Cage) {
   );
 }
 
+function skinnedStringSegment(
+  c: Cage,
+  id: string,
+  start: Vec3,
+  end: Vec3,
+  startWeight: Weight,
+  endWeight: Weight,
+) {
+  const direction = unit(sub(end, start));
+  const reference: Vec3 =
+    Math.abs(direction[2]) < 0.9 ? [0, 0, 1] : [0, 1, 0];
+  const u = unit(cross(direction, reference));
+  const v = unit(cross(direction, u));
+  const profile: readonly (readonly [number, number])[] = [
+    [1, 0],
+    [-0.5, 0.866],
+    [-0.5, -0.866],
+  ];
+
+  const a = ring(
+    c,
+    `${id}.Start`,
+    start,
+    u,
+    v,
+    profile,
+    0.0022,
+    0.0022,
+    startWeight,
+  );
+  const b = ring(
+    c,
+    `${id}.End`,
+    end,
+    u,
+    v,
+    profile,
+    0.0022,
+    0.0022,
+    endWeight,
+  );
+
+  bridge(c, a, b, "equipment", "#d6c9ad");
+}
+
 function addBow(c: Cage) {
-  const w = rigid(B.LeftHand);
+  const bowWeight = rigid(B.LeftHand);
+  const drawWeight = rigid(B.RightHand);
   const center: Vec3 = [-0.55, 0.86, 0.02];
   const points: Vec3[] = [
     [-0.075, 0.34, 0],
@@ -547,8 +593,25 @@ function addBow(c: Cage) {
     [-0.075, -0.34, 0],
   ].map((p) => add(center, p as Vec3));
 
-  tube(c, "Bow", points, 0.014, w, "#956d42");
-  tube(c, "Bowstring", [points[0], points.at(-1)!], 0.002, w, "#d6c9ad", 3);
+  tube(c, "Bow", points, 0.014, bowWeight, "#956d42");
+
+  const nock: Vec3 = [center[0], center[1], center[2]];
+  skinnedStringSegment(
+    c,
+    "BowstringTop",
+    points[0],
+    nock,
+    bowWeight,
+    drawWeight,
+  );
+  skinnedStringSegment(
+    c,
+    "BowstringBottom",
+    nock,
+    points.at(-1)!,
+    drawWeight,
+    bowWeight,
+  );
 }
 
 function addQuiver(c: Cage) {
