@@ -48,7 +48,7 @@
 - 16 个逻辑身体部件；
 - box4 / hex6 / oct8 固定截面；
 - 关节允许少量重叠；
-- 约 252 tris / 204 verts；
+- 约 306 tris / 228 verts；
 - 1 BufferGeometry；
 - bodyPart = UInt8；
 - boneIndex = UInt8；
@@ -60,7 +60,7 @@
 
 1. `npm run check:mesh`
 2. `npm run build`
-3. Visual Review 截图复核
+3. Visual Review 截图复核：正交 Front / Right / Top + 3/4 + Front Wireframe
 
 Mesh Validation 必须检查：
 

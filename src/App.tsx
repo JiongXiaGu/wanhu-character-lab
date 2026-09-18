@@ -411,7 +411,7 @@ export default function App() {
 
           <div className="viewport-caption">
             <span>拖动旋转 · 滚轮缩放 · 右键平移</span>
-            <span>LowPolyHumanoidBlueprint v1 · External mesh assets: 0</span>
+            <span>LowPolyHumanoidBlueprint v2 · External mesh assets: 0</span>
           </div>
         </section>
       </section>
