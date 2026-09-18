@@ -4,6 +4,14 @@ import {
   cleanRecipe,
   type Cage,
   type Recipe,
+  type RecipeInput,
+  type HeadwearId,
+  type BackId,
+  type LeftHandId,
+  type RightHandId,
+  type TopId,
+  type BottomId,
+  type ShoesId,
   type Region,
   type Vec3,
   type Weight,
@@ -332,9 +340,12 @@ function faceDetails(c: Cage, hat: boolean) {
     face(c, cap, "detail", HAIR);
   }
 }
-function hat(c: Cage, outfit: Recipe["outfit"]) {
+function headwear(c: Cage, id: HeadwearId) {
+  if (id === "none") return;
+
   const skin = rigid(B.Head);
-  if (outfit === "farmer") {
+
+  if (id === "farmer_straw_hat") {
     const profile = Array.from(
       { length: 12 },
       (_, i) =>
@@ -354,8 +365,9 @@ function hat(c: Cage, outfit: Recipe["outfit"]) {
       0.255,
       skin,
     );
-    const peak = vertex(c, "StrawPeak", [0, 1.89, 0], skin),
-      bottom = vertex(c, "StrawInside", [0, 1.816, 0], skin);
+    const peak = vertex(c, "StrawPeak", [0, 1.89, 0], skin);
+    const bottom = vertex(c, "StrawInside", [0, 1.816, 0], skin);
+
     for (let i = 0; i < 12; i++) {
       const j = (i + 1) % 12;
       face(
@@ -366,56 +378,60 @@ function hat(c: Cage, outfit: Recipe["outfit"]) {
       );
       face(c, [bottom, rim[j], rim[i]], "equipment", "#8c754d");
     }
-  } else if (outfit === "guard") {
+    return;
+  }
+
+  if (id === "guard_helmet") {
     const low = ring(
-        c,
-        "HelmetBrim",
-        [0, 1.69, -0.006],
-        [1, 0, 0],
-        [0, 0, 1],
-        OCT,
-        0.11,
-        0.103,
-        skin,
-      ),
-      high = ring(
-        c,
-        "HelmetCrown",
-        [0, 1.805, -0.008],
-        [1, 0, 0],
-        [0, 0, 1],
-        OCT,
-        0.062,
-        0.06,
-        skin,
-      );
+      c,
+      "HelmetBrim",
+      [0, 1.69, -0.006],
+      [1, 0, 0],
+      [0, 0, 1],
+      OCT,
+      0.11,
+      0.103,
+      skin,
+    );
+    const high = ring(
+      c,
+      "HelmetCrown",
+      [0, 1.805, -0.008],
+      [1, 0, 0],
+      [0, 0, 1],
+      OCT,
+      0.062,
+      0.06,
+      skin,
+    );
     bridge(c, low, high, "equipment", "#66716c");
     face(c, high, "equipment", "#778078");
-  } else if (outfit === "archer") {
-    const a = ring(
-        c,
-        "HeadbandA",
-        [0, 1.695, 0],
-        [1, 0, 0],
-        [0, 0, 1],
-        OCT,
-        0.103,
-        0.099,
-        skin,
-      ),
-      b = ring(
-        c,
-        "HeadbandB",
-        [0, 1.712, 0],
-        [1, 0, 0],
-        [0, 0, 1],
-        OCT,
-        0.101,
-        0.098,
-        skin,
-      );
-    bridge(c, a, b, "equipment", "#a48760");
+    return;
   }
+
+  const a = ring(
+    c,
+    "HeadbandA",
+    [0, 1.695, 0],
+    [1, 0, 0],
+    [0, 0, 1],
+    OCT,
+    0.103,
+    0.099,
+    skin,
+  );
+  const b = ring(
+    c,
+    "HeadbandB",
+    [0, 1.712, 0],
+    [1, 0, 0],
+    [0, 0, 1],
+    OCT,
+    0.101,
+    0.098,
+    skin,
+  );
+  bridge(c, a, b, "equipment", "#a48760");
 }
 function belt(c: Cage, color: string) {
   const a = ring(
@@ -462,166 +478,236 @@ function belt(c: Cage, color: string) {
     color,
   );
 }
-function equipment(c: Cage, outfit: Recipe["outfit"]) {
-  if (outfit === "guard") {
-    const w = rigid(B.RightHand),
-      x = 0.541,
-      y = 0.846,
-      z = 0.023;
-    box(c, "SwordGrip", [x, y - 0.025, z], [0.024, 0.12, 0.025], w, "#514435");
-    box(
+function addSword(c: Cage) {
+  const w = rigid(B.RightHand);
+  const x = 0.541;
+  const y = 0.846;
+  const z = 0.023;
+
+  box(c, "SwordGrip", [x, y - 0.025, z], [0.024, 0.12, 0.025], w, "#514435");
+  box(
+    c,
+    "SwordGuard",
+    [x, y - 0.095, z],
+    [0.125, 0.018, 0.035],
+    w,
+    "#ad986c",
+  );
+
+  const ids = [
+    [x - 0.025, y - 0.11, z],
+    [x, y - 0.11, z + 0.011],
+    [x + 0.025, y - 0.11, z],
+    [x, y - 0.66, z],
+  ].map((p, i) => vertex(c, `Blade.${i}`, p as Vec3, w));
+
+  face(c, [ids[0], ids[3], ids[1]], "equipment", "#adb8b4");
+  face(c, [ids[1], ids[3], ids[2]], "equipment", "#d0d7cb");
+  face(c, [ids[0], ids[2], ids[3]], "equipment", "#788783");
+}
+
+function addShield(c: Cage) {
+  const w = rigid(B.LeftHand);
+  const center: Vec3 = [-0.56, 0.87, 0.088];
+  const edge = OCT.map(([xx, yy], i) =>
+    vertex(c, `Shield.${i}`, add(center, [xx * 0.2, yy * 0.25, 0]), w),
+  );
+  const boss = vertex(c, "ShieldBoss", add(center, [0, 0, 0.058]), w);
+
+  for (let i = 0; i < 8; i++) {
+    face(
       c,
-      "SwordGuard",
-      [x, y - 0.095, z],
-      [0.125, 0.018, 0.035],
-      w,
-      "#ad986c",
+      [boss, edge[(i + 1) % 8], edge[i]],
+      "equipment",
+      i % 2 ? "#6f4937" : "#79503a",
     );
-    const ids = [
-      [x - 0.025, y - 0.11, z],
-      [x, y - 0.11, z + 0.011],
-      [x + 0.025, y - 0.11, z],
-      [x, y - 0.66, z],
-    ].map((p, i) => vertex(c, `Blade.${i}`, p as Vec3, w));
-    face(c, [ids[0], ids[3], ids[1]], "equipment", "#adb8b4");
-    face(c, [ids[1], ids[3], ids[2]], "equipment", "#d0d7cb");
-    face(c, [ids[0], ids[2], ids[3]], "equipment", "#788783");
-    const sw = rigid(B.LeftHand),
-      center: Vec3 = [-0.56, 0.87, 0.088];
-    const edge = OCT.map(([xx, yy], i) =>
-      vertex(c, `Shield.${i}`, add(center, [xx * 0.2, yy * 0.25, 0]), sw),
-    );
-    const boss = vertex(c, "ShieldBoss", add(center, [0, 0, 0.058]), sw);
-    for (let i = 0; i < 8; i++)
-      face(
-        c,
-        [boss, edge[(i + 1) % 8], edge[i]],
-        "equipment",
-        i % 2 ? "#6f4937" : "#79503a",
-      );
-    face(c, [...edge], "equipment", "#463b31");
-    box(
-      c,
-      "ShieldBossCap",
-      add(center, [0, 0, 0.052]),
-      [0.05, 0.055, 0.025],
-      sw,
-      "#9d9d86",
-    );
-  } else if (outfit === "archer") {
-    const w = rigid(B.LeftHand),
-      center: Vec3 = [-0.55, 0.86, 0.02];
-    const pts: Vec3[] = [
-      [-0.075, 0.34, 0],
-      [0.012, 0.24, 0],
-      [0.05, 0.11, 0],
-      [0, 0, 0],
-      [0.05, -0.11, 0],
-      [0.012, -0.24, 0],
-      [-0.075, -0.34, 0],
-    ].map((p) => add(center, p as Vec3));
-    tube(c, "Bow", pts, 0.014, w, "#956d42");
-    tube(c, "Bowstring", [pts[0], pts.at(-1)!], 0.002, w, "#d6c9ad", 3);
-    const chest = rigid(B.Chest);
+  }
+
+  face(c, [...edge], "equipment", "#463b31");
+  box(
+    c,
+    "ShieldBossCap",
+    add(center, [0, 0, 0.052]),
+    [0.05, 0.055, 0.025],
+    w,
+    "#9d9d86",
+  );
+}
+
+function addBow(c: Cage) {
+  const w = rigid(B.LeftHand);
+  const center: Vec3 = [-0.55, 0.86, 0.02];
+  const points: Vec3[] = [
+    [-0.075, 0.34, 0],
+    [0.012, 0.24, 0],
+    [0.05, 0.11, 0],
+    [0, 0, 0],
+    [0.05, -0.11, 0],
+    [0.012, -0.24, 0],
+    [-0.075, -0.34, 0],
+  ].map((p) => add(center, p as Vec3));
+
+  tube(c, "Bow", points, 0.014, w, "#956d42");
+  tube(c, "Bowstring", [points[0], points.at(-1)!], 0.002, w, "#d6c9ad", 3);
+}
+
+function addQuiver(c: Cage) {
+  const chest = rigid(B.Chest);
+
+  tube(
+    c,
+    "Quiver",
+    [
+      [-0.13, 1.0, -0.14],
+      [-0.13, 1.37, -0.16],
+    ],
+    0.058,
+    chest,
+    "#604739",
+    6,
+  );
+
+  for (let i = 0; i < 3; i++) {
+    const x = -0.16 + i * 0.028;
     tube(
       c,
-      "Quiver",
+      `Arrow${i}`,
       [
-        [-0.13, 1.0, -0.14],
-        [-0.13, 1.37, -0.16],
+        [x, 1.22, -0.16],
+        [x, 1.48, -0.16],
       ],
-      0.058,
+      0.005,
       chest,
-      "#604739",
-      6,
+      "#b39969",
+      3,
     );
-    for (let i = 0; i < 3; i++) {
-      const x = -0.16 + i * 0.028;
-      tube(
-        c,
-        `Arrow${i}`,
-        [
-          [x, 1.22, -0.16],
-          [x, 1.48, -0.16],
-        ],
-        0.005,
-        chest,
-        "#b39969",
-        3,
-      );
-      patch(
-        c,
-        `Fletch${i}`,
-        [
-          [x - 0.014, 1.45, -0.17],
-          [x + 0.014, 1.45, -0.17],
-          [x + 0.009, 1.49, -0.17],
-          [x - 0.009, 1.49, -0.17],
-        ],
-        chest,
-        "#cbc8ad",
-      );
-    }
-  } else if (outfit === "farmer") {
-    const w = rigid(B.RightHand);
-    tube(
+    patch(
       c,
-      "HoeHandle",
+      `Fletch${i}`,
       [
-        [0.54, 0.26, 0.025],
-        [0.54, 1.09, 0.025],
+        [x - 0.014, 1.45, -0.17],
+        [x + 0.014, 1.45, -0.17],
+        [x + 0.009, 1.49, -0.17],
+        [x - 0.009, 1.49, -0.17],
       ],
-      0.012,
-      w,
-      "#9b764a",
+      chest,
+      "#cbc8ad",
     );
-    box(c, "HoeBlade", [0.6, 1.08, 0.025], [0.15, 0.024, 0.055], w, "#707977");
   }
 }
-export function makeCharacter(input: Partial<Recipe>): CharacterData {
-  const recipe = cleanRecipe(input),
-    body = makeBody(),
-    c = cloneCage(body);
+
+function addHoe(c: Cage) {
+  const w = rigid(B.RightHand);
+  tube(
+    c,
+    "HoeHandle",
+    [
+      [0.54, 0.26, 0.025],
+      [0.54, 1.09, 0.025],
+    ],
+    0.012,
+    w,
+    "#9b764a",
+  );
+  box(c, "HoeBlade", [0.6, 1.08, 0.025], [0.15, 0.024, 0.055], w, "#707977");
+}
+
+function addBack(c: Cage, id: BackId) {
+  if (id === "archer_quiver") addQuiver(c);
+}
+
+function addLeftHand(c: Cage, id: LeftHandId) {
+  if (id === "guard_shield") addShield(c);
+  if (id === "archer_bow") addBow(c);
+}
+
+function addRightHand(c: Cage, id: RightHandId) {
+  if (id === "farmer_hoe") addHoe(c);
+  if (id === "guard_sword") addSword(c);
+}
+
+function topColor(top: TopId, cloth: string): string {
+  if (top === "guard_light_armor") return "#566561";
+  if (top === "archer_tunic") return "#756247";
+  if (top === "farmer_tunic") return cloth;
+  return SKIN;
+}
+
+function bottomColor(bottom: BottomId): string {
+  if (bottom === "guard_pants") return "#394247";
+  if (bottom === "archer_pants") return "#4b493d";
+  if (bottom === "work_pants") return "#3c4445";
+  return SKIN;
+}
+
+function shoesColor(shoes: ShoesId): string {
+  if (shoes === "boots") return "#30383a";
+  if (shoes === "cloth_shoes") return "#414441";
+  return SKIN;
+}
+
+function expandClothingLoops(c: Cage, recipe: Recipe) {
+  const hasTop = recipe.slots.top !== "body";
+  const hasBottom = recipe.slots.bottom !== "body";
+  const hasShoes = recipe.slots.shoes !== "body";
+
+  for (const [name, loop] of Object.entries(c.anchors)) {
+    let factor = 1;
+
+    if (
+      hasTop &&
+      ["Hip", "Waist", "Rib", "Chest", "Shoulder"].includes(name)
+    ) {
+      factor = 1.055;
+    }
+    if (hasTop && /Deltoid|ElbowUpper/.test(name)) factor = 1.17;
+    if (hasBottom && /Thigh/.test(name)) factor = 1.12;
+    if (hasBottom && /Knee|Calf/.test(name)) factor = 1.07;
+    if (hasShoes && /Ankle|Instep|Sole/.test(name)) factor = 1.045;
+
+    if (factor === 1) continue;
+
+    const center = mul(
+      loop.reduce((p, i) => add(p, c.vertices[i].p), [0, 0, 0] as Vec3),
+      1 / loop.length,
+    );
+
+    for (const vertexId of loop) {
+      const value = c.vertices[vertexId];
+      value.p = add(center, mul(sub(value.p, center), factor));
+    }
+  }
+}
+export function makeCharacter(input: RecipeInput): CharacterData {
+  const recipe = cleanRecipe(input);
+  const body = makeBody();
+  const c = cloneCage(body);
   const [cloth, trim, leather] = palettes[recipe.palette];
-  const dressed = recipe.outfit !== "body",
-    armor = recipe.outfit === "guard";
+
+  const hasTop = recipe.slots.top !== "body";
+  const hasBottom = recipe.slots.bottom !== "body";
+  const hasShoes = recipe.slots.shoes !== "body";
+  const dressed = hasTop || hasBottom || hasShoes;
+
   for (const f of c.faces) {
     f.color = SKIN;
-    if (dressed)
-      f.color = ["torso", "upperArm"].includes(f.region)
-        ? armor
-          ? "#566561"
-          : recipe.outfit === "archer"
-            ? "#756247"
-            : cloth
-        : ["pelvis", "thigh"].includes(f.region)
-          ? "#3c4445"
-          : f.region === "shin"
-            ? "#8d8b77"
-            : f.region === "foot"
-              ? "#414441"
-              : SKIN;
-    else if (f.region === "pelvis") f.color = "#566265";
-  }
-  if (dressed) {
-    for (const [name, loop] of Object.entries(c.anchors)) {
-      let factor = 1;
-      if (["Hip", "Waist", "Rib", "Chest", "Shoulder"].includes(name))
-        factor = 1.055;
-      if (/Deltoid|ElbowUpper/.test(name)) factor = 1.17;
-      if (/Thigh/.test(name)) factor = 1.12;
-      if (/Knee|Calf/.test(name)) factor = 1.07;
-      if (factor === 1) continue;
-      const center = mul(
-        loop.reduce((p, i) => add(p, c.vertices[i].p), [0, 0, 0] as Vec3),
-        1 / loop.length,
-      );
-      for (const id of loop) {
-        const v = c.vertices[id];
-        v.p = add(center, mul(sub(v.p, center), factor));
-      }
+
+    if (["torso", "upperArm"].includes(f.region) && hasTop) {
+      f.color = topColor(recipe.slots.top, cloth);
+    } else if (["pelvis", "thigh"].includes(f.region) && hasBottom) {
+      f.color = bottomColor(recipe.slots.bottom);
+    } else if (f.region === "shin" && hasBottom) {
+      f.color = bottomColor(recipe.slots.bottom);
+    } else if (f.region === "foot" && hasShoes) {
+      f.color = shoesColor(recipe.slots.shoes);
     }
-    belt(c, leather);
+  }
+
+  if (dressed) expandClothingLoops(c, recipe);
+
+  if (hasTop || hasBottom) belt(c, leather);
+
+  if (hasTop) {
     ribbon(
       c,
       "CrossCollar",
@@ -643,55 +729,72 @@ export function makeCharacter(input: Partial<Recipe>): CharacterData {
       0.02,
       trim,
     );
-    // 短衣与裤子为 BodyDerived.Replace；这些面替代裸体，不叠加一个完整身体。
-    if (armor) {
-      for (const yy of [1.16, 1.215, 1.27])
-        ribbon(
-          c,
-          `Lamellar${yy}`,
-          [
-            [-0.113, yy],
-            [0.113, yy],
-          ],
-          0.008,
-          "#a6a88c",
-        );
-      ribbon(
-        c,
-        "ChestTie",
-        [
-          [-0.08, 1.39],
-          [-0.08, 1.15],
-        ],
-        0.012,
-        "#aa8a61",
-      );
-    } else if (recipe.outfit === "archer")
-      ribbon(
-        c,
-        "QuiverStrap",
-        [
-          [-0.1, 1.42],
-          [0.115, 1.15],
-        ],
-        0.035,
-        leather,
-      );
   }
-  faceDetails(c, recipe.hat && dressed);
-  if (recipe.hat && dressed) hat(c, recipe.outfit);
-  if (recipe.equipment && dressed) equipment(c, recipe.outfit);
+
+  if (recipe.slots.top === "guard_light_armor") {
+    for (const yy of [1.16, 1.215, 1.27]) {
+      ribbon(
+        c,
+        `Lamellar${yy}`,
+        [
+          [-0.113, yy],
+          [0.113, yy],
+        ],
+        0.008,
+        "#a6a88c",
+      );
+    }
+    ribbon(
+      c,
+      "ChestTie",
+      [
+        [-0.08, 1.39],
+        [-0.08, 1.15],
+      ],
+      0.012,
+      "#aa8a61",
+    );
+  }
+
+  if (recipe.slots.back === "archer_quiver") {
+    ribbon(
+      c,
+      "QuiverStrap",
+      [
+        [-0.1, 1.42],
+        [0.115, 1.15],
+      ],
+      0.035,
+      leather,
+    );
+  }
+
+  const hasHeadwear = recipe.slots.headwear !== "none";
+  faceDetails(c, hasHeadwear);
+  headwear(c, recipe.slots.headwear);
+  addBack(c, recipe.slots.back);
+  addLeftHand(c, recipe.slots.leftHand);
+  addRightHand(c, recipe.slots.rightHand);
+
   for (const v of c.vertices) v.p = shapePoint(v.p, recipe);
   for (const v of body.vertices) v.p = shapePoint(v.p, recipe);
-  const replacedTriangles = dressed
-    ? body.faces
-        .filter((f) =>
-          ["torso", "upperArm", "pelvis", "thigh", "shin", "foot"].includes(
-            f.region,
-          ),
-        )
-        .reduce((n, f) => n + f.v.length - 2, 0)
-    : 0;
+
+  const coveredRegions = new Set<Region>();
+  if (hasTop) {
+    coveredRegions.add("torso");
+    coveredRegions.add("upperArm");
+  }
+  if (hasBottom) {
+    coveredRegions.add("pelvis");
+    coveredRegions.add("thigh");
+    coveredRegions.add("shin");
+  }
+  if (hasShoes) coveredRegions.add("foot");
+
+  const replacedTriangles = body.faces
+    .filter((f) => coveredRegions.has(f.region))
+    .reduce((n, f) => n + f.v.length - 2, 0);
+
   return {
     body,
     surface: c,

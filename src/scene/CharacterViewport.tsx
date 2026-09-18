@@ -228,7 +228,7 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
         const url = URL.createObjectURL(blob),
           link = document.createElement("a");
         link.href = url;
-        link.download = `wanhu-${latest.current.recipe.outfit}-${latest.current.motion}.png`;
+        link.download = `wanhu-${latest.current.recipe.preset}-${latest.current.motion}.png`;
         link.click();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       });
