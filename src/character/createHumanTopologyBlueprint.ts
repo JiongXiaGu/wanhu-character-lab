@@ -43,13 +43,13 @@ function createArmRootRing(
     'armRoot',
     [
       side * shoulderWidth * 0.485,
-      shoulderY - height * 0.038,
+      shoulderY - height * 0.052,
       0,
     ],
     upperRadius * 0.98,
     upperRadius * 0.92,
     {
-      tangent: [side * 0.58, -0.82, 0],
+      tangent: [side * 0.34, -0.94, 0],
       sharedBoundary: `${sideName}:arm-root`,
     },
   );
@@ -85,50 +85,20 @@ function createShoulderPatch(
     capEnd: false,
     rings: [
       ring(
-        'deltoidInner',
+        'shoulderTransition',
         [
           side *
             THREE.MathUtils.lerp(
-              chestHalfWidth * 0.96,
+              chestHalfWidth,
               shoulderOuterX,
-              0.28,
+              0.54,
             ),
-          shoulderY - height * 0.014,
+          shoulderY - height * 0.025,
           0,
         ],
-        upperRadius * 0.86,
         upperRadius * 0.9,
-        { tangent: [side * 0.78, -0.63, 0] },
-      ),
-      ring(
-        'deltoidPeak',
-        [
-          side *
-            THREE.MathUtils.lerp(
-              chestHalfWidth,
-              shoulderOuterX,
-              0.58,
-            ),
-          shoulderY - height * 0.018,
-          0,
-        ],
-        upperRadius * 0.98,
-        upperRadius,
-      ),
-      ring(
-        'deltoidOuter',
-        [
-          side *
-            THREE.MathUtils.lerp(
-              chestHalfWidth,
-              shoulderOuterX,
-              0.82,
-            ),
-          shoulderY - height * 0.027,
-          0,
-        ],
-        upperRadius * 0.96,
-        upperRadius * 0.94,
+        upperRadius * 0.88,
+        { tangent: [side * 0.5, -0.87, 0] },
       ),
       armRoot,
     ],
