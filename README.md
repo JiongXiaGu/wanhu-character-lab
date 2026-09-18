@@ -34,6 +34,7 @@ V2 人体要求：
 
 详细设计：
 
+- Documentation/V2人体拓扑规范.md
 - Documentation/运行时人物生成架构.md
 - Documentation/服装生成架构.md
 - Documentation/工作交接.md
