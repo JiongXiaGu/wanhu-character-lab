@@ -275,6 +275,17 @@ export function cleanRecipe(value: RecipeInput): Recipe {
 
   // 旧参数兼容：hat=false 清空头饰；equipment=false 清空装备。
   if (value.hat === false) slots.headwear = "none";
+
+  // V3 农户的 equipment=true 表示手持锄头。只有没有显式新 Slot 时
+  // 才迁移该旧语义，避免覆盖 V4 DIY 的右手选择。
+  if (
+    value.equipment === true &&
+    legacyPreset === "farmer" &&
+    inputSlots.rightHand === undefined
+  ) {
+    slots.rightHand = "farmer_hoe";
+  }
+
   if (value.equipment === false) {
     slots.back = "none";
     slots.leftHand = "none";
