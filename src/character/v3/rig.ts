@@ -666,8 +666,11 @@ export function makeActor(data: CharacterData): Actor {
 
     update(motionDt, combatDt = motionDt) {
       restoreBasePose();
-      mixer.update(motionDt);
-      captureBasePose();
+
+      if (Math.abs(motionDt) > 1e-9) {
+        mixer.update(motionDt);
+        captureBasePose();
+      }
 
       if (combatPlaying && combatActionId !== "none") {
         const duration = ACTION_DEFINITIONS[combatActionId].duration;
