@@ -11,6 +11,43 @@ import type {
   ViewPreset,
 } from './scene/viewTypes';
 
+const DISPLAY_MODES: readonly DisplayMode[] = [
+  'shaded',
+  'wireframe',
+  'overlay',
+  'regions',
+];
+
+const PROJECTION_MODES: readonly ProjectionMode[] = [
+  'perspective',
+  'orthographic',
+];
+
+const VIEW_PRESETS: readonly ViewPreset[] = [
+  'perspective',
+  'front',
+  'back',
+  'left',
+  'right',
+  'top',
+];
+
+function readEnumParam<T extends string>(
+  key: string,
+  allowed: readonly T[],
+  fallback: T,
+): T {
+  const value = new URLSearchParams(window.location.search).get(key) as T | null;
+  return value && allowed.includes(value) ? value : fallback;
+}
+
+function readBooleanParam(key: string, fallback: boolean): boolean {
+  const value = new URLSearchParams(window.location.search).get(key);
+  if (value === '1' || value === 'true') return true;
+  if (value === '0' || value === 'false') return false;
+  return fallback;
+}
+
 interface SliderFieldProps {
   label: string;
   value: number;
@@ -100,12 +137,21 @@ export default function App() {
   const [parameters, setParameters] = useState<BodyParameters>(
     DEFAULT_BODY_PARAMETERS,
   );
-  const [displayMode, setDisplayMode] = useState<DisplayMode>('overlay');
-  const [projectionMode, setProjectionMode] =
-    useState<ProjectionMode>('perspective');
-  const [viewPreset, setViewPreset] = useState<ViewPreset>('perspective');
-  const [showRings, setShowRings] = useState(false);
-  const [showGrid, setShowGrid] = useState(true);
+  const [displayMode, setDisplayMode] = useState<DisplayMode>(() =>
+    readEnumParam('mode', DISPLAY_MODES, 'overlay'),
+  );
+  const [projectionMode, setProjectionMode] = useState<ProjectionMode>(() =>
+    readEnumParam('projection', PROJECTION_MODES, 'perspective'),
+  );
+  const [viewPreset, setViewPreset] = useState<ViewPreset>(() =>
+    readEnumParam('view', VIEW_PRESETS, 'perspective'),
+  );
+  const [showRings, setShowRings] = useState(() =>
+    readBooleanParam('rings', false),
+  );
+  const [showGrid, setShowGrid] = useState(() =>
+    readBooleanParam('grid', true),
+  );
   const [stats, setStats] = useState<TopologyStats>({
     sections: 0,
     jointPatches: 0,
