@@ -20,6 +20,8 @@ export interface SectionRing {
   center: Vec3Tuple;
   radiusX: number;
   radiusY: number;
+  tangent?: Vec3Tuple;
+  sharedBoundary?: string;
 }
 
 export interface BodySection {

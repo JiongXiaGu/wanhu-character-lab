@@ -13,6 +13,30 @@ export function ringCenter(ring: SectionRing): THREE.Vector3 {
   return new THREE.Vector3(ring.center[0], ring.center[1], ring.center[2]);
 }
 
+function ringTangent(
+  sequence: RingSequence,
+  ringIndex: number,
+): THREE.Vector3 {
+  const ring = sequence.rings[ringIndex];
+
+  if (ring.tangent) {
+    return new THREE.Vector3(
+      ring.tangent[0],
+      ring.tangent[1],
+      ring.tangent[2],
+    ).normalize();
+  }
+
+  const previous = ringCenter(
+    sequence.rings[Math.max(0, ringIndex - 1)],
+  );
+  const next = ringCenter(
+    sequence.rings[Math.min(sequence.rings.length - 1, ringIndex + 1)],
+  );
+
+  return new THREE.Vector3().subVectors(next, previous).normalize();
+}
+
 export function getRingFrame(
   sequence: RingSequence,
   ringIndex: number,
@@ -21,14 +45,8 @@ export function getRingFrame(
   right: THREE.Vector3;
   forward: THREE.Vector3;
 } {
-  const ring = sequence.rings[ringIndex];
-  const center = ringCenter(ring);
-  const previous = ringCenter(sequence.rings[Math.max(0, ringIndex - 1)]);
-  const next = ringCenter(
-    sequence.rings[Math.min(sequence.rings.length - 1, ringIndex + 1)],
-  );
-
-  const tangent = new THREE.Vector3().subVectors(next, previous).normalize();
+  const center = ringCenter(sequence.rings[ringIndex]);
+  const tangent = ringTangent(sequence, ringIndex);
   const reference =
     Math.abs(tangent.dot(Y_AXIS)) > 0.92 ? X_AXIS : Y_AXIS;
 

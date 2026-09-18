@@ -5,10 +5,16 @@ import {
   type BodySection,
   type HumanTopologyBlueprint,
   type JointPatch,
+  type SectionRing,
   type TopologyStats,
 } from './topology';
 
 type SurfaceSequence = BodySection | JointPatch;
+
+interface SharedBoundary {
+  segments: number;
+  indices: number[];
+}
 
 interface BuildBuffers {
   positions: number[];
@@ -16,6 +22,105 @@ interface BuildBuffers {
   indices: number[];
   vertexOffset: number;
   totalRings: number;
+  sharedBoundaries: Map<string, SharedBoundary>;
+}
+
+function createRingVertices(
+  sequence: SurfaceSequence,
+  ring: SectionRing,
+  ringIndex: number,
+  regionId: number,
+  buffers: BuildBuffers,
+): number[] {
+  const segments = sequence.radialSegments;
+
+  if (ring.sharedBoundary) {
+    const existing = buffers.sharedBoundaries.get(ring.sharedBoundary);
+    if (existing) {
+      if (existing.segments !== segments) {
+        throw new Error(
+          `Shared boundary "${ring.sharedBoundary}" segment mismatch: ` +
+            `${existing.segments} vs ${segments}.`,
+        );
+      }
+      return existing.indices;
+    }
+  }
+
+  const { center, right, forward } = getRingFrame(sequence, ringIndex);
+  const indices: number[] = [];
+
+  for (let segment = 0; segment < segments; segment += 1) {
+    const angle = (segment / segments) * Math.PI * 2;
+    const point = center
+      .clone()
+      .addScaledVector(right, Math.cos(angle) * ring.radiusX)
+      .addScaledVector(forward, Math.sin(angle) * ring.radiusY);
+
+    const vertexIndex = buffers.vertexOffset;
+    buffers.positions.push(point.x, point.y, point.z);
+    buffers.bodyRegions.push(regionId);
+    indices.push(vertexIndex);
+    buffers.vertexOffset += 1;
+  }
+
+  if (ring.sharedBoundary) {
+    buffers.sharedBoundaries.set(ring.sharedBoundary, {
+      segments,
+      indices,
+    });
+  }
+
+  return indices;
+}
+
+function connectRings(
+  previous: readonly number[],
+  current: readonly number[],
+  buffers: BuildBuffers,
+): void {
+  if (previous.length !== current.length) {
+    throw new Error('Connected rings must have the same segment count.');
+  }
+
+  const segments = previous.length;
+
+  for (let segment = 0; segment < segments; segment += 1) {
+    const nextSegment = (segment + 1) % segments;
+
+    const a = previous[segment];
+    const b = previous[nextSegment];
+    const c = current[segment];
+    const d = current[nextSegment];
+
+    buffers.indices.push(a, b, c);
+    buffers.indices.push(b, d, c);
+  }
+}
+
+function capRing(
+  ringIndices: readonly number[],
+  ring: SectionRing,
+  regionId: number,
+  reverse: boolean,
+  buffers: BuildBuffers,
+): void {
+  const centerIndex = buffers.vertexOffset;
+  buffers.positions.push(ring.center[0], ring.center[1], ring.center[2]);
+  buffers.bodyRegions.push(regionId);
+  buffers.vertexOffset += 1;
+
+  for (let segment = 0; segment < ringIndices.length; segment += 1) {
+    const nextSegment = (segment + 1) % ringIndices.length;
+    const current = ringIndices[segment];
+    const next = ringIndices[nextSegment];
+
+    if (reverse) {
+      buffers.indices.push(centerIndex, next, current);
+    } else {
+      buffers.indices.push(centerIndex, current, next);
+    }
+  }
 }
 
 function appendSequence(
@@ -28,9 +133,8 @@ function appendSequence(
     );
   }
 
-  const segments = sequence.radialSegments;
-  const sectionStart = buffers.vertexOffset;
   const regionId = BODY_REGION_IDS[sequence.region];
+  const ringVertexIndices: number[][] = [];
 
   for (
     let ringIndex = 0;
@@ -38,85 +142,45 @@ function appendSequence(
     ringIndex += 1
   ) {
     const ring = sequence.rings[ringIndex];
-    const { center, right, forward } = getRingFrame(sequence, ringIndex);
+    const current = createRingVertices(
+      sequence,
+      ring,
+      ringIndex,
+      regionId,
+      buffers,
+    );
 
-    for (let segment = 0; segment < segments; segment += 1) {
-      const angle = (segment / segments) * Math.PI * 2;
-      const point = center
-        .clone()
-        .addScaledVector(right, Math.cos(angle) * ring.radiusX)
-        .addScaledVector(forward, Math.sin(angle) * ring.radiusY);
-
-      buffers.positions.push(point.x, point.y, point.z);
-      buffers.bodyRegions.push(regionId);
-    }
+    ringVertexIndices.push(current);
 
     if (ringIndex > 0) {
-      const previousRingStart =
-        sectionStart + (ringIndex - 1) * segments;
-      const currentRingStart = sectionStart + ringIndex * segments;
-
-      for (let segment = 0; segment < segments; segment += 1) {
-        const nextSegment = (segment + 1) % segments;
-
-        const a = previousRingStart + segment;
-        const b = previousRingStart + nextSegment;
-        const c = currentRingStart + segment;
-        const d = currentRingStart + nextSegment;
-
-        buffers.indices.push(a, b, c);
-        buffers.indices.push(b, d, c);
-      }
+      connectRings(
+        ringVertexIndices[ringIndex - 1],
+        current,
+        buffers,
+      );
     }
 
-    buffers.vertexOffset += segments;
     buffers.totalRings += 1;
   }
 
   if (sequence.capStart) {
-    const startRing = sequence.rings[0];
-    const centerIndex = buffers.vertexOffset;
-
-    buffers.positions.push(
-      startRing.center[0],
-      startRing.center[1],
-      startRing.center[2],
+    capRing(
+      ringVertexIndices[0],
+      sequence.rings[0],
+      regionId,
+      true,
+      buffers,
     );
-    buffers.bodyRegions.push(regionId);
-    buffers.vertexOffset += 1;
-
-    for (let segment = 0; segment < segments; segment += 1) {
-      const nextSegment = (segment + 1) % segments;
-      buffers.indices.push(
-        centerIndex,
-        sectionStart + nextSegment,
-        sectionStart + segment,
-      );
-    }
   }
 
   if (sequence.capEnd) {
-    const endRing = sequence.rings[sequence.rings.length - 1];
-    const endRingStart =
-      sectionStart + (sequence.rings.length - 1) * segments;
-    const centerIndex = buffers.vertexOffset;
-
-    buffers.positions.push(
-      endRing.center[0],
-      endRing.center[1],
-      endRing.center[2],
+    capRing(
+      ringVertexIndices[ringVertexIndices.length - 1],
+      sequence.rings[sequence.rings.length - 1],
+      regionId,
+      false,
+      buffers,
     );
-    buffers.bodyRegions.push(regionId);
-    buffers.vertexOffset += 1;
-
-    for (let segment = 0; segment < segments; segment += 1) {
-      const nextSegment = (segment + 1) % segments;
-      buffers.indices.push(
-        centerIndex,
-        endRingStart + segment,
-        endRingStart + nextSegment,
-      );
-    }
   }
 }
 
@@ -129,6 +193,7 @@ export function buildTopologyGeometry(
     indices: [],
     vertexOffset: 0,
     totalRings: 0,
+    sharedBoundaries: new Map(),
   };
 
   for (const section of blueprint.sections) {
@@ -163,6 +228,7 @@ export function buildTopologyGeometry(
 
   geometry.userData.topology = {
     blueprintVersion: blueprint.version,
+    sharedBoundaries: buffers.sharedBoundaries.size,
     ...stats,
   };
 

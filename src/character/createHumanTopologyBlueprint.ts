@@ -13,8 +13,19 @@ function ring(
   center: Vec3Tuple,
   radiusX: number,
   radiusY: number,
+  options?: {
+    tangent?: Vec3Tuple;
+    sharedBoundary?: string;
+  },
 ): SectionRing {
-  return { id, center, radiusX, radiusY };
+  return {
+    id,
+    center,
+    radiusX,
+    radiusY,
+    tangent: options?.tangent,
+    sharedBoundary: options?.sharedBoundary,
+  };
 }
 
 function createArmRootRing(
@@ -24,18 +35,23 @@ function createArmRootRing(
   shoulderY: number,
   build: number,
 ): SectionRing {
+  const sideName = side < 0 ? 'left' : 'right';
   const upperRadius =
     height * 0.035 * THREE.MathUtils.lerp(0.84, 1.22, build);
 
   return ring(
     'armRoot',
     [
-      side * shoulderWidth * 0.5,
-      shoulderY - height * 0.012,
+      side * shoulderWidth * 0.485,
+      shoulderY - height * 0.022,
       0,
     ],
-    upperRadius * 1.08,
-    upperRadius,
+    upperRadius * 0.98,
+    upperRadius * 0.92,
+    {
+      tangent: [side * 0.68, -0.74, 0],
+      sharedBoundary: `${sideName}:arm-root`,
+    },
   );
 }
 
@@ -45,7 +61,6 @@ function createShoulderPatch(
   shoulderWidth: number,
   shoulderY: number,
   chestHalfWidth: number,
-  chestDepth: number,
   build: number,
 ): JointPatch {
   const sideName = side < 0 ? 'left' : 'right';
@@ -58,6 +73,7 @@ function createShoulderPatch(
   );
   const upperRadius =
     height * 0.035 * THREE.MathUtils.lerp(0.84, 1.22, build);
+  const shoulderOuterX = shoulderWidth * 0.485;
 
   return {
     id: `${sideName}ShoulderPatch`,
@@ -70,32 +86,58 @@ function createShoulderPatch(
       ring(
         'chestSocket',
         [
-          side * chestHalfWidth * 0.88,
-          shoulderY - height * 0.014,
+          side * chestHalfWidth * 0.72,
+          shoulderY - height * 0.026,
           0,
         ],
-        chestDepth * 0.8,
-        upperRadius * 1.28,
+        upperRadius * 0.9,
+        upperRadius * 0.94,
+        { tangent: [side, 0.08, 0] },
       ),
       ring(
         'deltoidInner',
         [
-          side * THREE.MathUtils.lerp(chestHalfWidth, shoulderWidth * 0.5, 0.45),
-          shoulderY + height * 0.006,
+          side *
+            THREE.MathUtils.lerp(
+              chestHalfWidth * 0.82,
+              shoulderOuterX,
+              0.34,
+            ),
+          shoulderY - height * 0.004,
           0,
         ],
-        upperRadius * 1.23,
-        upperRadius * 1.42,
+        upperRadius,
+        upperRadius * 1.04,
+      ),
+      ring(
+        'deltoidPeak',
+        [
+          side *
+            THREE.MathUtils.lerp(
+              chestHalfWidth * 0.9,
+              shoulderOuterX,
+              0.62,
+            ),
+          shoulderY + height * 0.004,
+          0,
+        ],
+        upperRadius * 1.04,
+        upperRadius * 1.08,
       ),
       ring(
         'deltoidOuter',
         [
-          side * THREE.MathUtils.lerp(chestHalfWidth, shoulderWidth * 0.5, 0.78),
-          shoulderY - height * 0.002,
+          side *
+            THREE.MathUtils.lerp(
+              chestHalfWidth,
+              shoulderOuterX,
+              0.82,
+            ),
+          shoulderY - height * 0.008,
           0,
         ],
-        upperRadius * 1.15,
-        upperRadius * 1.22,
+        upperRadius,
+        upperRadius,
       ),
       armRoot,
     ],
@@ -406,13 +448,13 @@ export function createHumanTopologyBlueprint(
       ring(
         'upperChest',
         [0, shoulderY - torsoHeight * 0.06, 0],
-        chestHalfWidth * 1.04,
+        chestHalfWidth * 1.06,
         chestDepth * 0.96,
       ),
       ring(
         'collar',
         [0, shoulderY + torsoHeight * 0.055, 0],
-        shoulderWidth * 0.28,
+        shoulderWidth * 0.27,
         chestDepth * 0.76,
       ),
       ring(
@@ -500,7 +542,6 @@ export function createHumanTopologyBlueprint(
         shoulderWidth,
         shoulderY,
         chestHalfWidth,
-        chestDepth,
         build,
       ),
       createShoulderPatch(
@@ -509,7 +550,6 @@ export function createHumanTopologyBlueprint(
         shoulderWidth,
         shoulderY,
         chestHalfWidth,
-        chestDepth,
         build,
       ),
     ],
