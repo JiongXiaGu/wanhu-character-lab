@@ -145,6 +145,18 @@ export function makeActor(data: CharacterData): Actor {
   let aimYaw = 0;
   let aimPitch = 0;
 
+  const aimBoneIds = [
+    B.Chest,
+    B.Neck,
+    B.Head,
+    B.LeftClavicle,
+    B.RightClavicle,
+  ] as const;
+
+  const lastAimRotation = new Map<number, T.Quaternion>(
+    aimBoneIds.map((bone) => [bone, new T.Quaternion()]),
+  );
+
   const edges = new Map<string, [number, number]>();
 
   for (const f of c.faces) {
@@ -184,12 +196,29 @@ export function makeActor(data: CharacterData): Actor {
   const temp = new T.Vector3();
   const matrices = bones.map(() => new T.Matrix4());
 
+  const clearAimOverlay = () => {
+    for (const boneIndex of aimBoneIds) {
+      const previous = lastAimRotation.get(boneIndex)!;
+
+      if (
+        Math.abs(previous.x) < 1e-12 &&
+        Math.abs(previous.y) < 1e-12 &&
+        Math.abs(previous.z) < 1e-12 &&
+        Math.abs(previous.w - 1) < 1e-12
+      ) {
+        continue;
+      }
+
+      bones[boneIndex].quaternion.multiply(previous.clone().invert());
+      previous.identity();
+    }
+  };
+
   const applyAimOverlay = () => {
     if (combatActionId !== "bowShot") return;
 
     const yaw = T.MathUtils.degToRad(aimYaw);
     const pitch = T.MathUtils.degToRad(aimPitch);
-    const q = new T.Quaternion();
 
     const apply = (
       boneIndex: number,
@@ -197,8 +226,12 @@ export function makeActor(data: CharacterData): Actor {
       y: number,
       z: number,
     ) => {
-      q.setFromEuler(new T.Euler(x, y, z, "XYZ"));
-      bones[boneIndex].quaternion.multiply(q);
+      const rotation = new T.Quaternion().setFromEuler(
+        new T.Euler(x, y, z, "XYZ"),
+      );
+
+      bones[boneIndex].quaternion.multiply(rotation);
+      lastAimRotation.get(boneIndex)!.copy(rotation);
     };
 
     // Aim 是 Action 之后的 additive layer。腿部不参与。
@@ -245,6 +278,7 @@ export function makeActor(data: CharacterData): Actor {
   };
 
   const refreshPose = () => {
+    clearAimOverlay();
     mixer.update(0);
     actionMixer.update(0);
     applyAimOverlay();
@@ -335,6 +369,7 @@ export function makeActor(data: CharacterData): Actor {
     },
 
     update(motionDt, combatDt = motionDt) {
+      clearAimOverlay();
       mixer.update(motionDt);
       actionMixer.update(combatDt);
       applyAimOverlay();
@@ -342,6 +377,7 @@ export function makeActor(data: CharacterData): Actor {
     },
 
     seek(time) {
+      clearAimOverlay();
       mixer.stopAllAction();
       motionAction.reset().play();
       motionAction.time = time % motionAction.getClip().duration;
@@ -414,6 +450,7 @@ function poseWith(
   const result = clonePose(base);
 
   for (const [bone, value] of Object.entries(patch)) {
+    if (!value) continue;
     result[Number(bone)] = [...value] as EulerTuple;
   }
 
