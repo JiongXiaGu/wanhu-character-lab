@@ -14,6 +14,7 @@ export interface LowPolyValidationReport {
   mixedPartTriangles: number;
   overBudgetBy: number;
   structureMismatch: boolean;
+  inwardByPart: Record<string, number>;
 }
 
 const AREA_EPSILON_SQ = 1e-14;
@@ -52,6 +53,7 @@ export function validateLowPolyGeometry(
       mixedPartTriangles: 0,
       overBudgetBy: 0,
       structureMismatch: true,
+      inwardByPart: {},
     };
   }
 
@@ -70,6 +72,7 @@ export function validateLowPolyGeometry(
   let degenerateTriangles = 0;
   let inwardTriangles = 0;
   let mixedPartTriangles = 0;
+  const inwardByPart: Record<string, number> = {};
   let triangleCursor = 0;
   let expectedVertexCount = 0;
 
@@ -129,6 +132,7 @@ export function validateLowPolyGeometry(
       faceNormal.dot(expectedDirection) < -WINDING_EPSILON
     ) {
       inwardTriangles += 1;
+      inwardByPart[part.id] = (inwardByPart[part.id] ?? 0) + 1;
     }
 
     triangleCursor += 1;
@@ -229,5 +233,6 @@ export function validateLowPolyGeometry(
     mixedPartTriangles,
     overBudgetBy,
     structureMismatch,
+    inwardByPart,
   };
 }
