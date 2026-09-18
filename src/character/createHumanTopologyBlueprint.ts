@@ -410,7 +410,7 @@ export function createHumanTopologyBlueprint(
         boundary: 'right:shoulder-opening',
         lowerRing: 'upperChest',
         upperRing: 'collar',
-        segmentStart: 2,
+        segmentStart: 14,
         segmentCount: 4,
       },
       {
@@ -418,7 +418,7 @@ export function createHumanTopologyBlueprint(
         boundary: 'left:shoulder-opening',
         lowerRing: 'upperChest',
         upperRing: 'collar',
-        segmentStart: 10,
+        segmentStart: 6,
         segmentCount: 4,
       },
     ],

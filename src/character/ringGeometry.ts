@@ -6,8 +6,8 @@ export type RingSequence = Pick<
   'id' | 'rings' | 'radialSegments'
 >;
 
-const X_AXIS = new THREE.Vector3(1, 0, 0);
-const Y_AXIS = new THREE.Vector3(0, 1, 0);
+const WORLD_DEPTH = new THREE.Vector3(0, 0, 1);
+const WORLD_UP = new THREE.Vector3(0, 1, 0);
 
 export function ringCenter(ring: SectionRing): THREE.Vector3 {
   return new THREE.Vector3(ring.center[0], ring.center[1], ring.center[2]);
@@ -47,14 +47,23 @@ export function getRingFrame(
 } {
   const center = ringCenter(sequence.rings[ringIndex]);
   const tangent = ringTangent(sequence, ringIndex);
-  const reference =
-    Math.abs(tangent.dot(Y_AXIS)) > 0.92 ? X_AXIS : Y_AXIS;
+
+  // Keep the semantic axes stable across the body:
+  // radiusX = lateral width, radiusY = front/back depth.
+  // For the mostly-XY humanoid centerlines, world Z is a stable depth axis.
+  const forward = WORLD_DEPTH.clone()
+    .addScaledVector(tangent, -WORLD_DEPTH.dot(tangent));
+
+  if (forward.lengthSq() < 1e-6) {
+    forward
+      .copy(WORLD_UP)
+      .addScaledVector(tangent, -WORLD_UP.dot(tangent));
+  }
+
+  forward.normalize();
 
   const right = new THREE.Vector3()
-    .crossVectors(reference, tangent)
-    .normalize();
-  const forward = new THREE.Vector3()
-    .crossVectors(tangent, right)
+    .crossVectors(tangent, forward)
     .normalize();
 
   return { center, right, forward };
