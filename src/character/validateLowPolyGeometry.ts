@@ -19,6 +19,8 @@ export interface LowPolyValidationReport {
 const AREA_EPSILON_SQ = 1e-14;
 const WINDING_EPSILON = 1e-10;
 
+// Validate winding against each local prism segment instead of a whole-part centroid.
+// This stays valid for bent limbs, feet and asymmetric front/back silhouettes.
 const PROFILE_VERTEX_COUNTS: Record<PrismProfile, number> = {
   box4: 4,
   hex6: 6,
