@@ -144,12 +144,17 @@ function createTemplate(): V2BaseBodyTemplate {
 
   for (const row of torsoRows) {
     row.x.forEach((x, index) => {
+      const depthScale =
+        index === 0 || index === row.x.length - 1
+          ? 0.6
+          : 1;
+
       addVertex(
         `${row.id}_${torsoSuffixes[index]}`,
         x,
         row.y,
-        row.front,
-        row.back,
+        row.front * depthScale,
+        row.back * depthScale,
       );
     });
   }
@@ -160,8 +165,8 @@ function createTemplate(): V2BaseBodyTemplate {
 
   // under -> shoulder：左右最外侧插入固定 Armhole 中点，
   // 肩与袖笼从一开始就是固定拓扑语义，而不是运行时开洞。
-  addVertex('armhole_L_mid', -0.238, 1.4, 0.105, 0.092);
-  addVertex('armhole_R_mid', 0.238, 1.4, 0.105, 0.092);
+  addVertex('armhole_L_mid', -0.238, 1.4, 0.066, 0.06);
+  addVertex('armhole_R_mid', 0.238, 1.4, 0.066, 0.06);
 
   addTriangle('Shoulder', 'under_L', 'under_CL', 'shoulder_CL');
   addTriangle('Shoulder', 'under_L', 'shoulder_CL', 'armhole_L_mid');
@@ -200,16 +205,22 @@ function createTemplate(): V2BaseBodyTemplate {
       `${row.id}_L`,
       -row.width,
       row.y,
+      row.front * 0.65,
+      row.back * 0.65,
+    );
+    addVertex(
+      `${row.id}_C`,
+      0,
+      row.y,
       row.front,
       row.back,
     );
-    addVertex(`${row.id}_C`, 0, row.y, row.front, row.back);
     addVertex(
       `${row.id}_R`,
       row.width,
       row.y,
-      row.front,
-      row.back,
+      row.front * 0.65,
+      row.back * 0.65,
     );
   }
 
@@ -256,7 +267,8 @@ function createTemplate(): V2BaseBodyTemplate {
     );
   }
 
-  // Left leg. Right leg is an explicit mirror with fixed semantic ids.
+  // Limbs use three planar vertices per section.
+  // Front/back expansion turns each section into a real 6-sided cage.
   const leftLegSections = [
     ['thigh', -0.115, 0.8, 0.06, 0.075, 0.085, 'UpperLeg'],
     ['kneeU', -0.105, 0.5, 0.05, 0.07, 0.08, 'UpperLeg'],
@@ -265,10 +277,9 @@ function createTemplate(): V2BaseBodyTemplate {
     ['ankle', -0.095, 0.06, 0.035, 0.05, 0.055, 'LowerLeg'],
   ] as const;
 
-  let leftLegPrevious: readonly [string, string] = [
-    'crotch_LO',
-    'crotch_LI',
-  ];
+  const leftLegTriples: Array<
+    readonly [string, string, string]
+  > = [];
 
   for (const [
     id,
@@ -277,26 +288,78 @@ function createTemplate(): V2BaseBodyTemplate {
     halfWidth,
     front,
     back,
-    group,
   ] of leftLegSections) {
     const outer = `L_${id}_O`;
+    const center = `L_${id}_C`;
     const inner = `L_${id}_I`;
 
-    addVertex(outer, centerX - halfWidth, y, front, back);
-    addVertex(inner, centerX + halfWidth, y, front, back);
+    addVertex(
+      outer,
+      centerX - halfWidth,
+      y,
+      front * 0.62,
+      back * 0.62,
+    );
+    addVertex(center, centerX, y, front, back);
+    addVertex(
+      inner,
+      centerX + halfWidth,
+      y,
+      front * 0.62,
+      back * 0.62,
+    );
 
-    addTriangle(group, leftLegPrevious[0], leftLegPrevious[1], inner);
-    addTriangle(group, leftLegPrevious[0], inner, outer);
-
-    leftLegPrevious = [outer, inner];
+    leftLegTriples.push([outer, center, inner]);
   }
 
-  addVertex('L_toe_O', -0.145, 0.035, 0.12, 0.035);
-  addVertex('L_toe_I', -0.045, 0.035, 0.12, 0.035);
-  addTriangle('Foot', leftLegPrevious[0], leftLegPrevious[1], 'L_toe_I');
-  addTriangle('Foot', leftLegPrevious[0], 'L_toe_I', 'L_toe_O');
+  const bridgePairToTriple = (
+    group: BodyFaceGroup,
+    pair: readonly [string, string],
+    triple: readonly [string, string, string],
+  ) => {
+    addTriangle(group, pair[0], pair[1], triple[2]);
+    addTriangle(group, pair[0], triple[2], triple[1]);
+    addTriangle(group, pair[0], triple[1], triple[0]);
+  };
 
-  // Mirror left leg vertices.
+  const bridgeTripleBand = (
+    group: BodyFaceGroup,
+    lower: readonly [string, string, string],
+    upper: readonly [string, string, string],
+  ) => {
+    addTriangle(group, lower[0], lower[1], upper[1]);
+    addTriangle(group, lower[0], upper[1], upper[0]);
+    addTriangle(group, lower[1], lower[2], upper[2]);
+    addTriangle(group, lower[1], upper[2], upper[1]);
+  };
+
+  bridgePairToTriple(
+    'UpperLeg',
+    ['crotch_LO', 'crotch_LI'],
+    leftLegTriples[0],
+  );
+
+  for (let section = 1; section < leftLegTriples.length; section += 1) {
+    const group: BodyFaceGroup =
+      section === 1 ? 'UpperLeg' : 'LowerLeg';
+
+    bridgeTripleBand(
+      group,
+      leftLegTriples[section - 1],
+      leftLegTriples[section],
+    );
+  }
+
+  addVertex('L_toe_O', -0.145, 0.035, 0.075, 0.025);
+  addVertex('L_toe_C', -0.095, 0.035, 0.12, 0.035);
+  addVertex('L_toe_I', -0.045, 0.035, 0.075, 0.025);
+
+  bridgeTripleBand(
+    'Foot',
+    leftLegTriples[leftLegTriples.length - 1],
+    ['L_toe_O', 'L_toe_C', 'L_toe_I'],
+  );
+
   for (const vertex of [...mutable.vertices]) {
     if (
       vertex.id.startsWith('L_') &&
@@ -312,82 +375,114 @@ function createTemplate(): V2BaseBodyTemplate {
     }
   }
 
-  let rightLegPrevious: readonly [string, string] = [
-    'crotch_RI',
-    'crotch_RO',
-  ];
+  const rightLegTriples = leftLegTriples.map(
+    ([outer, center, inner]) =>
+      [
+        inner.replace(/^L_/, 'R_'),
+        center.replace(/^L_/, 'R_'),
+        outer.replace(/^L_/, 'R_'),
+      ] as const,
+  );
 
-  for (const [id, , , , , , group] of leftLegSections) {
-    const inner = `R_${id}_I`;
-    const outer = `R_${id}_O`;
+  bridgePairToTriple(
+    'UpperLeg',
+    ['crotch_RI', 'crotch_RO'],
+    rightLegTriples[0],
+  );
 
-    addTriangle(group, rightLegPrevious[0], rightLegPrevious[1], outer);
-    addTriangle(group, rightLegPrevious[0], outer, inner);
+  for (let section = 1; section < rightLegTriples.length; section += 1) {
+    const group: BodyFaceGroup =
+      section === 1 ? 'UpperLeg' : 'LowerLeg';
 
-    rightLegPrevious = [inner, outer];
+    bridgeTripleBand(
+      group,
+      rightLegTriples[section - 1],
+      rightLegTriples[section],
+    );
   }
 
-  addTriangle(
+  bridgeTripleBand(
     'Foot',
-    rightLegPrevious[0],
-    rightLegPrevious[1],
-    'R_toe_O',
+    rightLegTriples[rightLegTriples.length - 1],
+    ['R_toe_I', 'R_toe_C', 'R_toe_O'],
   );
-  addTriangle('Foot', rightLegPrevious[0], 'R_toe_O', 'R_toe_I');
 
-  // Left arm uses the fixed 3-point Armhole boundary.
+  // Shoulder Armhole and every arm section both have three planar
+  // vertices, producing a stable 6-sided continuous limb cage.
   const leftArmSections = [
-    ['upper', -0.29, 1.31, 0.025, 0.015, 0.06, 'UpperArm'],
-    ['elbowU', -0.34, 1.2, 0.024, 0.014, 0.055, 'UpperArm'],
-    ['elbowL', -0.37, 1.13, 0.022, 0.013, 0.05, 'LowerArm'],
-    ['fore', -0.41, 1.0, 0.02, 0.012, 0.043, 'LowerArm'],
-    ['wrist', -0.43, 0.92, 0.018, 0.01, 0.038, 'LowerArm'],
+    ['upper', -0.29, 1.31, 0.025, 0.015, 0.06],
+    ['elbowU', -0.34, 1.2, 0.024, 0.014, 0.055],
+    ['elbowL', -0.37, 1.13, 0.022, 0.013, 0.05],
+    ['fore', -0.41, 1.0, 0.02, 0.012, 0.043],
+    ['wrist', -0.43, 0.92, 0.018, 0.01, 0.038],
   ] as const;
 
-  const leftArmPairs: Array<readonly [string, string]> = [];
+  const leftArmTriples: Array<
+    readonly [string, string, string]
+  > = [];
 
-  for (const [id, centerX, centerY, dx, dy, depth] of leftArmSections) {
+  for (const [
+    id,
+    centerX,
+    centerY,
+    dx,
+    dy,
+    depth,
+  ] of leftArmSections) {
     const inner = `L_${id}_I`;
+    const center = `L_${id}_C`;
     const outer = `L_${id}_O`;
 
-    addVertex(inner, centerX + dx, centerY - dy, depth);
-    addVertex(outer, centerX - dx, centerY + dy, depth);
-    leftArmPairs.push([inner, outer]);
+    addVertex(
+      inner,
+      centerX + dx,
+      centerY - dy,
+      depth * 0.64,
+    );
+    addVertex(center, centerX, centerY, depth);
+    addVertex(
+      outer,
+      centerX - dx,
+      centerY + dy,
+      depth * 0.64,
+    );
+
+    leftArmTriples.push([inner, center, outer]);
   }
 
-  const firstLeftArm = leftArmPairs[0];
-  addTriangle('Shoulder', 'under_L', 'armhole_L_mid', firstLeftArm[0]);
-  addTriangle(
-    'Shoulder',
-    'armhole_L_mid',
-    firstLeftArm[1],
-    firstLeftArm[0],
-  );
-  addTriangle(
-    'Shoulder',
+  const leftArmRoot = [
+    'under_L',
     'armhole_L_mid',
     'shoulder_L',
-    firstLeftArm[1],
+  ] as const;
+
+  bridgeTripleBand(
+    'Shoulder',
+    leftArmRoot,
+    leftArmTriples[0],
   );
 
-  let leftArmPrevious = firstLeftArm;
-
-  for (let section = 1; section < leftArmPairs.length; section += 1) {
-    const current = leftArmPairs[section];
+  for (let section = 1; section < leftArmTriples.length; section += 1) {
     const group: BodyFaceGroup =
-      section <= 1 ? 'UpperArm' : 'LowerArm';
+      section === 1 ? 'UpperArm' : 'LowerArm';
 
-    addTriangle(group, leftArmPrevious[0], leftArmPrevious[1], current[1]);
-    addTriangle(group, leftArmPrevious[0], current[1], current[0]);
-    leftArmPrevious = current;
+    bridgeTripleBand(
+      group,
+      leftArmTriples[section - 1],
+      leftArmTriples[section],
+    );
   }
 
-  addVertex('L_hand_I', -0.42, 0.84, 0.04);
-  addVertex('L_hand_O', -0.47, 0.86, 0.04);
-  addTriangle('Hand', leftArmPrevious[0], leftArmPrevious[1], 'L_hand_O');
-  addTriangle('Hand', leftArmPrevious[0], 'L_hand_O', 'L_hand_I');
+  addVertex('L_hand_I', -0.42, 0.84, 0.026);
+  addVertex('L_hand_C', -0.445, 0.85, 0.045);
+  addVertex('L_hand_O', -0.47, 0.86, 0.026);
 
-  // Mirror left arm vertices.
+  bridgeTripleBand(
+    'Hand',
+    leftArmTriples[leftArmTriples.length - 1],
+    ['L_hand_I', 'L_hand_C', 'L_hand_O'],
+  );
+
   for (const vertex of [...mutable.vertices]) {
     if (
       vertex.id.startsWith('L_') &&
@@ -403,58 +498,43 @@ function createTemplate(): V2BaseBodyTemplate {
     }
   }
 
-  const rightArmPairs = leftArmPairs.map(
-    ([inner, outer]) =>
+  const rightArmTriples = leftArmTriples.map(
+    ([inner, center, outer]) =>
       [
         outer.replace(/^L_/, 'R_'),
+        center.replace(/^L_/, 'R_'),
         inner.replace(/^L_/, 'R_'),
       ] as const,
   );
 
-  const firstRightArm = rightArmPairs[0];
-  addTriangle(
-    'Shoulder',
+  const rightArmRoot = [
     'shoulder_R',
     'armhole_R_mid',
-    firstRightArm[0],
-  );
-  addTriangle(
-    'Shoulder',
-    'armhole_R_mid',
-    firstRightArm[1],
-    firstRightArm[0],
-  );
-  addTriangle(
-    'Shoulder',
-    'armhole_R_mid',
     'under_R',
-    firstRightArm[1],
+  ] as const;
+
+  bridgeTripleBand(
+    'Shoulder',
+    rightArmRoot,
+    rightArmTriples[0],
   );
 
-  let rightArmPrevious = firstRightArm;
-
-  for (let section = 1; section < rightArmPairs.length; section += 1) {
-    const current = rightArmPairs[section];
+  for (let section = 1; section < rightArmTriples.length; section += 1) {
     const group: BodyFaceGroup =
-      section <= 1 ? 'UpperArm' : 'LowerArm';
+      section === 1 ? 'UpperArm' : 'LowerArm';
 
-    addTriangle(
+    bridgeTripleBand(
       group,
-      rightArmPrevious[0],
-      rightArmPrevious[1],
-      current[1],
+      rightArmTriples[section - 1],
+      rightArmTriples[section],
     );
-    addTriangle(group, rightArmPrevious[0], current[1], current[0]);
-    rightArmPrevious = current;
   }
 
-  addTriangle(
+  bridgeTripleBand(
     'Hand',
-    rightArmPrevious[0],
-    rightArmPrevious[1],
-    'R_hand_I',
+    rightArmTriples[rightArmTriples.length - 1],
+    ['R_hand_O', 'R_hand_C', 'R_hand_I'],
   );
-  addTriangle('Hand', rightArmPrevious[0], 'R_hand_I', 'R_hand_O');
 
   const anchorLoops: V2AnchorLoop[] = [
     {
@@ -492,51 +572,51 @@ function createTemplate(): V2BaseBodyTemplate {
     },
     {
       id: 'UpperArmLine.L',
-      planarVertexIds: ['L_upper_I', 'L_upper_O'],
+      planarVertexIds: ['L_upper_I', 'L_upper_C', 'L_upper_O'],
     },
     {
       id: 'UpperArmLine.R',
-      planarVertexIds: ['R_upper_O', 'R_upper_I'],
+      planarVertexIds: ['R_upper_O', 'R_upper_C', 'R_upper_I'],
     },
     {
       id: 'ElbowLine.L',
-      planarVertexIds: ['L_elbowL_I', 'L_elbowL_O'],
+      planarVertexIds: ['L_elbowL_I', 'L_elbowL_C', 'L_elbowL_O'],
     },
     {
       id: 'ElbowLine.R',
-      planarVertexIds: ['R_elbowL_O', 'R_elbowL_I'],
+      planarVertexIds: ['R_elbowL_O', 'R_elbowL_C', 'R_elbowL_I'],
     },
     {
       id: 'WristLine.L',
-      planarVertexIds: ['L_wrist_I', 'L_wrist_O'],
+      planarVertexIds: ['L_wrist_I', 'L_wrist_C', 'L_wrist_O'],
     },
     {
       id: 'WristLine.R',
-      planarVertexIds: ['R_wrist_O', 'R_wrist_I'],
+      planarVertexIds: ['R_wrist_O', 'R_wrist_C', 'R_wrist_I'],
     },
     {
       id: 'ThighLine.L',
-      planarVertexIds: ['L_thigh_O', 'L_thigh_I'],
+      planarVertexIds: ['L_thigh_O', 'L_thigh_C', 'L_thigh_I'],
     },
     {
       id: 'ThighLine.R',
-      planarVertexIds: ['R_thigh_I', 'R_thigh_O'],
+      planarVertexIds: ['R_thigh_I', 'R_thigh_C', 'R_thigh_O'],
     },
     {
       id: 'KneeLine.L',
-      planarVertexIds: ['L_kneeL_O', 'L_kneeL_I'],
+      planarVertexIds: ['L_kneeL_O', 'L_kneeL_C', 'L_kneeL_I'],
     },
     {
       id: 'KneeLine.R',
-      planarVertexIds: ['R_kneeL_I', 'R_kneeL_O'],
+      planarVertexIds: ['R_kneeL_I', 'R_kneeL_C', 'R_kneeL_O'],
     },
     {
       id: 'AnkleLine.L',
-      planarVertexIds: ['L_ankle_O', 'L_ankle_I'],
+      planarVertexIds: ['L_ankle_O', 'L_ankle_C', 'L_ankle_I'],
     },
     {
       id: 'AnkleLine.R',
-      planarVertexIds: ['R_ankle_I', 'R_ankle_O'],
+      planarVertexIds: ['R_ankle_I', 'R_ankle_C', 'R_ankle_O'],
     },
   ];
 
