@@ -219,7 +219,9 @@ export default function App() {
     slot: K,
     value: CharacterSlots[K],
   ) => {
-    setRecipe((current) =>\n      patchSlots(current, { [slot]: value } as Partial<CharacterSlots>),\n    );
+    setRecipe((current) =>
+      patchSlots(current, { [slot]: value } as Partial<CharacterSlots>),
+    );
   };
 
   const selectView = (value: View) => {
