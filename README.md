@@ -34,7 +34,7 @@ npm run build
 - 每顶点最多两个非零权重。
 - Three.js SkinnedMesh 主体走 GPU skinning；AnimationMixer 只负责 Web 动画播放。
 - 待机、行走、慢跑、招手、屈膝、静态 A-Pose。
-- 农户、卫兵、弓手外观；头饰、剑盾、弓箭袋、农具。
+- 农户、卫兵、弓手预设；预设只是默认组合，头饰、上衣、下装、鞋、背部、左右手可以任意 DIY。
 - 身高、体格和三组布料配色；Recipe JSON 导出。
 - 同屏正 / 侧 / 背三视图、素模、结构布线、三角线框、骨骼叠加和 PNG 截图。
 
@@ -47,6 +47,44 @@ npm run build
 - 弓手带弓和箭袋：805 tris
 
 渲染顶点由于硬法线 / 颜色拆点会大于逻辑顶点，界面分别统计。
+
+## Recipe V4 · Slot DIY
+
+当前导出 Recipe 已升级到 Version 4：
+
+```text
+preset
+slots.headwear
+slots.top
+slots.bottom
+slots.shoes
+slots.back
+slots.leftHand
+slots.rightHand
+height
+build
+palette
+```
+
+例如“弓手 + 农户草帽”：
+
+```json
+{
+  "version": 4,
+  "preset": "custom",
+  "slots": {
+    "headwear": "farmer_straw_hat",
+    "top": "archer_tunic",
+    "bottom": "archer_pants",
+    "shoes": "boots",
+    "back": "archer_quiver",
+    "leftHand": "archer_bow",
+    "rightHand": "none"
+  }
+}
+```
+
+旧版 URL / Recipe 的 `outfit / hat / equipment` 仍能读取并迁移。
 
 ## 动画方向约定
 
