@@ -245,6 +245,16 @@ assert(
   "DIY 草帽与原弓手头巾重复生成",
 );
 
+const legacyFarmerWithHoe = makeCharacter({
+  outfit: "farmer",
+  equipment: true,
+});
+assert.equal(
+  legacyFarmerWithHoe.recipe.slots.rightHand,
+  "farmer_hoe",
+  "V3 农户 equipment=true 没有迁移为锄头",
+);
+
 assert.equal(cleanRecipe({ height: NaN, build: Infinity }).height, 1.76);
 console.log(
   `PASS: 12 character variants, ${frames} posed-frame checks, real-edge garment anchors, closed continuous base body, fixed rig, <=2 weights, runtime-only geometry.`,
