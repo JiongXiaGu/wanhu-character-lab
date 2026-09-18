@@ -216,6 +216,7 @@ export function createLowPolyHumanoidBlueprint(
   const buildScale = THREE.MathUtils.lerp(0.86, 1.18, build);
 
   const hipY = height * 0.51;
+  const lowerAbdomenY = hipY + height * 0.04;
   const waistY = height * 0.62;
   const chestY = height * 0.745;
   const shoulderY = height * 0.805;
@@ -230,6 +231,11 @@ export function createLowPolyHumanoidBlueprint(
   const waistDepth = chestDepth * 0.78;
   const pelvisDepth = height * 0.072 * THREE.MathUtils.lerp(0.94, 1.08, build);
 
+  const lowerAbdomenHalf =
+    THREE.MathUtils.lerp(pelvisHalf, waistHalf, 0.42);
+  const lowerAbdomenDepth =
+    THREE.MathUtils.lerp(pelvisDepth, waistDepth, 0.5);
+
   const headHeight = height * 0.13 * headScale;
   const headTopY = height;
   const headBottomY = headTopY - headHeight;
@@ -243,6 +249,11 @@ export function createLowPolyHumanoidBlueprint(
       'torso',
       'oct8',
       [
+        section(
+          [0, lowerAbdomenY, 0],
+          lowerAbdomenHalf,
+          lowerAbdomenDepth,
+        ),
         section(
           [0, waistY, 0],
           waistHalf,
