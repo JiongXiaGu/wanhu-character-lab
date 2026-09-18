@@ -52,6 +52,7 @@ for (const [name, parameters] of Object.entries(CASES)) {
       `degenerate=${report.degenerateTriangles}`,
       `mixed=${report.mixedPartTriangles}`,
       `overBudget=${report.overBudgetBy}`,
+      `structure=${report.structureMismatch ? 'BAD' : 'OK'}`,
     ].join(' | '),
   );
 
