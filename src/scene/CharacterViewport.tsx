@@ -149,7 +149,7 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
       return;
     }
     applyCombatOptions(actor, latest.current);
-    scene.add(actor.mesh, actor.wire, actor.skeletonHelper);
+    scene.add(actor.mesh, actor.wire, actor.bowString, actor.bowArrow, actor.skeletonHelper);
     const resize = () => {
       if (!rt) return;
       const w = Math.max(1, el.clientWidth),
@@ -204,7 +204,7 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
       floor,
       disposeActor() {
         if (!rt) return;
-        scene.remove(rt.actor.mesh, rt.actor.wire, rt.actor.skeletonHelper);
+        scene.remove(\n          rt.actor.mesh,\n          rt.actor.wire,\n          rt.actor.bowString,\n          rt.actor.bowArrow,\n          rt.actor.skeletonHelper,\n        );
         rt.actor.dispose();
       },
     };
@@ -300,7 +300,7 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
     try {
       r.disposeActor();
       r.actor = makeActor(makeCharacter(options.recipe));
-      r.scene.add(r.actor.mesh, r.actor.wire, r.actor.skeletonHelper);
+      r.scene.add(\n        r.actor.mesh,\n        r.actor.wire,\n        r.actor.bowString,\n        r.actor.bowArrow,\n        r.actor.skeletonHelper,\n      );
       r.actor.setMotion(options.motion);
       r.actor.seek(options.phase * r.actor.action.getClip().duration);
       applyCombatOptions(r.actor, options);
