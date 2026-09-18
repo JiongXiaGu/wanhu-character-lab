@@ -603,7 +603,7 @@ function makeCombatClips(
       times.push(phase * definition.duration);
 
       for (const bone of definition.boneMask) {
-        const angles = pose[bone] ?? [0, 0, 0];
+        const angles = (pose[bone] ?? [0, 0, 0]) as EulerTuple;
 
         q.setFromEuler(new T.Euler(...angles, "XYZ"));
         rotations.get(bone)!.push(q.x, q.y, q.z, q.w);
