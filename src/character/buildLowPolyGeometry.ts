@@ -232,15 +232,23 @@ export function buildLowPolyGeometry(
     'position',
     new THREE.Float32BufferAttribute(buffers.positions, 3),
   );
+  if (buffers.vertexOffset > 0xffff) {
+    throw new Error(
+      `Low-poly geometry exceeded UInt16 index range: ${buffers.vertexOffset} vertices.`,
+    );
+  }
+
   geometry.setAttribute(
     'bodyPart',
-    new THREE.Float32BufferAttribute(buffers.partIds, 1),
+    new THREE.Uint8BufferAttribute(buffers.partIds, 1),
   );
   geometry.setAttribute(
     'boneIndex',
-    new THREE.Float32BufferAttribute(buffers.boneIds, 1),
+    new THREE.Uint8BufferAttribute(buffers.boneIds, 1),
   );
-  geometry.setIndex(buffers.indices);
+  geometry.setIndex(
+    new THREE.Uint16BufferAttribute(buffers.indices, 1),
+  );
 
   geometry.computeVertexNormals();
   geometry.computeBoundingBox();
