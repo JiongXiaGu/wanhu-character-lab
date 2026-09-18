@@ -25,6 +25,8 @@ export interface Actor {
   action: T.AnimationAction;
   combatActionId: CombatActionId;
   wire: T.LineSegments;
+  bowString: T.LineSegments;
+  bowArrow: T.LineSegments;
   skeletonHelper: T.SkeletonHelper;
   data: CharacterData;
   setMotion: (m: Motion) => void;
@@ -169,6 +171,36 @@ export function makeActor(data: CharacterData): Actor {
   wire.renderOrder = 2;
   wire.frustumCulled = false;
 
+  const bowStringPositions = new Float32Array(12);
+  const bowStringGeo = new T.BufferGeometry();
+  bowStringGeo.setAttribute(
+    "position",
+    new T.BufferAttribute(bowStringPositions, 3).setUsage(T.DynamicDrawUsage),
+  );
+  const bowStringMat = new T.LineBasicMaterial({
+    color: "#ddcfb1",
+    transparent: true,
+    opacity: 0.92,
+    depthTest: true,
+  });
+  const bowString = new T.LineSegments(bowStringGeo, bowStringMat);
+  bowString.renderOrder = 3;
+  bowString.frustumCulled = false;
+
+  const bowArrowPositions = new Float32Array(6);
+  const bowArrowGeo = new T.BufferGeometry();
+  bowArrowGeo.setAttribute(
+    "position",
+    new T.BufferAttribute(bowArrowPositions, 3).setUsage(T.DynamicDrawUsage),
+  );
+  const bowArrowMat = new T.LineBasicMaterial({
+    color: "#c4aa72",
+    depthTest: true,
+  });
+  const bowArrow = new T.LineSegments(bowArrowGeo, bowArrowMat);
+  bowArrow.renderOrder = 3;
+  bowArrow.frustumCulled = false;
+
   const helper = new T.SkeletonHelper(mesh);
   helper.visible = false;
   helper.renderOrder = 4;
@@ -178,8 +210,271 @@ export function makeActor(data: CharacterData): Actor {
   const temp = new T.Vector3();
   const matrices = bones.map(() => new T.Matrix4());
 
+  const averageBindPoint = (prefix: string): T.Vector3 => {
+    const matches = c.vertices.filter((vertex) => vertex.id.startsWith(prefix));
+
+    if (matches.length === 0) {
+      return new T.Vector3();
+    }
+
+    const center = new T.Vector3();
+
+    for (const vertexData of matches) {
+      center.add(new T.Vector3().fromArray(vertexData.p));
+    }
+
+    return center.multiplyScalar(1 / matches.length);
+  };
+
+  const bowTopBind = averageBindPoint("Bow.0.");
+  const bowBottomBind = averageBindPoint("Bow.6.");
+  const rightFingersBind = averageBindPoint("RightFingers.");
+  const hasBow = data.recipe.slots.leftHand === "archer_bow";
+
+  const setBoneToward = (
+    boneIndex: number,
+    childIndex: number,
+    targetWorld: T.Vector3,
+    blend: number,
+  ) => {
+    mesh.updateMatrixWorld(true);
+
+    const bone = bones[boneIndex];
+    const parent = bone.parent;
+
+    if (!parent) return;
+
+    const boneWorld = bone.getWorldPosition(new T.Vector3());
+    const parentWorld = parent.getWorldQuaternion(new T.Quaternion());
+    const desiredWorldDirection = targetWorld
+      .clone()
+      .sub(boneWorld)
+      .normalize();
+    const desiredParentDirection = desiredWorldDirection.applyQuaternion(
+      parentWorld.clone().invert(),
+    );
+    const bindDirection = bones[childIndex].position.clone().normalize();
+    const desiredLocal = new T.Quaternion().setFromUnitVectors(
+      bindDirection,
+      desiredParentDirection,
+    );
+
+    bone.quaternion.slerp(desiredLocal, blend);
+    mesh.updateMatrixWorld(true);
+  };
+
+  const setBoneWorldRotation = (
+    boneIndex: number,
+    worldRotation: T.Quaternion,
+    blend: number,
+  ) => {
+    const bone = bones[boneIndex];
+    const parent = bone.parent;
+
+    if (!parent) return;
+
+    const parentWorld = parent.getWorldQuaternion(new T.Quaternion());
+    const desiredLocal = parentWorld
+      .clone()
+      .invert()
+      .multiply(worldRotation);
+
+    bone.quaternion.slerp(desiredLocal, blend);
+    mesh.updateMatrixWorld(true);
+  };
+
+  const solveTwoBone = (
+    upperIndex: number,
+    lowerIndex: number,
+    handIndex: number,
+    targetWorld: T.Vector3,
+    poleDirectionWorld: T.Vector3,
+    blend: number,
+  ) => {
+    mesh.updateMatrixWorld(true);
+
+    const shoulder = bones[upperIndex].getWorldPosition(new T.Vector3());
+    const l1 = bones[lowerIndex].position.length();
+    const l2 = bones[handIndex].position.length();
+    const toTarget = targetWorld.clone().sub(shoulder);
+    const rawDistance = toTarget.length();
+
+    if (rawDistance < 1e-5) return;
+
+    const distance = T.MathUtils.clamp(
+      rawDistance,
+      Math.abs(l1 - l2) + 1e-4,
+      l1 + l2 - 1e-4,
+    );
+    const direction = toTarget.normalize();
+
+    let pole = poleDirectionWorld
+      .clone()
+      .addScaledVector(
+        direction,
+        -poleDirectionWorld.dot(direction),
+      );
+
+    if (pole.lengthSq() < 1e-6) {
+      pole = new T.Vector3(1, 0, 0).addScaledVector(
+        direction,
+        -direction.x,
+      );
+    }
+
+    pole.normalize();
+
+    const along =
+      (l1 * l1 - l2 * l2 + distance * distance) /
+      (2 * distance);
+    const height = Math.sqrt(
+      Math.max(0, l1 * l1 - along * along),
+    );
+    const elbow = shoulder
+      .clone()
+      .addScaledVector(direction, along)
+      .addScaledVector(pole, height);
+
+    setBoneToward(
+      upperIndex,
+      lowerIndex,
+      elbow,
+      blend,
+    );
+    setBoneToward(
+      lowerIndex,
+      handIndex,
+      targetWorld,
+      blend,
+    );
+  };
+
+  const bowEnvelope = (phase: number): number => {
+    if (phase < 0.18) return smooth(phase / 0.18);
+    if (phase < 0.82) return 1;
+    return smooth((1 - phase) / 0.18);
+  };
+
+  const bowDrawAmount = (phase: number): number => {
+    if (phase < 0.18) return 0;
+    if (phase < 0.52) return smooth((phase - 0.18) / 0.34);
+    if (phase < 0.72) return 1;
+    if (phase < 0.82) {
+      return 1 - smooth((phase - 0.72) / 0.1);
+    }
+    return 0;
+  };
+
+  const aimRotation = (): T.Quaternion => {
+    const yaw = T.MathUtils.degToRad(aimYaw);
+    const pitch = T.MathUtils.degToRad(aimPitch);
+
+    return new T.Quaternion().setFromEuler(
+      new T.Euler(-pitch, yaw, 0, "YXZ"),
+    );
+  };
+
+  const applyBowPose = () => {
+    const weight = bowEnvelope(combatPhase);
+
+    if (weight <= 1e-5) return;
+
+    const drawAmount = bowDrawAmount(combatPhase);
+    const aim = aimRotation();
+    const scale = data.recipe.height / 1.76;
+
+    // Action 只轻微接管胸、颈和头；腿部完全保留 locomotion。
+    const addLocalRotation = (
+      boneIndex: number,
+      x: number,
+      y: number,
+      z: number,
+    ) => {
+      const rotation = new T.Quaternion().setFromEuler(
+        new T.Euler(x, y, z, "XYZ"),
+      );
+      const weighted = new T.Quaternion().slerp(rotation, weight);
+      bones[boneIndex].quaternion.multiply(weighted);
+    };
+
+    const yaw = T.MathUtils.degToRad(aimYaw);
+    const pitch = T.MathUtils.degToRad(aimPitch);
+
+    addLocalRotation(B.Chest, -pitch * 0.12, yaw * 0.22, 0);
+    addLocalRotation(B.Neck, -pitch * 0.16, yaw * 0.14, 0);
+    addLocalRotation(B.Head, -pitch * 0.22, yaw * 0.24, 0);
+
+    // 让锁骨回到稳定的射箭肩线，随后再由 IK 解双臂。
+    bones[B.LeftClavicle].quaternion.slerp(
+      new T.Quaternion(),
+      weight,
+    );
+    bones[B.RightClavicle].quaternion.slerp(
+      new T.Quaternion(),
+      weight,
+    );
+
+    mesh.updateMatrixWorld(true);
+
+    const chest = bones[B.Chest].getWorldPosition(new T.Vector3());
+
+    const rotateOffset = (x: number, y: number, z: number) =>
+      new T.Vector3(x * scale, y * scale, z * scale)
+        .applyQuaternion(aim)
+        .add(chest);
+
+    const bowHandTarget = rotateOffset(-0.1, 0.16, 0.47);
+    const stringReady = rotateOffset(0.015, 0.17, 0.425);
+    const drawHand = rotateOffset(0.115, 0.285, 0.085);
+    const releaseHand = rotateOffset(0.18, 0.285, 0.07);
+
+    const releaseAmount =
+      combatPhase <= 0.72
+        ? 0
+        : combatPhase < 0.82
+          ? smooth((combatPhase - 0.72) / 0.1)
+          : 1;
+
+    const rightTarget = stringReady
+      .clone()
+      .lerp(drawHand, drawAmount)
+      .lerp(releaseHand, releaseAmount);
+
+    const leftPole = new T.Vector3(-1, 0.18, 0)
+      .applyQuaternion(aim)
+      .normalize();
+    const rightPole = new T.Vector3(1, 0.3, -0.06)
+      .applyQuaternion(aim)
+      .normalize();
+
+    solveTwoBone(
+      B.LeftUpperArm,
+      B.LeftForearm,
+      B.LeftHand,
+      bowHandTarget,
+      leftPole,
+      weight,
+    );
+    solveTwoBone(
+      B.RightUpperArm,
+      B.RightForearm,
+      B.RightHand,
+      rightTarget,
+      rightPole,
+      weight,
+    );
+
+    // 弓的建模平面在 Bind Pose 面向 +Z；保持它随瞄准方向旋转且竖直。
+    setBoneWorldRotation(B.LeftHand, aim, weight);
+  };
+
   const applyCombatPose = () => {
     if (combatActionId === "none") return;
+
+    if (combatActionId === "bowShot") {
+      applyBowPose();
+      return;
+    }
 
     const definition = ACTION_DEFINITIONS[combatActionId];
     const pose = samplePose(
@@ -196,34 +491,62 @@ export function makeActor(data: CharacterData): Actor {
     }
   };
 
-  const applyAimOverlay = () => {
-    if (combatActionId !== "bowShot") return;
+  const updateBowLines = () => {
+    bowString.visible = hasBow;
+    bowArrow.visible =
+      hasBow &&
+      combatActionId === "bowShot" &&
+      combatPhase >= 0.18 &&
+      combatPhase < 0.82;
 
-    const yaw = T.MathUtils.degToRad(aimYaw);
-    const pitch = T.MathUtils.degToRad(aimPitch);
+    if (!hasBow) return;
 
-    const apply = (
-      boneIndex: number,
-      x: number,
-      y: number,
-      z: number,
-    ) => {
-      const rotation = new T.Quaternion().setFromEuler(
-        new T.Euler(x, y, z, "XYZ"),
+    mesh.updateMatrixWorld(true);
+    skeleton.update();
+
+    const leftMatrix = new T.Matrix4().multiplyMatrices(
+      bones[B.LeftHand].matrixWorld,
+      skeleton.boneInverses[B.LeftHand],
+    );
+    const rightMatrix = new T.Matrix4().multiplyMatrices(
+      bones[B.RightHand].matrixWorld,
+      skeleton.boneInverses[B.RightHand],
+    );
+
+    const top = bowTopBind.clone().applyMatrix4(leftMatrix);
+    const bottom = bowBottomBind.clone().applyMatrix4(leftMatrix);
+    const midpoint = top.clone().add(bottom).multiplyScalar(0.5);
+    const rightGrip = rightFingersBind.clone().applyMatrix4(rightMatrix);
+    const draw =
+      combatActionId === "bowShot"
+        ? bowDrawAmount(combatPhase)
+        : 0;
+    const nock = midpoint.clone().lerp(rightGrip, draw);
+
+    top.toArray(bowStringPositions, 0);
+    nock.toArray(bowStringPositions, 3);
+    nock.toArray(bowStringPositions, 6);
+    bottom.toArray(bowStringPositions, 9);
+    bowStringGeo.attributes.position.needsUpdate = true;
+
+    if (bowArrow.visible) {
+      const direction = new T.Vector3(0, 0, 1).applyQuaternion(
+        aimRotation(),
       );
-      bones[boneIndex].quaternion.multiply(rotation);
-    };
+      const arrowTip = midpoint
+        .clone()
+        .addScaledVector(direction, 0.55 * scale);
 
-    apply(B.Chest, -pitch * 0.32, yaw * 0.45, 0);
-    apply(B.Neck, -pitch * 0.22, yaw * 0.22, 0);
-    apply(B.Head, -pitch * 0.28, yaw * 0.33, 0);
-    apply(B.LeftClavicle, -pitch * 0.08, yaw * 0.08, 0);
-    apply(B.RightClavicle, -pitch * 0.08, yaw * 0.08, 0);
+      nock.toArray(bowArrowPositions, 0);
+      arrowTip.toArray(bowArrowPositions, 3);
+      bowArrowGeo.attributes.position.needsUpdate = true;
+    }
   };
 
   const debug = () => {
     mesh.updateMatrixWorld(true);
     skeleton.update();
+    updateBowLines();
 
     if (!wire.visible) return;
 
@@ -259,7 +582,6 @@ export function makeActor(data: CharacterData): Actor {
   const refreshPose = () => {
     mixer.update(0);
     applyCombatPose();
-    applyAimOverlay();
     debug();
   };
 
@@ -273,6 +595,8 @@ export function makeActor(data: CharacterData): Actor {
     action: motionAction,
     combatActionId,
     wire,
+    bowString,
+    bowArrow,
     skeletonHelper: helper,
     data,
 
@@ -331,8 +655,7 @@ export function makeActor(data: CharacterData): Actor {
       }
 
       applyCombatPose();
-      applyAimOverlay();
-      debug();
+        debug();
     },
 
     seek(time) {
@@ -341,8 +664,7 @@ export function makeActor(data: CharacterData): Actor {
       motionAction.time = time % motionAction.getClip().duration;
       mixer.update(0);
       applyCombatPose();
-      applyAimOverlay();
-      debug();
+        debug();
     },
 
     dispose() {
@@ -352,6 +674,10 @@ export function makeActor(data: CharacterData): Actor {
       material.dispose();
       wireGeo.dispose();
       wireMat.dispose();
+      bowStringGeo.dispose();
+      bowStringMat.dispose();
+      bowArrowGeo.dispose();
+      bowArrowMat.dispose();
       helper.geometry.dispose();
       (helper.material as T.Material).dispose();
       skeleton.dispose();
