@@ -90,6 +90,18 @@ try {
     phase: ".25",
     view: "side",
   });
+  await capture("07b-farmer-walk-back-contact", {
+    outfit: "farmer",
+    motion: "walk",
+    phase: ".5",
+    view: "side",
+  });
+  await capture("07c-farmer-walk-forward-swing", {
+    outfit: "farmer",
+    motion: "walk",
+    phase: ".75",
+    view: "side",
+  });
   await capture("08-farmer-wave", {
     outfit: "farmer",
     motion: "wave",
