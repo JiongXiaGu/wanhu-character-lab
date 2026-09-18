@@ -359,13 +359,22 @@ function validateCombatAction(
     }
   }
 
+  const rightThighDelta =
+    actor.bones[B.RightThigh].quaternion.angleTo(rightThighBefore);
+  const leftThighDelta =
+    actor.bones[B.LeftThigh].quaternion.angleTo(leftThighBefore);
+
+  console.log(
+    `combat ${actionId.padEnd(11)} | leg delta R=${rightThighDelta.toExponential(3)} L=${leftThighDelta.toExponential(3)}`,
+  );
+
   assert(
-    actor.bones[B.RightThigh].quaternion.angleTo(rightThighBefore) < 1e-5,
-    `Action 覆盖了右腿：${actionId}`,
+    rightThighDelta < 1e-5,
+    `Action 覆盖了右腿：${actionId} / ${rightThighDelta}`,
   );
   assert(
-    actor.bones[B.LeftThigh].quaternion.angleTo(leftThighBefore) < 1e-5,
-    `Action 覆盖了左腿：${actionId}`,
+    leftThighDelta < 1e-5,
+    `Action 覆盖了左腿：${actionId} / ${leftThighDelta}`,
   );
 
   actor.dispose();
