@@ -13,30 +13,26 @@ jobs:
   review:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install exact dependencies
+      - name: Install locked dependencies
         run: npm ci
-      - name: Apply first-review corrections
-        if: github.ref == 'refs/heads/rebuild/character-v3'
-        run: node scripts/refine-v3.mjs
-      - name: Format V3 source
-        if: github.ref == 'refs/heads/rebuild/character-v3'
-        run: npx --yes prettier@3.6.2 --write src/character/v3 src/App.tsx src/scene/CharacterViewport.tsx src/styles.css scripts/check-v3.ts scripts/check-components.ts scripts/review-v3.mjs vite.config.ts package.json
+      - name: Validate launcher logic
+        run: node scripts/check-launcher.cjs
       - name: Validate topology and sampled animation
         run: npm run check:mesh | tee mesh-review.log
       - name: Build
         run: npm run build
-      - name: Install review browser and Chinese font
+      - name: Install browser and Chinese font
         run: |
           npx playwright install --with-deps chromium
           sudo apt-get install -y fonts-noto-cjk
-      - name: Preview and review actual WebGL
+      - name: Review actual WebGL and interactions
         run: |
           npm run preview -- --host 127.0.0.1 --port 4173 > preview.log 2>&1 &
           for i in {1..30}; do
@@ -44,21 +40,13 @@ jobs:
             sleep 1
           done
           npm run check:visual
-      - name: Save tested corrections on rebuild branch
-        if: success() && github.ref == 'refs/heads/rebuild/character-v3'
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add package-lock.json package.json src/character/v3 src/App.tsx src/scene/CharacterViewport.tsx src/styles.css scripts/check-v3.ts scripts/check-components.ts scripts/review-v3.mjs vite.config.ts
-          if ! git diff --cached --quiet; then
-            git commit -m 'fix: resolve reviewed hat, shield, hair and foot defects'
-            git push origin HEAD:rebuild/character-v3
-          fi
+      - name: Confirm CI did not modify source
+        run: git diff --exit-code
       - name: Package reviewed source
         if: always()
         run: |
-          tar -czf /tmp/reviewed-source.tar.gz src scripts package.json package-lock.json vite.config.ts .github Documentation README.md AGENTS.md Start-Local.cmd tsconfig.json index.html vercel.json .gitignore
-          mv /tmp/reviewed-source.tar.gz reviewed-source.tar.gz
+          git archive --format=tar.gz --output=/tmp/reviewed-source.tar.gz HEAD
+          cp /tmp/reviewed-source.tar.gz reviewed-source.tar.gz
       - uses: actions/upload-artifact@v4
         if: always()
         with:

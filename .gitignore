@@ -4,3 +4,7 @@ dist
 .vercel
 *.local
 .DS_Store
+review/
+*-review.log
+preview.log
+reviewed-source.tar.gz
