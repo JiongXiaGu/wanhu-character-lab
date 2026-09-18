@@ -20,11 +20,9 @@ export interface Actor {
   skeleton: T.Skeleton;
   bones: T.Bone[];
   mixer: T.AnimationMixer;
-  actionMixer: T.AnimationMixer;
   clips: Record<Motion, T.AnimationClip>;
   actionClips: Record<CombatActionId, T.AnimationClip>;
   action: T.AnimationAction;
-  combatAction: T.AnimationAction;
   combatActionId: CombatActionId;
   wire: T.LineSegments;
   skeletonHelper: T.SkeletonHelper;
@@ -128,7 +126,6 @@ export function makeActor(data: CharacterData): Actor {
   );
 
   const mixer = new T.AnimationMixer(mesh);
-  const actionMixer = new T.AnimationMixer(mesh);
   const clips = makeClips(data.joints);
   const actionClips = makeCombatClips(data.joints);
 
@@ -136,26 +133,11 @@ export function makeActor(data: CharacterData): Actor {
   motionAction.play();
 
   let combatActionId: CombatActionId = "none";
-  let combatAction = actionMixer.clipAction(actionClips.none);
-  combatAction.play();
-  combatAction.paused = true;
-
+  let combatPhase = 0;
   let combatPlaying = false;
   let combatSpeed = 1;
   let aimYaw = 0;
   let aimPitch = 0;
-
-  const aimBoneIds = [
-    B.Chest,
-    B.Neck,
-    B.Head,
-    B.LeftClavicle,
-    B.RightClavicle,
-  ] as const;
-
-  const lastAimRotation = new Map<number, T.Quaternion>(
-    aimBoneIds.map((bone) => [bone, new T.Quaternion()]),
-  );
 
   const edges = new Map<string, [number, number]>();
 
@@ -196,21 +178,21 @@ export function makeActor(data: CharacterData): Actor {
   const temp = new T.Vector3();
   const matrices = bones.map(() => new T.Matrix4());
 
-  const clearAimOverlay = () => {
-    for (const boneIndex of aimBoneIds) {
-      const previous = lastAimRotation.get(boneIndex)!;
+  const applyCombatPose = () => {
+    if (combatActionId === "none") return;
 
-      if (
-        Math.abs(previous.x) < 1e-12 &&
-        Math.abs(previous.y) < 1e-12 &&
-        Math.abs(previous.z) < 1e-12 &&
-        Math.abs(previous.w - 1) < 1e-12
-      ) {
-        continue;
-      }
+    const definition = ACTION_DEFINITIONS[combatActionId];
+    const pose = samplePose(
+      actionKeys(combatActionId),
+      definition.boneMask,
+      combatPhase,
+    );
+    const quaternion = new T.Quaternion();
 
-      bones[boneIndex].quaternion.multiply(previous.clone().invert());
-      previous.identity();
+    for (const boneIndex of definition.boneMask) {
+      const angles = (pose[boneIndex] ?? [0, 0, 0]) as EulerTuple;
+      quaternion.setFromEuler(new T.Euler(...angles, "XYZ"));
+      bones[boneIndex].quaternion.copy(quaternion);
     }
   };
 
@@ -229,12 +211,9 @@ export function makeActor(data: CharacterData): Actor {
       const rotation = new T.Quaternion().setFromEuler(
         new T.Euler(x, y, z, "XYZ"),
       );
-
       bones[boneIndex].quaternion.multiply(rotation);
-      lastAimRotation.get(boneIndex)!.copy(rotation);
     };
 
-    // Aim 是 Action 之后的 additive layer。腿部不参与。
     apply(B.Chest, -pitch * 0.32, yaw * 0.45, 0);
     apply(B.Neck, -pitch * 0.22, yaw * 0.22, 0);
     apply(B.Head, -pitch * 0.28, yaw * 0.33, 0);
@@ -278,9 +257,8 @@ export function makeActor(data: CharacterData): Actor {
   };
 
   const refreshPose = () => {
-    clearAimOverlay();
     mixer.update(0);
-    actionMixer.update(0);
+    applyCombatPose();
     applyAimOverlay();
     debug();
   };
@@ -290,11 +268,9 @@ export function makeActor(data: CharacterData): Actor {
     skeleton,
     bones,
     mixer,
-    actionMixer,
     clips,
     actionClips,
     action: motionAction,
-    combatAction,
     combatActionId,
     wire,
     skeletonHelper: helper,
@@ -314,47 +290,25 @@ export function makeActor(data: CharacterData): Actor {
     setCombatAction(id) {
       if (id === combatActionId) return;
 
-      combatAction.stop();
       combatActionId = id;
-
-      const definition = ACTION_DEFINITIONS[id];
-      const next = actionMixer.clipAction(actionClips[id]);
-
-      next.reset();
-      next.enabled = true;
-      next.setLoop(T.LoopRepeat, Infinity);
-      next.clampWhenFinished = false;
-      next.timeScale = combatSpeed;
-      next.play();
-      next.paused = !combatPlaying;
-
-      combatAction = next;
-      actor.combatAction = next;
+      combatPhase = 0;
       actor.combatActionId = id;
       refreshPose();
-
-      if (!definition.loop) {
-        next.setLoop(T.LoopOnce, 1);
-        next.clampWhenFinished = true;
-      }
     },
 
     setCombatPhase(phase) {
-      const duration = combatAction.getClip().duration || 1;
-      combatAction.time = clampActionPhase(phase) * duration;
+      combatPhase = clampActionPhase(phase);
       refreshPose();
     },
 
     setCombatPlaying(playing) {
       combatPlaying = playing;
-      combatAction.paused = !playing;
     },
 
     setCombatSpeed(speed) {
       combatSpeed = Number.isFinite(speed)
         ? Math.max(0.1, Math.min(3, speed))
         : 1;
-      combatAction.timeScale = combatSpeed;
     },
 
     setAim(yawDegrees, pitchDegrees) {
@@ -364,34 +318,36 @@ export function makeActor(data: CharacterData): Actor {
     },
 
     getCombatPhase() {
-      const duration = combatAction.getClip().duration || 1;
-      return clampActionPhase((combatAction.time % duration) / duration);
+      return combatPhase;
     },
 
     update(motionDt, combatDt = motionDt) {
-      clearAimOverlay();
       mixer.update(motionDt);
-      actionMixer.update(combatDt);
+
+      if (combatPlaying && combatActionId !== "none") {
+        const duration = ACTION_DEFINITIONS[combatActionId].duration;
+        combatPhase =
+          (combatPhase + (combatDt * combatSpeed) / duration) % 1;
+      }
+
+      applyCombatPose();
       applyAimOverlay();
       debug();
     },
 
     seek(time) {
-      clearAimOverlay();
       mixer.stopAllAction();
       motionAction.reset().play();
       motionAction.time = time % motionAction.getClip().duration;
       mixer.update(0);
-      actionMixer.update(0);
+      applyCombatPose();
       applyAimOverlay();
       debug();
     },
 
     dispose() {
       mixer.stopAllAction();
-      actionMixer.stopAllAction();
       mixer.uncacheRoot(mesh);
-      actionMixer.uncacheRoot(mesh);
       geometry.dispose();
       material.dispose();
       wireGeo.dispose();
