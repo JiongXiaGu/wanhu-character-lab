@@ -277,14 +277,46 @@ for (const definition of Object.values(ACTION_DEFINITIONS)) {
 const archerData = makeCharacter({ outfit: "archer", equipment: true });
 assert(actionAvailable(archerData.recipe, "bowShot"));
 assert(!actionAvailable(archerData.recipe, "swordSlash"));
-assert(
-  archerData.surface.vertices.some(
-    (vertex) =>
-      vertex.id.startsWith("BowstringTop.End") &&
-      vertex.w[0] === B.RightHand,
-  ),
-  "弓弦中点没有绑定右手拉弦骨骼",
+const bowVisualActor = makeActor(archerData);
+bowVisualActor.setMotion("bind");
+bowVisualActor.seek(0);
+bowVisualActor.setCombatAction("bowShot");
+bowVisualActor.setCombatPlaying(false);
+bowVisualActor.setCombatPhase(0.62);
+bowVisualActor.update(0, 0);
+
+assert.equal(bowVisualActor.bowString.visible, true);
+assert.equal(bowVisualActor.bowArrow.visible, true);
+
+const bowLinePosition =
+  bowVisualActor.bowString.geometry.getAttribute("position");
+const bowTop = new T.Vector3().fromBufferAttribute(
+  bowLinePosition as T.BufferAttribute,
+  0,
 );
+const bowNock = new T.Vector3().fromBufferAttribute(
+  bowLinePosition as T.BufferAttribute,
+  1,
+);
+const bowBottom = new T.Vector3().fromBufferAttribute(
+  bowLinePosition as T.BufferAttribute,
+  3,
+);
+const bowMidpoint = bowTop.clone().add(bowBottom).multiplyScalar(0.5);
+
+assert(
+  bowNock.distanceTo(bowMidpoint) > 0.08,
+  "开弓保持阶段弓弦没有被拉开",
+);
+
+bowVisualActor.setCombatPhase(0.9);
+bowVisualActor.update(0, 0);
+assert.equal(
+  bowVisualActor.bowArrow.visible,
+  false,
+  "收势阶段箭仍然可见",
+);
+bowVisualActor.dispose();
 
 const guardData = makeCharacter({ outfit: "guard", equipment: true });
 assert(actionAvailable(guardData.recipe, "swordSlash"));
