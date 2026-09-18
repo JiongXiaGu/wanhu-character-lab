@@ -88,8 +88,10 @@ const initialRecipe = () => {
   const equipmentValue = qs.get("equipment");
 
   let recipe = cleanRecipe({
-    ...DEFAULT_RECIPE,
     outfit,
+    height: DEFAULT_RECIPE.height,
+    build: DEFAULT_RECIPE.build,
+    palette: DEFAULT_RECIPE.palette,
     hat: qs.get("hat") === "0" ? false : undefined,
     equipment:
       equipmentValue === "0"
