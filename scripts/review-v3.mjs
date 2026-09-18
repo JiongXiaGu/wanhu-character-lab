@@ -171,6 +171,83 @@ try {
     view: "top",
     display: "cage",
   });
+
+  await capture("22-bow-raise", {
+    outfit: "archer",
+    equipment: "1",
+    motion: "idle",
+    paused: "1",
+    action: "bowShot",
+    actionPaused: "1",
+    actionPhase: ".16",
+    view: "front",
+  });
+
+  await capture("23-bow-draw-side", {
+    outfit: "archer",
+    equipment: "1",
+    motion: "idle",
+    paused: "1",
+    action: "bowShot",
+    actionPaused: "1",
+    actionPhase: ".48",
+    view: "side",
+  });
+
+  await capture("24-bow-hold-aim", {
+    outfit: "archer",
+    equipment: "1",
+    motion: "idle",
+    paused: "1",
+    action: "bowShot",
+    actionPaused: "1",
+    actionPhase: ".62",
+    aimYaw: "20",
+    aimPitch: "15",
+  });
+
+  await capture("25-bow-release", {
+    outfit: "archer",
+    equipment: "1",
+    motion: "idle",
+    paused: "1",
+    action: "bowShot",
+    actionPaused: "1",
+    actionPhase: ".78",
+  });
+
+  await capture("26-bow-walk-layer", {
+    outfit: "archer",
+    equipment: "1",
+    motion: "walk",
+    paused: "1",
+    phase: ".25",
+    action: "bowShot",
+    actionPaused: "1",
+    actionPhase: ".62",
+    view: "side",
+  });
+
+  await capture("27-sword-slash", {
+    outfit: "guard",
+    equipment: "1",
+    motion: "idle",
+    paused: "1",
+    action: "swordSlash",
+    actionPaused: "1",
+    actionPhase: ".55",
+  });
+
+  await capture("28-shield-guard", {
+    outfit: "guard",
+    equipment: "1",
+    motion: "walk",
+    paused: "1",
+    phase: ".25",
+    action: "shieldGuard",
+    actionPaused: "1",
+    actionPhase: ".5",
+  });
   // 测试真实 UI，不用 hook 代替用户交互。
   await open();
   await page.getByRole("button", { name: "行走", exact: true }).click();
@@ -225,7 +302,59 @@ try {
     fullPage: true,
   });
 
+  // 真实 Combat UI：弓手装备决定拉弓可用性；动作层可独立暂停、逐帧与瞄准。
+  await page.getByRole("button", { name: /弓手/ }).click();
+  const bowActionButton = page.getByRole("button", {
+    name: "拉弓射击",
+    exact: true,
+  });
+  const swordActionButton = page.getByRole("button", {
+    name: "挥砍",
+    exact: true,
+  });
+
+  assert.equal(await bowActionButton.isEnabled(), true);
+  assert.equal(await swordActionButton.isDisabled(), true);
+
+  await bowActionButton.click();
+  await page.getByLabel("暂停战斗动作", { exact: true }).click();
+
+  await page.getByLabel("战斗动作进度").evaluate((el) => {
+    Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    ).set.call(el, ".62");
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+
+  await page.getByLabel("水平瞄准").evaluate((el) => {
+    Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    ).set.call(el, "20");
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+
+  await page.getByLabel("俯仰瞄准").evaluate((el) => {
+    Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    ).set.call(el, "15");
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+
+  assert.equal(await page.getByLabel("战斗动作进度").inputValue(), "0.62");
+  assert.equal(await page.getByLabel("水平瞄准").inputValue(), "20");
+  assert.equal(await page.getByLabel("俯仰瞄准").inputValue(), "15");
+
+  await page.screenshot({
+    path: `${output}/29-ui-bow-aim-controls.png`,
+    fullPage: true,
+  });
+
   await page.locator(".outfit").nth(0).click();
+  assert.equal(await bowActionButton.isDisabled(), true);
+
   await page.getByLabel("身高", { exact: true }).press("End");
   await page.getByLabel("体格", { exact: true }).press("End");
   await page.getByRole("button", { name: "赭红", exact: true }).click();
@@ -282,6 +411,9 @@ try {
           "rendered WebGL",
           "UI preset changes",
           "slot-based DIY wardrobe",
+          "layered combat action mask",
+          "bow draw stages and aim controls",
+          "sword and shield actions",
           "animation plays",
           "animation pauses",
           "timeline scrubs",
