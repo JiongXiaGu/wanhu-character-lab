@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "check:mesh": "tsx scripts/check-lowpoly.ts",
+    "check:mesh": "tsx scripts/check-v2-body.ts",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
   },

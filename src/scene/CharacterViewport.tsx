@@ -1,29 +1,31 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { createLowPolyHumanoidBlueprint } from '../character/createLowPolyHumanoidBlueprint';
 import { generateHumanoidGeometry } from '../character/generateHumanoidGeometry';
-import type { LowPolyStats } from '../character/lowPolyTopology';
-import type { BodyParameters } from '../character/types';
+import type {
+  V2BodyGeometryMetadata,
+  V2BodyStats,
+} from '../character/v2Topology';
 import {
-  applyBodyPartColors,
-  createPartGuideGroup,
-  disposeDebugObject,
-} from './createLowPolyDebug';
+  createAnchorGuideGroup,
+  createFaceGroupDebugGeometry,
+  disposeV2DebugObject,
+} from './createV2Debug';
 import type {
   DisplayMode,
   ProjectionMode,
   ViewPreset,
 } from './viewTypes';
 
+const BODY_HEIGHT = 1.72;
+
 interface CharacterViewportProps {
-  parameters: BodyParameters;
   displayMode: DisplayMode;
   projectionMode: ProjectionMode;
   viewPreset: ViewPreset;
   showGuides: boolean;
   showGrid: boolean;
-  onTopologyStats: (stats: LowPolyStats) => void;
+  onTopologyStats: (stats: V2BodyStats) => void;
 }
 
 interface ViewportRuntime {
@@ -34,44 +36,50 @@ interface ViewportRuntime {
   orthographicCamera: THREE.OrthographicCamera;
   activeCamera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
   mesh: THREE.Mesh;
+  faceGroupMesh: THREE.Mesh;
   wireOverlay: THREE.LineSegments;
-  partGuides: THREE.Group;
+  anchorGuides: THREE.Group;
   grid: THREE.GridHelper;
   axis: THREE.AxesHelper;
   centerLine: THREE.Line;
   floor: THREE.Mesh;
   shadedMaterial: THREE.MeshStandardMaterial;
-  partMaterial: THREE.MeshStandardMaterial;
+  faceGroupMaterial: THREE.MeshStandardMaterial;
   wireMaterial: THREE.MeshBasicMaterial;
   wireOverlayMaterial: THREE.LineBasicMaterial;
   resize: () => void;
 }
 
-function readLowPolyStats(geometry: THREE.BufferGeometry): LowPolyStats {
-  const stats = geometry.userData.lowPoly as
-    | (LowPolyStats & { blueprintVersion?: number })
+function readV2Stats(
+  geometry: THREE.BufferGeometry,
+): V2BodyStats {
+  const metadata = geometry.userData.v2Body as
+    | V2BodyGeometryMetadata
     | undefined;
 
   return {
-    parts: stats?.parts ?? 0,
-    crossSections: stats?.crossSections ?? 0,
-    vertices: stats?.vertices ?? 0,
-    triangles: stats?.triangles ?? 0,
-    triangleBudget: stats?.triangleBudget ?? 500,
-    meshValid: stats?.meshValid ?? false,
+    surfaceComponents: metadata?.surfaceComponents ?? 0,
+    vertices: metadata?.vertices ?? 0,
+    triangles: metadata?.triangles ?? 0,
+    faceGroups: metadata?.faceGroups ?? 0,
+    anchors: metadata?.anchors ?? 0,
+    triangleBudget: metadata?.triangleBudget ?? 550,
+    meshValid: metadata?.meshValid ?? false,
   };
 }
 
 function configureControls(
   runtime: ViewportRuntime,
   camera: THREE.PerspectiveCamera | THREE.OrthographicCamera,
-  targetY: number,
 ): void {
   runtime.controls.dispose();
-  runtime.controls = new OrbitControls(camera, runtime.renderer.domElement);
-  runtime.controls.target.set(0, targetY, 0);
+  runtime.controls = new OrbitControls(
+    camera,
+    runtime.renderer.domElement,
+  );
+  runtime.controls.target.set(0, BODY_HEIGHT * 0.5, 0);
   runtime.controls.enableDamping = true;
-  runtime.controls.minDistance = 1.3;
+  runtime.controls.minDistance = 1.2;
   runtime.controls.maxDistance = 6;
   runtime.controls.enablePan = true;
   runtime.controls.update();
@@ -80,16 +88,15 @@ function configureControls(
 function applyViewPreset(
   runtime: ViewportRuntime,
   preset: ViewPreset,
-  height: number,
 ): void {
   const camera = runtime.activeCamera;
-  const target = new THREE.Vector3(0, height * 0.5, 0);
+  const target = new THREE.Vector3(0, BODY_HEIGHT * 0.5, 0);
   const distance = 3.15;
 
   camera.up.set(0, 1, 0);
 
   if (camera instanceof THREE.OrthographicCamera) {
-    camera.zoom = preset === 'top' ? 4.5 : 1;
+    camera.zoom = preset === 'top' ? 4.2 : 1;
     camera.updateProjectionMatrix();
   }
 
@@ -107,12 +114,12 @@ function applyViewPreset(
       camera.position.set(distance, target.y, 0);
       break;
     case 'top':
-      camera.position.set(0, height * 2.15, 0.001);
+      camera.position.set(0, BODY_HEIGHT * 2.15, 0.001);
       camera.up.set(0, 0, -1);
       break;
     case 'perspective':
     default:
-      camera.position.set(2.35, height * 0.76, 3.15);
+      camera.position.set(2.25, BODY_HEIGHT * 0.78, 3.0);
       break;
   }
 
@@ -125,25 +132,17 @@ function applyDisplayMode(
   runtime: ViewportRuntime,
   displayMode: DisplayMode,
 ): void {
+  runtime.mesh.visible = displayMode !== 'regions';
+  runtime.faceGroupMesh.visible = displayMode === 'regions';
   runtime.wireOverlay.visible = displayMode === 'overlay';
 
-  switch (displayMode) {
-    case 'wireframe':
-      runtime.mesh.material = runtime.wireMaterial;
-      break;
-    case 'regions':
-      runtime.mesh.material = runtime.partMaterial;
-      break;
-    case 'overlay':
-    case 'shaded':
-    default:
-      runtime.mesh.material = runtime.shadedMaterial;
-      break;
-  }
+  runtime.mesh.material =
+    displayMode === 'wireframe'
+      ? runtime.wireMaterial
+      : runtime.shadedMaterial;
 }
 
 export function CharacterViewport({
-  parameters,
   displayMode,
   projectionMode,
   viewPreset,
@@ -186,7 +185,9 @@ export function CharacterViewport({
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     host.appendChild(renderer.domElement);
 
-    scene.add(new THREE.HemisphereLight(0xf5efe5, 0x2b3237, 2.05));
+    scene.add(
+      new THREE.HemisphereLight(0xf5efe5, 0x2b3237, 2.05),
+    );
 
     const keyLight = new THREE.DirectionalLight(0xfff0d8, 3.15);
     keyLight.position.set(2.5, 4, 3);
@@ -207,14 +208,11 @@ export function CharacterViewport({
       polygonOffsetUnits: 1,
     });
 
-    const partMaterial = new THREE.MeshStandardMaterial({
+    const faceGroupMaterial = new THREE.MeshStandardMaterial({
       vertexColors: true,
       roughness: 0.8,
       metalness: 0,
       flatShading: true,
-      polygonOffset: true,
-      polygonOffsetFactor: 1,
-      polygonOffsetUnits: 1,
     });
 
     const wireMaterial = new THREE.MeshBasicMaterial({
@@ -230,15 +228,22 @@ export function CharacterViewport({
       depthWrite: false,
     });
 
-    const blueprint = createLowPolyHumanoidBlueprint(parameters);
-    const geometry = generateHumanoidGeometry(parameters);
-    applyBodyPartColors(geometry);
-    onTopologyStats(readLowPolyStats(geometry));
+    const geometry = generateHumanoidGeometry();
+    onTopologyStats(readV2Stats(geometry));
 
     const mesh = new THREE.Mesh(geometry, shadedMaterial);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     scene.add(mesh);
+
+    const faceGroupGeometry =
+      createFaceGroupDebugGeometry(geometry);
+    const faceGroupMesh = new THREE.Mesh(
+      faceGroupGeometry,
+      faceGroupMaterial,
+    );
+    faceGroupMesh.visible = false;
+    scene.add(faceGroupMesh);
 
     const wireOverlay = new THREE.LineSegments(
       new THREE.WireframeGeometry(geometry),
@@ -247,8 +252,9 @@ export function CharacterViewport({
     wireOverlay.renderOrder = 3;
     scene.add(wireOverlay);
 
-    const partGuides = createPartGuideGroup(blueprint);
-    scene.add(partGuides);
+    const anchorGuides = createAnchorGuideGroup(geometry);
+    anchorGuides.visible = showGuides;
+    scene.add(anchorGuides);
 
     const floor = new THREE.Mesh(
       new THREE.CircleGeometry(1.3, 64),
@@ -261,7 +267,12 @@ export function CharacterViewport({
     floor.receiveShadow = true;
     scene.add(floor);
 
-    const grid = new THREE.GridHelper(4, 20, 0x596166, 0x30373b);
+    const grid = new THREE.GridHelper(
+      4,
+      20,
+      0x596166,
+      0x30373b,
+    );
     grid.position.y = 0.002;
     scene.add(grid);
 
@@ -269,12 +280,11 @@ export function CharacterViewport({
     axis.position.set(-0.95, 0.004, -0.95);
     scene.add(axis);
 
-    const centerLineGeometry = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(0, 0, 0),
-      new THREE.Vector3(0, 2.25, 0),
-    ]);
     const centerLine = new THREE.Line(
-      centerLineGeometry,
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(0, 2.25, 0),
+      ]),
       new THREE.LineBasicMaterial({
         color: 0x8a7858,
         transparent: true,
@@ -291,27 +301,31 @@ export function CharacterViewport({
     const runtime = {
       scene,
       renderer,
-      controls: new OrbitControls(initialCamera, renderer.domElement),
+      controls: new OrbitControls(
+        initialCamera,
+        renderer.domElement,
+      ),
       perspectiveCamera,
       orthographicCamera,
       activeCamera: initialCamera,
       mesh,
+      faceGroupMesh,
       wireOverlay,
-      partGuides,
+      anchorGuides,
       grid,
       axis,
       centerLine,
       floor,
       shadedMaterial,
-      partMaterial,
+      faceGroupMaterial,
       wireMaterial,
       wireOverlayMaterial,
       resize: () => {},
     } satisfies ViewportRuntime;
 
-    runtime.controls.target.set(0, parameters.height * 0.5, 0);
+    runtime.controls.target.set(0, BODY_HEIGHT * 0.5, 0);
     runtime.controls.enableDamping = true;
-    runtime.controls.minDistance = 1.3;
+    runtime.controls.minDistance = 1.2;
     runtime.controls.maxDistance = 6;
     runtime.controls.enablePan = true;
 
@@ -336,9 +350,9 @@ export function CharacterViewport({
     runtime.resize = resize;
     runtimeRef.current = runtime;
 
-    applyViewPreset(runtime, viewPreset, parameters.height);
+    applyViewPreset(runtime, viewPreset);
     applyDisplayMode(runtime, displayMode);
-    partGuides.visible = showGuides;
+
     grid.visible = showGrid;
     axis.visible = showGrid;
     floor.visible = showGrid;
@@ -362,11 +376,12 @@ export function CharacterViewport({
       runtime.controls.dispose();
 
       mesh.geometry.dispose();
+      faceGroupMesh.geometry.dispose();
       wireOverlay.geometry.dispose();
-      disposeDebugObject(partGuides);
+      disposeV2DebugObject(anchorGuides);
 
       shadedMaterial.dispose();
-      partMaterial.dispose();
+      faceGroupMaterial.dispose();
       wireMaterial.dispose();
       wireOverlayMaterial.dispose();
 
@@ -389,33 +404,6 @@ export function CharacterViewport({
     const runtime = runtimeRef.current;
     if (!runtime) return;
 
-    const blueprint = createLowPolyHumanoidBlueprint(parameters);
-    const nextGeometry = generateHumanoidGeometry(parameters);
-    applyBodyPartColors(nextGeometry);
-
-    const previousGeometry = runtime.mesh.geometry;
-    runtime.mesh.geometry = nextGeometry;
-    previousGeometry.dispose();
-
-    const previousWireGeometry = runtime.wireOverlay.geometry;
-    runtime.wireOverlay.geometry = new THREE.WireframeGeometry(nextGeometry);
-    previousWireGeometry.dispose();
-
-    runtime.scene.remove(runtime.partGuides);
-    disposeDebugObject(runtime.partGuides);
-    runtime.partGuides = createPartGuideGroup(blueprint);
-    runtime.partGuides.visible = showGuides;
-    runtime.scene.add(runtime.partGuides);
-
-    onTopologyStats(readLowPolyStats(nextGeometry));
-    runtime.controls.target.set(0, parameters.height * 0.5, 0);
-    runtime.controls.update();
-  }, [parameters, onTopologyStats, showGuides]);
-
-  useEffect(() => {
-    const runtime = runtimeRef.current;
-    if (!runtime) return;
-
     const nextCamera =
       projectionMode === 'orthographic'
         ? runtime.orthographicCamera
@@ -425,12 +413,12 @@ export function CharacterViewport({
       nextCamera.position.copy(runtime.activeCamera.position);
       nextCamera.quaternion.copy(runtime.activeCamera.quaternion);
       runtime.activeCamera = nextCamera;
-      configureControls(runtime, nextCamera, parameters.height * 0.5);
+      configureControls(runtime, nextCamera);
       runtime.resize();
     }
 
-    applyViewPreset(runtime, viewPreset, parameters.height);
-  }, [projectionMode, viewPreset, parameters.height]);
+    applyViewPreset(runtime, viewPreset);
+  }, [projectionMode, viewPreset]);
 
   useEffect(() => {
     const runtime = runtimeRef.current;
@@ -441,12 +429,13 @@ export function CharacterViewport({
   useEffect(() => {
     const runtime = runtimeRef.current;
     if (!runtime) return;
-    runtime.partGuides.visible = showGuides;
+    runtime.anchorGuides.visible = showGuides;
   }, [showGuides]);
 
   useEffect(() => {
     const runtime = runtimeRef.current;
     if (!runtime) return;
+
     runtime.grid.visible = showGrid;
     runtime.axis.visible = showGrid;
     runtime.floor.visible = showGrid;

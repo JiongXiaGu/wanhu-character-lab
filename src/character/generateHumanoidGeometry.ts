@@ -1,12 +1,6 @@
 import * as THREE from 'three';
-import { buildLowPolyGeometry } from './buildLowPolyGeometry';
-import { createLowPolyHumanoidBlueprint } from './createLowPolyHumanoidBlueprint';
-import type { BodyParameters } from './types';
+import { buildV2BaseBodyGeometry } from './buildV2BaseBodyGeometry';
 
-export function generateHumanoidGeometry(
-  parameters: BodyParameters,
-): THREE.BufferGeometry {
-  return buildLowPolyGeometry(
-    createLowPolyHumanoidBlueprint(parameters),
-  );
+export function generateHumanoidGeometry(): THREE.BufferGeometry {
+  return buildV2BaseBodyGeometry();
 }
