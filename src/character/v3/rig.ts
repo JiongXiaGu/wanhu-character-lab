@@ -140,6 +140,7 @@ export function makeActor(data: CharacterData): Actor {
   let combatSpeed = 1;
   let aimYaw = 0;
   let aimPitch = 0;
+  const characterScale = data.recipe.height / 1.76;
 
   const edges = new Map<string, [number, number]>();
 
@@ -381,7 +382,7 @@ export function makeActor(data: CharacterData): Actor {
 
     const drawAmount = bowDrawAmount(combatPhase);
     const aim = aimRotation();
-    const scale = data.recipe.height / 1.76;
+    const scale = characterScale;
 
     // Action 只轻微接管胸、颈和头；腿部完全保留 locomotion。
     const addLocalRotation = (
@@ -535,7 +536,7 @@ export function makeActor(data: CharacterData): Actor {
       );
       const arrowTip = midpoint
         .clone()
-        .addScaledVector(direction, 0.55 * scale);
+        .addScaledVector(direction, 0.55 * characterScale);
 
       nock.toArray(bowArrowPositions, 0);
       arrowTip.toArray(bowArrowPositions, 3);
