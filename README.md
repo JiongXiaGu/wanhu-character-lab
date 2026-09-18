@@ -11,7 +11,7 @@
 - LOD、Mesh 合并与缓存策略；
 - Web 与 Unity 共用的数据协议。
 
-当前阶段只建立最小可运行实验骨架，不引入 FBX / GLB 人物资产。
+正式方向不把 FBX / GLB 人物服装 Mesh 作为运行时核心内容源。
 
 ## 技术栈
 
@@ -41,4 +41,14 @@ npm run dev
 npm run build
 ```
 
-当前第一个里程碑：**不加载任何人物模型资产，在浏览器中根据少量参数实时生成一个单 Mesh 的简化人体占位体。**
+## 当前阶段
+
+**Phase 1 · Ring Topology**
+
+当前已经从 Phase 0 的 Sphere / Cylinder 占位拼接切换为：
+
+`BodyParameters -> HumanTopologyBlueprint -> BodySection -> Ring -> BufferGeometry`
+
+人体的 Torso / Head / Arms / Legs / Feet 都由运行时 Section / Ring 规则直接生成顶点与索引，最终仍然编译为一个 Mesh。
+
+当前下一目标是 JointPatch：先处理肩、髋、头颈等分支区域的共享边界与连接规则。

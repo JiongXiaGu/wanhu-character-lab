@@ -148,8 +148,75 @@ input[type="range"] {
   accent-color: #aa9162;
 }
 
+.topology-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 10px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 8px;
+  color: #aaa69d;
+  background: rgba(255, 255, 255, 0.025);
+  cursor: pointer;
+}
+
+.topology-toggle strong {
+  color: #7f7b74;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.topology-toggle:hover {
+  border-color: rgba(196, 177, 139, 0.22);
+  color: #ddd6c8;
+}
+
+.topology-toggle.is-active {
+  border-color: rgba(196, 177, 139, 0.32);
+  color: #e9dfcc;
+  background: rgba(177, 151, 98, 0.09);
+}
+
+.topology-toggle.is-active strong {
+  color: #c9b78f;
+}
+
+.topology-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.topology-stats > div {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px 9px;
+  background: #1d2225;
+}
+
+.topology-stats span {
+  color: #777a78;
+  font-size: 10px;
+}
+
+.topology-stats strong {
+  color: #c6c1b7;
+  font-size: 11px;
+  font-weight: 560;
+  font-variant-numeric: tabular-nums;
+}
+
 .architecture-note {
-  margin-top: 28px;
+  margin-top: 22px;
   padding: 14px;
   border-left: 2px solid #9c8558;
   background: rgba(255, 255, 255, 0.025);
@@ -200,6 +267,7 @@ input[type="range"] {
   left: 14px;
   display: flex;
   justify-content: space-between;
+  gap: 16px;
   pointer-events: none;
   color: rgba(227, 222, 211, 0.48);
   font-size: 11px;
@@ -225,5 +293,10 @@ input[type="range"] {
 
   .viewport-panel {
     min-height: 62vh;
+  }
+
+  .viewport-caption {
+    align-items: flex-end;
+    flex-direction: column;
   }
 }

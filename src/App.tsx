@@ -3,6 +3,7 @@ import {
   DEFAULT_BODY_PARAMETERS,
   type BodyParameters,
 } from './character/types';
+import type { TopologyStats } from './character/topology';
 import { CharacterViewport } from './scene/CharacterViewport';
 
 interface SliderFieldProps {
@@ -49,6 +50,13 @@ export default function App() {
   const [parameters, setParameters] = useState<BodyParameters>(
     DEFAULT_BODY_PARAMETERS,
   );
+  const [wireframe, setWireframe] = useState(false);
+  const [stats, setStats] = useState<TopologyStats>({
+    sections: 0,
+    rings: 0,
+    vertices: 0,
+    triangles: 0,
+  });
 
   const patchParameters = (patch: Partial<BodyParameters>) => {
     setParameters((current) => ({ ...current, ...patch }));
@@ -61,7 +69,7 @@ export default function App() {
           <p className="eyebrow">WANHU CHARACTER LAB</p>
           <h1>程序化人物生成实验</h1>
         </div>
-        <div className="phase-badge">Phase 0 · Runtime Mesh</div>
+        <div className="phase-badge">Phase 1 · Ring Topology</div>
       </header>
 
       <section className="lab-content">
@@ -118,20 +126,53 @@ export default function App() {
             onChange={(headScale) => patchParameters({ headScale })}
           />
 
+          <button
+            type="button"
+            className={wireframe ? 'topology-toggle is-active' : 'topology-toggle'}
+            onClick={() => setWireframe((current) => !current)}
+          >
+            <span>拓扑线框</span>
+            <strong>{wireframe ? 'ON' : 'OFF'}</strong>
+          </button>
+
+          <div className="topology-stats">
+            <div>
+              <span>Sections</span>
+              <strong>{stats.sections}</strong>
+            </div>
+            <div>
+              <span>Rings</span>
+              <strong>{stats.rings}</strong>
+            </div>
+            <div>
+              <span>Vertices</span>
+              <strong>{stats.vertices}</strong>
+            </div>
+            <div>
+              <span>Triangles</span>
+              <strong>{stats.triangles}</strong>
+            </div>
+          </div>
+
           <div className="architecture-note">
             <span>当前验证</span>
-            <strong>Parameters → Generator → 1 Mesh</strong>
+            <strong>Parameters → Blueprint → Rings → 1 Mesh</strong>
             <p>
-              无 FBX / GLB。当前身体由运行时基础几何生成并合并，仅用于验证项目数据流。
+              已移除 Sphere / Cylinder 人体拼接。身体由语义 Section 与 Ring
+              直接写入顶点和索引；肩、髋等分支关节暂未做 JointPatch 焊接。
             </p>
           </div>
         </aside>
 
         <section className="viewport-panel">
-          <CharacterViewport parameters={parameters} />
+          <CharacterViewport
+            parameters={parameters}
+            wireframe={wireframe}
+            onTopologyStats={setStats}
+          />
           <div className="viewport-caption">
             <span>拖动旋转 · 滚轮缩放</span>
-            <span>External mesh assets: 0</span>
+            <span>HumanTopologyBlueprint v1 · External mesh assets: 0</span>
           </div>
         </section>
       </section>

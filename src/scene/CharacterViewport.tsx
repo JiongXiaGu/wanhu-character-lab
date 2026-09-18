@@ -2,15 +2,36 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { generateHumanoidGeometry } from '../character/generateHumanoidGeometry';
+import type { TopologyStats } from '../character/topology';
 import type { BodyParameters } from '../character/types';
 
 interface CharacterViewportProps {
   parameters: BodyParameters;
+  wireframe: boolean;
+  onTopologyStats: (stats: TopologyStats) => void;
 }
 
-export function CharacterViewport({ parameters }: CharacterViewportProps) {
+function readTopologyStats(geometry: THREE.BufferGeometry): TopologyStats {
+  const topology = geometry.userData.topology as
+    | (TopologyStats & { blueprintVersion?: number })
+    | undefined;
+
+  return {
+    sections: topology?.sections ?? 0,
+    rings: topology?.rings ?? 0,
+    vertices: topology?.vertices ?? 0,
+    triangles: topology?.triangles ?? 0,
+  };
+}
+
+export function CharacterViewport({
+  parameters,
+  wireframe,
+  onTopologyStats,
+}: CharacterViewportProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const meshRef = useRef<THREE.Mesh | null>(null);
+  const materialRef = useRef<THREE.MeshStandardMaterial | null>(null);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -49,9 +70,14 @@ export function CharacterViewport({ parameters }: CharacterViewportProps) {
       color: 0xc6b29b,
       roughness: 0.82,
       metalness: 0,
+      wireframe,
     });
+    materialRef.current = material;
 
-    const mesh = new THREE.Mesh(generateHumanoidGeometry(parameters), material);
+    const geometry = generateHumanoidGeometry(parameters);
+    onTopologyStats(readTopologyStats(geometry));
+
+    const mesh = new THREE.Mesh(geometry, material);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     scene.add(mesh);
@@ -103,6 +129,7 @@ export function CharacterViewport({ parameters }: CharacterViewportProps) {
       renderer.dispose();
       renderer.domElement.remove();
       meshRef.current = null;
+      materialRef.current = null;
     };
   }, []);
 
@@ -114,7 +141,15 @@ export function CharacterViewport({ parameters }: CharacterViewportProps) {
     const previousGeometry = mesh.geometry;
     mesh.geometry = nextGeometry;
     previousGeometry.dispose();
-  }, [parameters]);
+    onTopologyStats(readTopologyStats(nextGeometry));
+  }, [parameters, onTopologyStats]);
+
+  useEffect(() => {
+    if (materialRef.current) {
+      materialRef.current.wireframe = wireframe;
+      materialRef.current.needsUpdate = true;
+    }
+  }, [wireframe]);
 
   return <div ref={hostRef} className="character-viewport" />;
 }
