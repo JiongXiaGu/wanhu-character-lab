@@ -242,11 +242,13 @@ function makeClips(j: Joint[]): Record<Motion, T.AnimationClip> {
           ]) {
             const local = t + (s === 1 ? 0 : Math.PI),
               stride = name === "run" ? 0.22 : 0.14;
+            // +Z 是人物正前方。脚在支撑期从前向后扫过地面，
+            // 在摆动期从后向前抬起；不能把这两个半周期颠倒。
             const z = name === "squat" ? 0 : Math.cos(local) * stride * scale;
             const lift =
               name === "squat"
                 ? 0
-                : Math.max(0, Math.sin(local)) *
+                : Math.max(0, -Math.sin(local)) *
                   (name === "run" ? 0.105 : 0.045) *
                   scale;
             const l1 = j[thigh].p[1] - j[shin].p[1],
@@ -278,8 +280,8 @@ function makeClips(j: Joint[]): Record<Motion, T.AnimationClip> {
             angles[B.RightUpperArm][0] = -0.45 * squat;
             angles[B.LeftUpperArm][0] = -0.45 * squat;
           } else {
-            angles[B.RightUpperArm][0] = -0.32 * Math.cos(t);
-            angles[B.LeftUpperArm][0] = 0.32 * Math.cos(t);
+            angles[B.RightUpperArm][0] = 0.32 * Math.cos(t);
+            angles[B.LeftUpperArm][0] = -0.32 * Math.cos(t);
             angles[B.RightForearm][0] = name === "run" ? -0.75 : -0.15;
             angles[B.LeftForearm][0] = name === "run" ? -0.75 : -0.15;
             angles[B.Chest][1] = 0.06 * Math.cos(t);
