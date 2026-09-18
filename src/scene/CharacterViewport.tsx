@@ -88,6 +88,11 @@ function applyViewPreset(
 
   camera.up.set(0, 1, 0);
 
+  if (camera instanceof THREE.OrthographicCamera) {
+    camera.zoom = preset === 'top' ? 4.5 : 1;
+    camera.updateProjectionMatrix();
+  }
+
   switch (preset) {
     case 'front':
       camera.position.set(0, target.y, distance);
@@ -336,6 +341,8 @@ export function CharacterViewport({
     partGuides.visible = showGuides;
     grid.visible = showGrid;
     axis.visible = showGrid;
+    floor.visible = showGrid;
+    centerLine.visible = showGrid;
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(host);
@@ -442,6 +449,8 @@ export function CharacterViewport({
     if (!runtime) return;
     runtime.grid.visible = showGrid;
     runtime.axis.visible = showGrid;
+    runtime.floor.visible = showGrid;
+    runtime.centerLine.visible = showGrid;
   }, [showGrid]);
 
   return <div ref={hostRef} className="character-viewport" />;
