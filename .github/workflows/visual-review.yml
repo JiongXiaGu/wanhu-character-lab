@@ -1,0 +1,57 @@
+name: Visual Review
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - ".github/workflows/visual-review.yml"
+  workflow_dispatch:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx --yes playwright@1.55.0 install --with-deps chromium
+
+      - name: Start preview
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat preview.log
+          exit 1
+
+      - name: Capture review screenshots
+        run: |
+          mkdir -p review
+          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=perspective&view=perspective&rings=0&grid=1'             review/01-overlay-perspective.png
+          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=wireframe&projection=orthographic&view=front&rings=1&grid=1'             review/02-wire-front-ortho.png
+          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=regions&projection=orthographic&view=right&rings=0&grid=1'             review/03-regions-right-ortho.png
+
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: character-topology-review
+          path: review/*.png
+          retention-days: 7
