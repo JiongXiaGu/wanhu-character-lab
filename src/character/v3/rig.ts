@@ -597,9 +597,9 @@ export function makeActor(data: CharacterData): Actor {
   };
 
   const refreshPose = () => {
+    // Combat/Aim scrub 只能基于最后一次 Locomotion 结果重建，
+    // 不能再次推进或重采样基础 Mixer。
     restoreBasePose();
-    mixer.update(0);
-    captureBasePose();
     applyCombatPose();
     debug();
   };
