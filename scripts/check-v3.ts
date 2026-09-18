@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { assertComponentWinding } from "./check-components";
 import * as T from "three";
 import { makeCharacter } from "../src/character/v3/outfit";
 import { makeActor, MOTION_LABELS } from "../src/character/v3/rig";
@@ -98,6 +99,7 @@ for (const outfit of ["body", "farmer", "guard", "archer"] as Outfit[])
     const data = makeCharacter({ outfit, ...variant, equipment: true });
     validate(data.body, true);
     validate(data.surface, false);
+    assertComponentWinding(data.surface);
     assert(triCount(data.body) <= 550);
     assert(
       triCount(data.surface) <= 1000,

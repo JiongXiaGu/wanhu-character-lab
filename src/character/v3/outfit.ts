@@ -291,7 +291,19 @@ function faceDetails(c: Cage, hat: boolean) {
     0.07,
     head,
   );
-  bridge(c, lower, top, "detail", HAIR);
+  const middle = ring(
+    c,
+    "HairVolume",
+    [0, 1.724, 0],
+    [1, 0, 0],
+    [0, 0, 1],
+    OCT,
+    0.103,
+    0.097,
+    head,
+  );
+  bridge(c, lower, middle, "detail", HAIR);
+  bridge(c, middle, top, "detail", HAIR);
   face(c, [...top], "detail", HAIR);
   if (!hat) {
     const bun = ring(
@@ -308,7 +320,7 @@ function faceDetails(c: Cage, hat: boolean) {
     const cap = ring(
       c,
       "BunCap",
-      [0, 1.808, -0.025],
+      [0, 1.794, -0.025],
       [1, 0, 0],
       [0, 0, 1],
       BOX,
@@ -348,11 +360,11 @@ function hat(c: Cage, outfit: Recipe["outfit"]) {
       const j = (i + 1) % 12;
       face(
         c,
-        [peak, rim[j], rim[i]],
+        [peak, rim[i], rim[j]],
         "equipment",
         i % 3 === 0 ? "#c4a76a" : "#baa071",
       );
-      face(c, [bottom, rim[i], rim[j]], "equipment", "#8c754d");
+      face(c, [bottom, rim[j], rim[i]], "equipment", "#8c754d");
     }
   } else if (outfit === "guard") {
     const low = ring(
@@ -483,11 +495,11 @@ function equipment(c: Cage, outfit: Recipe["outfit"]) {
     for (let i = 0; i < 8; i++)
       face(
         c,
-        [boss, edge[i], edge[(i + 1) % 8]],
+        [boss, edge[(i + 1) % 8], edge[i]],
         "equipment",
         i % 2 ? "#6f4937" : "#79503a",
       );
-    face(c, [...edge].reverse(), "equipment", "#463b31");
+    face(c, [...edge], "equipment", "#463b31");
     box(
       c,
       "ShieldBossCap",

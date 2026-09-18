@@ -154,7 +154,7 @@ export function makeBody(): Cage {
       ["Calf", 0.293, 0.062, 0.063, -0.008, rigid(shin)],
       ["Ankle", 0.105, 0.04, 0.039, 0, [shin, foot, 0.2]],
       ["Instep", 0.064, 0.052, 0.104, 0.05, rigid(foot)],
-      ["Sole", 0.018, 0.054, 0.109, 0.053, rigid(foot)],
+      ["Sole", 0, 0.054, 0.109, 0.053, rigid(foot)],
     ];
     prev = legRoot;
     legRows.forEach(([id, y, w, d, z, skin], i) => {
