@@ -5,6 +5,7 @@ import { makeCharacter } from "../character/v3/outfit";
 import { makeActor, type Actor } from "../character/v3/rig";
 import { triCount } from "../character/v3/cage";
 import type { Recipe, Motion } from "../character/v3/types";
+import type { CombatActionId } from "../character/v3/actions";
 export type View = "free" | "front" | "side" | "back" | "top" | "three";
 export type Display = "beauty" | "cage" | "triangles" | "clay";
 export interface Stats {
@@ -21,6 +22,12 @@ export interface ViewOptions {
   playing: boolean;
   speed: number;
   phase: number;
+  combatAction: CombatActionId;
+  combatPlaying: boolean;
+  combatSpeed: number;
+  combatPhase: number;
+  aimYaw: number;
+  aimPitch: number;
   view: View;
   viewRevision: number;
   orthographic: boolean;
@@ -54,6 +61,8 @@ declare global {
       seek: (phase: number) => void;
       stats: Stats;
       motion: Motion;
+      action: CombatActionId;
+      seekAction: (phase: number) => void;
     };
     __WANHU_CAPTURE__?: () => void;
   }
@@ -139,6 +148,7 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
       errorRef.current(String(e));
       return;
     }
+    applyCombatOptions(actor, latest.current);
     scene.add(actor.mesh, actor.wire, actor.skeletonHelper);
     const resize = () => {
       if (!rt) return;
@@ -211,7 +221,10 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       rt.controls.update();
-      rt.actor.update(latest.current.playing ? dt * latest.current.speed : 0);
+      rt.actor.update(
+        latest.current.playing ? dt * latest.current.speed : 0,
+        latest.current.combatPlaying ? dt : 0,
+      );
       render();
       frame = requestAnimationFrame(animate);
     };
@@ -273,6 +286,11 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
           },
           stats,
           motion: latest.current.motion,
+          action: latest.current.combatAction,
+          seekAction(phase) {
+            r.actor.setCombatPhase(phase);
+            r.render();
+          },
         };
     }
   }, []);
@@ -285,6 +303,7 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
       r.scene.add(r.actor.mesh, r.actor.wire, r.actor.skeletonHelper);
       r.actor.setMotion(options.motion);
       r.actor.seek(options.phase * r.actor.action.getClip().duration);
+      applyCombatOptions(r.actor, options);
       applyDisplay(r, options);
       r.resize();
       const d = r.actor.data,
@@ -303,6 +322,11 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
           r.actor.seek(phase * r.actor.action.getClip().duration);
           r.render();
         };
+        window.__WANHU_REVIEW__.seekAction = (phase) => {
+          r.actor.setCombatPhase(phase);
+          r.render();
+        };
+        window.__WANHU_REVIEW__.action = options.combatAction;
       }
     } catch (e) {
       errorRef.current(String(e));
@@ -317,6 +341,44 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
     if (window.__WANHU_REVIEW__)
       window.__WANHU_REVIEW__.motion = options.motion;
   }, [options.motion]);
+
+  useEffect(() => {
+    const r = runtime.current;
+    if (!r) return;
+
+    r.actor.setCombatAction(options.combatAction);
+    r.actor.setCombatSpeed(options.combatSpeed);
+    r.actor.setCombatPlaying(options.combatPlaying);
+    r.actor.setCombatPhase(options.combatPhase);
+    r.actor.setAim(options.aimYaw, options.aimPitch);
+
+    if (window.__WANHU_REVIEW__) {
+      window.__WANHU_REVIEW__.action = options.combatAction;
+    }
+
+    r.render();
+  }, [options.combatAction]);
+
+  useEffect(() => {
+    const r = runtime.current;
+    if (!r) return;
+
+    r.actor.setCombatSpeed(options.combatSpeed);
+    r.actor.setCombatPlaying(options.combatPlaying);
+
+    if (!options.combatPlaying) {
+      r.actor.setCombatPhase(options.combatPhase);
+    }
+
+    r.actor.setAim(options.aimYaw, options.aimPitch);
+    r.render();
+  }, [
+    options.combatPlaying,
+    options.combatSpeed,
+    options.combatPhase,
+    options.aimYaw,
+    options.aimPitch,
+  ]);
   useEffect(() => {
     const r = runtime.current;
     if (!r) return;
@@ -350,7 +412,15 @@ function applyDisplay(r: Runtime, o: ViewOptions) {
   r.actor.wire.visible = o.display === "cage";
   r.actor.skeletonHelper.visible = o.skeleton;
   r.grid.visible = o.grid;
-  r.actor.update(0);
+  r.actor.update(0, 0);
+}
+
+function applyCombatOptions(actor: Actor, options: ViewOptions) {
+  actor.setCombatAction(options.combatAction);
+  actor.setCombatSpeed(options.combatSpeed);
+  actor.setCombatPlaying(options.combatPlaying);
+  actor.setCombatPhase(options.combatPhase);
+  actor.setAim(options.aimYaw, options.aimPitch);
 }
 function applyCamera(r: Runtime, o: ViewOptions) {
   const next = o.orthographic ? r.ortho : r.perspective;
