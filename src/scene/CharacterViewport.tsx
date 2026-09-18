@@ -204,7 +204,13 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
       floor,
       disposeActor() {
         if (!rt) return;
-        scene.remove(\n          rt.actor.mesh,\n          rt.actor.wire,\n          rt.actor.bowString,\n          rt.actor.bowArrow,\n          rt.actor.skeletonHelper,\n        );
+        scene.remove(
+          rt.actor.mesh,
+          rt.actor.wire,
+          rt.actor.bowString,
+          rt.actor.bowArrow,
+          rt.actor.skeletonHelper,
+        );
         rt.actor.dispose();
       },
     };
@@ -300,7 +306,13 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
     try {
       r.disposeActor();
       r.actor = makeActor(makeCharacter(options.recipe));
-      r.scene.add(\n        r.actor.mesh,\n        r.actor.wire,\n        r.actor.bowString,\n        r.actor.bowArrow,\n        r.actor.skeletonHelper,\n      );
+      r.scene.add(
+        r.actor.mesh,
+        r.actor.wire,
+        r.actor.bowString,
+        r.actor.bowArrow,
+        r.actor.skeletonHelper,
+      );
       r.actor.setMotion(options.motion);
       r.actor.seek(options.phase * r.actor.action.getClip().duration);
       applyCombatOptions(r.actor, options);
