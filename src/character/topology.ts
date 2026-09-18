@@ -1,14 +1,19 @@
 export type Vec3Tuple = readonly [number, number, number];
 
-export type BodyRegion =
-  | 'torso'
-  | 'head'
-  | 'leftArm'
-  | 'rightArm'
-  | 'leftLeg'
-  | 'rightLeg'
-  | 'leftFoot'
-  | 'rightFoot';
+export const BODY_REGION_IDS = {
+  torso: 0,
+  head: 1,
+  leftShoulder: 2,
+  rightShoulder: 3,
+  leftArm: 4,
+  rightArm: 5,
+  leftLeg: 6,
+  rightLeg: 7,
+  leftFoot: 8,
+  rightFoot: 9,
+} as const;
+
+export type BodyRegion = keyof typeof BODY_REGION_IDS;
 
 export interface SectionRing {
   id: string;
@@ -26,13 +31,25 @@ export interface BodySection {
   capEnd?: boolean;
 }
 
+export interface JointPatch {
+  id: string;
+  kind: 'shoulder';
+  region: BodyRegion;
+  radialSegments: number;
+  rings: readonly SectionRing[];
+  capStart?: boolean;
+  capEnd?: boolean;
+}
+
 export interface HumanTopologyBlueprint {
-  version: 1;
+  version: 2;
   sections: readonly BodySection[];
+  jointPatches: readonly JointPatch[];
 }
 
 export interface TopologyStats {
   sections: number;
+  jointPatches: number;
   rings: number;
   vertices: number;
   triangles: number;

@@ -3,6 +3,7 @@ import type { BodyParameters } from './types';
 import type {
   BodySection,
   HumanTopologyBlueprint,
+  JointPatch,
   SectionRing,
   Vec3Tuple,
 } from './topology';
@@ -16,37 +17,131 @@ function ring(
   return { id, center, radiusX, radiusY };
 }
 
+function createArmRootRing(
+  side: -1 | 1,
+  height: number,
+  shoulderWidth: number,
+  shoulderY: number,
+  build: number,
+): SectionRing {
+  const upperRadius =
+    height * 0.035 * THREE.MathUtils.lerp(0.84, 1.22, build);
+
+  return ring(
+    'armRoot',
+    [
+      side * shoulderWidth * 0.5,
+      shoulderY - height * 0.012,
+      0,
+    ],
+    upperRadius * 1.08,
+    upperRadius,
+  );
+}
+
+function createShoulderPatch(
+  side: -1 | 1,
+  height: number,
+  shoulderWidth: number,
+  shoulderY: number,
+  chestHalfWidth: number,
+  chestDepth: number,
+  build: number,
+): JointPatch {
+  const sideName = side < 0 ? 'left' : 'right';
+  const armRoot = createArmRootRing(
+    side,
+    height,
+    shoulderWidth,
+    shoulderY,
+    build,
+  );
+  const upperRadius =
+    height * 0.035 * THREE.MathUtils.lerp(0.84, 1.22, build);
+
+  return {
+    id: `${sideName}ShoulderPatch`,
+    kind: 'shoulder',
+    region: side < 0 ? 'leftShoulder' : 'rightShoulder',
+    radialSegments: 10,
+    capStart: false,
+    capEnd: false,
+    rings: [
+      ring(
+        'chestSocket',
+        [
+          side * chestHalfWidth * 0.88,
+          shoulderY - height * 0.014,
+          0,
+        ],
+        chestDepth * 0.8,
+        upperRadius * 1.28,
+      ),
+      ring(
+        'deltoidInner',
+        [
+          side * THREE.MathUtils.lerp(chestHalfWidth, shoulderWidth * 0.5, 0.45),
+          shoulderY + height * 0.006,
+          0,
+        ],
+        upperRadius * 1.23,
+        upperRadius * 1.42,
+      ),
+      ring(
+        'deltoidOuter',
+        [
+          side * THREE.MathUtils.lerp(chestHalfWidth, shoulderWidth * 0.5, 0.78),
+          shoulderY - height * 0.002,
+          0,
+        ],
+        upperRadius * 1.15,
+        upperRadius * 1.22,
+      ),
+      armRoot,
+    ],
+  };
+}
+
 function createArmSection(
   side: -1 | 1,
   height: number,
   shoulderWidth: number,
   shoulderY: number,
-  bulk: number,
+  build: number,
 ): BodySection {
   const sideName = side < 0 ? 'left' : 'right';
   const upperArmLength = height * 0.185;
   const lowerArmLength = height * 0.175;
-  const shoulderX = side * shoulderWidth * 0.48;
-  const elbowX = side * (shoulderWidth * 0.5 + height * 0.018);
-  const wristX = side * (shoulderWidth * 0.49 + height * 0.012);
+  const armRoot = createArmRootRing(
+    side,
+    height,
+    shoulderWidth,
+    shoulderY,
+    build,
+  );
+  const shoulderX = armRoot.center[0];
+  const shoulderRootY = armRoot.center[1];
+  const elbowX = side * (shoulderWidth * 0.5 + height * 0.014);
+  const wristX = side * (shoulderWidth * 0.49 + height * 0.01);
 
-  const upperRadius = height * 0.035 * THREE.MathUtils.lerp(0.84, 1.22, bulk);
-  const elbowRadius = upperRadius * 0.86;
-  const wristRadius = upperRadius * 0.66;
+  const upperRadius =
+    height * 0.035 * THREE.MathUtils.lerp(0.84, 1.22, build);
+  const elbowRadius = upperRadius * 0.84;
+  const wristRadius = upperRadius * 0.64;
 
   return {
     id: `${sideName}Arm`,
     region: side < 0 ? 'leftArm' : 'rightArm',
     radialSegments: 10,
-    capStart: true,
+    capStart: false,
     capEnd: true,
     rings: [
-      ring('shoulder', [shoulderX, shoulderY, 0], upperRadius * 1.08, upperRadius),
+      armRoot,
       ring(
         'upperArm',
         [
-          THREE.MathUtils.lerp(shoulderX, elbowX, 0.42),
-          shoulderY - upperArmLength * 0.42,
+          THREE.MathUtils.lerp(shoulderX, elbowX, 0.38),
+          shoulderRootY - upperArmLength * 0.38,
           0,
         ],
         upperRadius,
@@ -55,35 +150,53 @@ function createArmSection(
       ring(
         'elbowUpper',
         [
-          THREE.MathUtils.lerp(shoulderX, elbowX, 0.84),
-          shoulderY - upperArmLength * 0.84,
+          THREE.MathUtils.lerp(shoulderX, elbowX, 0.82),
+          shoulderRootY - upperArmLength * 0.82,
           0,
         ],
-        elbowRadius * 1.03,
+        elbowRadius * 1.05,
         elbowRadius,
       ),
-      ring('elbow', [elbowX, shoulderY - upperArmLength, 0], elbowRadius, elbowRadius),
+      ring(
+        'elbow',
+        [elbowX, shoulderRootY - upperArmLength, 0],
+        elbowRadius,
+        elbowRadius * 0.94,
+      ),
       ring(
         'forearm',
         [
-          THREE.MathUtils.lerp(elbowX, wristX, 0.56),
-          shoulderY - upperArmLength - lowerArmLength * 0.56,
+          THREE.MathUtils.lerp(elbowX, wristX, 0.5),
+          shoulderRootY - upperArmLength - lowerArmLength * 0.5,
           0,
         ],
-        THREE.MathUtils.lerp(elbowRadius, wristRadius, 0.56),
-        THREE.MathUtils.lerp(elbowRadius, wristRadius, 0.56) * 0.92,
+        THREE.MathUtils.lerp(elbowRadius, wristRadius, 0.5) * 1.08,
+        THREE.MathUtils.lerp(elbowRadius, wristRadius, 0.5),
+      ),
+      ring(
+        'lowerForearm',
+        [
+          THREE.MathUtils.lerp(elbowX, wristX, 0.78),
+          shoulderRootY - upperArmLength - lowerArmLength * 0.78,
+          0,
+        ],
+        THREE.MathUtils.lerp(elbowRadius, wristRadius, 0.78),
+        THREE.MathUtils.lerp(elbowRadius, wristRadius, 0.78) * 0.9,
       ),
       ring(
         'wrist',
-        [wristX, shoulderY - upperArmLength - lowerArmLength, 0],
+        [wristX, shoulderRootY - upperArmLength - lowerArmLength, 0],
         wristRadius,
-        wristRadius * 0.84,
+        wristRadius * 0.82,
       ),
       ring(
         'hand',
         [
           wristX,
-          shoulderY - upperArmLength - lowerArmLength - height * 0.052,
+          shoulderRootY -
+            upperArmLength -
+            lowerArmLength -
+            height * 0.052,
           height * 0.008,
         ],
         height * 0.034,
@@ -98,16 +211,17 @@ function createLegSection(
   height: number,
   pelvisY: number,
   pelvisHalfWidth: number,
-  bulk: number,
+  build: number,
 ): BodySection {
   const sideName = side < 0 ? 'left' : 'right';
   const hipX = side * pelvisHalfWidth * 0.52;
   const kneeY = pelvisY * 0.48;
   const ankleY = height * 0.055;
-  const thighRadius = height * 0.052 * THREE.MathUtils.lerp(0.86, 1.22, bulk);
-  const kneeRadius = thighRadius * 0.76;
-  const calfRadius = thighRadius * 0.82;
-  const ankleRadius = thighRadius * 0.56;
+  const thighRadius =
+    height * 0.052 * THREE.MathUtils.lerp(0.86, 1.22, build);
+  const kneeRadius = thighRadius * 0.74;
+  const calfRadius = thighRadius * 0.84;
+  const ankleRadius = thighRadius * 0.54;
 
   return {
     id: `${sideName}Leg`,
@@ -119,30 +233,54 @@ function createLegSection(
       ring('hip', [hipX, pelvisY, 0], thighRadius * 1.08, thighRadius),
       ring(
         'upperThigh',
-        [hipX * 0.98, THREE.MathUtils.lerp(pelvisY, kneeY, 0.3), 0],
+        [hipX * 0.98, THREE.MathUtils.lerp(pelvisY, kneeY, 0.28), 0],
         thighRadius,
         thighRadius * 0.95,
       ),
       ring(
         'lowerThigh',
-        [hipX * 0.95, THREE.MathUtils.lerp(pelvisY, kneeY, 0.72), 0],
-        thighRadius * 0.88,
-        thighRadius * 0.84,
+        [hipX * 0.95, THREE.MathUtils.lerp(pelvisY, kneeY, 0.7), 0],
+        thighRadius * 0.87,
+        thighRadius * 0.83,
       ),
-      ring('knee', [hipX * 0.92, kneeY, 0], kneeRadius, kneeRadius * 0.92),
+      ring(
+        'knee',
+        [hipX * 0.92, kneeY, 0],
+        kneeRadius,
+        kneeRadius * 0.9,
+      ),
+      ring(
+        'upperCalf',
+        [
+          hipX * 0.91,
+          THREE.MathUtils.lerp(kneeY, ankleY, 0.3),
+          -height * 0.008,
+        ],
+        calfRadius,
+        calfRadius * 0.92,
+      ),
       ring(
         'calf',
-        [hipX * 0.9, THREE.MathUtils.lerp(kneeY, ankleY, 0.43), -height * 0.008],
-        calfRadius,
-        calfRadius * 0.93,
+        [
+          hipX * 0.9,
+          THREE.MathUtils.lerp(kneeY, ankleY, 0.48),
+          -height * 0.009,
+        ],
+        calfRadius * 1.05,
+        calfRadius * 0.96,
       ),
       ring(
         'lowerCalf',
         [hipX * 0.89, THREE.MathUtils.lerp(kneeY, ankleY, 0.76), 0],
-        ankleRadius * 1.18,
+        ankleRadius * 1.16,
         ankleRadius,
       ),
-      ring('ankle', [hipX * 0.88, ankleY, 0], ankleRadius, ankleRadius * 0.84),
+      ring(
+        'ankle',
+        [hipX * 0.88, ankleY, 0],
+        ankleRadius,
+        ankleRadius * 0.82,
+      ),
     ],
   };
 }
@@ -165,11 +303,36 @@ function createFootSection(
     capStart: true,
     capEnd: true,
     rings: [
-      ring('heelBack', [x, ankleY * 0.8, -height * 0.035], footWidth * 0.8, height * 0.027),
-      ring('heel', [x, soleY + height * 0.022, 0], footWidth, height * 0.03),
-      ring('midFoot', [x, soleY + height * 0.018, height * 0.055], footWidth * 1.08, height * 0.026),
-      ring('toe', [x, soleY + height * 0.014, height * 0.105], footWidth * 1.12, height * 0.022),
-      ring('toeTip', [x, soleY + height * 0.012, height * 0.13], footWidth * 0.72, height * 0.016),
+      ring(
+        'heelBack',
+        [x, ankleY * 0.8, -height * 0.035],
+        footWidth * 0.8,
+        height * 0.027,
+      ),
+      ring(
+        'heel',
+        [x, soleY + height * 0.022, 0],
+        footWidth,
+        height * 0.03,
+      ),
+      ring(
+        'midFoot',
+        [x, soleY + height * 0.018, height * 0.055],
+        footWidth * 1.08,
+        height * 0.026,
+      ),
+      ring(
+        'toe',
+        [x, soleY + height * 0.014, height * 0.105],
+        footWidth * 1.12,
+        height * 0.022,
+      ),
+      ring(
+        'toeTip',
+        [x, soleY + height * 0.012, height * 0.13],
+        footWidth * 0.72,
+        height * 0.016,
+      ),
     ],
   };
 }
@@ -178,7 +341,7 @@ export function createHumanTopologyBlueprint(
   parameters: BodyParameters,
 ): HumanTopologyBlueprint {
   const { height, build, shoulderWidth, headScale } = parameters;
-  const bulk = THREE.MathUtils.lerp(0.82, 1.24, build);
+  const buildScale = THREE.MathUtils.lerp(0.82, 1.24, build);
 
   const headHeight = height * 0.135 * headScale;
   const neckHeight = height * 0.045;
@@ -190,15 +353,17 @@ export function createHumanTopologyBlueprint(
   const neckBaseY = height - headHeight - neckHeight;
   const neckTopY = height - headHeight * 0.92;
 
-  const chestHalfWidth = shoulderWidth * 0.41 * bulk;
-  const waistHalfWidth = shoulderWidth * 0.305 * bulk;
+  const chestHalfWidth = shoulderWidth * 0.41 * buildScale;
+  const waistHalfWidth = shoulderWidth * 0.305 * buildScale;
   const pelvisHalfWidth =
     shoulderWidth * THREE.MathUtils.lerp(0.315, 0.365, build);
 
-  const chestDepth = height * 0.058 * bulk;
+  const chestDepth = height * 0.058 * buildScale;
   const waistDepth = chestDepth * 0.83;
-  const pelvisDepth = height * 0.086 * THREE.MathUtils.lerp(0.9, 1.1, build);
-  const neckRadius = height * 0.035 * THREE.MathUtils.lerp(0.9, 1.08, build);
+  const pelvisDepth =
+    height * 0.086 * THREE.MathUtils.lerp(0.9, 1.1, build);
+  const neckRadius =
+    height * 0.035 * THREE.MathUtils.lerp(0.9, 1.08, build);
 
   const torso: BodySection = {
     id: 'torso',
@@ -241,7 +406,7 @@ export function createHumanTopologyBlueprint(
       ring(
         'upperChest',
         [0, shoulderY - torsoHeight * 0.06, 0],
-        chestHalfWidth * 1.03,
+        chestHalfWidth * 1.04,
         chestDepth * 0.96,
       ),
       ring(
@@ -250,8 +415,18 @@ export function createHumanTopologyBlueprint(
         shoulderWidth * 0.28,
         chestDepth * 0.76,
       ),
-      ring('neckBase', [0, neckBaseY, 0], neckRadius * 1.06, neckRadius),
-      ring('neckTop', [0, neckTopY, 0], neckRadius, neckRadius * 0.96),
+      ring(
+        'neckBase',
+        [0, neckBaseY, 0],
+        neckRadius * 1.06,
+        neckRadius,
+      ),
+      ring(
+        'neckTop',
+        [0, neckTopY, 0],
+        neckRadius,
+        neckRadius * 0.96,
+      ),
     ],
   };
 
@@ -307,7 +482,7 @@ export function createHumanTopologyBlueprint(
   };
 
   return {
-    version: 1,
+    version: 2,
     sections: [
       torso,
       head,
@@ -317,6 +492,26 @@ export function createHumanTopologyBlueprint(
       createLegSection(1, height, pelvisY, pelvisHalfWidth, build),
       createFootSection(-1, height, pelvisHalfWidth),
       createFootSection(1, height, pelvisHalfWidth),
+    ],
+    jointPatches: [
+      createShoulderPatch(
+        -1,
+        height,
+        shoulderWidth,
+        shoulderY,
+        chestHalfWidth,
+        chestDepth,
+        build,
+      ),
+      createShoulderPatch(
+        1,
+        height,
+        shoulderWidth,
+        shoulderY,
+        chestHalfWidth,
+        chestDepth,
+        build,
+      ),
     ],
   };
 }

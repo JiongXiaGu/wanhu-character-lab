@@ -30,6 +30,16 @@
 
 ## 本地运行
 
+Windows 推荐直接双击仓库根目录：
+
+```text
+Start-Local.cmd
+```
+
+脚本会检查 Node/npm、自动拉取 Git 更新、首次安装依赖并启动本地 Vite 页面。
+
+手动运行：
+
 ```bash
 npm install
 npm run dev
@@ -43,12 +53,22 @@ npm run build
 
 ## 当前阶段
 
-**Phase 1 · Ring Topology**
+**Phase 1.5 · Shoulder JointPatch + Debug Review**
 
-当前已经从 Phase 0 的 Sphere / Cylinder 占位拼接切换为：
+当前生成链：
 
-`BodyParameters -> HumanTopologyBlueprint -> BodySection -> Ring -> BufferGeometry`
+`BodyParameters -> HumanTopologyBlueprint v2 -> BodySection / JointPatch -> Ring -> BufferGeometry`
 
-人体的 Torso / Head / Arms / Legs / Feet 都由运行时 Section / Ring 规则直接生成顶点与索引，最终仍然编译为一个 Mesh。
+当前已加入：
 
-当前下一目标是 JointPatch：先处理肩、髋、头颈等分支区域的共享边界与连接规则。
+- Torso / Head / Arms / Legs / Feet 的 Ring Topology；
+- Left / Right ShoulderPatch；
+- 手臂根部不再封口；
+- Shaded / Wireframe / Wire Overlay / Body Region 四种显示模式；
+- Ring Guides；
+- Perspective / Orthographic；
+- Front / Back / Left / Right / Top / 3/4 固定视角；
+- Grid / Axis；
+- Section / JointPatch / Ring / Vertex / Triangle 实时统计。
+
+当前 ShoulderPatch 仍与 Torso 侧面相交。下一主线目标是把肩部推进到真正共享边界顶点的无重叠连接，然后再复用到 HipPatch。
