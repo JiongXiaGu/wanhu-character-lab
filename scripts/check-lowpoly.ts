@@ -58,6 +58,7 @@ for (const [name, parameters] of Object.entries(CASES)) {
 
   if (!report.valid) {
     failed = true;
+    console.log('  inwardByPart:', JSON.stringify(report.inwardByPart));
   }
 
   geometry.dispose();
