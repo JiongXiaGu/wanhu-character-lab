@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CharacterViewport,
   type Stats,
@@ -17,6 +17,15 @@ import {
   type CharacterSlots,
 } from "./character/v3/types";
 import { MOTION_LABELS } from "./character/v3/rig";
+import {
+  ACTION_DEFINITIONS,
+  COMBAT_ACTION_IDS,
+  actionAvailable,
+  actionPhaseLabel,
+  clampAimDegrees,
+  clampActionPhase,
+  type CombatActionId,
+} from "./character/v3/actions";
 
 const PRESETS: { id: Outfit; name: string; desc: string; glyph: string }[] = [
   { id: "farmer", name: "农户", desc: "短衣 · 草帽 · 布鞋", glyph: "农" },
@@ -82,6 +91,12 @@ const initialPhase = () => {
   const n = Number(qs.get("phase") ?? 0);
   return Number.isFinite(n) ? Math.max(0, Math.min(0.999, n)) : 0;
 };
+
+const initialActionPhase = () =>
+  clampActionPhase(Number(qs.get("actionPhase") ?? 0));
+
+const initialAim = (key: "aimYaw" | "aimPitch") =>
+  clampAimDegrees(Number(qs.get(key) ?? 0));
 
 const initialRecipe = () => {
   const outfit = enumQuery("outfit", PRESET_IDS, "farmer");
@@ -188,7 +203,17 @@ export default function App() {
     ),
     [playing, setPlaying] = useState(!qs.has("paused")),
     [speed, setSpeed] = useState(1),
-    [phase, setPhase] = useState(initialPhase);
+    [phase, setPhase] = useState(initialPhase),
+    [combatAction, setCombatAction] = useState<CombatActionId>(() =>
+      enumQuery("action", COMBAT_ACTION_IDS, "none"),
+    ),
+    [combatPlaying, setCombatPlaying] = useState(
+      qs.get("action") !== null && !qs.has("actionPaused"),
+    ),
+    [combatSpeed, setCombatSpeed] = useState(1),
+    [combatPhase, setCombatPhase] = useState(initialActionPhase),
+    [aimYaw, setAimYaw] = useState(() => initialAim("aimYaw")),
+    [aimPitch, setAimPitch] = useState(() => initialAim("aimPitch"));
 
   const [view, setView] = useState<View>(
       enumQuery(
@@ -235,6 +260,27 @@ export default function App() {
     recipe.preset === "custom"
       ? null
       : PRESETS.find((preset) => preset.id === recipe.preset) ?? null;
+
+  useEffect(() => {
+    if (
+      combatAction !== "none" &&
+      !actionAvailable(recipe, combatAction)
+    ) {
+      setCombatAction("none");
+      setCombatPlaying(false);
+      setCombatPhase(0);
+    }
+  }, [recipe, combatAction]);
+
+  const selectCombatAction = (action: CombatActionId) => {
+    if (!actionAvailable(recipe, action)) return;
+
+    setCombatAction(action);
+    setCombatPhase(0);
+    setCombatPlaying(action !== "none");
+  };
+
+  const combatLabel = actionPhaseLabel(combatAction, combatPhase);
 
   return (
     <main className="studio">
@@ -554,6 +600,12 @@ export default function App() {
                 playing,
                 speed,
                 phase,
+                combatAction,
+                combatPlaying,
+                combatSpeed,
+                combatPhase,
+                aimYaw,
+                aimPitch,
                 view,
                 viewRevision,
                 orthographic,
@@ -636,6 +688,121 @@ export default function App() {
               />
               <output>{Math.round(phase * 100)}%</output>
             </label>
+
+            <div className="combat-divider" />
+
+            <div className="combat-head">
+              <div>
+                <span className="eyebrow">COMBAT ACTION</span>
+                <strong>{combatLabel}</strong>
+              </div>
+              <div className="speed">
+                <label htmlFor="combat-speed">动作速度</label>
+                <select
+                  id="combat-speed"
+                  value={combatSpeed}
+                  onChange={(event) => setCombatSpeed(+event.target.value)}
+                >
+                  {[0.25, 0.5, 1, 1.5].map((value) => (
+                    <option key={value} value={value}>
+                      {value}×
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="combat-actions">
+              {COMBAT_ACTION_IDS.map((action) => {
+                const definition = ACTION_DEFINITIONS[action];
+                const available = actionAvailable(recipe, action);
+
+                return (
+                  <button
+                    key={action}
+                    className={combatAction === action ? "active" : ""}
+                    disabled={!available}
+                    title={
+                      available
+                        ? definition.label
+                        : action === "bowShot"
+                          ? "需要左手装备短弓"
+                          : action === "swordSlash"
+                            ? "需要右手装备短剑"
+                            : action === "shieldGuard"
+                              ? "需要左手装备盾牌"
+                              : definition.label
+                    }
+                    onClick={() => selectCombatAction(action)}
+                  >
+                    {definition.label}
+                  </button>
+                );
+              })}
+
+              <button
+                className="combat-play"
+                disabled={combatAction === "none"}
+                aria-label={combatPlaying ? "暂停战斗动作" : "播放战斗动作"}
+                onClick={() => setCombatPlaying((value) => !value)}
+              >
+                {combatPlaying ? "Ⅱ" : "▶"}
+              </button>
+            </div>
+
+            <label className="timeline combat-timeline">
+              <span>动作进度</span>
+              <input
+                aria-label="战斗动作进度"
+                type="range"
+                min="0"
+                max=".999"
+                step=".001"
+                disabled={combatAction === "none"}
+                value={combatPhase}
+                onChange={(event) => {
+                  setCombatPlaying(false);
+                  setCombatPhase(clampActionPhase(+event.target.value));
+                }}
+              />
+              <output>{Math.round(combatPhase * 100)}%</output>
+            </label>
+
+            <div className="aim-grid">
+              <label>
+                <span>水平瞄准</span>
+                <input
+                  aria-label="水平瞄准"
+                  type="range"
+                  min="-45"
+                  max="45"
+                  step="1"
+                  disabled={combatAction !== "bowShot"}
+                  value={aimYaw}
+                  onChange={(event) =>
+                    setAimYaw(clampAimDegrees(+event.target.value))
+                  }
+                />
+                <output>{aimYaw}°</output>
+              </label>
+
+              <label>
+                <span>俯仰瞄准</span>
+                <input
+                  aria-label="俯仰瞄准"
+                  type="range"
+                  min="-35"
+                  max="35"
+                  step="1"
+                  disabled={combatAction !== "bowShot"}
+                  value={aimPitch}
+                  onChange={(event) =>
+                    setAimPitch(clampAimDegrees(+event.target.value))
+                  }
+                />
+                <output>{aimPitch}°</output>
+              </label>
+            </div>
           </section>
         </section>
       </div>
