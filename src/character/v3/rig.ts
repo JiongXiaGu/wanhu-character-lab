@@ -142,6 +142,22 @@ export function makeActor(data: CharacterData): Actor {
   let aimPitch = 0;
   const characterScale = data.recipe.height / 1.76;
 
+  // Locomotion 是所有上层动作的唯一基准。
+  // Action/IK/Aim 绝不能成为下一次 Mixer 采样的输入。
+  const baseBoneRotations = bones.map((bone) => bone.quaternion.clone());
+
+  const restoreBasePose = () => {
+    bones.forEach((bone, index) => {
+      bone.quaternion.copy(baseBoneRotations[index]);
+    });
+  };
+
+  const captureBasePose = () => {
+    bones.forEach((bone, index) => {
+      baseBoneRotations[index].copy(bone.quaternion);
+    });
+  };
+
   const edges = new Map<string, [number, number]>();
 
   for (const f of c.faces) {
@@ -581,7 +597,9 @@ export function makeActor(data: CharacterData): Actor {
   };
 
   const refreshPose = () => {
+    restoreBasePose();
     mixer.update(0);
+    captureBasePose();
     applyCombatPose();
     debug();
   };
@@ -647,7 +665,9 @@ export function makeActor(data: CharacterData): Actor {
     },
 
     update(motionDt, combatDt = motionDt) {
+      restoreBasePose();
       mixer.update(motionDt);
+      captureBasePose();
 
       if (combatPlaying && combatActionId !== "none") {
         const duration = ACTION_DEFINITIONS[combatActionId].duration;
@@ -685,7 +705,10 @@ export function makeActor(data: CharacterData): Actor {
     },
   };
 
-  actor.update(0);
+  restoreBasePose();
+  mixer.update(0);
+  captureBasePose();
+  actor.update(0, 0);
   return actor;
 }
 
