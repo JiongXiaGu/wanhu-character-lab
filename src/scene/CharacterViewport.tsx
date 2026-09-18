@@ -58,6 +58,7 @@ function readLowPolyStats(geometry: THREE.BufferGeometry): LowPolyStats {
     vertices: stats?.vertices ?? 0,
     triangles: stats?.triangles ?? 0,
     triangleBudget: stats?.triangleBudget ?? 500,
+    meshValid: stats?.meshValid ?? false,
   };
 }
 

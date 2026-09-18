@@ -50,4 +50,5 @@ export interface LowPolyStats {
   vertices: number;
   triangles: number;
   triangleBudget: number;
+  meshValid: boolean;
 }

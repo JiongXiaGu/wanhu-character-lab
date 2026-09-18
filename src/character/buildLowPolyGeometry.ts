@@ -254,15 +254,16 @@ export function buildLowPolyGeometry(
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();
 
+  const validation = validateLowPolyGeometry(geometry, blueprint);
+
   const stats: LowPolyStats = {
     parts: blueprint.parts.length,
     crossSections: buffers.crossSections,
     vertices: buffers.positions.length / 3,
     triangles: buffers.indices.length / 3,
     triangleBudget: blueprint.triangleBudget,
+    meshValid: validation.valid,
   };
-
-  const validation = validateLowPolyGeometry(geometry, blueprint);
 
   geometry.userData.lowPoly = {
     blueprintVersion: blueprint.version,

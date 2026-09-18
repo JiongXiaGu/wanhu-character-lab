@@ -161,6 +161,7 @@ export default function App() {
     vertices: 0,
     triangles: 0,
     triangleBudget: 500,
+    meshValid: false,
   });
 
   const patchParameters = (patch: Partial<BodyParameters>) => {
@@ -361,13 +362,19 @@ export default function App() {
                 <span>Triangles</span>
                 <strong>{stats.triangles}</strong>
               </div>
-              <div className="stats-wide">
+              <div>
+                <span>Mesh Check</span>
+                <strong>{stats.meshValid ? 'PASS' : 'FAIL'}</strong>
+              </div>
+              <div>
                 <span>Budget</span>
                 <strong>
                   {stats.triangles} / {stats.triangleBudget}
-                  {' · '}
-                  {Math.round(budgetRatio * 100)}%
                 </strong>
+              </div>
+              <div className="stats-wide">
+                <span>Budget Usage</span>
+                <strong>{Math.round(budgetRatio * 100)}%</strong>
               </div>
             </div>
           </section>
