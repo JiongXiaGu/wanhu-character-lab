@@ -154,6 +154,17 @@ try {
     hat: "0",
     motion: "idle",
   });
+  await capture("16b-archer-farmer-hat-diy", {
+    outfit: "archer",
+    equipment: "1",
+    headwear: "farmer_straw_hat",
+    motion: "idle",
+    phase: ".25",
+  });
+  assert.equal(await page.getByLabel("头饰").inputValue(), "farmer_straw_hat");
+  assert.equal(await page.getByLabel("上衣").inputValue(), "archer_tunic");
+  assert.equal(await page.getByLabel("背部").inputValue(), "archer_quiver");
+  assert.equal(await page.getByLabel("左手").inputValue(), "archer_bow");
   await capture("17-body-top", {
     outfit: "body",
     motion: "bind",
@@ -201,11 +212,24 @@ try {
       .click();
     await page.waitForTimeout(40);
   }
+
+  // 真实 DIY：弓手换农户草帽，职业预设自动转为 CUSTOM。
+  await page.getByRole("button", { name: /弓手/ }).click();
+  await page.getByLabel("头饰", { exact: true }).selectOption("farmer_straw_hat");
+  assert.equal(await page.getByLabel("头饰").inputValue(), "farmer_straw_hat");
+  assert.equal(await page.getByLabel("左手").inputValue(), "archer_bow");
+  assert.equal(await page.getByLabel("背部").inputValue(), "archer_quiver");
+  assert.match(await page.locator(".stage-heading h2").innerText(), /自定义角色/);
+  await page.screenshot({
+    path: `${output}/21-ui-diy-archer-straw-hat.png`,
+    fullPage: true,
+  });
+
   await page.locator(".outfit").nth(0).click();
   await page.getByLabel("身高", { exact: true }).press("End");
   await page.getByLabel("体格", { exact: true }).press("End");
   await page.getByRole("button", { name: "赭红", exact: true }).click();
-  await page.getByLabel("头饰", { exact: true }).uncheck();
+  await page.getByLabel("头饰", { exact: true }).selectOption("none");
   await page.screenshot({
     path: `${output}/19-heavy-tall-palette.png`,
     fullPage: true,
@@ -217,8 +241,8 @@ try {
   const recipe = JSON.parse(await readFile(path, "utf8"));
   assert.equal(recipe.height, 1.92);
   assert.equal(recipe.palette, 2);
-  assert.equal(recipe.hat, false);
-  assert.equal(recipe.version, 3);
+  assert.equal(recipe.slots.headwear, "none");
+  assert.equal(recipe.version, 4);
   const pngEvent = page.waitForEvent("download");
   await page.getByLabel("保存截图", { exact: true }).click();
   const png = await pngEvent;
@@ -256,7 +280,8 @@ try {
         captures,
         checks: [
           "rendered WebGL",
-          "UI outfit changes",
+          "UI preset changes",
+          "slot-based DIY wardrobe",
           "animation plays",
           "animation pauses",
           "timeline scrubs",

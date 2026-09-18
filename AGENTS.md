@@ -13,11 +13,33 @@
 
 ## 当前正式路径
 
-`Recipe → v3/body.ts → v3/outfit.ts → CharacterData → v3/rig.ts → CharacterViewport`
+`Preset → Recipe V4 Slots → v3/body.ts → v3/outfit.ts → CharacterData → v3/rig.ts → CharacterViewport`
 
 src/character/v3 的 types / cage / body / outfit 是不依赖渲染器的生成层；rig.ts 是 Three.js 验证适配层。
 
 历史 segmented / V2 二维挤出路径已经移除，不得误接回去。
+
+## Recipe V4 / DIY 约束
+
+职业只是预设，不是生成器分支条件。正式持久化数据为：
+
+```text
+Recipe
+├─ version = 4
+├─ preset = farmer / guard / archer / body / custom
+└─ slots
+   ├─ headwear
+   ├─ top
+   ├─ bottom
+   ├─ shoes
+   ├─ back
+   ├─ leftHand
+   └─ rightHand
+```
+
+点击农户 / 卫兵 / 弓手只会一次性写入默认 Slot；修改任意 Slot 后 preset 变为 custom。v3/outfit.ts 生成逻辑必须根据 Slot 判断，不能重新用 preset/outfit 把装备绑死。
+
+旧 V3 输入 `outfit / hat / equipment` 只作为迁移兼容。特别地，旧 `farmer + equipment=true` 必须迁移成 `rightHand=farmer_hoe`。
 
 ## 不得破坏
 

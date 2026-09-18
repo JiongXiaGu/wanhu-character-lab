@@ -401,7 +401,7 @@ CharacterMeshKey
 ├─ BodyTopologyVersion
 ├─ QuantizedHeight
 ├─ QuantizedBuild
-├─ OutfitRecipe
+├─ SlotRecipe
 ├─ Hat
 ├─ Equipment
 └─ LOD
@@ -431,6 +431,8 @@ AnimationState
 ## 12. 服装与 GPU 动画
 
 服装不能拥有独立的人体骨架语义。
+
+Recipe V4 的 preset 只用于一键填充；GPU / Cache 层应读取实际 slots。换帽子、上衣或手持物不能创建另一套 SkeletonDefinition。
 
 当前以及后续都要求：
 

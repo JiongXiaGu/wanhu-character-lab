@@ -216,6 +216,45 @@ for (const outfit of ["body", "farmer", "guard", "archer"] as Outfit[])
     );
   }
 assert(new Set(skeletonMaps).size === 1, "职业或体型改变了骨架语义");
+
+// DIY 回归：弓手预设必须可以换成农户草帽，同时保留弓和箭袋。
+const diyArcher = makeCharacter({
+  outfit: "archer",
+  equipment: true,
+  preset: "custom",
+  slots: { headwear: "farmer_straw_hat" },
+});
+assert.equal(diyArcher.recipe.preset, "custom");
+assert.equal(diyArcher.recipe.slots.headwear, "farmer_straw_hat");
+assert.equal(diyArcher.recipe.slots.leftHand, "archer_bow");
+assert.equal(diyArcher.recipe.slots.back, "archer_quiver");
+assert(
+  diyArcher.surface.vertices.some((vertex) => vertex.id === "StrawPeak"),
+  "DIY 草帽没有生成",
+);
+assert(
+  diyArcher.surface.vertices.some((vertex) => vertex.id.startsWith("Bow.")),
+  "DIY 后弓丢失",
+);
+assert(
+  diyArcher.surface.vertices.some((vertex) => vertex.id.startsWith("Quiver.")),
+  "DIY 后箭袋丢失",
+);
+assert(
+  !diyArcher.surface.vertices.some((vertex) => vertex.id.startsWith("HeadbandA")),
+  "DIY 草帽与原弓手头巾重复生成",
+);
+
+const legacyFarmerWithHoe = makeCharacter({
+  outfit: "farmer",
+  equipment: true,
+});
+assert.equal(
+  legacyFarmerWithHoe.recipe.slots.rightHand,
+  "farmer_hoe",
+  "V3 农户 equipment=true 没有迁移为锄头",
+);
+
 assert.equal(cleanRecipe({ height: NaN, build: Infinity }).height, 1.76);
 console.log(
   `PASS: 12 character variants, ${frames} posed-frame checks, real-edge garment anchors, closed continuous base body, fixed rig, <=2 weights, runtime-only geometry.`,
