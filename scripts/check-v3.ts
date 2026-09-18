@@ -5,12 +5,18 @@ import { makeCharacter } from "../src/character/v3/outfit";
 import { makeActor, MOTION_LABELS } from "../src/character/v3/rig";
 import { edgeKey, triCount, cross, sub, dot } from "../src/character/v3/cage";
 import {
+  B,
   cleanRecipe,
   type Cage,
   type Motion,
   type Outfit,
   type Vec3,
 } from "../src/character/v3/types";
+import {
+  ACTION_DEFINITIONS,
+  actionAvailable,
+  type CombatActionId,
+} from "../src/character/v3/actions";
 function validate(c: Cage, closed: boolean) {
   const edges = new Map<string, [number, number][]>(),
     used = new Set<number>(),
@@ -245,6 +251,155 @@ assert(
   "DIY 草帽与原弓手头巾重复生成",
 );
 
+// Combat Action Layer：只覆盖定义的 Bone Mask，不重做人体或腿部动画。
+for (const definition of Object.values(ACTION_DEFINITIONS)) {
+  assert.equal(
+    new Set(definition.boneMask).size,
+    definition.boneMask.length,
+    `Action Bone Mask 重复：${definition.id}`,
+  );
+
+  for (const bone of definition.boneMask) {
+    assert(Number.isInteger(bone) && bone >= 0 && bone < 20);
+  }
+
+  assert(
+    !definition.boneMask.includes(B.RightThigh) &&
+      !definition.boneMask.includes(B.RightShin) &&
+      !definition.boneMask.includes(B.RightFoot) &&
+      !definition.boneMask.includes(B.LeftThigh) &&
+      !definition.boneMask.includes(B.LeftShin) &&
+      !definition.boneMask.includes(B.LeftFoot),
+    `上半身 Action 错误覆盖腿部：${definition.id}`,
+  );
+}
+
+const archerData = makeCharacter({ outfit: "archer", equipment: true });
+assert(actionAvailable(archerData.recipe, "bowShot"));
+assert(!actionAvailable(archerData.recipe, "swordSlash"));
+assert(
+  archerData.surface.vertices.some(
+    (vertex) =>
+      vertex.id.startsWith("BowstringTop.End") &&
+      vertex.w[0] === B.RightHand,
+  ),
+  "弓弦中点没有绑定右手拉弦骨骼",
+);
+
+const guardData = makeCharacter({ outfit: "guard", equipment: true });
+assert(actionAvailable(guardData.recipe, "swordSlash"));
+assert(actionAvailable(guardData.recipe, "shieldGuard"));
+assert(!actionAvailable(guardData.recipe, "bowShot"));
+
+function validateCombatAction(
+  data: ReturnType<typeof makeCharacter>,
+  actionId: Exclude<CombatActionId, "none">,
+) {
+  const actor = makeActor(data);
+  const geometry = actor.mesh.geometry;
+  const position = geometry.attributes.position;
+  const index = geometry.getIndex()!;
+  const point = new T.Vector3();
+  const coords: Vec3[] = [];
+
+  actor.setMotion("walk");
+  actor.seek(actor.clips.walk.duration * 0.25);
+
+  const rightThighBefore = actor.bones[B.RightThigh].quaternion.clone();
+  const leftThighBefore = actor.bones[B.LeftThigh].quaternion.clone();
+
+  actor.setCombatAction(actionId);
+  actor.setCombatPlaying(false);
+
+  assert.equal(
+    actor.actionClips[actionId].tracks.length,
+    ACTION_DEFINITIONS[actionId].boneMask.length,
+    `Action Track 数量不等于 Bone Mask：${actionId}`,
+  );
+
+  for (const track of actor.actionClips[actionId].tracks) {
+    assert(
+      !track.name.startsWith("RightThigh") &&
+        !track.name.startsWith("LeftThigh") &&
+        !track.name.startsWith("Hips"),
+      `Action Clip 写入了下半身：${actionId} / ${track.name}`,
+    );
+  }
+
+  for (let frame = 0; frame < 12; frame++) {
+    const phase = frame / 12;
+
+    actor.setCombatPhase(phase);
+    actor.update(0, 0);
+    actor.mesh.updateMatrixWorld(true);
+    actor.skeleton.update();
+
+    coords.length = 0;
+
+    for (let vertexIndex = 0; vertexIndex < position.count; vertexIndex++) {
+      actor.mesh.getVertexPosition(vertexIndex, point);
+
+      assert(
+        [point.x, point.y, point.z].every(Number.isFinite),
+        `Combat 顶点非法：${actionId} / ${frame}`,
+      );
+
+      coords.push([point.x, point.y, point.z]);
+    }
+
+    for (let offset = 0; offset < index.count; offset += 3) {
+      const a = coords[index.getX(offset)];
+      const b = coords[index.getX(offset + 1)];
+      const c = coords[index.getX(offset + 2)];
+
+      assert(
+        Math.hypot(...cross(sub(b, a), sub(c, a))) > 1e-11,
+        `Combat 动作产生退化三角形：${actionId} / ${frame}`,
+      );
+    }
+  }
+
+  assert(
+    actor.bones[B.RightThigh].quaternion.angleTo(rightThighBefore) < 1e-5,
+    `Action 覆盖了右腿：${actionId}`,
+  );
+  assert(
+    actor.bones[B.LeftThigh].quaternion.angleTo(leftThighBefore) < 1e-5,
+    `Action 覆盖了左腿：${actionId}`,
+  );
+
+  actor.dispose();
+}
+
+validateCombatAction(archerData, "bowShot");
+validateCombatAction(guardData, "swordSlash");
+validateCombatAction(guardData, "shieldGuard");
+
+const aimActor = makeActor(archerData);
+aimActor.setMotion("bind");
+aimActor.seek(0);
+aimActor.setCombatAction("bowShot");
+aimActor.setCombatPlaying(false);
+aimActor.setCombatPhase(0.62);
+aimActor.setAim(22, 15);
+aimActor.update(0, 0);
+
+const aimedChest = aimActor.bones[B.Chest].quaternion.clone();
+const aimedRightThigh = aimActor.bones[B.RightThigh].quaternion.clone();
+
+aimActor.setAim(22, 15);
+aimActor.update(0, 0);
+
+assert(
+  aimActor.bones[B.Chest].quaternion.angleTo(aimedChest) < 1e-5,
+  "Aim Overlay 重复应用后发生累积漂移",
+);
+assert(
+  aimActor.bones[B.RightThigh].quaternion.angleTo(aimedRightThigh) < 1e-5,
+  "Aim Overlay 影响了腿部",
+);
+aimActor.dispose();
+
 const legacyFarmerWithHoe = makeCharacter({
   outfit: "farmer",
   equipment: true,
@@ -257,5 +412,5 @@ assert.equal(
 
 assert.equal(cleanRecipe({ height: NaN, build: Infinity }).height, 1.76);
 console.log(
-  `PASS: 12 character variants, ${frames} posed-frame checks, real-edge garment anchors, closed continuous base body, fixed rig, <=2 weights, runtime-only geometry.`,
+  `PASS: 12 character variants, ${frames} posed-frame checks, real-edge garment anchors, closed continuous base body, fixed rig, <=2 weights, runtime-only geometry + layered combat actions.`,
 );
