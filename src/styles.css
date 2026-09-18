@@ -689,3 +689,171 @@ h1 {
   background: #ffffff08;
   color: #c4ccc4;
 }
+
+/* Phase 4 · Combat Action Lab */
+.character-viewport {
+  inset: 45px 0 292px;
+}
+
+.stage-caption {
+  bottom: 300px;
+}
+
+.three-labels {
+  bottom: 320px;
+}
+
+.motion-panel {
+  padding-bottom: 14px;
+}
+
+.combat-divider {
+  height: 1px;
+  margin: 11px 0 10px;
+  background: #ffffff0c;
+}
+
+.combat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.combat-head > div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.combat-head strong {
+  color: #d8c49d;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.combat-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) 38px;
+  gap: 6px;
+}
+
+.combat-actions button {
+  min-width: 0;
+  padding: 7px 8px;
+  border: 1px solid #ffffff0b;
+  border-radius: 4px;
+  color: #9eb0b3;
+  background: #ffffff04;
+  font-size: 10px;
+}
+
+.combat-actions button:hover:not(:disabled) {
+  background: #ffffff0b;
+}
+
+.combat-actions button.active {
+  color: #ead2a6;
+  border-color: #c1a77166;
+  background: #c4ab7116;
+}
+
+.combat-actions .combat-play {
+  color: #17282e;
+  border-color: #b69d6b;
+  background: #b69d6b;
+  font-weight: 700;
+}
+
+.combat-timeline {
+  margin-top: 9px;
+}
+
+.aim-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 9px;
+}
+
+.aim-grid label {
+  display: grid;
+  grid-template-columns: auto minmax(50px, 1fr) 34px;
+  align-items: center;
+  gap: 8px;
+  color: #7f9699;
+  font-size: 9px;
+}
+
+.aim-grid input {
+  width: 100%;
+  height: 2px;
+  accent-color: #bda777;
+}
+
+.aim-grid output {
+  color: #aab8b6;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+@media (min-width: 1700px) {
+  .character-viewport {
+    inset: 20px 0 294px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .character-viewport {
+    inset: 92px 0 335px;
+  }
+
+  .stage-caption {
+    bottom: 342px;
+  }
+
+  .motion-actions,
+  .combat-actions {
+    flex-wrap: wrap;
+  }
+
+  .combat-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .combat-actions .combat-play {
+    grid-column: span 1;
+  }
+
+  .aim-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .stage {
+    height: 930px;
+    min-height: 930px;
+  }
+
+  .character-viewport {
+    inset: 70px 0 390px;
+  }
+
+  .stage-caption {
+    bottom: 398px;
+  }
+
+  .three-labels {
+    bottom: 418px;
+  }
+
+  .combat-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .aim-grid label {
+    grid-template-columns: 72px minmax(40px, 1fr) 34px;
+  }
+}
