@@ -268,19 +268,19 @@ export function createLowPolyHumanoidBlueprint(
       'oct8',
       [
         section(
-          [0, landmarks.lowerAbdomenY, height * 0.008],
+          [0, landmarks.lowerAbdomenY, 0],
           abdomenHalf,
           abdomenFront,
           abdomenBack,
         ),
         section(
-          [0, landmarks.waistY, height * 0.002],
+          [0, landmarks.waistY, 0],
           waistHalf,
           waistFront,
           waistBack,
         ),
         section(
-          [0, landmarks.chestY, height * 0.006],
+          [0, landmarks.chestY, 0],
           chestHalf,
           chestFront,
           chestBack,
@@ -300,19 +300,19 @@ export function createLowPolyHumanoidBlueprint(
       'oct8',
       [
         section(
-          [0, landmarks.hipY - height * 0.035, -height * 0.007],
+          [0, landmarks.hipY - height * 0.035, 0],
           pelvisHalf * 0.9,
           pelvisFront * 0.9,
           pelvisBack * 0.94,
         ),
         section(
-          [0, landmarks.hipY + height * 0.015, -height * 0.004],
+          [0, landmarks.hipY + height * 0.015, 0],
           pelvisHalf,
           pelvisFront,
           pelvisBack,
         ),
         section(
-          [0, landmarks.lowerAbdomenY + height * 0.018, -height * 0.002],
+          [0, landmarks.lowerAbdomenY + height * 0.018, 0],
           pelvisHalf * 0.9,
           pelvisFront * 0.94,
           pelvisBack * 0.88,
@@ -345,7 +345,7 @@ export function createLowPolyHumanoidBlueprint(
           [
             0,
             landmarks.headBottomY + height * 0.014,
-            height * 0.004,
+            0,
           ],
           headHalfWidth * 0.78,
           headFront * 0.78,
@@ -355,7 +355,7 @@ export function createLowPolyHumanoidBlueprint(
           [
             0,
             landmarks.headBottomY + headHeight * 0.48,
-            height * 0.006,
+            0,
           ],
           headHalfWidth,
           headFront,
