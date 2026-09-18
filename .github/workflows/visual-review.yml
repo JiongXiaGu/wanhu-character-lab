@@ -45,13 +45,13 @@ jobs:
       - name: Capture review screenshots
         run: |
           mkdir -p review
-          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=perspective&view=perspective&rings=0&grid=1'             review/01-overlay-perspective.png
-          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=wireframe&projection=orthographic&view=front&rings=1&grid=1'             review/02-wire-front-ortho.png
-          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=regions&projection=orthographic&view=right&rings=0&grid=1'             review/03-regions-right-ortho.png
+          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=perspective&view=perspective&guides=0&grid=1'             review/01-overlay-perspective.png
+          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=wireframe&projection=orthographic&view=front&guides=1&grid=1'             review/02-wire-front-ortho.png
+          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=regions&projection=orthographic&view=right&guides=0&grid=1'             review/03-parts-right-ortho.png
 
       - name: Upload review artifact
         uses: actions/upload-artifact@v4
         with:
-          name: character-topology-review
+          name: character-lowpoly-review
           path: review/*.png
           retention-days: 7

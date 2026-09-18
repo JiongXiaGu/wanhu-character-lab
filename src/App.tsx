@@ -3,7 +3,7 @@ import {
   DEFAULT_BODY_PARAMETERS,
   type BodyParameters,
 } from './character/types';
-import type { TopologyStats } from './character/topology';
+import type { LowPolyStats } from './character/lowPolyTopology';
 import { CharacterViewport } from './scene/CharacterViewport';
 import type {
   DisplayMode,
@@ -146,23 +146,31 @@ export default function App() {
   const [viewPreset, setViewPreset] = useState<ViewPreset>(() =>
     readEnumParam('view', VIEW_PRESETS, 'perspective'),
   );
-  const [showRings, setShowRings] = useState(() =>
-    readBooleanParam('rings', false),
+  const [showGuides, setShowGuides] = useState(() =>
+    readBooleanParam(
+      'guides',
+      readBooleanParam('rings', false),
+    ),
   );
   const [showGrid, setShowGrid] = useState(() =>
     readBooleanParam('grid', true),
   );
-  const [stats, setStats] = useState<TopologyStats>({
-    sections: 0,
-    jointPatches: 0,
-    rings: 0,
+  const [stats, setStats] = useState<LowPolyStats>({
+    parts: 0,
+    crossSections: 0,
     vertices: 0,
     triangles: 0,
+    triangleBudget: 500,
   });
 
   const patchParameters = (patch: Partial<BodyParameters>) => {
     setParameters((current) => ({ ...current, ...patch }));
   };
+
+  const budgetRatio =
+    stats.triangleBudget > 0
+      ? stats.triangles / stats.triangleBudget
+      : 0;
 
   return (
     <main className="lab-shell">
@@ -171,7 +179,7 @@ export default function App() {
           <p className="eyebrow">WANHU CHARACTER LAB</p>
           <h1>程序化人物生成实验</h1>
         </div>
-        <div className="phase-badge">Phase 1.5 · Shoulder JointPatch</div>
+        <div className="phase-badge">Phase 2 · Low-Poly Segmented</div>
       </header>
 
       <section className="lab-content">
@@ -233,7 +241,7 @@ export default function App() {
           <section className="control-section debug-section">
             <div className="section-heading">
               <span className="panel-kicker">DEBUG VIEW</span>
-              <h2>拓扑观察</h2>
+              <h2>低模观察</h2>
             </div>
 
             <span className="control-group-label">显示模式</span>
@@ -259,16 +267,16 @@ export default function App() {
               <SegmentedButton
                 value="regions"
                 current={displayMode}
-                label="区域"
+                label="部件"
                 onChange={setDisplayMode}
               />
             </div>
 
             <div className="debug-toggle-stack">
               <ToggleRow
-                label="Ring Guides"
-                enabled={showRings}
-                onChange={setShowRings}
+                label="Part Guides"
+                enabled={showGuides}
+                onChange={setShowGuides}
               />
               <ToggleRow
                 label="地面网格 / 坐标轴"
@@ -335,27 +343,31 @@ export default function App() {
           </section>
 
           <section className="control-section metrics-section">
-            <span className="control-group-label">Topology Stats</span>
+            <span className="control-group-label">Low-Poly Stats</span>
             <div className="topology-stats">
               <div>
+                <span>Parts</span>
+                <strong>{stats.parts}</strong>
+              </div>
+              <div>
                 <span>Sections</span>
-                <strong>{stats.sections}</strong>
-              </div>
-              <div>
-                <span>JointPatch</span>
-                <strong>{stats.jointPatches}</strong>
-              </div>
-              <div>
-                <span>Rings</span>
-                <strong>{stats.rings}</strong>
+                <strong>{stats.crossSections}</strong>
               </div>
               <div>
                 <span>Vertices</span>
                 <strong>{stats.vertices}</strong>
               </div>
-              <div className="stats-wide">
+              <div>
                 <span>Triangles</span>
                 <strong>{stats.triangles}</strong>
+              </div>
+              <div className="stats-wide">
+                <span>Budget</span>
+                <strong>
+                  {stats.triangles} / {stats.triangleBudget}
+                  {' · '}
+                  {Math.round(budgetRatio * 100)}%
+                </strong>
               </div>
             </div>
           </section>
@@ -363,11 +375,12 @@ export default function App() {
           <div className="architecture-note">
             <span>当前验证</span>
             <strong>
-              Parameters → Blueprint → JointPatch → Rings → 1 Mesh
+              Parameters → Segmented Parts → Prism Mesh → 1 Mesh
             </strong>
             <p>
-              肩部已加入第一版 ShoulderPatch，手臂根部不再封口。当前 Patch
-              仍与躯干侧面相交，下一步会继续处理共享边界与真正的无重叠焊接。
+              已放弃连续人体焊接。身体由 16 个低边数逻辑部件组成，
+              关节通过少量重叠遮住断面；每个顶点带 partId 和 boneId，
+              为后续刚性骨骼权重做准备。
             </p>
           </div>
         </aside>
@@ -378,7 +391,7 @@ export default function App() {
             displayMode={displayMode}
             projectionMode={projectionMode}
             viewPreset={viewPreset}
-            showRings={showRings}
+            showGuides={showGuides}
             showGrid={showGrid}
             onTopologyStats={setStats}
           />
@@ -386,12 +399,12 @@ export default function App() {
           <div className="viewport-toolbar-hint">
             <span>{displayMode.toUpperCase()}</span>
             <span>{projectionMode === 'orthographic' ? 'ORTHO' : 'PERSP'}</span>
-            {showRings ? <span>RINGS</span> : null}
+            {showGuides ? <span>GUIDES</span> : null}
           </div>
 
           <div className="viewport-caption">
             <span>拖动旋转 · 滚轮缩放 · 右键平移</span>
-            <span>HumanTopologyBlueprint v2 · External mesh assets: 0</span>
+            <span>LowPolyHumanoidBlueprint v1 · External mesh assets: 0</span>
           </div>
         </section>
       </section>

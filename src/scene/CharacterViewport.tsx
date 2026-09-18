@@ -1,15 +1,15 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { createHumanTopologyBlueprint } from '../character/createHumanTopologyBlueprint';
+import { createLowPolyHumanoidBlueprint } from '../character/createLowPolyHumanoidBlueprint';
 import { generateHumanoidGeometry } from '../character/generateHumanoidGeometry';
-import type { TopologyStats } from '../character/topology';
+import type { LowPolyStats } from '../character/lowPolyTopology';
 import type { BodyParameters } from '../character/types';
 import {
-  applyBodyRegionColors,
-  createRingGuideGroup,
+  applyBodyPartColors,
+  createPartGuideGroup,
   disposeDebugObject,
-} from './createTopologyDebug';
+} from './createLowPolyDebug';
 import type {
   DisplayMode,
   ProjectionMode,
@@ -21,9 +21,9 @@ interface CharacterViewportProps {
   displayMode: DisplayMode;
   projectionMode: ProjectionMode;
   viewPreset: ViewPreset;
-  showRings: boolean;
+  showGuides: boolean;
   showGrid: boolean;
-  onTopologyStats: (stats: TopologyStats) => void;
+  onTopologyStats: (stats: LowPolyStats) => void;
 }
 
 interface ViewportRuntime {
@@ -35,29 +35,29 @@ interface ViewportRuntime {
   activeCamera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
   mesh: THREE.Mesh;
   wireOverlay: THREE.LineSegments;
-  ringGuides: THREE.Group;
+  partGuides: THREE.Group;
   grid: THREE.GridHelper;
   axis: THREE.AxesHelper;
   centerLine: THREE.Line;
   floor: THREE.Mesh;
   shadedMaterial: THREE.MeshStandardMaterial;
-  regionMaterial: THREE.MeshStandardMaterial;
+  partMaterial: THREE.MeshStandardMaterial;
   wireMaterial: THREE.MeshBasicMaterial;
   wireOverlayMaterial: THREE.LineBasicMaterial;
   resize: () => void;
 }
 
-function readTopologyStats(geometry: THREE.BufferGeometry): TopologyStats {
-  const topology = geometry.userData.topology as
-    | (TopologyStats & { blueprintVersion?: number })
+function readLowPolyStats(geometry: THREE.BufferGeometry): LowPolyStats {
+  const stats = geometry.userData.lowPoly as
+    | (LowPolyStats & { blueprintVersion?: number })
     | undefined;
 
   return {
-    sections: topology?.sections ?? 0,
-    jointPatches: topology?.jointPatches ?? 0,
-    rings: topology?.rings ?? 0,
-    vertices: topology?.vertices ?? 0,
-    triangles: topology?.triangles ?? 0,
+    parts: stats?.parts ?? 0,
+    crossSections: stats?.crossSections ?? 0,
+    vertices: stats?.vertices ?? 0,
+    triangles: stats?.triangles ?? 0,
+    triangleBudget: stats?.triangleBudget ?? 500,
   };
 }
 
@@ -126,7 +126,7 @@ function applyDisplayMode(
       runtime.mesh.material = runtime.wireMaterial;
       break;
     case 'regions':
-      runtime.mesh.material = runtime.regionMaterial;
+      runtime.mesh.material = runtime.partMaterial;
       break;
     case 'overlay':
     case 'shaded':
@@ -141,7 +141,7 @@ export function CharacterViewport({
   displayMode,
   projectionMode,
   viewPreset,
-  showRings,
+  showGuides,
   showGrid,
   onTopologyStats,
 }: CharacterViewportProps) {
@@ -193,17 +193,19 @@ export function CharacterViewport({
 
     const shadedMaterial = new THREE.MeshStandardMaterial({
       color: 0xc6b29b,
-      roughness: 0.8,
+      roughness: 0.82,
       metalness: 0,
+      flatShading: true,
       polygonOffset: true,
       polygonOffsetFactor: 1,
       polygonOffsetUnits: 1,
     });
 
-    const regionMaterial = new THREE.MeshStandardMaterial({
+    const partMaterial = new THREE.MeshStandardMaterial({
       vertexColors: true,
-      roughness: 0.78,
+      roughness: 0.8,
       metalness: 0,
+      flatShading: true,
       polygonOffset: true,
       polygonOffsetFactor: 1,
       polygonOffsetUnits: 1,
@@ -215,17 +217,17 @@ export function CharacterViewport({
     });
 
     const wireOverlayMaterial = new THREE.LineBasicMaterial({
-      color: 0x5d5140,
+      color: 0x4d4437,
       transparent: true,
-      opacity: 0.88,
+      opacity: 0.92,
       depthTest: true,
       depthWrite: false,
     });
 
-    const blueprint = createHumanTopologyBlueprint(parameters);
+    const blueprint = createLowPolyHumanoidBlueprint(parameters);
     const geometry = generateHumanoidGeometry(parameters);
-    applyBodyRegionColors(geometry);
-    onTopologyStats(readTopologyStats(geometry));
+    applyBodyPartColors(geometry);
+    onTopologyStats(readLowPolyStats(geometry));
 
     const mesh = new THREE.Mesh(geometry, shadedMaterial);
     mesh.castShadow = true;
@@ -239,8 +241,8 @@ export function CharacterViewport({
     wireOverlay.renderOrder = 3;
     scene.add(wireOverlay);
 
-    const ringGuides = createRingGuideGroup(blueprint);
-    scene.add(ringGuides);
+    const partGuides = createPartGuideGroup(blueprint);
+    scene.add(partGuides);
 
     const floor = new THREE.Mesh(
       new THREE.CircleGeometry(1.3, 64),
@@ -289,13 +291,13 @@ export function CharacterViewport({
       activeCamera: initialCamera,
       mesh,
       wireOverlay,
-      ringGuides,
+      partGuides,
       grid,
       axis,
       centerLine,
       floor,
       shadedMaterial,
-      regionMaterial,
+      partMaterial,
       wireMaterial,
       wireOverlayMaterial,
       resize: () => {},
@@ -330,7 +332,7 @@ export function CharacterViewport({
 
     applyViewPreset(runtime, viewPreset, parameters.height);
     applyDisplayMode(runtime, displayMode);
-    ringGuides.visible = showRings;
+    partGuides.visible = showGuides;
     grid.visible = showGrid;
     axis.visible = showGrid;
 
@@ -353,10 +355,10 @@ export function CharacterViewport({
 
       mesh.geometry.dispose();
       wireOverlay.geometry.dispose();
-      disposeDebugObject(ringGuides);
+      disposeDebugObject(partGuides);
 
       shadedMaterial.dispose();
-      regionMaterial.dispose();
+      partMaterial.dispose();
       wireMaterial.dispose();
       wireOverlayMaterial.dispose();
 
@@ -379,9 +381,9 @@ export function CharacterViewport({
     const runtime = runtimeRef.current;
     if (!runtime) return;
 
-    const blueprint = createHumanTopologyBlueprint(parameters);
+    const blueprint = createLowPolyHumanoidBlueprint(parameters);
     const nextGeometry = generateHumanoidGeometry(parameters);
-    applyBodyRegionColors(nextGeometry);
+    applyBodyPartColors(nextGeometry);
 
     const previousGeometry = runtime.mesh.geometry;
     runtime.mesh.geometry = nextGeometry;
@@ -391,16 +393,16 @@ export function CharacterViewport({
     runtime.wireOverlay.geometry = new THREE.WireframeGeometry(nextGeometry);
     previousWireGeometry.dispose();
 
-    runtime.scene.remove(runtime.ringGuides);
-    disposeDebugObject(runtime.ringGuides);
-    runtime.ringGuides = createRingGuideGroup(blueprint);
-    runtime.ringGuides.visible = showRings;
-    runtime.scene.add(runtime.ringGuides);
+    runtime.scene.remove(runtime.partGuides);
+    disposeDebugObject(runtime.partGuides);
+    runtime.partGuides = createPartGuideGroup(blueprint);
+    runtime.partGuides.visible = showGuides;
+    runtime.scene.add(runtime.partGuides);
 
-    onTopologyStats(readTopologyStats(nextGeometry));
+    onTopologyStats(readLowPolyStats(nextGeometry));
     runtime.controls.target.set(0, parameters.height * 0.5, 0);
     runtime.controls.update();
-  }, [parameters, onTopologyStats, showRings]);
+  }, [parameters, onTopologyStats, showGuides]);
 
   useEffect(() => {
     const runtime = runtimeRef.current;
@@ -431,8 +433,8 @@ export function CharacterViewport({
   useEffect(() => {
     const runtime = runtimeRef.current;
     if (!runtime) return;
-    runtime.ringGuides.visible = showRings;
-  }, [showRings]);
+    runtime.partGuides.visible = showGuides;
+  }, [showGuides]);
 
   useEffect(() => {
     const runtime = runtimeRef.current;
