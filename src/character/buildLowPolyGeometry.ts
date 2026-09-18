@@ -7,6 +7,7 @@ import {
   type PrismProfile,
   type PrismSection,
 } from './lowPolyTopology';
+import { validateLowPolyGeometry } from './validateLowPolyGeometry';
 
 const WORLD_DEPTH = new THREE.Vector3(0, 0, 1);
 const WORLD_UP = new THREE.Vector3(0, 1, 0);
@@ -136,37 +137,36 @@ function connectSections(
     const c = current[index];
     const d = current[next];
 
-    buffers.indices.push(a, b, c);
-    buffers.indices.push(b, d, c);
+    // THREE.FrontSide expects the exterior side to be counter-clockwise.
+    // The profile loop is ordered so its direct normal points toward -tangent.
+    // For the side wall, tangent x profile-edge gives the outward normal.
+    buffers.indices.push(a, c, b);
+    buffers.indices.push(b, c, d);
   }
 }
 
-function capSection(
-  part: LowPolyPart,
-  section: PrismSection,
+function capBoundary(
   boundary: readonly number[],
   reverse: boolean,
   buffers: BuildBuffers,
 ): void {
-  const centerIndex = buffers.vertexOffset;
-  const partId = BODY_PART_IDS[part.id];
+  if (boundary.length < 3) return;
 
-  buffers.positions.push(
-    section.center[0],
-    section.center[1],
-    section.center[2],
-  );
-  buffers.partIds.push(partId);
-  buffers.boneIds.push(part.boneId);
-  buffers.vertexOffset += 1;
-
-  for (let index = 0; index < boundary.length; index += 1) {
-    const next = (index + 1) % boundary.length;
-
+  // Triangulate the convex profile as a fan from an existing boundary vertex.
+  // This uses N-2 triangles and no extra center vertex.
+  for (let index = 1; index < boundary.length - 1; index += 1) {
     if (reverse) {
-      buffers.indices.push(centerIndex, boundary[next], boundary[index]);
+      buffers.indices.push(
+        boundary[0],
+        boundary[index + 1],
+        boundary[index],
+      );
     } else {
-      buffers.indices.push(centerIndex, boundary[index], boundary[next]);
+      buffers.indices.push(
+        boundary[0],
+        boundary[index],
+        boundary[index + 1],
+      );
     }
   }
 }
@@ -198,25 +198,15 @@ function appendPart(
     }
   }
 
+  // Direct profile order points toward -part tangent, so it is correct for
+  // the start cap. The end cap must use the opposite winding.
   if (part.capStart) {
-    capSection(
-      part,
-      part.sections[0],
-      sectionIndices[0],
-      true,
-      buffers,
-    );
+    capBoundary(sectionIndices[0], false, buffers);
   }
 
   if (part.capEnd) {
     const last = sectionIndices.length - 1;
-    capSection(
-      part,
-      part.sections[last],
-      sectionIndices[last],
-      false,
-      buffers,
-    );
+    capBoundary(sectionIndices[last], true, buffers);
   }
 }
 
@@ -264,8 +254,11 @@ export function buildLowPolyGeometry(
     triangleBudget: blueprint.triangleBudget,
   };
 
+  const validation = validateLowPolyGeometry(geometry, blueprint);
+
   geometry.userData.lowPoly = {
     blueprintVersion: blueprint.version,
+    validation,
     ...stats,
   };
 
