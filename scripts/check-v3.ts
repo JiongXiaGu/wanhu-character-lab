@@ -156,7 +156,49 @@ for (const outfit of ["body", "farmer", "guard", "archer"] as Outfit[])
         frames++;
       }
     }
+    // 行走方向语义：+Z 是人物前方。
+    // 右脚前触地时右臂必须向后；随后支撑脚贴地向后扫，
+    // 对侧脚抬起从后向前摆。这个检查专门防止“月球步/倒走”回归。
     const walk = a.clips.walk;
+    const boneWorld = (boneIndex: number) => {
+      a.mesh.updateMatrixWorld(true);
+      a.skeleton.update();
+      return a.bones[boneIndex].getWorldPosition(new T.Vector3());
+    };
+    const walkPose = (phase: number) => {
+      a.setMotion("walk");
+      a.seek(phase * walk.duration);
+      return {
+        rightFoot: boneWorld(16),
+        leftFoot: boneWorld(19),
+        rightHand: boneWorld(9),
+        leftHand: boneWorld(13),
+      };
+    };
+    const contact = walkPose(0);
+    assert(
+      contact.rightFoot.z > contact.leftFoot.z + 0.05,
+      "行走方向错误：右脚前触地没有位于 +Z 前方",
+    );
+    assert(
+      contact.rightHand.z < contact.leftHand.z - 0.015,
+      "行走相位错误：同侧手臂和腿在一起向前摆",
+    );
+    const leftSwing = walkPose(0.25);
+    assert(
+      leftSwing.leftFoot.y > leftSwing.rightFoot.y + 0.015,
+      "行走相位错误：后脚向前摆时没有抬起",
+    );
+    const oppositeContact = walkPose(0.5);
+    assert(
+      oppositeContact.leftFoot.z > oppositeContact.rightFoot.z + 0.05,
+      "行走方向错误：半周期后左脚没有前触地",
+    );
+    const rightSwing = walkPose(0.75);
+    assert(
+      rightSwing.rightFoot.y > rightSwing.leftFoot.y + 0.015,
+      "行走相位错误：右脚向前摆时没有抬起",
+    );
     assert.equal(walk.tracks.length, 21);
     for (const track of walk.tracks) {
       const s = track.getValueSize();
