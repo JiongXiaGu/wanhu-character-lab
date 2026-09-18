@@ -1,67 +1,68 @@
-name: Visual Review
-
+name: Character Visual Review
 on:
   push:
-    branches: [main]
-    paths:
-      - "src/**"
-      - ".github/workflows/visual-review.yml"
+    branches: [main, rebuild/character-v3]
+  pull_request:
   workflow_dispatch:
-
+concurrency:
+  group: character-review-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
 jobs:
   review:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
+    permissions:
+      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Validate procedural mesh
-        run: npm run check:mesh
-
+      - name: Install exact dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Format V3 source
+        if: github.ref == 'refs/heads/rebuild/character-v3'
+        run: npx --yes prettier@3.6.2 --write src/character/v3 src/App.tsx src/scene/CharacterViewport.tsx src/styles.css scripts/check-v3.ts scripts/review-v3.mjs vite.config.ts package.json
+      - name: Validate topology and sampled animation
+        run: npm run check:mesh | tee mesh-review.log
       - name: Build
         run: npm run build
-
-      - name: Install Chromium
-        run: npx --yes playwright@1.55.0 install --with-deps chromium
-
-      - name: Start preview
+      - name: Install review browser and Chinese font
+        run: |
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Preview and review actual WebGL
         run: |
           npm run preview -- --host 127.0.0.1 --port 4173 > preview.log 2>&1 &
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4173/ > /dev/null; then
-              exit 0
-            fi
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
             sleep 1
           done
-          cat preview.log
-          exit 1
-
-      - name: Capture review screenshots
+          npm run check:visual
+      - name: Save tested lockfile and formatting on rebuild branch
+        if: success() && github.ref == 'refs/heads/rebuild/character-v3'
         run: |
-          mkdir -p review
-
-          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=perspective&view=perspective&guides=0&grid=1'             review/01-perspective-overlay.png
-
-          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=orthographic&view=front&guides=0&grid=0'             review/02-front-ortho-overlay.png
-
-          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=orthographic&view=right&guides=0&grid=0'             review/03-right-ortho-overlay.png
-
-          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=orthographic&view=top&guides=0&grid=0'             review/04-top-ortho-overlay.png
-
-          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=wireframe&projection=orthographic&view=front&guides=1&grid=0'             review/05-front-ortho-wire.png
-
-      - name: Upload review artifact
-        uses: actions/upload-artifact@v4
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package-lock.json package.json src/character/v3 src/App.tsx src/scene/CharacterViewport.tsx src/styles.css scripts/check-v3.ts scripts/review-v3.mjs vite.config.ts
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: record verified dependency lock and format V3 source'
+            git push origin HEAD:rebuild/character-v3
+          fi
+      - name: Package reviewed source
+        if: always()
+        run: |
+          tar -czf reviewed-source.tar.gz --exclude=node_modules --exclude=.git --exclude=dist --exclude=review --exclude=reviewed-source.tar.gz .
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: character-lowpoly-review
-          path: review/*.png
+          name: character-v3-review
+          path: |
+            review/
+            mesh-review.log
+            preview.log
+            reviewed-source.tar.gz
           retention-days: 7
