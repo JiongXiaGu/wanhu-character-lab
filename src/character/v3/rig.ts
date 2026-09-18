@@ -36,7 +36,7 @@ export interface Actor {
   setCombatSpeed: (speed: number) => void;
   setAim: (yawDegrees: number, pitchDegrees: number) => void;
   getCombatPhase: () => number;
-  update: (dt: number) => void;
+  update: (motionDt: number, combatDt?: number) => void;
   dispose: () => void;
   seek: (time: number) => void;
 }
@@ -334,9 +334,9 @@ export function makeActor(data: CharacterData): Actor {
       return clampActionPhase((combatAction.time % duration) / duration);
     },
 
-    update(dt) {
-      mixer.update(dt);
-      actionMixer.update(dt);
+    update(motionDt, combatDt = motionDt) {
+      mixer.update(motionDt);
+      actionMixer.update(combatDt);
       applyAimOverlay();
       debug();
     },
