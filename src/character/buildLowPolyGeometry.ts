@@ -104,10 +104,15 @@ function appendSection(
   const partId = BODY_PART_IDS[part.id];
 
   for (const [x, z] of profile) {
+    const depth =
+      z >= 0
+        ? z * section.positiveDepth
+        : z * section.negativeDepth;
+
     const point = center
       .clone()
       .addScaledVector(right, x * section.halfWidth)
-      .addScaledVector(forward, z * section.halfDepth);
+      .addScaledVector(forward, depth);
 
     vertexIndices.push(buffers.vertexOffset);
     buffers.positions.push(point.x, point.y, point.z);

@@ -26,7 +26,12 @@ export type BodyPartId = keyof typeof BODY_PART_IDS;
 export interface PrismSection {
   center: Vec3Tuple;
   halfWidth: number;
-  halfDepth: number;
+
+  // Distance along the section frame's +forward and -forward axes.
+  // On vertical body parts this maps to front/back depth.
+  // On horizontal feet this maps to top/bottom thickness.
+  positiveDepth: number;
+  negativeDepth: number;
 }
 
 export interface LowPolyPart {
@@ -39,7 +44,7 @@ export interface LowPolyPart {
 }
 
 export interface LowPolyHumanoidBlueprint {
-  version: 1;
+  version: 2;
   triangleBudget: number;
   parts: readonly LowPolyPart[];
 }

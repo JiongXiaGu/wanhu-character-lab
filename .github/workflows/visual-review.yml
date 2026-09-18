@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Validate procedural mesh
+        run: npm run check:mesh
+
       - name: Build
         run: npm run build
 
@@ -45,9 +48,16 @@ jobs:
       - name: Capture review screenshots
         run: |
           mkdir -p review
-          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=perspective&view=perspective&guides=0&grid=1'             review/01-overlay-perspective.png
-          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=wireframe&projection=orthographic&view=front&guides=1&grid=1'             review/02-wire-front-ortho.png
-          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=regions&projection=orthographic&view=right&guides=0&grid=1'             review/03-parts-right-ortho.png
+
+          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=perspective&view=perspective&guides=0&grid=1'             review/01-perspective-overlay.png
+
+          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=orthographic&view=front&guides=0&grid=0'             review/02-front-ortho-overlay.png
+
+          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=orthographic&view=right&guides=0&grid=0'             review/03-right-ortho-overlay.png
+
+          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=overlay&projection=orthographic&view=top&guides=0&grid=0'             review/04-top-ortho-overlay.png
+
+          npx --yes playwright@1.55.0 screenshot --viewport-size="1920,1080" --wait-for-timeout=1200             'http://127.0.0.1:4173/?mode=wireframe&projection=orthographic&view=front&guides=1&grid=0'             review/05-front-ortho-wire.png
 
       - name: Upload review artifact
         uses: actions/upload-artifact@v4

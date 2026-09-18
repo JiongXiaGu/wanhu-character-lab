@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { resolveHumanLandmarks } from './resolveHumanLandmarks';
 import type { BodyParameters } from './types';
 import {
   BODY_PART_IDS,
@@ -13,9 +14,15 @@ import {
 function section(
   center: Vec3Tuple,
   halfWidth: number,
-  halfDepth: number,
+  positiveDepth: number,
+  negativeDepth = positiveDepth,
 ): PrismSection {
-  return { center, halfWidth, halfDepth };
+  return {
+    center,
+    halfWidth,
+    positiveDepth,
+    negativeDepth,
+  };
 }
 
 function part(
@@ -38,24 +45,28 @@ function part(
 function createArmParts(
   side: -1 | 1,
   height: number,
-  shoulderWidth: number,
+  shoulderEdgeHalf: number,
   shoulderY: number,
   buildScale: number,
 ): LowPolyPart[] {
   const prefix = side < 0 ? 'left' : 'right';
-  const shoulderX = side * shoulderWidth * 0.54;
+
+  const upperHalf = height * 0.031 * buildScale;
+  const elbowHalf = upperHalf * 0.84;
+  const wristHalf = upperHalf * 0.64;
+
+  const shoulderX =
+    side * (shoulderEdgeHalf + upperHalf * 0.52);
+  const shoulderRootY = shoulderY - height * 0.02;
+
   const upperLength = height * 0.18;
   const lowerLength = height * 0.16;
-  const handLength = height * 0.068;
+  const handLength = height * 0.058;
 
-  const elbowX = shoulderX + side * height * 0.008;
-  const elbowY = shoulderY - upperLength;
+  const elbowX = shoulderX + side * height * 0.006;
+  const elbowY = shoulderRootY - upperLength;
   const wristX = elbowX - side * height * 0.004;
   const wristY = elbowY - lowerLength;
-
-  const upperHalf = height * 0.032 * buildScale;
-  const elbowHalf = upperHalf * 0.86;
-  const wristHalf = upperHalf * 0.68;
 
   const upperId = `${prefix}UpperArm` as BodyPartId;
   const lowerId = `${prefix}LowerArm` as BodyPartId;
@@ -67,50 +78,52 @@ function createArmParts(
       'hex6',
       [
         section(
-          [shoulderX, shoulderY + height * 0.014, 0],
-          upperHalf * 1.06,
+          [shoulderX, shoulderRootY, -height * 0.002],
+          upperHalf,
           upperHalf * 0.94,
+          upperHalf * 0.9,
         ),
         section(
           [elbowX, elbowY + height * 0.018, 0],
           elbowHalf,
-          elbowHalf * 0.92,
+          elbowHalf * 0.9,
+          elbowHalf * 0.88,
         ),
       ],
-      false,
-      false,
     ),
     part(
       lowerId,
       'hex6',
       [
         section(
-          [elbowX, elbowY + height * 0.028, 0],
+          [elbowX, elbowY + height * 0.026, 0],
           elbowHalf * 0.94,
           elbowHalf * 0.9,
+          elbowHalf * 0.86,
         ),
         section(
-          [wristX, wristY + height * 0.018, 0],
+          [wristX, wristY + height * 0.016, height * 0.002],
           wristHalf,
-          wristHalf * 0.82,
+          wristHalf * 0.76,
+          wristHalf * 0.72,
         ),
       ],
-      false,
-      false,
     ),
     part(
       handId,
       'box4',
       [
         section(
-          [wristX, wristY + height * 0.024, height * 0.006],
-          wristHalf * 0.92,
-          wristHalf * 0.62,
+          [wristX, wristY + height * 0.022, height * 0.006],
+          wristHalf * 0.82,
+          wristHalf * 0.58,
+          wristHalf * 0.52,
         ),
         section(
-          [wristX, wristY - handLength, height * 0.014],
-          wristHalf * 0.82,
-          wristHalf * 0.55,
+          [wristX, wristY - handLength, height * 0.012],
+          wristHalf * 0.74,
+          wristHalf * 0.54,
+          wristHalf * 0.48,
         ),
       ],
       true,
@@ -123,20 +136,21 @@ function createLegParts(
   side: -1 | 1,
   height: number,
   hipY: number,
+  kneeY: number,
+  ankleY: number,
   pelvisHalfWidth: number,
   buildScale: number,
 ): LowPolyPart[] {
   const prefix = side < 0 ? 'left' : 'right';
-  const hipX = side * pelvisHalfWidth * 0.58;
-  const kneeY = height * 0.285;
-  const ankleY = height * 0.058;
+
+  const hipX = side * pelvisHalfWidth * 0.52;
   const kneeX = hipX * 0.94;
   const ankleX = hipX * 0.9;
 
-  const thighHalf = height * 0.044 * buildScale;
-  const kneeHalf = thighHalf * 0.74;
+  const thighHalf = height * 0.043 * buildScale;
+  const kneeHalf = thighHalf * 0.72;
   const calfHalf = thighHalf * 0.8;
-  const ankleHalf = thighHalf * 0.56;
+  const ankleHalf = thighHalf * 0.54;
 
   const upperId = `${prefix}UpperLeg` as BodyPartId;
   const lowerId = `${prefix}LowerLeg` as BodyPartId;
@@ -148,59 +162,68 @@ function createLegParts(
       'hex6',
       [
         section(
-          [hipX, hipY + height * 0.018, 0],
+          [hipX, hipY + height * 0.014, -height * 0.004],
           thighHalf * 1.08,
+          thighHalf * 0.95,
           thighHalf,
         ),
         section(
-          [kneeX, kneeY + height * 0.022, 0],
+          [kneeX, kneeY + height * 0.02, height * 0.004],
           kneeHalf,
+          kneeHalf * 0.9,
           kneeHalf * 0.92,
         ),
       ],
-      false,
-      false,
     ),
     part(
       lowerId,
       'hex6',
       [
         section(
-          [kneeX, kneeY + height * 0.03, 0],
+          [kneeX, kneeY + height * 0.028, height * 0.004],
           kneeHalf * 0.94,
-          kneeHalf * 0.9,
+          kneeHalf * 0.88,
+          kneeHalf * 0.92,
         ),
         section(
           [
             THREE.MathUtils.lerp(kneeX, ankleX, 0.46),
             THREE.MathUtils.lerp(kneeY, ankleY, 0.46),
-            -height * 0.008,
+            -height * 0.012,
           ],
           calfHalf,
-          calfHalf * 0.9,
+          calfHalf * 0.86,
+          calfHalf,
         ),
         section(
-          [ankleX, ankleY + height * 0.02, 0],
+          [ankleX, ankleY + height * 0.018, 0],
           ankleHalf,
-          ankleHalf * 0.78,
+          ankleHalf * 0.74,
+          ankleHalf * 0.76,
         ),
       ],
-      false,
-      false,
     ),
     part(
       footId,
       'box4',
       [
         section(
-          [ankleX, height * 0.045, height * 0.008],
-          ankleHalf * 1.02,
-          height * 0.04,
+          [ankleX, height * 0.024, -height * 0.018],
+          ankleHalf * 1.04,
+          height * 0.028,
+          height * 0.024,
         ),
         section(
-          [ankleX, height * 0.038, height * 0.105],
+          [ankleX, height * 0.026, height * 0.062],
+          ankleHalf * 1.18,
+          height * 0.03,
+          height * 0.026,
+        ),
+        section(
+          [ankleX, height * 0.023, height * 0.12],
           ankleHalf * 1.08,
-          height * 0.052,
+          height * 0.025,
+          height * 0.023,
         ),
       ],
       true,
@@ -213,36 +236,37 @@ export function createLowPolyHumanoidBlueprint(
   parameters: BodyParameters,
 ): LowPolyHumanoidBlueprint {
   const { height, build, shoulderWidth, headScale } = parameters;
-  const buildScale = THREE.MathUtils.lerp(0.86, 1.18, build);
-
-  const hipY = height * 0.51;
-  const lowerAbdomenY = hipY + height * 0.04;
-  const waistY = height * 0.62;
-  const chestY = height * 0.745;
-  const shoulderY = height * 0.805;
-  const neckBaseY = height * 0.835;
+  const landmarks = resolveHumanLandmarks(parameters);
+  const buildScale = THREE.MathUtils.lerp(0.88, 1.16, build);
 
   const torsoShoulderHalf = shoulderWidth * 0.455;
-  const chestHalf = shoulderWidth * 0.39 * buildScale;
-  const waistHalf = shoulderWidth * 0.305 * buildScale;
-  const pelvisHalf = shoulderWidth * THREE.MathUtils.lerp(0.32, 0.37, build);
+  const chestHalf = shoulderWidth * 0.395 * buildScale;
+  const waistHalf = shoulderWidth * 0.31 * buildScale;
+  const pelvisHalf =
+    shoulderWidth * THREE.MathUtils.lerp(0.325, 0.37, build);
 
-  const chestDepth = height * 0.062 * buildScale;
-  const waistDepth = chestDepth * 0.78;
-  const pelvisDepth = height * 0.072 * THREE.MathUtils.lerp(0.94, 1.08, build);
+  const abdomenHalf =
+    THREE.MathUtils.lerp(pelvisHalf, waistHalf, 0.46);
 
-  const lowerAbdomenHalf =
-    THREE.MathUtils.lerp(pelvisHalf, waistHalf, 0.42);
-  const lowerAbdomenDepth =
-    THREE.MathUtils.lerp(pelvisDepth, waistDepth, 0.5);
+  const chestFront = height * 0.066 * buildScale;
+  const chestBack = height * 0.057 * buildScale;
+  const waistFront = height * 0.049 * buildScale;
+  const waistBack = height * 0.044 * buildScale;
+  const abdomenFront = height * 0.057 * buildScale;
+  const abdomenBack = height * 0.054 * buildScale;
 
-  const headHeight = height * 0.13 * headScale;
-  const headTopY = height;
-  const headBottomY = headTopY - headHeight;
-  const headHalfWidth = height * 0.048 * headScale;
-  const headHalfDepth = height * 0.058 * headScale;
+  const pelvisFront =
+    height * 0.06 * THREE.MathUtils.lerp(0.94, 1.08, build);
+  const pelvisBack =
+    height * 0.078 * THREE.MathUtils.lerp(0.94, 1.1, build);
 
-  const neckHalf = height * 0.028 * THREE.MathUtils.lerp(0.92, 1.08, build);
+  const headHeight = landmarks.headTopY - landmarks.headBottomY;
+  const headHalfWidth = height * 0.046 * headScale;
+  const headFront = height * 0.052 * headScale;
+  const headBack = height * 0.058 * headScale;
+
+  const neckHalf =
+    height * 0.027 * THREE.MathUtils.lerp(0.92, 1.08, build);
 
   const parts: LowPolyPart[] = [
     part(
@@ -250,91 +274,145 @@ export function createLowPolyHumanoidBlueprint(
       'oct8',
       [
         section(
-          [0, lowerAbdomenY, 0],
-          lowerAbdomenHalf,
-          lowerAbdomenDepth,
+          [0, landmarks.lowerAbdomenY, height * 0.008],
+          abdomenHalf,
+          abdomenFront,
+          abdomenBack,
         ),
         section(
-          [0, waistY, 0],
+          [0, landmarks.waistY, height * 0.002],
           waistHalf,
-          waistDepth,
+          waistFront,
+          waistBack,
         ),
         section(
-          [0, chestY, 0],
+          [0, landmarks.chestY, height * 0.006],
           chestHalf,
-          chestDepth,
+          chestFront,
+          chestBack,
         ),
         section(
-          [0, shoulderY, 0],
+          [0, landmarks.shoulderY, 0],
           torsoShoulderHalf,
-          chestDepth * 0.9,
+          chestFront * 0.9,
+          chestBack * 0.96,
         ),
       ],
       false,
-      false,
+      true,
     ),
     part(
       'pelvis',
       'oct8',
       [
         section(
-          [0, hipY - height * 0.035, 0],
-          pelvisHalf * 0.94,
-          pelvisDepth * 0.94,
+          [0, landmarks.hipY - height * 0.035, -height * 0.012],
+          pelvisHalf * 0.9,
+          pelvisFront * 0.9,
+          pelvisBack * 0.94,
         ),
         section(
-          [0, hipY + height * 0.07, 0],
+          [0, landmarks.hipY + height * 0.015, -height * 0.008],
           pelvisHalf,
-          pelvisDepth,
+          pelvisFront,
+          pelvisBack,
+        ),
+        section(
+          [0, landmarks.lowerAbdomenY + height * 0.018, -height * 0.003],
+          pelvisHalf * 0.9,
+          pelvisFront * 0.94,
+          pelvisBack * 0.88,
         ),
       ],
-      false,
-      false,
     ),
     part(
       'neck',
       'box4',
       [
         section(
-          [0, neckBaseY - height * 0.018, 0],
-          neckHalf * 1.06,
-          neckHalf,
-        ),
-        section(
-          [0, headBottomY + height * 0.018, 0],
+          [0, landmarks.neckBaseY - height * 0.012, 0],
+          neckHalf * 1.08,
           neckHalf,
           neckHalf * 0.96,
         ),
+        section(
+          [0, landmarks.headBottomY + height * 0.012, 0],
+          neckHalf,
+          neckHalf * 0.94,
+          neckHalf * 0.94,
+        ),
       ],
-      false,
-      false,
     ),
     part(
       'head',
-      'box4',
+      'oct8',
       [
         section(
-          [0, headBottomY - height * 0.006, height * 0.004],
-          headHalfWidth * 0.82,
-          headHalfDepth * 0.82,
+          [
+            0,
+            landmarks.headBottomY + height * 0.018,
+            height * 0.004,
+          ],
+          headHalfWidth * 0.78,
+          headFront * 0.78,
+          headBack * 0.82,
         ),
         section(
-          [0, headTopY - headHeight * 0.18, 0],
+          [
+            0,
+            landmarks.headBottomY + headHeight * 0.48,
+            height * 0.006,
+          ],
           headHalfWidth,
-          headHalfDepth,
+          headFront,
+          headBack * 1.05,
+        ),
+        section(
+          [0, landmarks.headTopY - height * 0.018, 0],
+          headHalfWidth * 0.9,
+          headFront * 0.88,
+          headBack * 0.96,
         ),
       ],
       true,
       true,
     ),
-    ...createArmParts(-1, height, shoulderWidth, shoulderY, buildScale),
-    ...createArmParts(1, height, shoulderWidth, shoulderY, buildScale),
-    ...createLegParts(-1, height, hipY, pelvisHalf, buildScale),
-    ...createLegParts(1, height, hipY, pelvisHalf, buildScale),
+    ...createArmParts(
+      -1,
+      height,
+      torsoShoulderHalf,
+      landmarks.shoulderY,
+      buildScale,
+    ),
+    ...createArmParts(
+      1,
+      height,
+      torsoShoulderHalf,
+      landmarks.shoulderY,
+      buildScale,
+    ),
+    ...createLegParts(
+      -1,
+      height,
+      landmarks.hipY,
+      landmarks.kneeY,
+      landmarks.ankleY,
+      pelvisHalf,
+      buildScale,
+    ),
+    ...createLegParts(
+      1,
+      height,
+      landmarks.hipY,
+      landmarks.kneeY,
+      landmarks.ankleY,
+      pelvisHalf,
+      buildScale,
+    ),
   ];
 
   return {
-    version: 1,
+    version: 2,
     triangleBudget: 500,
     parts,
   };
