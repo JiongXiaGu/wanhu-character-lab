@@ -161,6 +161,10 @@ try {
     motion: "idle",
     phase: ".25",
   });
+  assert.equal(await page.getByLabel("头饰").inputValue(), "farmer_straw_hat");
+  assert.equal(await page.getByLabel("上衣").inputValue(), "archer_tunic");
+  assert.equal(await page.getByLabel("背部").inputValue(), "archer_quiver");
+  assert.equal(await page.getByLabel("左手").inputValue(), "archer_bow");
   await capture("17-body-top", {
     outfit: "body",
     motion: "bind",
