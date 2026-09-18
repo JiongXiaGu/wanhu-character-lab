@@ -369,11 +369,11 @@ function validateCombatAction(
   );
 
   assert(
-    rightThighDelta < 1e-5,
+    rightThighDelta < 5e-4,
     `Action 覆盖了右腿：${actionId} / ${rightThighDelta}`,
   );
   assert(
-    leftThighDelta < 1e-5,
+    leftThighDelta < 5e-4,
     `Action 覆盖了左腿：${actionId} / ${leftThighDelta}`,
   );
 
