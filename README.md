@@ -2,84 +2,77 @@
 
 《万户天工》程序化人物生成实验仓库。
 
-网页只是快速实验台，最终正式运行时仍在 Unity 中实现。核心目标是验证：
+网页只是快速实验台，最终正式运行时仍在 Unity 中实现。
 
-- 运行时程序化人物 Mesh；
-- 低面数角色拓扑；
-- 分段骨骼与刚性权重；
-- 程序化服装 Recipe；
-- LOD、Mesh Cache 与大规模居民复用；
-- Web / Unity 共用的数据语义。
+## 当前设计方向
 
-正式方向不把 FBX / GLB 人物或服装 Mesh 作为运行时核心内容源。
+当前 Segmented Low-Poly 人体只作为技术 prototype。
 
-## 技术栈
+正式下一路线：
 
-- React
-- TypeScript
-- Vite
-- Three.js
-- Vercel（仅用于在线观察）
+~~~text
+BodyParameters
+→ HumanLandmarks
+→ V2 Continuous Low-Poly Base Body
+→ Body Surface Semantics
+→ Rig / Skinning
+→ GarmentRecipe
+→ Body Hide
+→ Final Runtime Mesh
+~~~
+
+V2 人体要求：
+
+- 连续低模 Surface；
+- 固定拓扑；
+- 极少关节环线；
+- 稳定 Body Face Group；
+- 稳定 Garment Anchor Loop；
+- 面数严格受控。
+
+服装默认不使用 Cloth Simulation。
+
+详细设计：
+
+- Documentation/运行时人物生成架构.md
+- Documentation/服装生成架构.md
+- Documentation/工作交接.md
 
 ## 本地运行
 
-Windows 推荐直接双击仓库根目录：
+Windows 推荐直接双击：
 
-```text
 Start-Local.cmd
-```
 
-也可以手动：
+也可以：
 
-```bash
+~~~bash
 npm install
 npm run dev
-```
+~~~
 
 构建：
 
-```bash
+~~~bash
 npm run build
-```
+~~~
 
-## 当前阶段
+Mesh 检查：
 
-**Phase 2 · Low-Poly Segmented Humanoid**
+~~~bash
+npm run check:mesh
+~~~
 
-前一版 Ring / JointPatch / Shoulder Opening 的“连续人体拓扑”路线已经停止继续扩展。
+## 当前技术基线
 
-当前主线改为：
+现有 Web prototype 已经具备：
 
-```text
-BodyParameters
-→ LowPolyHumanoidBlueprint
-→ 16 Segmented Parts
-→ Fixed Prism Profiles
-→ 1 BufferGeometry
-```
+- Runtime Mesh；
+- UInt16 Index；
+- UInt8 Body / Bone Semantic；
+- Mesh Validation；
+- Wireframe / Overlay；
+- 正交 Front / Side / Top Review；
+- GitHub Actions 自动 Build / Visual Review。
 
-当前固定截面只有：
-
-- `box4`
-- `hex6`
-- `oct8`
-
-关节默认允许少量重叠，不再为肩、髋、膝、肘做复杂焊接。
-
-当前目标：
-
-- 默认裸体基础胚 ≤ 500 tris；
-- 实际尽量控制在 200～300 tris；
-- 逻辑上 16 个身体部件；
-- 渲染上仍然编译为 1 Mesh；
-- 每顶点写入 `bodyPart` 与 `boneIndex`；
-- 后续优先验证刚性骨骼动画，而不是复杂 Smooth Skinning。
-
-网页支持：
-
-- Shaded / Wireframe / Overlay / Part Colors；
-- Part Guides；
-- Perspective / Orthographic；
-- Front / Back / Left / Right / Top / 3/4；
-- Grid / Axis；
-- Parts / Sections / Vertices / Triangles / Budget 统计。
+这些基础设施会继续用于 V2。
