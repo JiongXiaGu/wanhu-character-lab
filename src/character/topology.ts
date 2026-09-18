@@ -24,11 +24,21 @@ export interface SectionRing {
   sharedBoundary?: string;
 }
 
+export interface SectionOpening {
+  id: string;
+  boundary: string;
+  lowerRing: string;
+  upperRing: string;
+  segmentStart: number;
+  segmentCount: number;
+}
+
 export interface BodySection {
   id: string;
   region: BodyRegion;
   radialSegments: number;
   rings: readonly SectionRing[];
+  openings?: readonly SectionOpening[];
   capStart?: boolean;
   capEnd?: boolean;
 }
@@ -38,6 +48,7 @@ export interface JointPatch {
   kind: 'shoulder';
   region: BodyRegion;
   radialSegments: number;
+  startBoundary?: string;
   rings: readonly SectionRing[];
   capStart?: boolean;
   capEnd?: boolean;

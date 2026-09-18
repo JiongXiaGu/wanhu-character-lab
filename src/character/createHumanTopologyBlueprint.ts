@@ -80,49 +80,40 @@ function createShoulderPatch(
     kind: 'shoulder',
     region: side < 0 ? 'leftShoulder' : 'rightShoulder',
     radialSegments: 10,
+    startBoundary: `${sideName}:shoulder-opening`,
     capStart: false,
     capEnd: false,
     rings: [
-      ring(
-        'chestSocket',
-        [
-          side * chestHalfWidth * 0.72,
-          shoulderY - height * 0.026,
-          0,
-        ],
-        upperRadius * 0.9,
-        upperRadius * 0.94,
-        { tangent: [side, 0.08, 0] },
-      ),
       ring(
         'deltoidInner',
         [
           side *
             THREE.MathUtils.lerp(
-              chestHalfWidth * 0.82,
+              chestHalfWidth * 0.96,
               shoulderOuterX,
-              0.34,
+              0.28,
             ),
-          shoulderY - height * 0.004,
+          shoulderY - height * 0.002,
           0,
         ],
-        upperRadius,
-        upperRadius * 1.04,
+        upperRadius * 0.94,
+        upperRadius * 0.95,
+        { tangent: [side, -0.06, 0] },
       ),
       ring(
         'deltoidPeak',
         [
           side *
             THREE.MathUtils.lerp(
-              chestHalfWidth * 0.9,
+              chestHalfWidth,
               shoulderOuterX,
-              0.62,
+              0.58,
             ),
-          shoulderY + height * 0.004,
+          shoulderY + height * 0.001,
           0,
         ],
-        upperRadius * 1.04,
-        upperRadius * 1.08,
+        upperRadius,
+        upperRadius * 1.02,
       ),
       ring(
         'deltoidOuter',
@@ -136,8 +127,8 @@ function createShoulderPatch(
           shoulderY - height * 0.008,
           0,
         ],
-        upperRadius,
-        upperRadius,
+        upperRadius * 0.98,
+        upperRadius * 0.97,
       ),
       armRoot,
     ],
@@ -413,6 +404,24 @@ export function createHumanTopologyBlueprint(
     radialSegments: 16,
     capStart: true,
     capEnd: true,
+    openings: [
+      {
+        id: 'rightShoulderOpening',
+        boundary: 'right:shoulder-opening',
+        lowerRing: 'upperChest',
+        upperRing: 'collar',
+        segmentStart: 2,
+        segmentCount: 4,
+      },
+      {
+        id: 'leftShoulderOpening',
+        boundary: 'left:shoulder-opening',
+        lowerRing: 'upperChest',
+        upperRing: 'collar',
+        segmentStart: 10,
+        segmentCount: 4,
+      },
+    ],
     rings: [
       ring(
         'pelvisBottom',
