@@ -250,9 +250,9 @@ export function createLowPolyHumanoidBlueprint(
   const abdomenBack = height * 0.054 * buildScale;
 
   const pelvisFront =
-    height * 0.06 * THREE.MathUtils.lerp(0.94, 1.08, build);
+    height * 0.052 * THREE.MathUtils.lerp(0.95, 1.07, build);
   const pelvisBack =
-    height * 0.078 * THREE.MathUtils.lerp(0.94, 1.1, build);
+    height * 0.066 * THREE.MathUtils.lerp(0.95, 1.08, build);
 
   const headHeight = landmarks.headTopY - landmarks.headBottomY;
   const headHalfWidth = height * 0.046 * headScale;
@@ -300,19 +300,19 @@ export function createLowPolyHumanoidBlueprint(
       'oct8',
       [
         section(
-          [0, landmarks.hipY - height * 0.035, -height * 0.012],
+          [0, landmarks.hipY - height * 0.035, -height * 0.007],
           pelvisHalf * 0.9,
           pelvisFront * 0.9,
           pelvisBack * 0.94,
         ),
         section(
-          [0, landmarks.hipY + height * 0.015, -height * 0.008],
+          [0, landmarks.hipY + height * 0.015, -height * 0.004],
           pelvisHalf,
           pelvisFront,
           pelvisBack,
         ),
         section(
-          [0, landmarks.lowerAbdomenY + height * 0.018, -height * 0.003],
+          [0, landmarks.lowerAbdomenY + height * 0.018, -height * 0.002],
           pelvisHalf * 0.9,
           pelvisFront * 0.94,
           pelvisBack * 0.88,
@@ -324,13 +324,13 @@ export function createLowPolyHumanoidBlueprint(
       'box4',
       [
         section(
-          [0, landmarks.neckBaseY - height * 0.012, 0],
+          [0, landmarks.shoulderY - height * 0.006, 0],
           neckHalf * 1.08,
           neckHalf,
           neckHalf * 0.96,
         ),
         section(
-          [0, landmarks.headBottomY + height * 0.012, 0],
+          [0, landmarks.headBottomY + height * 0.024, 0],
           neckHalf,
           neckHalf * 0.94,
           neckHalf * 0.94,
@@ -344,7 +344,7 @@ export function createLowPolyHumanoidBlueprint(
         section(
           [
             0,
-            landmarks.headBottomY + height * 0.018,
+            landmarks.headBottomY + height * 0.014,
             height * 0.004,
           ],
           headHalfWidth * 0.78,
