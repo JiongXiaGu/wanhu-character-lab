@@ -208,20 +208,14 @@ function createLegParts(
       'box4',
       [
         section(
-          [ankleX, height * 0.024, -height * 0.018],
+          [ankleX, height * 0.024, -height * 0.015],
           ankleHalf * 1.04,
           height * 0.028,
           height * 0.024,
         ),
         section(
-          [ankleX, height * 0.026, height * 0.062],
-          ankleHalf * 1.18,
-          height * 0.03,
-          height * 0.026,
-        ),
-        section(
           [ankleX, height * 0.023, height * 0.12],
-          ankleHalf * 1.08,
+          ankleHalf * 1.1,
           height * 0.025,
           height * 0.023,
         ),
