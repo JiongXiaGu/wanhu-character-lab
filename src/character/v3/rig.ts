@@ -679,16 +679,18 @@ export function makeActor(data: CharacterData): Actor {
       }
 
       applyCombatPose();
-        debug();
+      debug();
     },
 
     seek(time) {
+      restoreBasePose();
       mixer.stopAllAction();
       motionAction.reset().play();
       motionAction.time = time % motionAction.getClip().duration;
       mixer.update(0);
+      captureBasePose();
       applyCombatPose();
-        debug();
+      debug();
     },
 
     dispose() {
