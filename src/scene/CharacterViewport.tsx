@@ -7,6 +7,7 @@ import { triCount } from "../character/v3/cage";
 import type { Recipe, Motion } from "../character/v3/types";
 import {createWorkPlayer,visibleRecipe,type WorkPlayer,type WorkStatus} from '../character/actions/player';
 import {type WorkSelection} from '../character/actions/catalog';
+import {workThreeViewHalfHeight} from '../character/actions/framing';
 export interface PlaybackStatus extends WorkStatus { work: WorkSelection }
 export type View = "free" | "front" | "side" | "back" | "top" | "three";
 export type Display = "beauty" | "cage" | "triangles" | "clay";
@@ -41,7 +42,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
       if(!rt)return;const w=Math.max(1,el.clientWidth),h=Math.max(1,el.clientHeight),aspect=w/h;renderer.setSize(w,h,false);p.aspect=aspect;p.updateProjectionMatrix();
       const isWork=latest.current.workAction!=='none',half=latest.current.recipe.height*(isWork?.76:.64);
       o.left=-half*aspect;o.right=half*aspect;o.top=half;o.bottom=-half;o.updateProjectionMatrix();
-      views.forEach(c=>{const threeHalf=isWork?Math.max(half,2.45/aspect):half;c.left=-threeHalf*aspect/3;c.right=threeHalf*aspect/3;c.top=threeHalf;c.bottom=-threeHalf;c.updateProjectionMatrix();});
+      views.forEach(c=>{const threeHalf=workThreeViewHalfHeight(half,aspect,isWork);c.left=-threeHalf*aspect/3;c.right=threeHalf*aspect/3;c.top=threeHalf;c.bottom=-threeHalf;c.updateProjectionMatrix();});
     };
     const render=()=>{
       if(!rt)return;const w=el.clientWidth,h=el.clientHeight;

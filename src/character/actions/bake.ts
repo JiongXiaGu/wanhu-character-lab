@@ -15,7 +15,8 @@ export function sampleWork(joints:Joint[],recipe:Recipe,id:WorkId,phase:number):
   let crouch=0,lean=.06,hipDown=.025;
   if(id==='pick')crouch=smooth(.05,.33,p)*(1-smooth(.46,.9,p));
   if(id==='place')crouch=smooth(.10,.55,p)*(1-smooth(.70,.98,p));
-  if(id==='pick'||id==='place'){hipDown=.49*crouch;lean=.98*crouch;}
+  // 髋稍后移，膝向前而非跪到地上；胸腰共同前倾，双手仍匹配箱侧握点。
+  if(id==='pick'||id==='place'){hipDown=.455*crouch;lean=1.5*crouch;}
   if(id==='carry_back')lean=.17;
   if(id==='carry_shoulder')lean=.09;
   if(id==='push')lean=.18;
@@ -24,13 +25,13 @@ export function sampleWork(joints:Joint[],recipe:Recipe,id:WorkId,phase:number):
   if(id==='hoe'){lean=.04+.33*strike;hipDown=.025+.07*strike;}
   if(id==='hammer')lean=.13;
   if(def.locomotion==='walk')hipDown=.038-.005*Math.cos(t*2);
-  s.hips.y-=hipDown*h;s.hips.z+=.10*crouch*h;
+  s.hips.y-=hipDown*h;s.hips.z-=.08*crouch*h;
   s.euler(B.Spine,lean*.6);s.euler(B.Chest,lean*.4);s.euler(B.Head,-lean*.45);s.fk();
   for(const side of [1,-1]) {
     const u=side>0?B.RightThigh:B.LeftThigh,l=side>0?B.RightShin:B.LeftShin,f=side>0?B.RightFoot:B.LeftFoot;
     const local=t+(side>0?0:Math.PI),z=def.locomotion==='walk'?.135*Math.cos(local):0,lift=def.locomotion==='walk'?.045*Math.max(0,-Math.sin(local)):0;
-    const ankle=new V(...joints[f].p).add(point(side*.085*crouch,lift,z));
-    s.chain(u,l,f,ankle,point(side*(.101+.16*crouch),.36,.45));s.worldRotation(f,new Q());
+    const ankle=new V(...joints[f].p).add(point(side*.06*crouch,lift,z));
+    s.chain(u,l,f,ankle,point(side*(.101+.12*crouch),.36,.45));s.worldRotation(f,new Q());
   }
   s.euler(B.RightUpperArm,def.locomotion==='walk'?.19*Math.cos(t):0,0,-.37);
   s.euler(B.LeftUpperArm,def.locomotion==='walk'?-.19*Math.cos(t):0,0,.37);

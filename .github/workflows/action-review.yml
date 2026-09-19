@@ -42,6 +42,7 @@ jobs:
           done
           test "$ready" = 1
           npm run review:actions
+          npx tsx scripts/review-work-framing.ts
       - name: Verify immutable tested source
         run: git diff --exit-code
       - uses: actions/upload-artifact@v4
