@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import "./labor.css";
+import {ACTIONS,WORK_IDS,isWorkId,type WorkSelection} from "./character/actions/catalog";
+import type {PlaybackStatus} from "./scene/CharacterViewport";
 import {
   CharacterViewport,
   type Stats,
@@ -178,6 +181,9 @@ function SlotSelect<K extends keyof CharacterSlots>({
 }
 
 export default function App() {
+  const [workAction,setWorkAction]=useState<WorkSelection>(()=>isWorkId(qs.get('action'))?qs.get('action') as WorkSelection:'none');
+  const [restart,setRestart]=useState(0),[contacts,setContacts]=useState(false);
+  const [playback,setPlayback]=useState<PlaybackStatus>({work:'none',phase:initialPhase(),stage:'',finished:false,eventCount:0,lastEvent:'—',propTriangles:0,maxGripError:0});
   const [recipe, setRecipe] = useState<Recipe>(initialRecipe),
     [motion, setMotion] = useState<Motion>(
       enumQuery(
@@ -211,6 +217,9 @@ export default function App() {
     [error, setError] = useState(""),
     [stats, setStats] = useState<Stats | null>(null);
 
+  const updatePlayback=useCallback((value:PlaybackStatus)=>{setPlayback(value);if(value.finished){setPlaying(false);setPhase(1);}},[]);
+  const selectAction=(id:WorkSelection)=>{setWorkAction(id);setPhase(0);setPlaying(true);setRestart(n=>n+1);};
+  const activeAction=workAction==='none'?null:ACTIONS[workAction];
   const patch = (value: Partial<Recipe>) =>
     setRecipe((current) => cleanRecipe({ ...current, ...value }));
 
@@ -237,7 +246,7 @@ export default function App() {
       : PRESETS.find((preset) => preset.id === recipe.preset) ?? null;
 
   return (
-    <main className="studio">
+    <main className={"studio " + (activeAction?"work-mode":"")}>
       <header className="topbar">
         <div className="brand-mark">工</div>
         <div>
@@ -246,7 +255,7 @@ export default function App() {
         </div>
         <div className="header-right">
           <span className="status-dot" />
-          运行时生成 <span className="version">V3.1 · DIY</span>
+          运行时生成 <span className="version">V3.2 · LABOR</span>
           <button className="ghost" onClick={() => exportRecipe(recipe)}>
             导出配方 ↗
           </button>
@@ -255,6 +264,13 @@ export default function App() {
 
       <div className="workspace">
         <aside className="sidebar">
+          <section className="labor-library" aria-label="劳动动作库">
+            <div className="section-title"><h2>劳动动作库</h2><span>PHASE 4A / 09</span></div>
+            <div className="labor-grid">{WORK_IDS.map(id=><button key={id} aria-pressed={workAction===id} className={workAction===id?'active':''} onClick={()=>selectAction(id)}>{ACTIONS[id].label}</button>)}</div>
+            <p className="labor-hint">每项都有实际道具。基础动画位于预览下方。</p>
+            {activeAction&&<><label className="switch-row">握点检查<input aria-label="握点检查" type="checkbox" checked={contacts} onChange={e=>setContacts(e.target.checked)}/></label><p className="labor-hint">绿：目标 · 金：手掌。工作期间临时占用 {activeAction.occupied.map(x=>({leftHand:'左手',rightHand:'右手',back:'背部'}[x])).join('、')}；原配方不变。</p></>}
+          </section>
+
           <div className="section-title">
             <h2>人物预设</h2>
             <span>01 / PRESET</span>
@@ -297,48 +313,13 @@ export default function App() {
           </div>
 
           <div className="slot-grid">
-            <SlotSelect
-              slot="headwear"
-              label="头饰"
-              recipe={recipe}
-              onChange={patchSlot}
-            />
-            <SlotSelect
-              slot="top"
-              label="上衣"
-              recipe={recipe}
-              onChange={patchSlot}
-            />
-            <SlotSelect
-              slot="bottom"
-              label="下装"
-              recipe={recipe}
-              onChange={patchSlot}
-            />
-            <SlotSelect
-              slot="shoes"
-              label="鞋"
-              recipe={recipe}
-              onChange={patchSlot}
-            />
-            <SlotSelect
-              slot="back"
-              label="背部"
-              recipe={recipe}
-              onChange={patchSlot}
-            />
-            <SlotSelect
-              slot="leftHand"
-              label="左手"
-              recipe={recipe}
-              onChange={patchSlot}
-            />
-            <SlotSelect
-              slot="rightHand"
-              label="右手"
-              recipe={recipe}
-              onChange={patchSlot}
-            />
+            <SlotSelect slot="headwear" label="头饰" recipe={recipe} onChange={patchSlot} />
+            <SlotSelect slot="top" label="上衣" recipe={recipe} onChange={patchSlot} />
+            <SlotSelect slot="bottom" label="下装" recipe={recipe} onChange={patchSlot} />
+            <SlotSelect slot="shoes" label="鞋" recipe={recipe} onChange={patchSlot} />
+            <SlotSelect slot="back" label="背部" recipe={recipe} onChange={patchSlot} />
+            <SlotSelect slot="leftHand" label="左手" recipe={recipe} onChange={patchSlot} />
+            <SlotSelect slot="rightHand" label="右手" recipe={recipe} onChange={patchSlot} />
           </div>
 
           <button
@@ -499,9 +480,9 @@ export default function App() {
             <p className="eyebrow">
               CHARACTER / {recipe.preset.toUpperCase()}
             </p>
-            <h2>{selectedPreset?.name ?? "自定义角色"}</h2>
+            <h2>{activeAction?.label ?? selectedPreset?.name ?? "自定义角色"}</h2>
             <p>
-              {recipe.preset === "custom"
+              {activeAction ? activeAction.description : recipe.preset === "custom"
                 ? "职业预设已解锁，可任意混搭头饰、衣物与装备。"
                 : "预设只是起点，修改任意槽位即可进入 DIY。"}
             </p>
@@ -550,6 +531,9 @@ export default function App() {
             <CharacterViewport
               options={{
                 recipe,
+                workAction,
+                restart,
+                contacts,
                 motion,
                 playing,
                 speed,
@@ -561,6 +545,7 @@ export default function App() {
                 skeleton,
                 grid,
               }}
+              onPlayback={updatePlayback}
               onStats={setStats}
               onError={setError}
             />
@@ -576,7 +561,7 @@ export default function App() {
 
           <div className="stage-caption">
             <span>拖动旋转 · 右键平移 · 滚轮缩放</span>
-            <span>1 SKINNED MESH · SLOT-BASED RECIPE</span>
+            <span>{activeAction ? `道具 ${playback.propTriangles} tris · 原地动作 / 导航负责位移` : "1 SKINNED MESH · SLOT-BASED RECIPE"}</span>
           </div>
 
           <section className="motion-panel">
@@ -601,9 +586,10 @@ export default function App() {
             <div className="motion-actions">
               {(Object.keys(MOTION_LABELS) as Motion[]).map((value) => (
                 <button
-                  className={motion === value ? "active" : ""}
+                  className={!activeAction && motion === value ? "active" : ""}
                   key={value}
                   onClick={() => {
+                    setWorkAction("none");
                     setMotion(value);
                     setPhase(0);
                   }}
@@ -614,27 +600,28 @@ export default function App() {
               <button
                 className="play-button"
                 aria-label={playing ? "暂停" : "播放"}
-                onClick={() => setPlaying((value) => !value)}
+                onClick={() => {if(playing)setPhase(playback.phase);setPlaying(value=>!value);}}
               >
                 {playing ? "Ⅱ 暂停" : "▶ 播放"}
               </button>
             </div>
 
+            {activeAction&&<div className="work-status" data-testid="work-status"><span><b>{playback.stage}</b> · {activeAction.loop?'循环动作':'单次动作，完成后保持'}</span><span data-testid="action-event">{playback.lastEvent} / {playback.eventCount}</span><button onClick={()=>{setPhase(0);setRestart(n=>n+1);setPlaying(true);}}>重播动作</button></div>}
             <label className="timeline">
               <span>逐帧审查</span>
               <input
                 aria-label="动画进度"
                 type="range"
                 min="0"
-                max=".999"
+                max={activeAction&&!activeAction.loop?"1":".999"}
                 step=".001"
-                value={phase}
+                value={playing ? playback.phase : phase}
                 onChange={(event) => {
                   setPlaying(false);
                   setPhase(+event.target.value);
                 }}
               />
-              <output>{Math.round(phase * 100)}%</output>
+              <output>{Math.round((playing?playback.phase:phase) * 100)}%</output>
             </label>
           </section>
         </section>

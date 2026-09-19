@@ -5,6 +5,9 @@ import { makeCharacter } from "../character/v3/outfit";
 import { makeActor, type Actor } from "../character/v3/rig";
 import { triCount } from "../character/v3/cage";
 import type { Recipe, Motion } from "../character/v3/types";
+import {createWorkPlayer,visibleRecipe,type WorkPlayer,type WorkStatus} from '../character/actions/player';
+import {ACTIONS,type WorkSelection} from '../character/actions/catalog';
+export interface PlaybackStatus extends WorkStatus { work: WorkSelection }
 export type View = "free" | "front" | "side" | "back" | "top" | "three";
 export type Display = "beauty" | "cage" | "triangles" | "clay";
 export interface Stats {
@@ -17,6 +20,9 @@ export interface Stats {
 }
 export interface ViewOptions {
   recipe: Recipe;
+  workAction: WorkSelection;
+  restart: number;
+  contacts: boolean;
   motion: Motion;
   playing: boolean;
   speed: number;
@@ -31,12 +37,16 @@ export interface ViewOptions {
 interface Props {
   options: ViewOptions;
   onStats: (v: Stats) => void;
+  onPlayback: (v: PlaybackStatus) => void;
   onError: (message: string) => void;
 }
 interface Runtime {
   renderer: T.WebGLRenderer;
   scene: T.Scene;
   actor: Actor;
+  work?: WorkPlayer;
+  builtRecipe: Recipe;
+  workSelection: WorkSelection;
   controls: OrbitControls;
   camera: T.Camera;
   perspective: T.PerspectiveCamera;
@@ -54,16 +64,21 @@ declare global {
       seek: (phase: number) => void;
       stats: Stats;
       motion: Motion;
+      work: WorkSelection;
+      getStatus: () => PlaybackStatus;
     };
     __WANHU_CAPTURE__?: () => void;
   }
 }
-export function CharacterViewport({ options, onStats, onError }: Props) {
+export function CharacterViewport({ options, onStats, onError, onPlayback }: Props) {
   const host = useRef<HTMLDivElement>(null),
     runtime = useRef<Runtime | null>(null),
     latest = useRef(options),
     errorRef = useRef(onError),
     statsRef = useRef(onStats);
+  const playbackRef = useRef(onPlayback);
+  const lastRestart=useRef(options.restart);
+  playbackRef.current = onPlayback;
   latest.current = options;
   errorRef.current = onError;
   statsRef.current = onStats;
@@ -107,7 +122,7 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
     fill.position.set(3, 2, -2);
     scene.add(fill);
     const floor = new T.Mesh(
-      new T.CircleGeometry(1.45, 64),
+      new T.CircleGeometry(1.95, 64),
       new T.MeshStandardMaterial({ color: "#2e4147", roughness: 1 }),
     );
     floor.rotation.x = -Math.PI / 2;
@@ -132,13 +147,16 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
     controls.target.set(0, 0.94, 0);
     let actor: Actor;
     try {
-      actor = makeActor(makeCharacter(latest.current.recipe));
+      actor = makeActor(makeCharacter(visibleRecipe(latest.current.recipe, latest.current.workAction)));
     } catch (e) {
       renderer.dispose();
       renderer.domElement.remove();
       errorRef.current(String(e));
       return;
     }
+    const work = latest.current.workAction === 'none' ? undefined : createWorkPlayer(actor,latest.current.workAction,latest.current.recipe);
+    if (!work) actor.setMotion(latest.current.motion);
+    if (!latest.current.playing) { if(work)work.seek(latest.current.phase);else actor.seek(latest.current.phase*actor.action.getClip().duration); }
     scene.add(actor.mesh, actor.wire, actor.skeletonHelper);
     const resize = () => {
       if (!rt) return;
@@ -148,17 +166,19 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
       renderer.setSize(w, h, false);
       p.aspect = aspect;
       p.updateProjectionMatrix();
-      const half = latest.current.recipe.height * 0.64;
+      const isWork=latest.current.workAction!=='none';
+      const half = latest.current.recipe.height * (isWork ? .76 : .64);
       o.left = -half * aspect;
       o.right = half * aspect;
       o.top = half;
       o.bottom = -half;
       o.updateProjectionMatrix();
       views.forEach((c) => {
-        c.left = (-half * aspect) / 3;
-        c.right = (half * aspect) / 3;
-        c.top = half;
-        c.bottom = -half;
+        const threeHalf = isWork ? Math.max(half, 2.45 / aspect) : half;
+        c.left = (-threeHalf * aspect) / 3;
+        c.right = (threeHalf * aspect) / 3;
+        c.top = threeHalf;
+        c.bottom = -threeHalf;
         c.updateProjectionMatrix();
       });
     };
@@ -183,6 +203,9 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
       renderer,
       scene,
       actor,
+      work,
+      builtRecipe: latest.current.recipe,
+      workSelection: latest.current.workAction,
       controls,
       camera,
       perspective: p,
@@ -195,6 +218,7 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
       disposeActor() {
         if (!rt) return;
         scene.remove(rt.actor.mesh, rt.actor.wire, rt.actor.skeletonHelper);
+        rt.work?.dispose();
         rt.actor.dispose();
       },
     };
@@ -205,13 +229,15 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
     const observer = new ResizeObserver(resize);
     observer.observe(el);
     resize();
-    let last = performance.now();
+    let last = performance.now(), lastReport = 0;
     const animate = (now: number) => {
       if (disposed || !rt) return;
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       rt.controls.update();
-      rt.actor.update(latest.current.playing ? dt * latest.current.speed : 0);
+      const delta=latest.current.playing ? dt * latest.current.speed : 0;
+      if(rt.work)rt.work.update(delta);else rt.actor.update(delta);
+      if(now-lastReport>80){playbackRef.current(playback(rt));lastReport=now;}
       render();
       frame = requestAnimationFrame(animate);
     };
@@ -268,23 +294,26 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
       )
         window.__WANHU_REVIEW__ = {
           seek(phase) {
-            r.actor.seek(phase * r.actor.action.getClip().duration);
-            r.render();
+            seek(r,phase);
           },
           stats,
           motion: latest.current.motion,
+          work: latest.current.workAction,
+          getStatus:()=>playback(r),
         };
     }
   }, []);
   useEffect(() => {
     const r = runtime.current;
-    if (!r) return;
+    if (!r || (r.builtRecipe===options.recipe && r.workSelection===options.workAction)) return;
     try {
       r.disposeActor();
-      r.actor = makeActor(makeCharacter(options.recipe));
+      r.actor = makeActor(makeCharacter(visibleRecipe(options.recipe,options.workAction)));
+      r.work=options.workAction==='none'?undefined:createWorkPlayer(r.actor,options.workAction,options.recipe);
+      r.builtRecipe=options.recipe;r.workSelection=options.workAction;
       r.scene.add(r.actor.mesh, r.actor.wire, r.actor.skeletonHelper);
-      r.actor.setMotion(options.motion);
-      r.actor.seek(options.phase * r.actor.action.getClip().duration);
+      if(!r.work)r.actor.setMotion(options.motion);
+      seek(r,options.phase);
       applyDisplay(r, options);
       r.resize();
       const d = r.actor.data,
@@ -299,18 +328,17 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
       statsRef.current(stats);
       if (window.__WANHU_REVIEW__) {
         window.__WANHU_REVIEW__.stats = stats;
-        window.__WANHU_REVIEW__.seek = (phase) => {
-          r.actor.seek(phase * r.actor.action.getClip().duration);
-          r.render();
-        };
+        window.__WANHU_REVIEW__.seek = (phase) => seek(r,phase);
+        window.__WANHU_REVIEW__.work=options.workAction;
       }
     } catch (e) {
       errorRef.current(String(e));
     }
-  }, [options.recipe]);
+  }, [options.recipe,options.workAction]);
   useEffect(() => {
     const r = runtime.current;
     if (!r) return;
+    if(r.work)return;
     r.actor.setMotion(options.motion);
     if (!options.playing)
       r.actor.seek(options.phase * r.actor.action.getClip().duration);
@@ -320,20 +348,20 @@ export function CharacterViewport({ options, onStats, onError }: Props) {
   useEffect(() => {
     const r = runtime.current;
     if (!r) return;
-    if (!options.playing)
-      r.actor.seek(options.phase * r.actor.action.getClip().duration);
-  }, [options.phase, options.playing]);
+    if (!options.playing)seek(r,options.phase);
+  }, [options.phase]);
+  useEffect(()=>{if(lastRestart.current===options.restart)return;lastRestart.current=options.restart;const r=runtime.current;if(!r)return;if(r.work)r.work.replay();else r.actor.seek(0);},[options.restart]);
   useEffect(() => {
     const r = runtime.current;
     if (r) {
       applyCamera(r, options);
       r.resize();
     }
-  }, [options.view, options.viewRevision, options.orthographic]);
+  }, [options.view, options.viewRevision, options.orthographic,options.workAction]);
   useEffect(() => {
     const r = runtime.current;
     if (r) applyDisplay(r, options);
-  }, [options.display, options.skeleton, options.grid]);
+  }, [options.display, options.skeleton, options.grid,options.contacts]);
   return (
     <div ref={host} className="character-viewport" data-testid="viewport" />
   );
@@ -350,7 +378,7 @@ function applyDisplay(r: Runtime, o: ViewOptions) {
   r.actor.wire.visible = o.display === "cage";
   r.actor.skeletonHelper.visible = o.skeleton;
   r.grid.visible = o.grid;
-  r.actor.update(0);
+  if(r.work){r.work.setContacts(o.contacts);r.work.props.group.traverse(child=>{if(child instanceof T.Mesh && child.material instanceof T.MeshStandardMaterial){child.material.wireframe=o.display==='triangles'||o.display==='cage';child.material.vertexColors=o.display!=='clay';child.material.color.set(o.display==='clay'?'#c2b49c':'#ffffff');child.material.needsUpdate=true;}});r.work.update(0);}else r.actor.update(0);
 }
 function applyCamera(r: Runtime, o: ViewOptions) {
   const next = o.orthographic ? r.ortho : r.perspective;
@@ -364,8 +392,9 @@ function applyCamera(r: Runtime, o: ViewOptions) {
     r.controls.minZoom = 0.55;
     r.controls.maxZoom = 5;
   }
-  const y = o.recipe.height * 0.53,
-    target = new T.Vector3(0, y, 0);
+  const y=o.recipe.height*.53;
+  const z=o.workAction==='push'?.42:o.workAction==='pull'?-.42:o.workAction==='hoe'?.36:o.workAction==='hammer'?.25:0;
+  const target=new T.Vector3(0,y,z);
   next.up.set(0, 1, 0);
   if (next instanceof T.OrthographicCamera)
     next.zoom = o.view === "top" ? 1.7 : 1;
@@ -380,6 +409,7 @@ function applyCamera(r: Runtime, o: ViewOptions) {
             ? [0, 5, 0.001]
             : [2.8, y + 1.05, 4.5];
   next.position.set(...(p as [number, number, number]));
+  next.position.z+=z;
   if (o.view === "top") next.up.set(0, 0, -1);
   next.lookAt(target);
   r.controls.target.copy(target);
@@ -393,6 +423,13 @@ function applyCamera(r: Runtime, o: ViewOptions) {
         number,
       ]),
     );
+    c.position.z+=z;
     c.lookAt(target);
   });
 }
+
+function playback(r:Runtime):PlaybackStatus {
+  if(r.work)return {work:r.workSelection,...r.work.status()};
+  return {work:'none',phase:r.actor.action.time/r.actor.action.getClip().duration,stage:'基础动作',finished:false,eventCount:0,lastEvent:'—',propTriangles:0,maxGripError:0};
+}
+function seek(r:Runtime,phase:number){if(r.work)r.work.seek(phase);else r.actor.seek(phase*r.actor.action.getClip().duration);r.render();}
