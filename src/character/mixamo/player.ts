@@ -59,11 +59,17 @@ export function createMixamoPlayer(actor: Actor, source: MixamoMotionData): Mixa
   }
   const player: MixamoPlayer = {
     id: source.id, sourceScene: scene, bake,
-    update(delta) { if (!Number.isFinite(delta) || delta <= 0) { sync(); return; } const next = time + delta; time = bake.loop ? next % source.duration : Math.min(source.duration, next); sync(); },
+    update(delta) {
+      if (!Number.isFinite(delta) || delta <= 0) { sync(); return; }
+      const next = time + delta;
+      // 浮点累计到 4.99999999999999 时，结束状态与实际末帧必须原子一致。
+      time = bake.loop ? next % source.duration : next >= source.duration - 1e-6 ? source.duration : next;
+      sync();
+    },
     seek(phase) { time = T.MathUtils.clamp(Number.isFinite(phase) ? phase : 0, 0, 1) * source.duration; sync(); },
     replay() { time = 0; sync(); },
     status() { return { id: source.id, ready: true, duration: source.duration, loop: bake.loop, seamDegrees: bake.seamDegrees, sourceHash: source.source.sha256,
-      phase: time / source.duration, stage: `Mixamo · ${def.label}`, finished: !bake.loop && time >= source.duration - 1e-6,
+      phase: time / source.duration, stage: `Mixamo · ${def.label}`, finished: !bake.loop && time >= source.duration,
       eventCount: 0, lastEvent: '外部人体动画 · 无业务事件', propTriangles: 0, maxGripError: 0 }; },
     export() { return exportTargetMotion(actor.data, source, bake); },
     dispose() { disposed = true; action.stop(); actor.mixer.uncacheClip(bake.clip); geometry.dispose(); material.dispose(); dotsGeo.dispose(); dotsMat.dispose(); grid.geometry.dispose(); for (const m of Array.isArray(grid.material) ? grid.material : [grid.material]) m.dispose(); scene.clear(); },

@@ -15,7 +15,7 @@
     "prepare:mixamo": "tsx scripts/prepare-mixamo.ts",
     "predev": "npm run prepare:mixamo",
     "prebuild": "npm run prepare:mixamo",
-    "check:mixamo": "tsx scripts/check-mixamo.ts",
+    "check:mixamo": "tsx scripts/check-mixamo.ts && tsx scripts/check-mixamo-clock.ts",
     "review:mixamo": "tsx scripts/review-mixamo.ts"
   },
   "dependencies": { "react": "19.1.1", "react-dom": "19.1.1", "three": "0.180.0" },
