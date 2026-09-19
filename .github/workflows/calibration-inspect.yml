@@ -1,0 +1,29 @@
+name: Calibration inspection workspace
+on:
+  push:
+    branches: [tmp-male-fbx-calibration-20260919]
+    paths: [.github/workflows/calibration-inspect.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run prepare:mixamo
+      - name: Package offline source and dependencies for calibration analysis
+        run: tar --exclude=.git --exclude=dist -czf "$RUNNER_TEMP/character-inspect.tgz" .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: calibration-inspection-workspace
+          path: ${{ runner.temp }}/character-inspect.tgz
+          retention-days: 1
+          compression-level: 0
