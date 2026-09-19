@@ -28,17 +28,28 @@ export type HeadwearId =
   | "none"
   | "farmer_straw_hat"
   | "guard_helmet"
-  | "archer_headband";
+  | "archer_headband"
+  | "cloth_wrap"
+  | "scholar_cap"
+  | "jade_pin";
 export type TopId =
   | "body"
   | "farmer_tunic"
   | "guard_light_armor"
-  | "archer_tunic";
+  | "archer_tunic"
+  | "rough_tunic"
+  | "cross_jacket"
+  | "layered_vest"
+  | "ceremony_robe";
 export type BottomId =
   | "body"
   | "work_pants"
   | "guard_pants"
-  | "archer_pants";
+  | "archer_pants"
+  | "loose_trousers"
+  | "work_wrap"
+  | "pleated_skirt"
+  | "robe_skirt";
 export type ShoesId = "body" | "cloth_shoes" | "boots";
 export type BackId = "none" | "archer_quiver";
 export type LeftHandId = "none" | "guard_shield" | "archer_bow";
@@ -54,6 +65,10 @@ export interface CharacterSlots {
   rightHand: RightHandId;
 }
 
+export const HAIR_STYLE_IDS = ["auto", "topknot", "low_bun", "double_bun"] as const;
+export type HairStyleId = typeof HAIR_STYLE_IDS[number];
+export interface GarmentDyes { primary: string; secondary: string; accent: string }
+
 export interface Recipe {
   version: 4;
   bodyType: BodyType;
@@ -62,6 +77,10 @@ export interface Recipe {
   height: number;
   build: number;
   palette: number;
+  /** 可选扩展：旧 V4 不写入时保持原有几何和颜色。 */
+  dyes?: GarmentDyes;
+  hairStyle?: HairStyleId;
+  hairColor?: string;
 }
 
 /** 兼容旧的 ?outfit / hat / equipment 和早期调用。 */
@@ -108,6 +127,7 @@ export const HEADWEAR_IDS = [
   "farmer_straw_hat",
   "guard_helmet",
   "archer_headband",
+  "cloth_wrap", "scholar_cap", "jade_pin",
 ] as const satisfies readonly HeadwearId[];
 
 export const TOP_IDS = [
@@ -115,6 +135,7 @@ export const TOP_IDS = [
   "farmer_tunic",
   "guard_light_armor",
   "archer_tunic",
+  "rough_tunic", "cross_jacket", "layered_vest", "ceremony_robe",
 ] as const satisfies readonly TopId[];
 
 export const BOTTOM_IDS = [
@@ -122,6 +143,7 @@ export const BOTTOM_IDS = [
   "work_pants",
   "guard_pants",
   "archer_pants",
+  "loose_trousers", "work_wrap", "pleated_skirt", "robe_skirt",
 ] as const satisfies readonly BottomId[];
 
 export const SHOES_IDS = [
@@ -236,6 +258,17 @@ function valid<T extends string>(
 }
 
 export function cleanRecipe(value: RecipeInput): Recipe {
+  // 导入是外部边界，非法对象必须交由导入器拒绝；直接调用仍提供安全默认值。
+  if (!value || typeof value !== "object" || Array.isArray(value)) value = {};
+  const hex = (v: unknown, fallback: string) => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v) ? v.toLowerCase() : fallback;
+  const extension: Pick<Recipe, "dyes" | "hairStyle" | "hairColor"> = {};
+  if (value.dyes && typeof value.dyes === "object") extension.dyes = {
+    primary: hex(value.dyes.primary, "#506e70"),
+    secondary: hex(value.dyes.secondary, "#b8aa8b"),
+    accent: hex(value.dyes.accent, "#dbc99d"),
+  };
+  if (value.hairStyle !== undefined) extension.hairStyle = valid(value.hairStyle, HAIR_STYLE_IDS, "auto");
+  if (value.hairColor !== undefined) extension.hairColor = hex(value.hairColor, "#282b29");
   const number = (
     v: number | undefined,
     fallback: number,
@@ -307,6 +340,7 @@ export function cleanRecipe(value: RecipeInput): Recipe {
     height: number(value.height, defaultHeight(bodyType), 1.58, 1.92),
     build: number(value.build, 0.5, 0, 1),
     palette: Math.round(number(value.palette, 0, 0, 2)),
+    ...extension,
   };
 }
 

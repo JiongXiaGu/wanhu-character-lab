@@ -1,37 +1,34 @@
-# GitHub Actions 截图验收规范 · V3.6
+# GitHub Actions 截图验收规范 · 衣冠工坊 V1
 
-## 流程
+只在 GitHub Actions runner 内启动 Vite Preview + Playwright，产物经 upload-artifact 保存；不部署 Visual、Vercel 或其它 Preview Site。vercel.json 的 git.deploymentEnabled=false 保持。
 
-`Actions → npm ci → 静态/FBX数值检查 → Build → runner内Preview → Playwright WebGL → Artifact → Agent下载实际审图/视频 → 修正重跑 → main`
+## 四条流水线
 
-禁止Visual/Vercel/Preview Site部署。localhost只服务runner截图，保留vercel.json deploymentEnabled=false。不以绿色Build代替观感；不让用户代替Agent逐次审查。依赖权限确实阻塞时如实记录，不标PASS。
+| Workflow | 责任 |
+| --- | --- |
+| Build | Node22、锁依赖安装、类型与生产构建 |
+| Character Model Review | 原男女×4外观×3身材、绑定/布线、DIY、旧链接、去帽头部、手机与男女切换 |
+| Mixamo Retarget Review | 全11动作源/目标、多视图、关键相位、连续播放、头部校准、快速切换、失败重试、导出 |
+| Wardrobe Review | 新48组服饰体型、184部件组合、11 FBX新增服饰采样；8推荐的多视图/素模/布线、体型端点、长摆动画视频、自定义操作 |
 
-## 三条工作流
+沿用固定20骨骼/双权重/男体基线。动态动画唯一来源FBX；静态bind是检视，不创建程序片段。目录、动作catalog与独立review矩阵必须一致，新增FBX不能静默跳过。
 
-Build执行retired守卫、check:mesh和build。
+## 衣冠矩阵
 
-Character Model Review（screenshot-review.yml）执行基模/DIY回归并上传 `character-model-review`：男女×4外观×3身材×静态正侧背布线；4外观×慢跑/射箭×三视图美术/布线；草帽混搭、清装备、移动端。静态绑定不是程序动画，播放控件应禁用。
+八套推荐各有正面、侧面、背面、素模、布线；男女两种身体各检查最瘦最矮/最壮最高；慢跑与射箭覆盖0/25/50/75/100%关键相位。礼衣男女慢跑、射箭各一段连续录屏。场景中采用当前Recipe，不能拿源Vanguard人物或绘制图冒充结果。
 
-Mixamo Retarget Review上传 `mixamo-retarget-review`：11源动作×男女×3身材全源时间轴/全渲染顶点；head-calibration.json独立记录头部四元数误差、旧偏差及真实点头范围。
+操作需测试：普通默认静态试衣、所有推荐可跨身体应用、部件更换保留暂停相位、随机锁定、撤销、保存恢复、导出JSON再导入、非法文件保持原人物、手机无横向溢出。目录SVG仅示意，不参与美术通过证明。
 
-## 动画视觉矩阵
+默认窗口1600×1000，手机412×915；同提交内保持灯光/相机/相位以便比较。检查 UI 不遮住人像、不将非零canvas当作人物已渲染。动作以源真实接触语义验收，不强制套用旧Walk固定起始脚。
 
-review-mixamo.ts独立登记11个ID并与catalog双向检查，不能静默漏新增FBX。每项9个源/目标相位（含完整末帧）及正侧背布线。慢跑/射箭额外完整连续WebM；不是把几张截图拼接后当真实播放视频。
+## 实际审查与提交
 
-慢跑、射箭、高抬腿行走、起身各有2个去帽头部侧面近景。方向轴青色=面前、金色=上；源轴来自真实旋转差，不用源头顶骨段冒充脸向。还要看颈部连接和衣物，不只验证两条轴平行。
+连续完成读文档、代码/文档修改、数值与构建、Actions、下载实际截图/视频、修正、重跑、合main。禁止只看绿色或几张最好看的图就宣称全面通过。连续视频可提取完整相位帧序列辅助审查，但不能只取单张定格。
 
-检查暂停、seek、末帧、重播；快速切换不被旧异步结果覆盖、不重建模型几何；404后重试可恢复；配方不被动画重置；目标JSON可下载。移动端不得水平溢出。
+每个产物report必须记录sourceSha/testedSha、真实文件列表、错误、通过状态；所有截图/视频来自该提交代码。数量以实际report为准，新增矩阵要同时更新断言。若最后只改文档，可以明确引用代码未变化父提交的审图，但不能混用不同代码版本。
 
-## 产物与证据
+视觉修正仍需重新跑相关完整矩阵。男体12份哈希不自动刷新。记录可复現问题、修正和已知限制；有限值/绕序/权重测试不代表无自交。FBX长摆极端翻转、贴地不是实时布料测试，需明确边界。
 
-每个截图条目必须实际存在且非空，报告保存 sourceSha=REVIEW_HEAD_SHA 与 testedSha=GITHUB_SHA。PR merge SHA与源head区别记录。不拿旧artifact证明新代码；只改文档时可引用父代码产物，明确代码未变。
+合并前核对最新main，不能强推覆盖用户并发提交。交付包含实际main/PR状态、关键截图和动作视频、操作入口及限制。没有完成下载审图，不写“已完成视觉review”。
 
-上传review/report.json/index.html与PNG、review-mixamo/report.json/head-calibration.json/PNG/WebM、源inventory和相关日志，失败也上传已产生的证据，保留7天。不把大量截图提交源码库。
-
-Agent下载检查所有动作组和关键阶段，慢跑/射箭连续时间过程必看。检查体型端点、草帽/头饰、蒙皮与侧面头向。数值只能证明相应不变量，不证明无自交、正确抓握或Unity性能。
-
-合入前检查最新main，保留并发修改，不强推。README/AGENTS/交接/架构与实际脚本一致。原check:actions、旧程序动作矩阵及固定Walk相位已移除；Phase4A/V3验收记录只描述历史。
-
-## V3.6 身体配置补充
-
-Recipe V4新增bodyType（缺省male）；女性profileVersion=wanhu-body-profiles-v1，与男性共用拓扑和骨骼语义，绑定位置可不同。网格键和目标动画键都必须包含bodyType/profileVersion/height/build。男性12套几何哈希保持6627c2e基线；女性通过独立比例、头脸、低髻实现，不是只换衣服。详细范围及验收矩阵见女性角色接入.md。
+工作流显式使用 bash（pipefail），防止 npm 失败被 tee 掩盖；上传前额外断言 report.passed、截图总数和连续视频数量。下载后仍要核对 JSON，不能只读 Actions 结论。

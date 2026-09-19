@@ -1,5 +1,15 @@
 # GPU 骨骼动画迁移契约 · V3.6 / FBX
 
+## 衣冠工坊 V1 更新
+
+新上衣/裙裳/头饰/发髻仍使用相同20骨骼，配方可选 dyes/hairStyle/hairColor。网格缓存键须包含部件、身材、发式和几何版本（当前 wanhu-garment-geometry-v4）；当前颜色为顶点色，因此颜色亦影响网格输出。未来 Unity 参数染色需要单独实现，不能把网页多色网格当作已共享实例。
+
+绑定缓存至少含 bodyType/height/build/profileVersion；动画轨道与服饰网格键分开，衣服不创建独立Animator。掩码版本 wanhu-garment-hide-v3：裙裳替换pelvis面，长裳另隐藏覆盖的大腿/膝前裤面，必须保留完整KneeLower→Calf→Ankle内衬与足部；源人体不变，穿回裤装恢复。不能只留Calf→Ankle，以免侧视动作出现小腿截断。
+
+此掩码依赖当前拓扑/版型，不是通用碰撞或任意服装自动遮挡。迁移端必须同步遮挡语义，不可只移植外层衣服又渲染全部内层身体。宽步时的后侧内衬露出与极端动作穿插仍是已知限制。
+
+---
+
 ## 状态
 
 当前网页是程序人物+外部FBX局部轨道；旧程序动作已删除。迁移的是SkeletonDefinition、Bind Pose、SkinBinding、局部轨道与未来事件/道具语义，不是Three.js AnimationMixer。Unity正式实现未完成。
@@ -12,7 +22,7 @@ SkeletonDefinition：Version、BoneSemantic、ParentIndex、BindLocalPosition/Ro
 
 TargetMotion：源SHA、retargetVersion、skeletonVersion、calibrationProfile、ClipId、Duration、Loop、实际TimeKeys、每骨局部旋转、Hips局部位置、提取根轨迹。局部旋转须按父关系累乘，最终蒙皮=姿态世界骨矩阵×inverse bind，不能把局部四元数直接当世界矩阵。
 
-导出仍为wanhu-target-motion v1，重定向升级wanhu-mixamo-2。头部直接遵循源相对真实绑定的旋转差；HeadTop_End不决定脸向。不要额外套一次校准。events/props目前为空，JSON不是UnityClip/Avatar/Blob。
+导出仍为wanhu-target-motion v1，重定向版本wanhu-mixamo-2。头部直接遵循源相对真实绑定的旋转差；HeadTop_End不决定脸向。不要额外套一次校准。events/props目前为空，JSON不是UnityClip/Avatar/Blob。
 
 ## 位移、时间与事件
 
@@ -32,7 +42,7 @@ Root表示实例世界变换，导航负责世界运动。当前提取起终点�
 
 AnimationBakeKey至少：源SHA、ClipId、retargetVersion、SkeletonVersion、BodyProportionKey/height/build。校准升级须使缓存失效；不得无验证跨体型共享最终矩阵。可后续按有限体型分桶，但先验证手足接触。
 
-CharacterMeshKey：TopologyVersion、BodyProportionKey、量化height/build、SlotRecipe、LOD。Web颜色仍写顶点，未经分离不能从几何键排除palette。
+CharacterMeshKey：TopologyVersion、BodyProportionKey、量化height/build、SlotRecipe、GarmentGeometryVersion、BodyHideVersion、LOD。Web颜色仍写顶点，未经分离不能从几何键排除palette/dyes/hairColor。
 
 单居民目标保存Transform、MeshKey、外观、ClipId/Phase/Speed/Flags，共享只读Clip与Mesh；不默认N个Animator+N套GameObject骨架。
 
