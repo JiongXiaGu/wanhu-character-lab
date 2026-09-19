@@ -18,9 +18,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npm run prepare:mixamo
-      - name: Package offline source and dependencies for calibration analysis
-        run: tar --exclude=.git --exclude=dist -czf "$RUNNER_TEMP/character-inspect.tgz" .
+      - name: Package complete locked dependencies for offline calibration analysis
+        run: tar -czf "$RUNNER_TEMP/character-inspect.tgz" node_modules
       - uses: actions/upload-artifact@v4
         with:
           name: calibration-inspection-workspace
