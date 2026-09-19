@@ -48,8 +48,6 @@ export interface CharacterSlots {
   rightHand: RightHandId;
 }
 
-export type Motion = "idle" | "walk" | "run" | "wave" | "squat" | "bind";
-
 export interface Recipe {
   version: 4;
   preset: PresetId;

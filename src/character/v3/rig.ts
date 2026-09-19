@@ -1,20 +1,17 @@
 import * as T from "three";
-import { B, type CharacterData, type Joint, type Motion } from "./types";
+import type { CharacterData } from "./types";
 import { polygonNormal, edgeKey } from "./cage";
 export interface Actor {
   mesh: T.SkinnedMesh;
   skeleton: T.Skeleton;
   bones: T.Bone[];
   mixer: T.AnimationMixer;
-  clips: Record<Motion, T.AnimationClip>;
-  action: T.AnimationAction;
   wire: T.LineSegments;
   skeletonHelper: T.SkeletonHelper;
   data: CharacterData;
-  setMotion: (m: Motion) => void;
+  resetBindPose: () => void;
   update: (dt: number) => void;
   dispose: () => void;
-  seek: (time: number) => void;
 }
 /** GPU 蒙皮采用 Three.js 官方 SkinnedMesh 路径。逻辑顶点和渲染法线拆点分别计数。 */
 export function makeActor(data: CharacterData): Actor {
@@ -81,10 +78,7 @@ export function makeActor(data: CharacterData): Actor {
     new T.Vector3(0, data.recipe.height * 0.5, 0),
     data.recipe.height * 1.4,
   );
-  const mixer = new T.AnimationMixer(mesh),
-    clips = makeClips(data.joints);
-  let action = mixer.clipAction(clips.idle);
-  action.play();
+  const mixer = new T.AnimationMixer(mesh);
   const edges = new Map<string, [number, number]>();
   for (const f of c.faces)
     f.v.forEach((v, i) => {
@@ -147,28 +141,17 @@ export function makeActor(data: CharacterData): Actor {
     skeleton,
     bones,
     mixer,
-    clips,
-    action,
     wire,
     skeletonHelper: helper,
     data,
-    setMotion(m) {
-      const next = mixer.clipAction(clips[m]);
-      if (next === action) return;
-      action.fadeOut(0.18);
-      next.reset().fadeIn(0.18).play();
-      action = next;
-      actor.action = action;
+    resetBindPose() {
+      // 静态校准状态，不创建任何程序 AnimationClip，也不当作 FBX 失败回退动画。
+      mixer.stopAllAction();
+      skeleton.pose();
+      debug();
     },
     update(dt) {
       mixer.update(dt);
-      debug();
-    },
-    seek(t) {
-      mixer.stopAllAction();
-      action.reset().play();
-      action.time = t % action.getClip().duration;
-      mixer.update(0);
       debug();
     },
     dispose() {
@@ -185,132 +168,4 @@ export function makeActor(data: CharacterData): Actor {
   };
   actor.update(0);
   return actor;
-}
-export const MOTION_LABELS: Record<Motion, string> = {
-  idle: "待机",
-  walk: "行走",
-  run: "慢跑",
-  wave: "招手",
-  squat: "屈膝",
-  bind: "基准 A 姿态",
-};
-/** 只在构建角色时采样 Clip；运行时不重建 Mesh，不逐帧改顶点。 */
-function makeClips(j: Joint[]): Record<Motion, T.AnimationClip> {
-  const result = {} as Record<Motion, T.AnimationClip>,
-    q = new T.Quaternion(),
-    scale = j[B.Head].p[1] / 1.52;
-  for (const name of Object.keys(MOTION_LABELS) as Motion[]) {
-    const duration =
-        name === "walk"
-          ? 1.1
-          : name === "run"
-            ? 0.72
-            : name === "bind"
-              ? 1
-              : 3.2,
-      count = Math.round(duration * 30);
-    const times: number[] = [],
-      rot = j.map(() => [] as number[]),
-      hips: number[] = [];
-    for (let f = 0; f <= count; f++) {
-      const phase = f / count,
-        t = phase * Math.PI * 2;
-      times.push(phase * duration);
-      const angles = j.map(() => [0, 0, 0]);
-      let dy = 0;
-      if (name !== "bind") {
-        angles[B.RightUpperArm][2] = -0.37;
-        angles[B.LeftUpperArm][2] = 0.37;
-        angles[B.RightForearm][0] = -0.06;
-        angles[B.LeftForearm][0] = -0.06;
-        if (name === "idle") {
-          dy = 0.002 * Math.sin(t);
-          angles[B.Chest][0] = 0.014 * Math.sin(t);
-          angles[B.Head][1] = 0.04 * Math.sin(t);
-        }
-        if (name === "walk" || name === "run" || name === "squat") {
-          const squat = name === "squat" ? (1 - Math.cos(t)) * 0.5 : 0;
-          dy =
-            name === "squat"
-              ? -0.25 * squat
-              : name === "run"
-                ? -0.055 + 0.012 * Math.cos(t * 2)
-                : -0.026 + 0.006 * Math.cos(t * 2);
-          for (const [thigh, shin, foot, s] of [
-            [B.RightThigh, B.RightShin, B.RightFoot, 1],
-            [B.LeftThigh, B.LeftShin, B.LeftFoot, -1],
-          ]) {
-            const local = t + (s === 1 ? 0 : Math.PI),
-              stride = name === "run" ? 0.22 : 0.14;
-            // +Z 是人物正前方。脚在支撑期从前向后扫过地面，
-            // 在摆动期从后向前抬起；不能把这两个半周期颠倒。
-            const z = name === "squat" ? 0 : Math.cos(local) * stride * scale;
-            const lift =
-              name === "squat"
-                ? 0
-                : Math.max(0, -Math.sin(local)) *
-                  (name === "run" ? 0.105 : 0.045) *
-                  scale;
-            const l1 = j[thigh].p[1] - j[shin].p[1],
-              l2 = j[shin].p[1] - j[foot].p[1];
-            const down = l1 + l2 + dy * scale - lift;
-            const d = Math.min(l1 + l2 - 0.00001, Math.hypot(down, z)),
-              a = Math.acos(
-                T.MathUtils.clamp(
-                  (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d),
-                  -1,
-                  1,
-                ),
-              ),
-              k =
-                Math.PI -
-                Math.acos(
-                  T.MathUtils.clamp(
-                    (l1 * l1 + l2 * l2 - d * d) / (2 * l1 * l2),
-                    -1,
-                    1,
-                  ),
-                );
-            angles[thigh][0] = -Math.atan2(z, down) - a;
-            angles[shin][0] = k;
-            angles[foot][0] = -angles[thigh][0] - k;
-          }
-          if (name === "squat") {
-            angles[B.Chest][0] = 0.18 * squat;
-            angles[B.RightUpperArm][0] = -0.45 * squat;
-            angles[B.LeftUpperArm][0] = -0.45 * squat;
-          } else {
-            angles[B.RightUpperArm][0] = 0.32 * Math.cos(t);
-            angles[B.LeftUpperArm][0] = -0.32 * Math.cos(t);
-            angles[B.RightForearm][0] = name === "run" ? -0.75 : -0.15;
-            angles[B.LeftForearm][0] = name === "run" ? -0.75 : -0.15;
-            angles[B.Chest][1] = 0.06 * Math.cos(t);
-          }
-        }
-        if (name === "wave") {
-          const raise = 0.5 - 0.5 * Math.cos(t);
-          angles[B.RightUpperArm][2] = -0.37 + 1.65 * raise;
-          angles[B.RightForearm][0] = -0.85 * raise;
-          angles[B.RightForearm][2] = 0.3 * raise;
-          angles[B.RightHand][2] = 0.35 * Math.sin(t * 3) * raise;
-          angles[B.Head][2] = -0.06 * raise;
-        }
-      }
-      for (let i = 0; i < j.length; i++) {
-        q.setFromEuler(
-          new T.Euler(...(angles[i] as [number, number, number]), "XYZ"),
-        );
-        rot[i].push(q.x, q.y, q.z, q.w);
-      }
-      const hp = j[B.Hips].p;
-      hips.push(hp[0], hp[1] + dy * scale, hp[2]);
-    }
-    const tracks: T.KeyframeTrack[] = j.map(
-      (bone, i) =>
-        new T.QuaternionKeyframeTrack(`${bone.name}.quaternion`, times, rot[i]),
-    );
-    tracks.push(new T.VectorKeyframeTrack("Hips.position", times, hips));
-    result[name] = new T.AnimationClip(name, duration, tracks);
-  }
-  return result;
 }

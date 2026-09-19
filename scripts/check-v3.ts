@@ -2,14 +2,12 @@ import assert from "node:assert/strict";
 import { assertComponentWinding } from "./check-components";
 import * as T from "three";
 import { makeCharacter } from "../src/character/v3/outfit";
-import { makeActor, MOTION_LABELS } from "../src/character/v3/rig";
+import { makeActor } from "../src/character/v3/rig";
 import { edgeKey, triCount, cross, sub, dot } from "../src/character/v3/cage";
 import {
   cleanRecipe,
   type Cage,
-  type Motion,
   type Outfit,
-  type Vec3,
 } from "../src/character/v3/types";
 function validate(c: Cage, closed: boolean) {
   const edges = new Map<string, [number, number][]>(),
@@ -89,7 +87,7 @@ function validate(c: Cage, closed: boolean) {
   }
 }
 const skeletonMaps: string[] = [];
-let frames = 0;
+let variants = 0;
 for (const outfit of ["body", "farmer", "guard", "archer"] as Outfit[])
   for (const variant of [
     { height: 1.76, build: 0.5 },
@@ -122,8 +120,7 @@ for (const outfit of ["body", "farmer", "guard", "archer"] as Outfit[])
     }
     const v = new T.Vector3(),
       bind = new T.Vector3();
-    a.setMotion("bind");
-    a.seek(0);
+    a.resetBindPose();
     a.mesh.updateMatrixWorld(true);
     a.skeleton.update();
     for (let i = 0; i < pos.count; i++) {
@@ -131,88 +128,10 @@ for (const outfit of ["body", "farmer", "guard", "archer"] as Outfit[])
       bind.fromBufferAttribute(pos as T.BufferAttribute, i);
       assert(v.distanceTo(bind) < 1e-5, "Bind pose 不一致");
     }
-    for (const motion of Object.keys(MOTION_LABELS) as Motion[]) {
-      a.setMotion(motion);
-      for (let f = 0; f < 16; f++) {
-        a.seek((f / 16) * a.action.getClip().duration);
-        a.mesh.updateMatrixWorld(true);
-        a.skeleton.update();
-        const coords: Vec3[] = [];
-        for (let i = 0; i < pos.count; i++) {
-          a.mesh.getVertexPosition(i, v);
-          assert([v.x, v.y, v.z].every(Number.isFinite));
-          assert(v.length() < variant.height * 2, "动作顶点爆炸");
-          coords.push([v.x, v.y, v.z]);
-        }
-        for (let i = 0; i < index.count; i += 3) {
-          const x = coords[index.getX(i)],
-            y = coords[index.getX(i + 1)],
-            z = coords[index.getX(i + 2)];
-          assert(
-            Math.hypot(...cross(sub(y, x), sub(z, x))) > 1e-11,
-            `动作退化 ${outfit}/${motion}/${f}`,
-          );
-        }
-        frames++;
-      }
-    }
-    // 行走方向语义：+Z 是人物前方。
-    // 右脚前触地时右臂必须向后；随后支撑脚贴地向后扫，
-    // 对侧脚抬起从后向前摆。这个检查专门防止“月球步/倒走”回归。
-    const walk = a.clips.walk;
-    const boneWorld = (boneIndex: number) => {
-      a.mesh.updateMatrixWorld(true);
-      a.skeleton.update();
-      return a.bones[boneIndex].getWorldPosition(new T.Vector3());
-    };
-    const walkPose = (phase: number) => {
-      a.setMotion("walk");
-      a.seek(phase * walk.duration);
-      return {
-        rightFoot: boneWorld(16),
-        leftFoot: boneWorld(19),
-        rightHand: boneWorld(9),
-        leftHand: boneWorld(13),
-      };
-    };
-    const contact = walkPose(0);
-    assert(
-      contact.rightFoot.z > contact.leftFoot.z + 0.05,
-      "行走方向错误：右脚前触地没有位于 +Z 前方",
-    );
-    assert(
-      contact.rightHand.z < contact.leftHand.z - 0.015,
-      "行走相位错误：同侧手臂和腿在一起向前摆",
-    );
-    const leftSwing = walkPose(0.25);
-    assert(
-      leftSwing.leftFoot.y > leftSwing.rightFoot.y + 0.015,
-      "行走相位错误：后脚向前摆时没有抬起",
-    );
-    const oppositeContact = walkPose(0.5);
-    assert(
-      oppositeContact.leftFoot.z > oppositeContact.rightFoot.z + 0.05,
-      "行走方向错误：半周期后左脚没有前触地",
-    );
-    const rightSwing = walkPose(0.75);
-    assert(
-      rightSwing.rightFoot.y > rightSwing.leftFoot.y + 0.015,
-      "行走相位错误：右脚向前摆时没有抬起",
-    );
-    assert.equal(walk.tracks.length, 21);
-    for (const track of walk.tracks) {
-      const s = track.getValueSize();
-      for (let k = 0; k < s; k++)
-        assert(
-          Math.abs(
-            track.values[k] - track.values[track.values.length - s + k],
-          ) < 1e-5,
-          "动画未闭环",
-        );
-    }
+    variants++;
     a.dispose();
     console.log(
-      `${outfit.padEnd(7)} ${variant.height}m / build ${variant.build} | body ${triCount(data.body)} tris | final ${triCount(data.surface)} tris | topology + weights + 96 pose samples PASS`,
+      `${outfit.padEnd(7)} ${variant.height}m / build ${variant.build} | body ${triCount(data.body)} tris | final ${triCount(data.surface)} tris | topology + weights + static bind PASS`,
     );
   }
 assert(new Set(skeletonMaps).size === 1, "职业或体型改变了骨架语义");
@@ -257,5 +176,5 @@ assert.equal(
 
 assert.equal(cleanRecipe({ height: NaN, build: Infinity }).height, 1.76);
 console.log(
-  `PASS: 12 character variants, ${frames} posed-frame checks, real-edge garment anchors, closed continuous base body, fixed rig, <=2 weights, runtime-only geometry.`,
+  `PASS: ${variants} character variants, static bind checks, real-edge garment anchors, closed continuous base body, fixed rig, <=2 weights, runtime-only geometry.`,
 );

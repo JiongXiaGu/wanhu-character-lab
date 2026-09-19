@@ -22,12 +22,14 @@ export function calibration(joints: Joint[], source: MixamoMotionData): T.Quater
   if (joints.length !== 20) throw new Error('Mixamo 重定向要求固定 20 骨骼。');
   const scale = joints[1].p[1] / .929;
   return joints.map((joint, i) => {
-    if (!i) return new T.Quaternion();
+    // HeadTop_End 是骨段端点，不是脸的朝向。源绑定中前倾约 5.46°，
+    // 将它对齐目标竖直轴会给每帧额外加一次低头。头部刚性几何使用
+    // 解剖坐标 +Z 的中立脸向，只传递 FBX 相对真实 bind 的世界旋转差。
+    if (!i || i === 5) return new T.Quaternion();
     const child = CALIBRATION_CHILD[i];
     const sourceDirection = v(source.bindPositions, child * 3).sub(v(source.bindPositions, i * 3)).normalize();
     let direction: T.Vector3;
-    if (i === 5) direction = new T.Vector3(0, 1, 0);
-    else if (i === 9 || i === 13) direction = v(joint.p, 0).sub(v(joints[joint.parent].p, 0));
+    if (i === 9 || i === 13) direction = v(joint.p, 0).sub(v(joints[joint.parent].p, 0));
     else if (i === 16 || i === 19) direction = new T.Vector3(0, -.073 * scale, .15 * scale);
     else direction = v(joints[child].p, 0).sub(v(joint.p, 0));
     return new T.Quaternion().setFromUnitVectors(direction.normalize(), sourceDirection);
@@ -105,6 +107,8 @@ export function retargetMixamo(data: CharacterData, source: MixamoMotionData): R
 export function exportTargetMotion(data: CharacterData, source: MixamoMotionData, bake: RetargetBake) {
   return {
     schema: 'wanhu-target-motion', version: 1, retargetVersion: RETARGET_VERSION,
+    skeletonVersion: 'wanhu-20-v1',
+    calibrationProfile: { id: 'male-anatomical-v2', head: 'source-world-bind-delta; neutral-face-forward-+Z' },
     coordinateSystem: '+X character-right / +Y up / +Z forward; quaternion xyzw',
     source: source.source, clipId: source.id, duration: source.duration, loop: bake.loop, times: source.times,
     rootMotionPolicy: 'remove-linear-planar-trajectory; preserve-local-sway-and-height',

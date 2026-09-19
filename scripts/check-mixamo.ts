@@ -19,7 +19,7 @@ for (const def of MIXAMO_CLIPS) {
     const bake = retargetMixamo(data, source);
     assert.equal(JSON.stringify(recipe), saved); assert.equal(actor.bones.length, 20);
     assert.equal(actor.data.recipe.slots.headwear, 'farmer_straw_hat');
-    actor.mixer.stopAllAction(); const action = actor.mixer.clipAction(bake.clip); action.play(); action.paused = true;
+    actor.mixer.stopAllAction(); const action = actor.mixer.clipAction(bake.clip); action.setLoop(T.LoopOnce,1).play(); action.paused = true; action.clampWhenFinished = true;
     for (let f = 0; f < source.times.length; f++) {
       action.time = source.times[f]; actor.update(0); frames++;
       assert.equal(actor.mesh.geometry, geometry);
@@ -35,7 +35,7 @@ for (const def of MIXAMO_CLIPS) {
         worstDirection = Math.max(worstDirection, error);
         assert(error < .2, `${def.id}/${i}/${f}: source-target direction ${error}`);
       }
-      for (let i = 0; i < actor.mesh.geometry.attributes.position.count; i += 9) {
+      for (let i = 0; i < actor.mesh.geometry.attributes.position.count; i++) {
         const p = actor.mesh.getVertexPosition(i, new T.Vector3());
         assert(p.toArray().every(Number.isFinite)); assert(p.length() < 8);
       }

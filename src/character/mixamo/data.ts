@@ -1,7 +1,7 @@
 import type { MixamoId } from './catalog';
 
 export const MIXAMO_SCHEMA = 1;
-export const RETARGET_VERSION = 'wanhu-mixamo-1';
+export const RETARGET_VERSION = 'wanhu-mixamo-2';
 /** 索引与目标 20 Bone ID 一致；Root 为目标生成的原点，不取自 FBX。 */
 export const SOURCE_BONES = [
   '', 'Hips', 'Spine', 'Spine2', 'Neck', 'Head',
@@ -9,7 +9,7 @@ export const SOURCE_BONES = [
   'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand',
   'RightUpLeg', 'RightLeg', 'RightFoot', 'LeftUpLeg', 'LeftLeg', 'LeftFoot',
 ] as const;
-/** 端点用于校准手/足/头部朝向，不向运行骨架增加 Bone ID。 */
+/** 手/足端点用于骨段校准；头顶端点仅用于源骨架显示，不代表面朝向。 */
 export const SOURCE_ENDPOINTS = ['HeadTop_End', 'RightHandMiddle1', 'LeftHandMiddle1', 'RightToeBase', 'LeftToeBase'] as const;
 export const SAMPLE_BONES = [...SOURCE_BONES, ...SOURCE_ENDPOINTS] as const;
 export const SAMPLE_BONE_COUNT = SAMPLE_BONES.length;

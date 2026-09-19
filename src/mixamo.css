@@ -1,6 +1,4 @@
 .mixamo-library { border-bottom: 1px solid #40545b; margin-bottom: 22px; padding-bottom: 18px; }
-.mixamo-library .labor-grid { margin-top: 10px; }
-.mixamo-library .labor-grid button.active { border-color: #b89a68; background: #42534c; color: #f2e0bd; }
 .mixamo-status { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; padding:8px 0; color:#c9d8d5; }
 .mixamo-status button { background:#314950; border-radius:4px; padding:7px 12px; white-space:nowrap; }
 .mixamo-compare-labels { position:absolute; top:132px; left:0; right:0; display:grid; grid-template-columns:1fr 1fr; pointer-events:none; text-align:center; font-size:12px; color:#d4c29e; }
@@ -14,3 +12,10 @@
   .stage:has(.mixamo-status) .stage-caption { display:none; }
   .stage:has(.mixamo-status) .three-labels { bottom:229px; }
 }
+
+.fbx-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; margin-top:10px; }
+.fbx-grid button { min-height:38px; padding:5px 3px; border:1px solid #ffffff10; border-radius:4px; background:#ffffff04; color:#acbebd; font-size:10px; line-height:1.4; }
+.fbx-grid button.active { border-color:#b89a68; background:#42534c; color:#f2e0bd; }
+.fbx-grid button:hover { background:#ffffff0b; }
+.fbx-hint { font-size:10px; line-height:1.7; margin-top:9px; color:#829ba0; }
+.motion-panel button:disabled, .motion-panel input:disabled { opacity:.45; cursor:default; }
