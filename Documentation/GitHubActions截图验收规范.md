@@ -1,199 +1,69 @@
 # GitHub Actions 截图验收规范
 
-## 1. 唯一视觉验收方式
+## 唯一视觉验收方式
 
-本仓库不部署 Visual / Vercel / Preview Site 用于人物视觉验收。
-
-视觉审查统一使用：
+本仓库不部署 Visual / Vercel / Preview Site 用于人物审查。流程固定为：
 
 ```text
-GitHub Actions
-→ npm ci
-→ Mesh / Animation Validation
-→ npm run build
-→ Runner 内启动 Vite Preview
-→ Playwright 打开真实 WebGL 页面
-→ 自动截图
-→ Upload Artifact
-→ Agent 下载 Artifact 并实际审图
+GitHub Actions → npm ci → Build / Mesh / Action Validation
+→ runner 内 Vite Preview → Playwright 真实 WebGL 页面
+→ 截图与 JSON 报告 → Artifact → Agent 下载并实际审图
 ```
 
-Runner 内的 localhost 只服务截图，不是部署环境。
+localhost 只服务截图，不是部署环境。`vercel.json` 仅保留 `git.deploymentEnabled=false`，不重新加入 framework/build/output 配置，不新增视觉部署 workflow。
 
-仓库只保留最小 `vercel.json`：`git.deploymentEnabled=false`，用于阻止已连接的 Vercel Git 集成自动部署。不得在该文件重新加入 framework / build / output 配置，也不新增视觉部署 workflow。
+## Agent 连续执行责任
 
-## 2. Agent 的连续执行责任
+阅读最新代码与规范，更新文档并实现，运行自动检查，生成截图，下载产物，实际逐项检查，修正并重跑，达到可验收程度后合入 main，再通知用户。不能每个子动作要求用户回复“继续”，也不能只看 CI 绿色。
 
-用户交付一个阶段后，不要求用户反复输入“继续”。
+遇到真正的权限/依赖阻塞、需要明确美术方向选择或无法安全继续时才提前停下，并准确记录原因，不把失败版本标为通过。
 
-Agent 应连续完成：
+## 两套矩阵都必须覆盖
 
-1. 阅读 AGENTS 与当前架构文档；
-2. 实现本阶段人物 / 动作；
-3. 运行几何、蒙皮、动画自动检查；
-4. Build；
-5. GitHub Actions 自动截图；
-6. 下载截图 Artifact；
-7. 实际检查图片，而不是只看 CI 绿色；
-8. 修复明显姿势、穿模、方向、Socket、蒙皮或构图问题；
-9. 重复 3–8，直到达到可以让用户验收的状态；
-10. 合并 main 后再通知用户验收。
+基础 Motion：`scripts/review-v3.mjs` 的 `ACTION_SCREENSHOT_MATRIX`，由 `scripts/check-review-coverage.mjs` 检查；当前 idle/walk/run/wave/squat/bind。
 
-只有以下情况允许提前停下：
+可播放 Action：`scripts/review-actions.ts` 的 `ACTION_REVIEW_MATRIX`，与 `actions/catalog.ts` 的 WORK_IDS 双向核对。矩阵独立登记相位，检查实际截图文件存在、大小和报告条目；不是只把注册表遍历一遍就声称覆盖。
 
-- 需要用户选择明确的美术方向；
-- GitHub / 权限 / 外部依赖阻塞；
-- 两种设计取舍无法通过已有规范判断；
-- 自动验证无法安全继续。
+每个 Motion/Action 至少有 Front、Side、Back、Cage。循环动作有 0/25/50/75% 并检查闭环。单次动作有开始、接触/释放、恢复、结束；保持姿态验证暂停与长时间保持，不强求静态姿势的帧哈希发生变化。
 
-## 3. 每个动作必须有截图覆盖
+必须包含真实道具和真实 Slot 组合，不能只拍空手骨架。新增动作没有截图矩阵或文件缺失，CI 必须失败。
 
-当前每个已实现 Motion 至少输出：
+## 交互检查
+
+Carry/Push/Pull：左右掌心与 Grip/Handle，肩肘变形，负重步态中手是否脱离，道具与躯干/腿的位置，轮子是否跟随播放暂停。
+
+Pick/Place：站姿、下探、接触事件、落地、松手、恢复。检查箱体落地与脚底，不能只看最漂亮一帧。
+
+Tool：双手或单手握柄、接触前/时/后、工具轨迹、循环、穿头/躯干/腿。
+
+Bow：搭箭、举弓、拉弓、保持、释放、收势与取消；弦中点和拉弦手，持弓手、箭方向，释放前/时/后，离弦箭不跟着收弓移动。必须实际播放确认一箭一次事件，暂停/定位不重复生成事件，取消不放箭。
+
+补充默认和体型端点、跨职业草帽弓手、有限高低瞄准、界面状态文字、移动端水平溢出。没有实现的战斗/分层/导航功能不能写为已验证。
+
+## 文件与产物
+
+基础截图在 `review/`。动作截图实际命名：
 
 ```text
-Front
-Side
-Back
-Cage / Wire
+review-actions/<id>/front-beauty.png
+review-actions/<id>/side-beauty.png
+review-actions/<id>/back-beauty.png
+review-actions/<id>/free-cage.png
+review-actions/<id>/frame-<index>-p<phase1000>.png
+review-actions/report.json
+review-actions/index.html
 ```
 
-循环动作还必须输出关键相位：
+额外截图含体型/DIY、握点、离弦画面和移动端。报告记录 `REVIEW_HEAD_SHA`（源提交）及 `GITHUB_SHA`（实际测试的 PR merge 或 main 提交），不得混用旧 Artifact 证明新提交通过。
 
-```text
-0%
-25%
-50%
-75%
-```
+Workflow `.github/workflows/screenshot-review.yml` 上传 `character-action-screenshots`，包括两个 review 目录、构建/检查/预览日志，保留 7 天。失败也应上传已生成的日志与失败截图。
 
-一次性动作至少输出：
+不提交成百张截图到源代码，不把 Artifact 变成网页部署。需要长期保留时，保存验收摘要和选定图片，并明确生成它们的 SHA/run。
 
-```text
-Start
-Contact / Main Event
-Recovery
-```
+## 合并门槛
 
-如果动作使用道具，截图必须包含真实道具和真实 Slot 组合，不能只拍空手骨架。
+Build、check:mesh、check:actions、两套截图覆盖、Playwright UI 均通过；对应 Artifact 已下载并逐项实际审图；明显姿势、抓握、方向、蒙皮和构图问题已修正；残余范围限制已记录。
 
-## 4. 动作截图矩阵
+代码改动后重新运行。仅新增验收记录的文档提交可以引用其父代码提交的已审查截图，但必须说明代码未变化。合入前核对最新 main，保留并行变更，不覆盖未经比较的新提交。
 
-自动截图矩阵维护在：
-
-`scripts/review-v3.mjs`
-
-当前必须覆盖：
-
-- idle
-- walk
-- run
-- wave
-- squat
-- bind
-
-新增 Motion 时，必须同步加入 `ACTION_SCREENSHOT_MATRIX`。
-
-`scripts/check-review-coverage.mjs` 会读取 Motion 类型并检查截图矩阵。新增 Motion 但遗漏截图覆盖时 CI 直接失败。
-
-Phase 4 的 ActionDefinition 一旦成为可播放动作，也必须加入截图矩阵；不能只新增数据定义而不提供视觉验收入口。
-
-## 5. Phase 4 动作额外检查
-
-### Carry / Push / Pull
-
-检查：
-
-- 两只手是否对准 Grip / Handle；
-- 手肘是否过伸；
-- 肩部是否塌陷；
-- Walk 叠加后手是否脱离道具；
-- 道具是否穿躯干 / 腿。
-
-### Pick / Place
-
-检查：
-
-- 起始站姿；
-- 下探阶段；
-- pickup / place event 时刻；
-- 恢复站姿；
-- 手部是否到达 Interaction Anchor。
-
-### Tool
-
-检查：
-
-- 双手 / 单手 Grip；
-- Contact Event；
-- 工具轨迹；
-- 工具是否穿头、躯干或腿；
-- 循环衔接。
-
-### Bow / Combat
-
-检查：
-
-- Raise / Draw / Hold / Release / Recover；
-- 左右手协同；
-- Aim 高低角；
-- 剑盾与身体穿模；
-- 武器 Socket；
-- 上半身动作与 Locomotion 是否冲突。
-
-## 6. 文件命名
-
-推荐：
-
-```text
-action-<id>-front.png
-action-<id>-side.png
-action-<id>-back.png
-action-<id>-cage.png
-action-<id>-side-p00.png
-action-<id>-side-p25.png
-action-<id>-side-p50.png
-action-<id>-side-p75.png
-```
-
-特殊动作可以增加：
-
-```text
-action-hoe-contact.png
-action-bow-draw.png
-action-bow-hold.png
-action-bow-release.png
-```
-
-## 7. Artifact
-
-Workflow 只上传视觉验收需要的内容：
-
-- review/*.png
-- review/browser-review.json
-- mesh-review.log
-- preview.log
-
-不部署网页，不把视觉验收替换为在线 Preview。
-
-## 8. 合并门槛
-
-允许合入 main 前必须满足：
-
-- `npm run check:mesh` PASS；
-- `npm run build` PASS；
-- Screenshot Coverage PASS；
-- Playwright WebGL / UI PASS；
-- 截图 Artifact 已生成；
-- Agent 已实际审图；
-- 已知问题已记录；
-- 没有明显半成品动作。
-
-Build PASS 不等于 Visual PASS。
-
-## 9. 用户验收时机
-
-只有在当前阶段已经通过上述门槛后，才通知用户：
-
-“现在可以验收。”
-
-不要在只完成动作骨架、只通过编译、或还没看截图时要求用户验收。
+只有完成这些门槛后才能通知用户验收。Build PASS 不等于 Visual PASS。

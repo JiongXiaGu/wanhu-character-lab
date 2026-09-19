@@ -35,11 +35,11 @@ jobs:
       - name: Validate launcher logic
         run: node scripts/check-launcher.cjs
       - name: Build
-        run: npm run build
+        run: npm run build 2>&1 | tee build-review.log
       - name: Validate topology and sampled animation
-        run: npm run check:mesh | tee mesh-review.log
+        run: npm run check:mesh 2>&1 | tee mesh-review.log
       - name: Validate all action poses and events
-        run: npx tsx scripts/check-actions.ts | tee action-review.log
+        run: npx tsx scripts/check-actions.ts 2>&1 | tee action-review.log
       - name: Validate baseline screenshot coverage
         run: node scripts/check-review-coverage.mjs
       - name: Install browser and Chinese font
@@ -58,8 +58,8 @@ jobs:
             sleep 1
           done
           test "$ready" = 1
-          npm run check:visual
-          npx tsx scripts/review-actions.ts
+          npm run check:visual 2>&1 | tee baseline-browser-review.log
+          npx tsx scripts/review-actions.ts 2>&1 | tee action-browser-review.log
       - name: Confirm CI did not modify source
         run: git diff --exit-code
       - uses: actions/upload-artifact@v4
@@ -69,7 +69,10 @@ jobs:
           path: |
             review/
             review-actions/
+            build-review.log
             mesh-review.log
             action-review.log
+            baseline-browser-review.log
+            action-browser-review.log
             preview.log
           retention-days: 7
