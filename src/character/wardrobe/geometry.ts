@@ -4,8 +4,8 @@ import { add, mul, sub, ring, bridge, face, vertex, OCT, BOX, orient } from '../
 /** 只生成绑定空间网格，不读取动画时钟，不创建骨骼。 */
 export const NEW_TOPS:readonly TopId[]=['rough_tunic','cross_jacket','layered_vest','ceremony_robe'];
 export const NEW_BOTTOMS:readonly BottomId[]=['loose_trousers','work_wrap','pleated_skirt','robe_skirt'];
-export const BODY_HIDE_VERSION='wanhu-garment-hide-v2';
-export const GARMENT_GEOMETRY_VERSION='wanhu-garment-geometry-v3';
+export const BODY_HIDE_VERSION='wanhu-garment-hide-v3';
+export const GARMENT_GEOMETRY_VERSION='wanhu-garment-geometry-v4';
 export function garmentColors(recipe:Recipe):GarmentDyes {
   const [primary,accent]=[['#415e68','#d4c5a5'],['#626854','#d7c9b2'],['#785549','#d7c8ae']][recipe.palette];
   return recipe.dyes??{primary,secondary:'#596363',accent};
@@ -135,13 +135,13 @@ export function addGarmentSilhouettes(c:Cage,recipe:Recipe):void {
   if(lower){
     hem(c,'GarmentBottom',lower);
     // 仅过滤最终服饰表面，不改原始人体/绑定。穿回裤装时重新生成，遮挡自然撤销。
-    // 裳内不重复绘制髋面；长裳再隐藏大腿和膝部裤面，防止慢跑时从裙面穿出。
-    // 稳定语义区域/锚点，不依赖变形后世界高度。保留 Calf→Ankle 与足部供下摆露出。
+    // 长裳隐藏大腿/膝前裤面，但保留完整 KneeLower→Calf→Ankle，不能把小腿截成悬空一段。
+    // 使用稳定语义区域/锚点，不根据每帧相机或变形后的世界高度删面。
     c.faces=c.faces.filter(f=>{
       if(f.region==='pelvis')return false;
       if(!lower.wrap)return true;
       if(f.region==='thigh')return false;
-      if(f.region==='shin')return f.v.some(i=>/^(Right|Left)Ankle/.test(c.vertices[i].id));
+      if(f.region==='shin')return f.v.every(i=>/^(Right|Left)(KneeLower|Calf|Ankle)/.test(c.vertices[i].id));
       return true;
     });
   }
