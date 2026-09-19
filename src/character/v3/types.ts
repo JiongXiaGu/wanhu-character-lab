@@ -15,6 +15,12 @@ export type Region =
   | "detail"
   | "equipment";
 
+/** 外观体型，不改变骨骼语义；旧 V4 配方缺省为 male。 */
+export type BodyType = "male" | "female";
+export const BODY_TYPES = ["male", "female"] as const;
+export const BODY_PROFILE_VERSION = "wanhu-body-profiles-v1";
+export const defaultHeight = (bodyType: BodyType) => bodyType === "female" ? 1.66 : 1.76;
+
 export type Outfit = "farmer" | "guard" | "archer" | "body";
 export type PresetId = Outfit | "custom";
 
@@ -50,6 +56,7 @@ export interface CharacterSlots {
 
 export interface Recipe {
   version: 4;
+  bodyType: BodyType;
   preset: PresetId;
   slots: CharacterSlots;
   height: number;
@@ -185,6 +192,7 @@ export function presetSlots(preset: Outfit): CharacterSlots {
 
 export const DEFAULT_RECIPE: Recipe = {
   version: 4,
+  bodyType: "male",
   preset: "farmer",
   slots: presetSlots("farmer"),
   height: 1.76,
@@ -238,6 +246,7 @@ export function cleanRecipe(value: RecipeInput): Recipe {
       ? Math.min(hi, Math.max(lo, v))
       : fallback;
 
+  const bodyType = valid(value.bodyType, BODY_TYPES, "male");
   const legacyPreset = valid(value.outfit, PRESET_IDS, "farmer");
   const requestedPreset =
     value.preset === "custom"
@@ -292,9 +301,10 @@ export function cleanRecipe(value: RecipeInput): Recipe {
 
   return {
     version: 4,
+    bodyType,
     preset: requestedPreset,
     slots,
-    height: number(value.height, 1.76, 1.58, 1.92),
+    height: number(value.height, defaultHeight(bodyType), 1.58, 1.92),
     build: number(value.build, 0.5, 0, 1),
     palette: Math.round(number(value.palette, 0, 0, 2)),
   };

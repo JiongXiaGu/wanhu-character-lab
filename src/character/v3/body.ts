@@ -1,3 +1,4 @@
+import { femalePoint } from "./proportions";
 import {
   B,
   rigid,
@@ -182,6 +183,7 @@ export function makeBody(): Cage {
   return c;
 }
 export function shapePoint(p: Vec3, recipe: Recipe): Vec3 {
+  if (recipe.bodyType === "female") p = femalePoint(p);
   const h = recipe.height / 1.76,
     bulk = 0.88 + recipe.build * 0.24;
   return [
@@ -216,4 +218,14 @@ export function makeJoints(recipe: Recipe): Joint[] {
     put(`${name}Foot`, t + 1, [s * 0.101, 0.105, 0]);
   }
   return j;
+}
+
+/** 刚性工具只换绑定锚点和等比尺寸，不套非线性身体比例场，避免直杆变弯。 */
+export function shapeRigidPoint(p: Vec3, bone: number, recipe: Recipe, baseJoints: Joint[], targetJoints: Joint[]): Vec3 {
+  if (recipe.bodyType === "male") return shapePoint(p, recipe);
+  const origin = baseJoints[bone].p, target = targetJoints[bone].p, h = recipe.height / 1.76;
+  const head = bone === B.Head;
+  return [target[0] + (p[0] - origin[0]) * h * (head ? .96 : 1),
+    target[1] + (p[1] - origin[1]) * h,
+    target[2] + (p[2] - origin[2]) * h * (head ? .98 : 1)];
 }

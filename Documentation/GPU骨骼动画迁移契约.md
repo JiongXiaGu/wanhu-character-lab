@@ -1,4 +1,4 @@
-# GPU 骨骼动画迁移契约 · V3.5 / FBX
+# GPU 骨骼动画迁移契约 · V3.6 / FBX
 
 ## 状态
 
@@ -45,3 +45,7 @@ GPU可评估Clip×Frame×Bone的float3x4/half3x4矩阵，或Quaternion+Translati
 包围盒应覆盖整段动画与工具，不只静态bind；远景可降采样、简化工具、减少骨骼，但要有重映射且事件不漏。默认不加布料或五指。
 
 尚未实现MeshData/Burst、Avatar/Clip导入、Skeleton/Motion/Prop Blob、GPU Buffer/Texture Bake、Crowd Shader、Entities Graphics接入、动画LOD、共享缓存、万人性能。网页测试不能替代这些Unity验收。
+
+## V3.6 身体配置补充
+
+Recipe V4新增bodyType（缺省male）；女性profileVersion=wanhu-body-profiles-v1，与男性共用拓扑和骨骼语义，绑定位置可不同。网格键和目标动画键都必须包含bodyType/profileVersion/height/build。男性12套几何哈希保持6627c2e基线；女性通过独立比例、头脸、低髻实现，不是只换衣服。详细范围及验收矩阵见女性角色接入.md。

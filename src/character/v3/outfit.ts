@@ -33,7 +33,7 @@ import {
   OCT,
   BOX,
 } from "./cage";
-import { makeBody, makeJoints, shapePoint } from "./body";
+import { makeBody, makeJoints, shapePoint, shapeRigidPoint } from "./body";
 const SKIN = "#c8956e",
   HAIR = "#282b29",
   INK = "#272b2b";
@@ -207,7 +207,7 @@ function ribbon(
     face(c, normal[2] > 0 ? ids : ids.reverse(), "detail", color);
   }
 }
-function faceDetails(c: Cage, hat: boolean) {
+function faceDetails(c: Cage, hat: boolean, female = false) {
   const head = rigid(B.Head);
   for (const side of [-1, 1]) {
     const x = 0.037 * side;
@@ -220,7 +220,10 @@ function faceDetails(c: Cage, hat: boolean) {
     patch(
       c,
       `Eye${side}`,
-      [
+      female ? [
+        surface(x - .014, 1.659), surface(x, 1.654),
+        surface(x + .014, 1.659), surface(x + .007, 1.665), surface(x - .007, 1.665),
+      ] : [
         surface(x - 0.011, 1.655),
         surface(x + 0.011, 1.655),
         surface(x + 0.011, 1.666),
@@ -232,7 +235,10 @@ function faceDetails(c: Cage, hat: boolean) {
     patch(
       c,
       `Brow${side}`,
-      [
+      female ? [
+        surface(x - .014, 1.678), surface(x + .014, 1.678),
+        surface(x + .010, 1.6815), surface(x - .010, 1.6815),
+      ] : [
         surface(x - 0.015, 1.677),
         surface(x + 0.015, 1.677),
         surface(x + 0.012, 1.683),
@@ -251,9 +257,9 @@ function faceDetails(c: Cage, hat: boolean) {
     );
   }
   const nose = [
-    [-0.012, 1.646, 0.102],
-    [0.012, 1.646, 0.102],
-    [0, 1.615, 0.123],
+    [female ? -0.009 : -0.012, 1.646, 0.102],
+    [female ? 0.009 : 0.012, 1.646, 0.102],
+    [0, 1.615, female ? 0.115 : 0.123],
     [0, 1.612, 0.096],
   ] as Vec3[];
   const n = nose.map((p, i) => vertex(c, `Nose.${i}`, p, head));
@@ -272,19 +278,19 @@ function faceDetails(c: Cage, hat: boolean) {
     c,
     "Mouth",
     [
-      [-0.015, 1.595, 0.102],
-      [0.015, 1.595, 0.102],
+      [female ? -0.013 : -0.015, 1.595, 0.102],
+      [female ? 0.013 : 0.015, 1.595, 0.102],
       [0.01, 1.599, 0.102],
       [-0.01, 1.599, 0.102],
     ],
     head,
-    "#895f4c",
+    female ? "#956b5e" : "#895f4c",
   );
   const lower = OCT.map(([x, z], i) =>
     vertex(
       c,
       `Hairline.${i}`,
-      [x * 0.102, z > 0.6 ? 1.697 : z < -0.6 ? 1.573 : 1.655, z * 0.096],
+      [x * 0.102, female ? (z > .9 ? 1.706 : z > .6 ? 1.693 : z < -.6 ? 1.588 : 1.634) : (z > 0.6 ? 1.697 : z < -0.6 ? 1.573 : 1.655), z * 0.096],
       head,
     ),
   );
@@ -313,7 +319,17 @@ function faceDetails(c: Cage, hat: boolean) {
   bridge(c, lower, middle, "detail", HAIR);
   bridge(c, middle, top, "detail", HAIR);
   face(c, [...top], "detail", HAIR);
-  if (!hat) {
+  if (female && !hat) {
+    // 低髻是封闭三环体积，绑在 Head 上，不引入发丝/布料骨骼。
+    const low = ring(c, "FemaleBunLow", [0,1.616,-.111], [1,0,0], [0,0,1], OCT,.027,.027,head);
+    const mid = ring(c, "FemaleBunMid", [0,1.657,-.125], [1,0,0], [0,0,1], OCT,.048,.043,head);
+    const high = ring(c, "FemaleBunHigh", [0,1.696,-.112], [1,0,0], [0,0,1], OCT,.029,.030,head);
+    face(c,[...low].reverse(),"detail",HAIR);
+    bridge(c,low,mid,"detail",HAIR); bridge(c,mid,high,"detail",HAIR);
+    face(c,high,"detail",HAIR);
+    // 横簪与两侧小结均随头部刚性运动，不穿过肩颈。
+    box(c,"FemaleHairPin",[0,1.666,-.164],[.113,.006,.008],head,"#998361");
+  } else if (!female && !hat) {
     const bun = ring(
       c,
       "BunBase",
@@ -769,14 +785,19 @@ export function makeCharacter(input: RecipeInput): CharacterData {
     );
   }
 
-  const hasHeadwear = recipe.slots.headwear !== "none";
-  faceDetails(c, hasHeadwear);
+  const female = recipe.bodyType === "female";
+  const hidesBun = female ? recipe.slots.headwear === "guard_helmet" : recipe.slots.headwear !== "none";
+  faceDetails(c, hidesBun, female);
+  const rigidStart = c.vertices.length;
   headwear(c, recipe.slots.headwear);
   addBack(c, recipe.slots.back);
   addLeftHand(c, recipe.slots.leftHand);
   addRightHand(c, recipe.slots.rightHand);
-
-  for (const v of c.vertices) v.p = shapePoint(v.p, recipe);
+  const joints = makeJoints(recipe);
+  const baseJoints = makeJoints(cleanRecipe({ bodyType:"male", height:1.76, build:.5 }));
+  c.vertices.forEach((v,i) => {
+    v.p = i < rigidStart ? shapePoint(v.p,recipe) : shapeRigidPoint(v.p,v.w[0],recipe,baseJoints,joints);
+  });
   for (const v of body.vertices) v.p = shapePoint(v.p, recipe);
 
   const coveredRegions = new Set<Region>();
@@ -798,7 +819,7 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   return {
     body,
     surface: c,
-    joints: makeJoints(recipe),
+    joints,
     recipe,
     replacedTriangles,
     bodyTriangles: triCount(body),
