@@ -1,112 +1,73 @@
 # AGENTS.md
 
-接手前先阅读：
+接手先读取最新 main，依次阅读：
 
 1. Documentation/工作交接.md
-2. Documentation/项目概览.md
-3. Documentation/运行时人物生成架构.md
-4. Documentation/GPU骨骼动画迁移契约.md
-5. Documentation/服装生成架构.md
-6. Documentation/V3验收记录.md
+2. Documentation/Mixamo动画接入.md
+3. Documentation/项目概览.md
+4. Documentation/运行时人物生成架构.md
+5. Documentation/GPU骨骼动画迁移契约.md
+6. Documentation/服装生成架构.md
+7. Documentation/动作系统架构.md
+8. Documentation/GitHubActions截图验收规范.md
 
-再检查当前任务相关代码。不要从旧对话直接猜实现状态。
+历史 V3/Phase4A 验收只证明对应提交。不要从旧对话猜当前状态。
 
 ## 当前正式路径
 
-`Preset → Recipe V4 Slots → v3/body.ts → v3/outfit.ts → CharacterData → v3/rig.ts → CharacterViewport`
+`Preset → Recipe V4 Slots → v3/body → v3/outfit → CharacterData → v3/rig → CharacterViewport`
 
-src/character/v3 的 types / cage / body / outfit 是不依赖渲染器的生成层；rig.ts 是 Three.js 验证适配层。
+`Mixamo FBX → scripts/lib/mixamo-fbx → 紧凑源轨道 → mixamo/retarget → 当前体型局部轨道 → mixamo/player`
 
-历史 segmented / V2 二维挤出路径已经移除，不得误接回去。
+types/cage/body/outfit 是生成层；rig 是 Three.js 验证适配。历史 segmented / V2 二维挤出路径不得恢复。当前主方向为外部制作动画，不默认继续扩展手写动作；旧 Motion/Phase4A 保留回归对照。
 
-## Recipe V4 / DIY 约束
+**2026-09-19 更新：禁止外部人物 Mesh，不禁止外部动画。** 人体、衣服、装备仍程序生成；用户上传 Mixamo 动画可离线提取/重定向。旧文档中的「不使用外部 FBX/GLB 人物或动作」「不依赖外部动画」仅代表旧阶段，动画部分已由本决策和 Mixamo 文档替代。
 
-职业只是预设，不是生成器分支条件。正式持久化数据为：
+## Recipe V4 / DIY
 
-```text
-Recipe
-├─ version = 4
-├─ preset = farmer / guard / archer / body / custom
-└─ slots
-   ├─ headwear
-   ├─ top
-   ├─ bottom
-   ├─ shoes
-   ├─ back
-   ├─ leftHand
-   └─ rightHand
-```
+持久化：version=4，preset=farmer/guard/archer/body/custom，slots=headwear/top/bottom/shoes/back/leftHand/rightHand，加 height/build/palette。
 
-点击农户 / 卫兵 / 弓手只会一次性写入默认 Slot；修改任意 Slot 后 preset 变为 custom。v3/outfit.ts 生成逻辑必须根据 Slot 判断，不能重新用 preset/outfit 把装备绑死。
-
-旧 V3 输入 `outfit / hat / equipment` 只作为迁移兼容。特别地，旧 `farmer + equipment=true` 必须迁移成 `rightHand=farmer_hoe`。
+职业只是一次性预设，不是生成分支。修改 Slot 后 preset=custom，outfit.ts 必须按 Slot 判断。旧 outfit/hat/equipment 仅迁移兼容；farmer+equipment=true 仍迁移成 rightHand=farmer_hoe。导入动画不得悄悄改写配方或重置装备。
 
 ## 不得破坏
 
-- 连续、封闭、四边面主导的固定三维人体；不通过相交块冒充连续蒙皮。
-- 身体、服装、装备均运行时生成；不改成预制 FBX / GLB 内容库。
-- 固定 20 个骨骼语义，Bone ID / Parent Map 不因职业、服装或体型变化。
-- 每顶点最多 2 个非零权重；普通区域尽量 1 Bone，关节才做 2 Bone Blend。
-- 主体角色动画不逐帧重建 Mesh。
-- +X = 人物右侧，+Y = 向上，+Z = 人物正前方。
-- Walk / Run 是原地动画；游戏导航负责世界位移。
-- Web 的 AnimationMixer 只是验证层；可迁移的是 SkeletonDefinition、SkinBinding、MotionClip、AnimationState。
-- 结构布线 Debug Overlay 可以 CPU 更新，但正式角色 GPU skinning 不能依赖这条调试路径。
-- 布料模拟不属于默认方案。
-- 服装共享同一 SkeletonDefinition；Rigid Attachment 绑定单 Bone，BodyDerived 服装继承身体权重。
-- 不用 DoubleSide 遮盖绕序 Bug。
-- 低三角形不等于已经满足 Unity 万人性能。
+- 连续封闭、四边面主导的人体，不用相交块冒充蒙皮；不恢复外部人物库。
+- 固定 20 Bone ID / Parent Map，不随职业、衣服、体型变化。
+- 每顶点最多 2 个非零权重，普通区域尽量单骨，关节才双骨混合。
+- 主体动画不逐帧重建 Mesh，不逐帧全身 IK；外部重定向在载入/体型变化时烘焙。
+- +X 人物右、+Y 上、+Z 前；原地动作由导航接管世界位移。
+- 服装共用骨架；Rigid Attachment 单骨，BodyDerived 继承权重。不用 DoubleSide 掩盖绕序。
+- 结构布线/源骨架为调试路径，CPU 开销不代表生产路径。
+- 布料和五指不属于默认范围，低面数不等于 Unity 万人性能通过。
 
-## Unity GPU 动画方向
+## 外部动画
 
-近景第一阶段允许使用：
+目录 FBX、catalog.ts 和独立 review-mixamo.ts 矩阵必须一致；新增文件不能静默忽略。
 
-`SkinnedMeshRenderer + 固定 20 Bone Skeleton + GPU Vertex Skinning`
+读取真实 inverse bind，不以首帧代替参考姿态。映射需处理单位、左右轴、T/A pose 和 Spine1 折叠。生成 public/mixamo 不提交；predev/prebuild 离线提取，不联网下载、部署或携带源网格/贴图。
 
-中远景 / Crowd 目标：
+外部射箭的人体动作与弓弦/箭/业务事件分开。不能借用旧程序事件相位宣称完整射箭完成。源文件没包含的道具、第二人物、场景不得伪称已导入。
 
-`ResidentAnimationState → ClipId / Phase / Speed → Animation Texture 或 Bone Buffer → Entities Graphics GPU Skinning`
+## Unity
 
-不要默认给大量居民各自创建完整 GameObject Animator + Transform Bone Hierarchy。
+迁移 SkeletonDefinition、SkinBinding、目标局部轨道、AnimationState 与语义数据，不迁移 Three.js Mixer。
 
-详细契约见 Documentation/GPU骨骼动画迁移契约.md。
+先单人 SkinnedMeshRenderer 对照，再做 Crowd ClipId/Phase/Speed → Animation Texture/Bone Buffer → 批量渲染。不得默认每居民独立完整 Animator/骨骼层级。
+
+动画缓存至少含源 SHA、重定向版本、骨架版本、体型；不同身材不能未经验证共享最终骨骼矩阵。JSON 导出不是 Unity Clip/Avatar/Blob 实现。
 
 ## 开发与验收
 
-用户要求连续推进到可验收阶段，不按单个文件或子步骤反复要求用户说“继续”。Agent 接到一个人物 / 动作阶段后，应连续完成：读文档 → 实现 → 自动检查 → GitHub Actions 截图 → 下载并实际审图 → 修正 → 重新截图，直到达到可以让用户验收的状态。只有遇到需要用户决策的方向分歧、权限阻塞或无法自动解决的问题才停下来询问。
+连续完成：读文档 → 实现 → 自动检查 → GitHub Actions → 下载实际审图/连续视频 → 修正重跑 → 合入 main。不要每子步骤要求用户说继续，回复后不得声称仍后台开发。
 
-不能在回复之后声称仍后台开发；只有当前执行的工具 / CI 工作才是实际进度。
+每次相关改动运行 check:mesh、check:actions、build、check:mixamo、真实浏览器交互。每个动作须有正/侧/背/布线和关键相位；慢跑/射箭看完整时间过程，不能只看最好看的定格或绿色任务。
+
+原程序 Walk 相位门槛继续保留：0% 右脚前触地右臂后，25% 左脚前摆，50% 左脚前触地，75% 右脚前摆。外部动作起点不同，按实际源接触语义审查，不强迫匹配旧相位。
+
+自动测试不证明无自交/穿模；明确范围、残余问题、提交 SHA 与 run ID。暂存分支验证后合入 main，不强推、不覆盖并发提交。依赖固定 package-lock 和 npm ci；文档同步更新。
 
 ## 禁止视觉部署
 
-本仓库不部署 Visual / Vercel / Preview Site 来做视觉验收。
+只允许 GitHub Actions runner 内 Vite Preview + Playwright + Artifact。必须下载实际查看，不要求用户打开线上临时站点。
 
-- `vercel.json` 只允许保留 `git.deploymentEnabled=false`，用于阻止 Vercel Git 自动部署；不得恢复构建/预览配置。
-- 不新增视觉预览部署 workflow。
-- 不要求用户打开线上临时站点。
-- GitHub Actions 在 runner 内启动本地 Vite preview，Playwright 截图后上传 Artifact。
-- Agent 必须下载 Artifact 并实际检查截图，不能只看 Action 绿色。
-- 用户验收时只需拉取 main 本地运行，或查看 Action 截图。
-
-详细规范见 Documentation/GitHubActions截图验收规范.md。
-
-每次生成器 / 动画改动必须执行：
-
-1. `npm run check:mesh`
-2. `npm run build`
-3. 浏览器真实 WebGL + 交互检查
-4. 实际打开正、侧、背、3/4、结构布线及关键动作截图
-5. Walk / Run 必须检查完整步态周期，而不是只看单帧
-6. 每个已实现 Motion / Action 必须进入 GitHub Actions 截图矩阵；新增动作但缺截图覆盖时 CI 必须失败
-7. 每个动作至少输出 Front / Side / Back / Cage 四类截图；循环和关键交互动作还要输出关键相位序列
-
-当前 Walk 回归门槛：
-
-- 0%：右脚 +Z 前触地，右臂在后
-- 25%：左脚抬起向前摆
-- 50%：左脚 +Z 前触地
-- 75%：右脚抬起向前摆
-
-自动测试不证明没有自交或所有动作都不穿模。记录已检查范围、已知局限和截图对应版本。
-
-重构在工作分支完成验证后再合入 main。不得强推 / 覆盖并发提交。不得部署 Vercel / Visual Preview。依赖使用 package-lock.json 和 npm ci。文档和代码同步更新，不维护互相矛盾的“当前阶段”。
+不部署 Visual/Vercel/Preview Site，不新增部署 workflow。vercel.json 仅保留 git.deploymentEnabled=false。用户拉 main 本地运行或看 Actions 产物。

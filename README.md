@@ -1,79 +1,57 @@
-# Wanhu Character Lab · V3.3
+# Wanhu Character Lab · V3.4
 
-《万户天工》低多边形人物网页实验台。使用同一连续人体、固定骨架和运行时生成规则，支持农户、卫兵、弓手、基础人体与 Slot DIY。
+《万户天工》低多边形人物网页实验台。连续程序人体、固定骨架、运行时服装装备、Slot DIY；新增 **Mixamo FBX 动画驱动现有人物**。
 
-Phase 4A 现在包含 17 个可播放 Action：10 项劳动/搬运，7 项射箭流程、分段与姿势变体；原有 6 个基础 Motion 保留。阶段细节与限制见 [Phase4A 使用与验收](Documentation/Phase4A使用与验收.md)。
+## 本地运行
 
-## 本地使用
-
-安装 Node.js 22.12+。拉取 main 后双击根目录 `Start-Local.cmd`，或手动运行：
+安装 Node.js 22.12+。拉取 main 后双击 `Start-Local.cmd`，或：
 
 ```sh
 npm ci
 npm run dev
 ```
 
-左侧动作库选择“完整射箭”可查看搭箭、举弓、拉弓、保持、释放和收势。也可分别选择满弓保持、放箭与取消。拾放、抱箱、背柴、扛木、推拉、锄地和锤击都有实际道具，不是占位按钮。
+启动和构建会自动离线提取 `动画参考/` 中的 11 个 FBX。不会联网下载动画，也不加载 Vanguard 人物网格/贴图。生成的 `public/mixamo/` 不提交。`npm run preview` 前先运行 `npm run build`。
 
-动作不绑定职业，头饰和衣服可以继续 DIY。预览临时占用的手/背槽不会修改原始配方，返回基础待机后恢复。使用暂停、进度条、变速和握点检查进行审查。
+## Mixamo 动画
+
+左侧 **Mixamo 动画** 可选择慢跑、拉弓射箭、高抬腿行走、连续拳击、倒地起身、拨动开关、游泳、街舞、Capoeira、Flair、近身攻击。可以暂停、变速、逐帧、重播和查看完整末帧。
+
+「源骨架同步对照」左为源动画骨架、右为现有人物。人物预设、帽子、衣服、装备、身高和体格仍可修改。固定 20 骨骼与每顶点最多 2 个非零权重不变。没有用参考人物替换现有人物。
+
+「导出目标骨架动画 JSON」导出当前体型实际使用的局部轨道、骨架信息、源 SHA 和提取根轨迹；不是已经实现的 Unity AnimationClip/Avatar/GPU Runtime。
+
+**外部射箭目前只驱动人体姿势，未重配弓弦、箭、释放事件和精确抓握。** 原程序射箭保留为独立对照，不把旧事件相位强行套到外部片段。
+
+详见 [Mixamo 动画接入](Documentation/Mixamo动画接入.md)。
+
+## 保留的功能
+
+原 6 个 Motion：待机、行走、慢跑、招手、屈膝、A 姿态。
+
+原 17 个程序 Action：拾放、抱箱、扛木、背柴、推拉、锄地、锤击，以及完整射箭、分段和瞄准变体。入口名不等于独立完整任务流程；见 [Phase4A 使用与验收](Documentation/Phase4A使用与验收.md)。
+
+Recipe V4：`preset + slots.headwear/top/bottom/shoes/back/leftHand/rightHand + height/build/palette`。职业只是一键预设，弓手可以戴农户草帽；旧 outfit/hat/equipment 仍兼容。
+
+连续封闭人体 510 tris / 257 逻辑顶点；20 固定 Bone/Parent；Three.js SkinnedMesh 主体 GPU 蒙皮。结构布线 Debug 会 CPU 蒙皮，不代表生产路径。固定坐标 +X 人物右、+Y 上、+Z 前；导航负责世界位移。
+
+## 验证与 GitHub Actions
 
 ```sh
 npm run check:mesh
 npm run check:actions
 npm run build
+npm run check:mixamo
 ```
 
-## GitHub Actions 视觉验收
+保留 Character Action Screenshot Review 基模/旧动作回归，新增 Mixamo Retarget Review 全外部动作回归。后者输出源/目标关键相位、四视图、慢跑/射箭真实连续视频、换装/导出/错误恢复测试，Artifact 为 `mixamo-retarget-review`。
 
-不使用 Visual / Vercel / Preview Site 部署。`vercel.json` 只设置 `git.deploymentEnabled=false`，关闭已连接的 Git 自动部署。
+只在 GitHub Actions runner 内启动 Vite Preview，Playwright 真正打开 WebGL。**不使用 Visual / Vercel / Preview Site 部署**；`vercel.json` 的 `git.deploymentEnabled=false` 保留。Agent 必须下载产物实际审图、修正后才合入 main，绿色 Build 不能代替视觉审查。
 
-`Character Action Screenshot Review` 在 runner 内启动本地 Vite Preview，由 Playwright 打开真实 WebGL 页面并截图，上传 `character-action-screenshots` Artifact。Agent 必须下载并实际查看各动作、阶段、体型和换装截图，修复后才交付，不以绿色 Build 代替视觉审查。
+## Unity 边界
 
-产物包含 `review/`、`review-actions/`、JSON/HTML 报告和日志，默认保留 7 天。详见 [截图验收规范](Documentation/GitHubActions截图验收规范.md)。
+迁移 Recipe、SkeletonDefinition、SkinBinding、局部动画轨道、事件/道具语义，不迁移 Three.js 类。现有不同体型参与动画烘焙，不能未经验证跨体型共享最终矩阵。
 
-## 当前功能与预算
+尚未实现 Unity MeshData/Burst、Avatar/Clip 导入器、BlobAsset、Animation Texture/Bone Buffer、Entities Graphics、LOD、Cache 与万人 Profile；无五指、布料、通用宽袖长袍、导航任务/库存/生产结算或正式投射物。
 
-连续、封闭、四边面主导的固定人体 cage；基础人体 510 triangles / 257 逻辑顶点；固定 20 骨骼和 Parent Map；每顶点最多两个非零权重。Three.js SkinnedMesh 主体走 GPU skinning，AnimationMixer 仅负责网页播放。
-
-| 内容 | 现有能力 |
-| --- | --- |
-| 基础动作 | 待机、行走、慢跑、招手、屈膝、静态 A-Pose |
-| 劳动 | 拾放木箱、抱箱待机/行走、扛木、背柴、推独轮车、拉车、双手锄地、单手锤击 |
-| 射箭 | 完整射箭、搭箭拉弓、持续瞄准、高/低瞄准姿势、放箭收势、取消 |
-| 装扮 | 头饰、上衣、下装、鞋、背部、左右手任意混搭；身高/体格/3 组布料配色 |
-| 检查 | 正/侧/背三视图、素模、结构线、三角网格、骨骼、掌心/握点、PNG 截图、Recipe JSON |
-
-默认静态角色预算：农户含斗笠无农具 675 tris，带农具 699 tris，卫兵剑盾 806 tris，弓手弓与箭袋 805 tris。工作预览先隐藏被占用的静态装备，再加对应动作道具，界面显示角色、道具和合计面数。渲染顶点因硬法线/颜色拆点会大于逻辑顶点。
-
-## Recipe V4 · Slot DIY
-
-```text
-version: 4
-preset
-slots.headwear / top / bottom / shoes / back / leftHand / rightHand
-height / build / palette
-```
-
-“弓手 + 农户草帽”只需保持弓手衣服和箭袋，把 `slots.headwear` 改为 `farmer_straw_hat`。旧 `outfit / hat / equipment` URL 和配方仍可迁移。预设只是默认组合，不是职业能力锁。
-
-## 动画方向
-
-```text
-+X = 人物右侧
-+Y = 向上
-+Z = 人物正前方
-```
-
-原地步态由导航负责世界位移。Walk 方向回归：0% 右脚前触地/右臂后摆，25% 左脚抬起向前，50% 左脚前触地，75% 右脚抬起向前。不得出现月球步/倒着走。
-
-## Unity 迁移与当前限制
-
-可迁移的数据语义是 SkeletonDefinition、SkinBinding、MotionClip 局部轨道、ActionDefinition、事件相位、道具锚点和 ResidentAnimationState。Three.js AnimationMixer 不直接迁移。常用组合先烘焙全身片段，不默认让大量居民实时运行多层 Animator/IK。
-
-当前是单角色动作与装扮验证，不是 Unity 生产运行时。未完成 MeshData/Burst、BlobAsset、Animation Texture/Bone Buffer、Entities Graphics、动画 LOD、Mesh Cache、万人性能、五指、布料、通用宽袖长袍和自动 Avatar Mapping。
-
-劳动动作尚未连接世界导航/库存/资源生产和连续装卸任务状态机。车轮使用预览标定速度；射箭是标准方向演示，高低角仅验证姿势。箭飞行不包含世界投射物、命中、伤害或真实弹道。详见 [动作系统架构](Documentation/动作系统架构.md) 和 [GPU 迁移契约](Documentation/GPU骨骼动画迁移契约.md)。
-
-## 接手阅读顺序
-
-AGENTS.md → 工作交接 → 项目概览 → 运行时人物生成架构 → GPU骨骼动画迁移契约 → 服装生成架构 → 动作系统架构 → GitHubActions截图验收规范 → Phase4A使用与验收 → V3验收记录。
+阅读顺序：AGENTS → 工作交接 → Mixamo动画接入 → 项目概览 → 人体/服装架构 → GPU契约 → 动作系统架构 → GitHubActions截图验收规范。Phase4A/V3 记录仅代表相应历史版本。
