@@ -73,7 +73,22 @@ Recipe
 
 ## 开发与验收
 
-用户要求连续推进到可验收阶段，不按单个文件或子步骤反复要求用户说“继续”。但不能在回复之后声称仍后台开发；只有当前执行的工具 / CI 工作才是实际进度。
+用户要求连续推进到可验收阶段，不按单个文件或子步骤反复要求用户说“继续”。Agent 接到一个人物 / 动作阶段后，应连续完成：读文档 → 实现 → 自动检查 → GitHub Actions 截图 → 下载并实际审图 → 修正 → 重新截图，直到达到可以让用户验收的状态。只有遇到需要用户决策的方向分歧、权限阻塞或无法自动解决的问题才停下来询问。
+
+不能在回复之后声称仍后台开发；只有当前执行的工具 / CI 工作才是实际进度。
+
+## 禁止视觉部署
+
+本仓库不部署 Visual / Vercel / Preview Site 来做视觉验收。
+
+- `vercel.json` 只允许保留 `git.deploymentEnabled=false`，用于阻止 Vercel Git 自动部署；不得恢复构建/预览配置。
+- 不新增视觉预览部署 workflow。
+- 不要求用户打开线上临时站点。
+- GitHub Actions 在 runner 内启动本地 Vite preview，Playwright 截图后上传 Artifact。
+- Agent 必须下载 Artifact 并实际检查截图，不能只看 Action 绿色。
+- 用户验收时只需拉取 main 本地运行，或查看 Action 截图。
+
+详细规范见 Documentation/GitHubActions截图验收规范.md。
 
 每次生成器 / 动画改动必须执行：
 
@@ -82,6 +97,8 @@ Recipe
 3. 浏览器真实 WebGL + 交互检查
 4. 实际打开正、侧、背、3/4、结构布线及关键动作截图
 5. Walk / Run 必须检查完整步态周期，而不是只看单帧
+6. 每个已实现 Motion / Action 必须进入 GitHub Actions 截图矩阵；新增动作但缺截图覆盖时 CI 必须失败
+7. 每个动作至少输出 Front / Side / Back / Cage 四类截图；循环和关键交互动作还要输出关键相位序列
 
 当前 Walk 回归门槛：
 
@@ -92,4 +109,4 @@ Recipe
 
 自动测试不证明没有自交或所有动作都不穿模。记录已检查范围、已知局限和截图对应版本。
 
-重构在工作分支完成验证后再合入 main。不得强推 / 覆盖并发提交。不得主动操作 Vercel。依赖使用 package-lock.json 和 npm ci。文档和代码同步更新，不维护互相矛盾的“当前阶段”。
+重构在工作分支完成验证后再合入 main。不得强推 / 覆盖并发提交。不得部署 Vercel / Visual Preview。依赖使用 package-lock.json 和 npm ci。文档和代码同步更新，不维护互相矛盾的“当前阶段”。
