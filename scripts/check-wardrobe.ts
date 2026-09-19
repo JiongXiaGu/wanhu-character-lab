@@ -6,11 +6,13 @@ import {makeActor} from '../src/character/v3/rig';
 import {BODY_TYPES,cleanRecipe,patchSlots,HAIR_STYLE_IDS,type Recipe} from '../src/character/v3/types';
 import {cross,sub,triCount} from '../src/character/v3/cage';
 import {WARDROBE_LOOKS,WARDROBE_VERSION,applyLook,parseRecipeFile,randomizeLook,SLOT_OPTIONS} from '../src/character/wardrobe/catalog';
+import {GARMENT_GEOMETRY_VERSION} from '../src/character/wardrobe/geometry';
 import {assertComponentWinding} from './check-components';
 import {MIXAMO_CLIPS} from '../src/character/mixamo/catalog';
 import {retargetMixamo} from '../src/character/mixamo/retarget';
 import type {MixamoMotionData} from '../src/character/mixamo/data';
 const rows:{look:string;bodyType:string;height:number;build:number;triangles:number;vertices:number}[]=[];
+let wrapEdgesChecked=0;
 function inspect(recipe:Recipe){
   const d=makeCharacter(recipe),c=d.surface;
   assert.equal(d.joints.length,20);assert.equal(triCount(d.body),510);assert(triCount(c)<2600,'wardrobe triangle budget');
@@ -23,6 +25,21 @@ function inspect(recipe:Recipe){
   const topRows=c.vertices.filter(v=>/^GarmentTop\.1\.0\.[0-9]+\.0$/.test(v.id));
   const bottomRows=c.vertices.filter(v=>/^GarmentBottom\.1\.0\.[0-9]+\.0$/.test(v.id));
   for(const a of topRows)for(const b of bottomRows)if(Math.abs(a.p[1]-b.p[1])<1e-7)assert.deepEqual(a.w,b.w,'衣层在同一高度的权重不一致');
+  // 对最终体型网格独立检查正面/背面搭接，而非复算生成函数自身的角度公式。
+  if(recipe.slots.bottom==='pleated_skirt'||recipe.slots.bottom==='robe_skirt'){
+    const edgeCount=recipe.slots.bottom==='pleated_skirt'?12:8;
+    assert(bottomRows.length>1,'长裳缺少采样行');
+    const vertices=new Map(c.vertices.map(v=>[v.id,v]));
+    for(const row of bottomRows)for(const edge of[0,edgeCount]){
+      const id=row.id.replace(/\.0$/,'.'+edge);
+      const right=vertices.get(id),left=vertices.get(id.replace('GarmentBottom.1.0.','GarmentBottom.-1.0.'));
+      const inner=vertices.get(id.replace('GarmentBottom.1.0.','GarmentBottom.1.1.'));
+      assert(right&&left&&inner,'搭接边顶点缺失');
+      assert(right.p[0]<-1e-4&&left.p[0]>1e-4,'长裳绑定姿态中线不能贯通露底');
+      assert((inner.p[2]-left.p[2])*(edge===0?1:-1)>1e-4,'搭接内外壁必须留距，不能共面闪烁');
+      wrapEdgesChecked++;
+    }
+  }
   assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);
   return d;
 }
@@ -53,5 +70,6 @@ for(const def of MIXAMO_CLIPS){const source=JSON.parse(readFileSync(`public/mixa
  }
  console.log('PASS wardrobe FBX '+def.id);
 }
-const report={schema:WARDROBE_VERSION,sourceSha:process.env.REVIEW_HEAD_SHA??'local',staticVariants:rows.length,pairwiseCombinations:combinations,looks:8,bodyTypes:2,clips:11,phasesPerClip:9,sampledFrames:frames,vertexSamples,invalidFilesRejected:bads.length,rows,passed:true,note:'Finite values, winding and weights are checked. This is not a collision/cloth/Unity performance test.'};
+assert(wrapEdgesChecked>0,'未执行长裳搭接检查');
+const report={schema:WARDROBE_VERSION,geometryVersion:GARMENT_GEOMETRY_VERSION,sourceSha:process.env.REVIEW_HEAD_SHA??'local',staticVariants:rows.length,pairwiseCombinations:combinations,looks:8,bodyTypes:2,clips:11,phasesPerClip:9,sampledFrames:frames,vertexSamples,wrapEdgesChecked,invalidFilesRejected:bads.length,rows,passed:true,note:'Finite values, winding, weights and static wrap edges are checked. This is not a collision/cloth/Unity performance test.'};
 mkdirSync('review-wardrobe',{recursive:true});writeFileSync('review-wardrobe/numeric.json',JSON.stringify(report,null,2));console.log('PASS wardrobe',JSON.stringify({...report,rows:undefined}));
