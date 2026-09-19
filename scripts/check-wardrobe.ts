@@ -42,9 +42,9 @@ function inspect(recipe:Recipe){
     assert(d.body.faces.some(f=>f.region==='thigh'),'源人体大腿不得被服饰遮挡删除');
     assert(!c.faces.some(f=>f.region==='thigh'),'长裳覆盖的大腿裤面仍在绘制');
     const shins=c.faces.filter(f=>f.region==='shin');
-    assert.equal(shins.length,12,'必须保留两侧各六面的 Calf→Ankle 外露裤脚');
-    assert(shins.every(f=>f.v.every(i=>!c.vertices[i].id.includes('Knee'))),'裙下不可重复绘制膝部裤面');
-    for(const side of['Right','Left'])assert(shins.some(f=>f.v.some(i=>c.vertices[i].id.startsWith(side+'Calf'))),'不可把外露小腿一并删除');
+    assert.equal(shins.length,24,'必须保留两侧 KneeLower→Calf→Ankle 的连续内衬');
+    assert(shins.every(f=>f.v.every(i=>!/Knee(?!Lower)/.test(c.vertices[i].id))),'裙下不可重复绘制膝前裤面');
+    for(const side of['Right','Left'])for(const anchor of['KneeLower','Calf','Ankle'])assert(shins.some(f=>f.v.some(i=>c.vertices[i].id.startsWith(side+anchor))),'小腿内衬不得从中段截断');
     coveredLegCases++;
   }
   assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);
