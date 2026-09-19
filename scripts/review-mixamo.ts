@@ -6,7 +6,7 @@ import { MIXAMO_CLIPS } from '../src/character/mixamo/catalog';
 const REVIEW_IDS = ['jogging','shooting-arrow','catwalk','punching-bag','zombie-stand-up','pilot-switches','swimming','hip-hop','capoeira','flair','assassination'];
 assert.deepEqual([...REVIEW_IDS].sort(), MIXAMO_CLIPS.map(c=>c.id).sort());
 const directory='review-mixamo'; await mkdir(directory,{recursive:true});
-const browser=await chromium.launch({args:['--no-sandbox','--use-angle=swiftshader','--enable-webgl']});
+const browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--use-angle=swiftshader','--enable-webgl']});
 const videos:string[]=[]; let failure='';
 const errors:string[]=[], records:{file:string;id:string;view:string;phase:number}[]=[];
 const context=await browser.newContext({viewport:{width:1600,height:1000},deviceScaleFactor:1});
@@ -43,7 +43,7 @@ try{
     const videoPage=await videoContext.newPage(),video=videoPage.video()!;
     try{
       videoPage.on('pageerror',e=>errors.push(e.message));
-      await videoPage.goto(`${base}/?review=1&paused=1&mixamo=${id}&compare=1&view=side&outfit=archer&headwear=farmer_straw_hat&leftHand=none`);
+      await videoPage.goto(`${base}/?review=1&paused=1&mixamo=${id}&compare=1&view=side&outfit=archer&headwear=none&leftHand=none&headAxes=1`);
       await videoPage.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
       await videoPage.getByRole('button',{name:'播放',exact:true}).click();
       if(id==='shooting-arrow')await videoPage.waitForFunction(()=>window.__WANHU_REVIEW__!.getStatus().finished,undefined,{timeout:30000});
@@ -65,20 +65,33 @@ try{
   }
   const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'导出目标骨架动画 JSON',exact:true}).click()]);
   await download.saveAs(`${directory}/reviewed-target-motion.json`);
+  const geometryId=await page.evaluate(()=>window.__WANHU_REVIEW__!.geometryId());
   await page.getByTestId('mixamo-hip-hop').click();await page.getByTestId('mixamo-jogging').click();
   await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.id==='jogging');
-  await page.getByRole('button',{name:'待机',exact:true}).click();await page.waitForTimeout(300);
+  assert.equal(await page.evaluate(()=>window.__WANHU_REVIEW__!.geometryId()),geometryId,'switching FBX rebuilt the mesh');
+  await page.getByRole('button',{name:'绑定姿态（静态）',exact:true}).click();await page.waitForTimeout(300);
   assert(!(await page.evaluate(()=>window.__WANHU_REVIEW__!.getStatus())).mixamo);
   const failContext=await browser.newContext();const failPage=await failContext.newPage();
   await failPage.route('**/mixamo/jogging.json',route=>route.fulfill({status:404,body:'missing'}));
   await failPage.goto(`${base}/?mixamo=jogging&review=1`);
   await failPage.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().loadError);
-  await failPage.getByRole('button',{name:'待机',exact:true}).click();await failPage.waitForTimeout(200);
+  await failPage.unroute('**/mixamo/jogging.json');
+  await failPage.getByRole('button',{name:'重试加载',exact:true}).click();
+  await failPage.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.id==='jogging');
+  await failPage.getByRole('button',{name:'绑定姿态（静态）',exact:true}).click();await failPage.waitForTimeout(200);
   assert.equal(await failPage.locator('canvas').count(),1);await failContext.close();
+  for(const id of ['jogging','shooting-arrow','catwalk','zombie-stand-up']){
+    for(const phase of [.25,.6]){
+      await open(id,{headwear:'none',compare:'1',view:'side',headAxes:'1'});
+      await page.evaluate(p=>window.__WANHU_REVIEW__!.seek(p),phase);
+      await page.evaluate(()=>window.__WANHU_REVIEW__!.focusHead());
+      await shot(id,'head-side',phase);
+    }
+  }
   await page.setViewportSize({width:412,height:915});await open('jogging');await shot('jogging','mobile',.25);
   assert.deepEqual(errors,[]);
 }catch(error){failure=String(error);throw error;}finally{
-  const report={sourceSha:process.env.REVIEW_HEAD_SHA??'local',clips:REVIEW_IDS.length,images:records.length,records,errors,failure,passed:!failure&&errors.length===0,continuousVideos:videos};
+  const report={sourceSha:process.env.REVIEW_HEAD_SHA??'local',testedSha:process.env.GITHUB_SHA??'local',retargetVersion:'wanhu-mixamo-2',clips:REVIEW_IDS.length,images:records.length,records,errors,failure,passed:!failure&&errors.length===0,continuousVideos:videos};
   await writeFile(`${directory}/report.json`,JSON.stringify(report,null,2));
   await writeFile(`${directory}/index.html`,`<!doctype html><meta charset="utf-8"><title>Mixamo review</title><style>body{font:16px sans-serif;background:#18242a;color:#eee}section{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}img,video{width:100%}figure{margin:0}h2{grid-column:1/-1}</style><h1>Mixamo source / target review</h1><p>SHA ${report.sourceSha} · Passed ${report.passed}</p>${REVIEW_IDS.map(id=>`<h2>${id}</h2><section>${records.filter(r=>r.id===id).map(r=>`<figure><img loading="lazy" src="${r.file}"><figcaption>${r.view} · ${r.phase}</figcaption></figure>`).join('')}</section>`).join('')}<h2>Continuous playback</h2>${report.continuousVideos.map(f=>`<video controls loop src="${f}"></video>`).join('')}`);
   await context.close();await browser.close();

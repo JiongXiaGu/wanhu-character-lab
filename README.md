@@ -1,57 +1,53 @@
-# Wanhu Character Lab · V3.4
+# Wanhu Character Lab · V3.5 / FBX ONLY
 
-《万户天工》低多边形人物网页实验台。连续程序人体、固定骨架、运行时服装装备、Slot DIY；新增 **Mixamo FBX 动画驱动现有人物**。
+《万户天工》男性居民建模与动画实验台。人体、衣服、装备由程序生成；**动画只使用外部 FBX**。先校正男性居民，女性角色尚未接入。
 
 ## 本地运行
 
-安装 Node.js 22.12+。拉取 main 后双击 `Start-Local.cmd`，或：
+Node.js 22.12+，拉取 main 后双击 `Start-Local.cmd`，或：
 
 ```sh
 npm ci
 npm run dev
 ```
 
-启动和构建会自动离线提取 `动画参考/` 中的 11 个 FBX。不会联网下载动画，也不加载 Vanguard 人物网格/贴图。生成的 `public/mixamo/` 不提交。`npm run preview` 前先运行 `npm run build`。
+predev/prebuild 离线提取 `动画参考/` 的 11 个 Mixamo FBX，不下载资源，不加载 Vanguard 人物网格/贴图。`public/mixamo/` 是忽略提交的产物。preview 前先 build。
 
-## Mixamo 动画
+## 动画与审查
 
-左侧 **Mixamo 动画** 可选择慢跑、拉弓射箭、高抬腿行走、连续拳击、倒地起身、拨动开关、游泳、街舞、Capoeira、Flair、近身攻击。可以暂停、变速、逐帧、重播和查看完整末帧。
+默认播放 FBX 慢跑。左侧可选择射箭、行走、拳击、起身等 11 个源动作；支持暂停、变速、进度、重播和完整末帧。切换 FBX 复用现有模型，修改体型或外观才重新生成人物。
 
-「源骨架同步对照」左为源动画骨架、右为现有人物。人物预设、帽子、衣服、装备、身高和体格仍可修改。固定 20 骨骼与每顶点最多 2 个非零权重不变。没有用参考人物替换现有人物。
+「源骨架同步对照」左侧源骨架、右侧目标人物。「头部朝向检查」显示青色面前方与金色向上轴，便于观察动作本身的俯仰，而非用头顶辅助点判断脸向。
 
-「导出目标骨架动画 JSON」导出当前体型实际使用的局部轨道、骨架信息、源 SHA 和提取根轨迹；不是已经实现的 Unity AnimationClip/Avatar/GPU Runtime。
+「绑定姿态（静态）」只重置模型的 A 绑定姿态，不是另一个程序动画。原 6 Motion、17 程序 Action、对应 UI、采样器、道具播放器与测试已删除，不再作为隐藏对照或失败回退；历史可查 Git。
 
-**外部射箭目前只驱动人体姿势，未重配弓弦、箭、释放事件和精确抓握。** 原程序射箭保留为独立对照，不把旧事件相位强行套到外部片段。
+## 本轮男性校正
 
-详见 [Mixamo 动画接入](Documentation/Mixamo动画接入.md)。
+旧头部校准把源 Head→HeadTop_End 骨段的约 5.456° 前倾额外施加到目标头部。现在保留源头部相对真实绑定姿态的世界旋转差，不把辅助点当脸向，也不强行抬平动作中真实的点头。重定向版本 `wanhu-mixamo-2`，导出附带校准配置。
 
-## 保留的功能
+保留原人体、网格绑定、20 Bone ID/Parent Map、每顶点最多两个非零权重；没有为了抵消错误旋转而反向扭曲脸部网格。详见 [男性校正](Documentation/男性FBX校正.md)。
 
-原 6 个 Motion：待机、行走、慢跑、招手、屈膝、A 姿态。
+## DIY 与导出
 
-原 17 个程序 Action：拾放、抱箱、扛木、背柴、推拉、锄地、锤击，以及完整射箭、分段和瞄准变体。入口名不等于独立完整任务流程；见 [Phase4A 使用与验收](Documentation/Phase4A使用与验收.md)。
+Recipe V4 保留 `preset + slots + height/build/palette`。职业只是一键预设，头饰、衣服、鞋、背部和双手可独立混搭，动画不改写配方。
 
-Recipe V4：`preset + slots.headwear/top/bottom/shoes/back/leftHand/rightHand + height/build/palette`。职业只是一键预设，弓手可以戴农户草帽；旧 outfit/hat/equipment 仍兼容。
+「导出目标骨架动画 JSON」输出当前体型的骨架、局部轨道、源 SHA、根轨迹与校准版本，不是 Unity AnimationClip/Avatar/运行时插件。
 
-连续封闭人体 510 tris / 257 逻辑顶点；20 固定 Bone/Parent；Three.js SkinnedMesh 主体 GPU 蒙皮。结构布线 Debug 会 CPU 蒙皮，不代表生产路径。固定坐标 +X 人物右、+Y 上、+Z 前；导航负责世界位移。
-
-## 验证与 GitHub Actions
+## 检查与 GitHub Actions
 
 ```sh
+npm run check:retired
 npm run check:mesh
-npm run check:actions
 npm run build
 npm run check:mixamo
 ```
 
-保留 Character Action Screenshot Review 基模/旧动作回归，新增 Mixamo Retarget Review 全外部动作回归。后者输出源/目标关键相位、四视图、慢跑/射箭真实连续视频、换装/导出/错误恢复测试，Artifact 为 `mixamo-retarget-review`。
+Build、Male Character Model Review、Mixamo Retarget Review 三条检查。基模矩阵检查 4 外观×3体型；FBX 检查全11动作×3体型的完整时间轴及独立头部旋转断言。Playwright 生成多视图、头部侧面近景和慢跑/射箭连续视频。
 
-只在 GitHub Actions runner 内启动 Vite Preview，Playwright 真正打开 WebGL。**不使用 Visual / Vercel / Preview Site 部署**；`vercel.json` 的 `git.deploymentEnabled=false` 保留。Agent 必须下载产物实际审图、修正后才合入 main，绿色 Build 不能代替视觉审查。
+只在 Actions runner 内启动 Vite Preview，不部署 Visual/Vercel/Preview Site。Agent 必须下载并实际审查对应提交的产物，修正后合入 main。绿色任务不等于全部美术问题消失。
 
-## Unity 边界
+## 边界
 
-迁移 Recipe、SkeletonDefinition、SkinBinding、局部动画轨道、事件/道具语义，不迁移 Three.js 类。现有不同体型参与动画烘焙，不能未经验证跨体型共享最终矩阵。
+FBX 射箭仍是人体动画：弓弦、箭、释放事件与精确握点尚未重新制作；静态 DIY 武器不等于正确抓握。无女性角色、五指、布料、脚锁、通用混合、任务导航、库存/生产结算。大幅动作仍可能有低模关节/服装自交。
 
-尚未实现 Unity MeshData/Burst、Avatar/Clip 导入器、BlobAsset、Animation Texture/Bone Buffer、Entities Graphics、LOD、Cache 与万人 Profile；无五指、布料、通用宽袖长袍、导航任务/库存/生产结算或正式投射物。
-
-阅读顺序：AGENTS → 工作交接 → Mixamo动画接入 → 项目概览 → 人体/服装架构 → GPU契约 → 动作系统架构 → GitHubActions截图验收规范。Phase4A/V3 记录仅代表相应历史版本。
+Unity 导入器、Avatar、Blob、GPU 群体、LOD/剔除和万人 Profile 尚未实现。先做相同骨架的单人物对照，再进行群体路径，不能把网页 GPU 蒙皮当成 Unity 性能验收。
