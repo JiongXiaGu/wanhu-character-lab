@@ -1,0 +1,62 @@
+name: Integrate Tailoring Candidate
+on:
+  push:
+    branches: [feat/wardrobe-motion-safe-lod]
+    paths:
+      - .github/workflows/integrate-tailoring.yml
+      - scripts/integrate-tailoring.py
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: integrate-tailoring-candidate
+  cancel-in-progress: false
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply guarded source edits
+        run: python scripts/integrate-tailoring.py 2>&1 | tee /tmp/tailoring-integration.log
+      - name: Compile and validate static integration
+        run: |
+          npm run check:retired 2>&1 | tee /tmp/tailoring-retired.log
+          npm run build 2>&1 | tee /tmp/tailoring-build.log
+          npm run check:mesh 2>&1 | tee /tmp/tailoring-mesh.log
+          npx tsx scripts/check-tailoring.ts --static 2>&1 | tee /tmp/tailoring-static.log
+      - name: Commit only validated integration changes, without overwriting concurrent work
+        run: |
+          git fetch origin feat/wardrobe-motion-safe-lod
+          test "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA"
+          git diff --check
+          git rm scripts/integrate-tailoring.py .github/workflows/integrate-tailoring.yml
+          git add src scripts/check-wardrobe.ts scripts/check-tailoring.ts package.json .gitignore README.md AGENTS.md Documentation/工作交接.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(wardrobe): integrate knee-aware tailoring, continuous liners and manual garment LOD'
+          git push origin HEAD:feat/wardrobe-motion-safe-lod
+          echo "INTEGRATED_SHA=$(git rev-parse HEAD)"
+      - name: Preserve diagnostic patch on failure
+        if: failure()
+        run: git diff > /tmp/tailoring-integration.patch
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tailoring-integration-diagnostics
+          path: |
+            /tmp/tailoring-*.log
+            /tmp/tailoring-integration.patch
+            review-tailoring/numeric.json
+          retention-days: 7
