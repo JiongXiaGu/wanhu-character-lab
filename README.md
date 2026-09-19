@@ -4,6 +4,16 @@
 
 当前可以使用同一套连续人体、固定骨架和运行时生成规则切换农户、卫兵、弓手与基础人体，并播放基础骨骼动作。
 
+## 视觉验收方式
+
+本仓库不使用 Visual / Vercel 部署做人物视觉验收。
+
+GitHub Actions 会在 runner 内启动本地 Vite Preview，由 Playwright 自动截图并上传 Artifact。每个已实现动作必须有截图覆盖。Agent 应先自行下载并审查截图，确认模型、蒙皮、道具和动作没有明显问题后再通知用户验收。
+
+详见：
+
+`Documentation/GitHubActions截图验收规范.md`
+
 ## 本地使用
 
 安装 Node.js 22.12+。
@@ -146,7 +156,9 @@ ResidentAnimationState
 4. Documentation/运行时人物生成架构.md
 5. Documentation/GPU骨骼动画迁移契约.md
 6. Documentation/服装生成架构.md
-7. Documentation/V3验收记录.md
+7. Documentation/动作系统架构.md
+8. Documentation/GitHubActions截图验收规范.md
+9. Documentation/V3验收记录.md
 
 ## 当前边界
 

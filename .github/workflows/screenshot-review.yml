@@ -1,59 +1,72 @@
-name: Character Visual Review
+name: Character Action Screenshot Review
+
 on:
   push:
-    branches: [main, rebuild/character-v3]
+    branches: [main]
   pull_request:
   workflow_dispatch:
+
 concurrency:
-  group: character-review-${{ github.ref }}
+  group: character-screenshot-review-${{ github.ref }}
   cancel-in-progress: true
+
 permissions:
   contents: read
+
 jobs:
-  review:
+  screenshot-review:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Install locked dependencies
         run: npm ci
+
       - name: Validate launcher logic
         run: node scripts/check-launcher.cjs
+
       - name: Validate topology and sampled animation
         run: npm run check:mesh | tee mesh-review.log
+
+      - name: Validate screenshot coverage
+        run: node scripts/check-review-coverage.mjs
+
       - name: Build
         run: npm run build
+
       - name: Install browser and Chinese font
         run: |
           npx playwright install --with-deps chromium
           sudo apt-get install -y fonts-noto-cjk
-      - name: Review actual WebGL and interactions
+
+      - name: Start local preview and capture screenshots
         run: |
           npm run preview -- --host 127.0.0.1 --port 4173 > preview.log 2>&1 &
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              break
+            fi
             sleep 1
           done
           npm run check:visual
+
       - name: Confirm CI did not modify source
         run: git diff --exit-code
-      - name: Package reviewed source
-        if: always()
-        run: |
-          git archive --format=tar.gz --output=/tmp/reviewed-source.tar.gz HEAD
-          cp /tmp/reviewed-source.tar.gz reviewed-source.tar.gz
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: character-v3-review
+          name: character-action-screenshots
           path: |
             review/
             mesh-review.log
             preview.log
-            reviewed-source.tar.gz
           retention-days: 7
