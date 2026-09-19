@@ -5,7 +5,7 @@ export const MIXAMO_CLIPS = [
   { id:'catwalk', label:'高抬腿行走', file:'Catwalk Walk Forward HighKnees', loop:true, ground:true },
   { id:'punching-bag', label:'连续拳击', file:'Punching Bag', loop:true, ground:true },
   { id:'zombie-stand-up', label:'倒地起身', file:'Zombie Stand Up', loop:false, ground:true },
-  { id:'pilot-switches', label:'拨动开关', file:'Pilot Flips Switches', loop:false, ground:true },
+  { id:'pilot-switches', label:'坐姿拨动开关', file:'Pilot Flips Switches', loop:false, ground:true },
   { id:'swimming', label:'游泳', file:'Swimming', loop:true, ground:false },
   { id:'hip-hop', label:'街舞', file:'Hip Hop Dancing', loop:false, ground:true },
   { id:'capoeira', label:'卡波耶拉动作', file:'Capoeira', loop:false, ground:true },

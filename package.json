@@ -19,7 +19,9 @@
     "review:mixamo": "tsx scripts/review-mixamo.ts",
     "check:retired": "tsx scripts/check-fbx-only.ts",
     "check:wardrobe": "tsx scripts/check-wardrobe.ts",
-    "review:wardrobe": "tsx scripts/review-wardrobe.ts"
+    "review:wardrobe": "tsx scripts/review-wardrobe.ts",
+    "check:tailoring": "tsx scripts/check-tailoring.ts",
+    "review:tailoring": "tsx scripts/review-tailoring.ts"
   },
   "dependencies": {
     "react": "19.1.1",

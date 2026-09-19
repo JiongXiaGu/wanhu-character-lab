@@ -697,7 +697,7 @@ function expandClothingLoops(c: Cage, recipe: Recipe) {
     }
   }
 }
-export function makeCharacter(input: RecipeInput): CharacterData {
+export function makeCharacter(input: RecipeInput, options: { lod?: 0 | 2 } = {}): CharacterData {
   const recipe = cleanRecipe(input);
   const body = makeBody();
   const c = cloneCage(body);
@@ -726,7 +726,7 @@ export function makeCharacter(input: RecipeInput): CharacterData {
 
   if (dressed) expandClothingLoops(c, recipe);
   styleGarmentSurface(c,recipe);
-  addGarmentSilhouettes(c,recipe);
+  addGarmentSilhouettes(c,recipe,options.lod??0);
 
   if (hasTop || hasBottom) belt(c, leather);
 

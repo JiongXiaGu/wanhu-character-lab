@@ -1,4 +1,4 @@
-import { B, rigid, type Cage, type Recipe, type Weight, type GarmentDyes, type Vec3 } from '../v3/types';
+import { rigid, type Cage, type Recipe, type Weight, type GarmentDyes, type Vec3 } from '../v3/types';
 import { add, mul, sub, face, vertex, orient } from '../v3/cage';
 
 export type WardrobeLod = 0 | 2;

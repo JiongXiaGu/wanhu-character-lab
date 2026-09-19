@@ -19,7 +19,7 @@ assert.deepEqual(TAILORING_REVIEW_CLIPS, clips, '重点矩阵不能遗漏坐姿�
 const samples = ['plain', 'town', 'ceremony'] as const;
 const profiles = [[1.76, .5], [1.58, 0], [1.92, 1]] as const;
 const staticRows: object[] = [], motionRows: object[] = [], failures: object[] = [];
-let checkedFrames = 0, checkedVertices = 0;
+let checkedFrames = 0, checkedVertices = 0, completed = false;
 
 function recipeFor(sample: string, bodyType: 'male' | 'female', height: number, build: number): Recipe {
   // plain 的女性推荐是围裳：劳动短装样板统一选短衣/宽裤，保留该身体和配色。
@@ -154,10 +154,11 @@ try {
   }
   console.log(JSON.stringify({ staticVariants: staticRows.length, checkedFrames, failures: failures.length, staticOnly }));
   assert.equal(failures.length, 0, '常用试衣动作检测到分裳/内衬穿插；查看 numeric.json 的具体时间和顶点');
+  completed = true;
 } finally {
   const report = { sourceSha: process.env.REVIEW_HEAD_SHA ?? 'local', testedSha: process.env.GITHUB_SHA ?? 'local', geometryVersion: GARMENT_GEOMETRY_VERSION, bodyHideVersion: BODY_HIDE_VERSION,
     staticOnly, staticVariants: staticRows.length, checkedFrames, checkedVertices, staticRows, motionRows, failures,
-    passed: staticRows.length === 36 && !failures.length && (staticOnly || checkedFrames > 0),
+    passed: completed && staticRows.length === 36 && !failures.length && (staticOnly || checkedFrames > 0),
     scope: '离线非共面三角形贯穿抽样：衣片外表面与连续内衬、左右衣片。不涵盖共面接触、全部自碰撞、手/身体/道具或连续时间碰撞；仍需实际截图和视频审查。LOD2 保留原 510 tris 身体，不是最终 Crowd LOD。' };
   writeFileSync(`${directory}/numeric.json`, JSON.stringify(report, null, 2));
 }
