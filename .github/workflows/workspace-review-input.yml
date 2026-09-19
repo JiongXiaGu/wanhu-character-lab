@@ -1,0 +1,31 @@
+name: Workspace Review Input
+on:
+  push:
+    branches: [tmp-female-resident-fbx-20260919]
+    paths: [.github/workflows/workspace-review-input.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Snapshot tracked source and locked dependencies (no Git metadata)
+        run: |
+          mkdir -p /tmp/review-workspace
+          git archive HEAD | tar -x -C /tmp/review-workspace
+          cp -a node_modules /tmp/review-workspace/node_modules
+          tar -czf /tmp/workspace-review-input.tgz -C /tmp/review-workspace .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: workspace-review-input
+          path: /tmp/workspace-review-input.tgz
+          retention-days: 1
