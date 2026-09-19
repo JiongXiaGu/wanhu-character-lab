@@ -2,9 +2,9 @@
 
 接手读取最新 main，依次阅读 README、Documentation/工作交接.md、男性FBX校正.md、Mixamo动画接入.md、项目概览.md、运行时人物生成架构.md、GPU骨骼动画迁移契约.md、服装生成架构.md、GitHubActions截图验收规范.md。
 
-## 当前决定 · V3.5
+## 当前决定 · V3.6
 
-用户确认只靠外部 FBX 动画，淘汰全部手写程序动作对照。**不得恢复旧 Motion、Phase4A Action 或作为失败回退。** 当前先验收男性居民；女性角色是下一轮，不能顺手扩展。
+用户确认只靠外部 FBX 动画，淘汰全部手写程序动作对照。**不得恢复旧 Motion、Phase4A Action 或作为失败回退。** 男性已在 6627c2e 合入。用户现在要求接入女性：独立身体比例/头脸/低髻，共用固定骨架与全部 FBX；不恢复程序动作。
 
 路径：`Recipe V4 Slots → v3/body/outfit → CharacterData → rig → CharacterViewport`；`Mixamo FBX → 离线源采样 → mixamo/retarget → 目标局部轨道 → mixamo/player`。
 
@@ -17,9 +17,17 @@
 - 服装共用骨架：Rigid 单骨、BodyDerived 继承权重。不要引入衣服独立 Animator。
 - 主体播放不重建 Mesh，不逐帧全身 IK；源载入/体型变化时离线烘焙。Debug CPU 蒙皮不代表生产路径。
 - +X 人物右、+Y 上、+Z 前。导航负责世界位移，保留骨盆姿态内的侧摆和上下运动。
-- 职业仅一次性预设。Recipe version=4，slots=headwear/top/bottom/shoes/back/leftHand/rightHand，height/build/palette。改 Slot 后 preset=custom，生成器只看 slots。
+- 职业仅一次性预设。Recipe version=4（新增 bodyType=male/female，缺省 male），slots=headwear/top/bottom/shoes/back/leftHand/rightHand，height/build/palette。改 Slot 后 preset=custom，生成器只看 slots。
 - 旧 outfit/hat/equipment 仅入口兼容；farmer+equipment=true 仍迁移到 rightHand=farmer_hoe。动画不修改/重置 DIY。
 - 布料、五指、万人性能不是本轮默认范围。
+
+## 男女模型约束
+
+女性通过 proportions.ts 同拓扑形态场同时调整身体/衣物/关节；不能只换发型冒充女性。男性 6627c2e 的12套几何/骨架哈希由 check-body-profiles 固定，不能自动刷新基准。不要为适配女性改写男性数据。
+
+刚性帽子/工具以源/目标骨骼锚点变换，不能把非线性体型场逐点套在工具上导致直杆弯曲。无头饰/草帽/头巾保留低髻，头盔收髻。无长裙/实时布料。BodyType 切换必须保留 DIY、身高、配色与当前动画相位；旧 V4 输入默认 male，女性直达默认1.66m。
+
+目标动画导出必须含 bodyType、profileVersion；女性 calibrationProfile=female-anatomical-v1，男性仍male-anatomical-v2。两性骨骼ID和父关系相同，但不能共享未经验证的最终骨矩阵。
 
 ## 校准与动画
 
@@ -39,7 +47,7 @@ public/mixamo 不提交；predev/prebuild 离线提取，无外部下载/部署/
 
 连续完成：读文档 → 实现 → check:retired/check:mesh/build/check:mixamo → GitHub Actions → 下载实际审图和连续视频 → 修正重跑 → 合入 main。不要每子步骤要求继续，不承诺回复后后台开发。
 
-FBX 每动作正/侧/背/布线与完整关键相位；慢跑/射箭连续视频；男性4外观×3体型；去帽子头部近景、DIY、快速切换、暂停/末帧、重试和导出。静态绑定不得有隐式呼吸等程序运动。
+FBX 每动作正/侧/背/布线与完整关键相位；男女慢跑/射箭连续视频；男女×4外观×3身材；去帽子头部近景、DIY、快速切换、暂停/末帧、重试和导出。静态绑定不得有隐式呼吸等程序运动。
 
 新动作按源实际接触语义审查，不沿用旧 Walk 固定相位门槛。数值通过不证明无自交，记录限制、SHA和run ID；仅文档提交可引用未变化父代码的已审截图。
 

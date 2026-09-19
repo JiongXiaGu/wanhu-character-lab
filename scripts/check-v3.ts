@@ -6,6 +6,7 @@ import { makeActor } from "../src/character/v3/rig";
 import { edgeKey, triCount, cross, sub, dot } from "../src/character/v3/cage";
 import {
   cleanRecipe,
+  BODY_TYPES,
   type Cage,
   type Outfit,
 } from "../src/character/v3/types";
@@ -88,13 +89,14 @@ function validate(c: Cage, closed: boolean) {
 }
 const skeletonMaps: string[] = [];
 let variants = 0;
+for (const bodyType of BODY_TYPES)
 for (const outfit of ["body", "farmer", "guard", "archer"] as Outfit[])
   for (const variant of [
     { height: 1.76, build: 0.5 },
     { height: 1.58, build: 0 },
     { height: 1.92, build: 1 },
   ]) {
-    const data = makeCharacter({ outfit, ...variant, equipment: true });
+    const data = makeCharacter({ bodyType, outfit, ...variant, equipment: true });
     validate(data.body, true);
     validate(data.surface, false);
     assertComponentWinding(data.surface);
@@ -131,7 +133,7 @@ for (const outfit of ["body", "farmer", "guard", "archer"] as Outfit[])
     variants++;
     a.dispose();
     console.log(
-      `${outfit.padEnd(7)} ${variant.height}m / build ${variant.build} | body ${triCount(data.body)} tris | final ${triCount(data.surface)} tris | topology + weights + static bind PASS`,
+      `${bodyType} ${outfit.padEnd(7)} ${variant.height}m / build ${variant.build} | body ${triCount(data.body)} tris | final ${triCount(data.surface)} tris | topology + weights + static bind PASS`,
     );
   }
 assert(new Set(skeletonMaps).size === 1, "职业或体型改变了骨架语义");

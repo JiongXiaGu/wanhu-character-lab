@@ -1,8 +1,8 @@
-# Mixamo 外部动画接入 · V3.5
+# Mixamo 外部动画接入 · V3.6
 
 ## 正式路径
 
-用户上传的11份Mixamo FBX用于实验。程序生成人体/衣服/装备，外部FBX是唯一动画来源；旧程序动作已删除。当前先完成男性适配，女性另轮接入。
+用户上传的11份Mixamo FBX用于实验。程序生成人体/衣服/装备，外部FBX是唯一动画来源；旧程序动作已删除。男女使用独立身体比例，共用固定骨架与全部FBX。
 
 `npm ci && npm run dev`；predev/prebuild自动离线prepare:mixamo，输出public/mixamo，忽略提交。不联网下载、不携带源网格/贴图，不改原FBX。
 
@@ -40,4 +40,8 @@ catalog.ts：稳定ID/文件/循环/地面策略。scripts/lib/mixamo-fbx.ts：�
 
 ## 验收
 
-check:retired、check:mesh、build、check:mixamo。Actions只运行本地preview，不部署。11×3全源帧+全顶点检查；头部全四元数和辅助点扰动独立测试。11动作四视图/9相位，头部近景、2连续视频、DIY/快速切换/几何复用/错误重试/导出。下载实际审查后才能合main，数值通过不等于美术全部通过。
+check:retired、check:mesh、build、check:mixamo。Actions只运行本地preview，不部署。11×2×3全源帧+全顶点检查；头部全四元数和辅助点扰动独立测试。11动作四视图/9相位，头部近景、4连续视频、DIY/快速切换/几何复用/错误重试/导出。下载实际审查后才能合main，数值通过不等于美术全部通过。
+
+## V3.6 身体配置补充
+
+Recipe V4新增bodyType（缺省male）；女性profileVersion=wanhu-body-profiles-v1，与男性共用拓扑和骨骼语义，绑定位置可不同。网格键和目标动画键都必须包含bodyType/profileVersion/height/build。男性12套几何哈希保持6627c2e基线；女性通过独立比例、头脸、低髻实现，不是只换衣服。详细范围及验收矩阵见女性角色接入.md。

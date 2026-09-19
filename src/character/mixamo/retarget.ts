@@ -1,5 +1,5 @@
 import * as T from 'three';
-import type { CharacterData, Joint } from '../v3/types';
+import { BODY_PROFILE_VERSION, type CharacterData, type Joint } from '../v3/types';
 import { CALIBRATION_CHILD, RETARGET_VERSION, SAMPLE_BONE_COUNT, validateMixamoData, type MixamoMotionData } from './data';
 import { mixamoDefinition } from './catalog';
 
@@ -108,11 +108,11 @@ export function exportTargetMotion(data: CharacterData, source: MixamoMotionData
   return {
     schema: 'wanhu-target-motion', version: 1, retargetVersion: RETARGET_VERSION,
     skeletonVersion: 'wanhu-20-v1',
-    calibrationProfile: { id: 'male-anatomical-v2', head: 'source-world-bind-delta; neutral-face-forward-+Z' },
+    calibrationProfile: { id: data.recipe.bodyType === 'female' ? 'female-anatomical-v1' : 'male-anatomical-v2', head: 'source-world-bind-delta; neutral-face-forward-+Z' },
     coordinateSystem: '+X character-right / +Y up / +Z forward; quaternion xyzw',
     source: source.source, clipId: source.id, duration: source.duration, loop: bake.loop, times: source.times,
     rootMotionPolicy: 'remove-linear-planar-trajectory; preserve-local-sway-and-height',
-    proportion: { height: data.recipe.height, build: data.recipe.build },
+    proportion: { bodyType: data.recipe.bodyType, profileVersion: BODY_PROFILE_VERSION, height: data.recipe.height, build: data.recipe.build },
     bones: data.joints.map((joint, i) => ({ id: i, name: joint.name, parent: joint.parent,
       bindLocalPosition: v(joint.p, 0).sub(joint.parent < 0 ? new T.Vector3() : v(data.joints[joint.parent].p, 0)).toArray(),
       bindLocalRotation: [0, 0, 0, 1], rotations: bake.rotations[i], ...(i === 1 ? { positions: bake.hips } : {}) })),

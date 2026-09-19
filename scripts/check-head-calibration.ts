@@ -6,7 +6,7 @@ import { RETARGET_VERSION, type MixamoMotionData } from '../src/character/mixamo
 import { calibration, retargetMixamo, exportTargetMotion } from '../src/character/mixamo/retarget';
 import { makeActor } from '../src/character/v3/rig';
 import { makeCharacter } from '../src/character/v3/outfit';
-import { DEFAULT_RECIPE, applyPreset } from '../src/character/v3/types';
+import { DEFAULT_RECIPE, BODY_TYPES, applyPreset } from '../src/character/v3/types';
 
 const degrees=180/Math.PI, records:unknown[]=[];
 let frames=0,worstHeadError=0;
@@ -18,8 +18,9 @@ for(const def of MIXAMO_CLIPS){
   // 负对照：这套实际上传 FBX 的端点校准确实引入固定偏差，测试不能只验证自己。
   assert(oldBias>5&&oldBias<6,`${def.id}: unexpectedly changed reference rig; review calibration before updating baseline`);
   let minPitch=Infinity,maxPitch=-Infinity;
+  for(const bodyType of BODY_TYPES)
   for(const [height,build] of [[1.58,0],[1.76,.5],[1.92,1]]){
-    const data=makeCharacter(applyPreset({...DEFAULT_RECIPE,height,build},'body'));
+    const data=makeCharacter(applyPreset({...DEFAULT_RECIPE,bodyType,height,build},'body'));
     const saved=JSON.stringify(data),actor=makeActor(data),bake=retargetMixamo(data,source);
     assert(calibration(data.joints,source)[5].angleTo(new T.Quaternion())<1e-10);
     const action=actor.mixer.clipAction(bake.clip).setLoop(T.LoopOnce,1).play();action.paused=true;action.clampWhenFinished=true;
@@ -34,7 +35,8 @@ for(const def of MIXAMO_CLIPS){
       minPitch=Math.min(minPitch,pitch);maxPitch=Math.max(maxPitch,pitch);
     }
     const output=exportTargetMotion(data,source,bake);
-    assert.equal(output.retargetVersion,RETARGET_VERSION);assert.equal(output.calibrationProfile.id,'male-anatomical-v2');
+    assert.equal(output.retargetVersion,RETARGET_VERSION);assert.equal(output.calibrationProfile.id,bodyType==='female'?'female-anatomical-v1':'male-anatomical-v2');
+    assert.equal(output.proportion.bodyType,bodyType);
     assert.equal(output.skeletonVersion,'wanhu-20-v1');assert.equal(JSON.stringify(data),saved,'calibration mutated geometry/bind/DIY');
     // 只挪动头顶辅助点不得重新改变头部朝向；它仍可以用于源骨架显示。
     const perturbed=structuredClone(source);perturbed.bindPositions[62]+=.2;
@@ -47,6 +49,6 @@ for(const def of MIXAMO_CLIPS){
 // 静态模型的脸向是 +Z；没有播放动画时也不能内置抬头补丁或自动待机。
 const actor=makeActor(makeCharacter(DEFAULT_RECIPE));
 actor.update(10);assert.deepEqual(actor.bones[5].quaternion.toArray(),[0,0,0,1]);actor.resetBindPose();actor.dispose();
-const report={retargetVersion:RETARGET_VERSION,clips:MIXAMO_CLIPS.length,proportions:3,sampledFrames:frames,worstHeadQuaternionErrorDegrees:worstHeadError,records};
+const report={retargetVersion:RETARGET_VERSION,clips:MIXAMO_CLIPS.length,bodyTypes:2,proportionsPerBodyType:3,sampledFrames:frames,worstHeadQuaternionErrorDegrees:worstHeadError,records};
 mkdirSync('review-mixamo',{recursive:true});writeFileSync('review-mixamo/head-calibration.json',JSON.stringify(report,null,2));
 console.log('PASS head calibration: '+JSON.stringify(report));

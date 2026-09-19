@@ -1,4 +1,4 @@
-name: Male Character Model Review
+name: Character Model Review
 on:
   push:
     branches: [main]
@@ -34,7 +34,7 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           sudo apt-get install -y fonts-noto-cjk
-      - name: Review male bind, proportions, DIY and FBX deformation
+      - name: Review male and female bind, proportions, DIY and FBX deformation
         run: |
           npm run preview -- --host 127.0.0.1 --port 4173 > preview.log 2>&1 &
           ready=0
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: male-character-model-review
+          name: character-model-review
           path: |
             review/
             build-review.log

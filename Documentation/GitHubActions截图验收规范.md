@@ -1,4 +1,4 @@
-# GitHub Actions 截图验收规范 · V3.5
+# GitHub Actions 截图验收规范 · V3.6
 
 ## 流程
 
@@ -10,9 +10,9 @@
 
 Build执行retired守卫、check:mesh和build。
 
-Male Character Model Review（screenshot-review.yml）执行基模/DIY回归并上传 `male-character-model-review`：4外观×3体型×静态正侧背布线；4外观×慢跑/射箭×三视图美术/布线；草帽混搭、清装备、移动端。静态绑定不是程序动画，播放控件应禁用。
+Character Model Review（screenshot-review.yml）执行基模/DIY回归并上传 `character-model-review`：男女×4外观×3身材×静态正侧背布线；4外观×慢跑/射箭×三视图美术/布线；草帽混搭、清装备、移动端。静态绑定不是程序动画，播放控件应禁用。
 
-Mixamo Retarget Review上传 `mixamo-retarget-review`：11源动作×3体型全源时间轴/全渲染顶点；head-calibration.json独立记录头部四元数误差、旧偏差及真实点头范围。
+Mixamo Retarget Review上传 `mixamo-retarget-review`：11源动作×男女×3身材全源时间轴/全渲染顶点；head-calibration.json独立记录头部四元数误差、旧偏差及真实点头范围。
 
 ## 动画视觉矩阵
 
@@ -31,3 +31,7 @@ review-mixamo.ts独立登记11个ID并与catalog双向检查，不能静默漏�
 Agent下载检查所有动作组和关键阶段，慢跑/射箭连续时间过程必看。检查体型端点、草帽/头饰、蒙皮与侧面头向。数值只能证明相应不变量，不证明无自交、正确抓握或Unity性能。
 
 合入前检查最新main，保留并发修改，不强推。README/AGENTS/交接/架构与实际脚本一致。原check:actions、旧程序动作矩阵及固定Walk相位已移除；Phase4A/V3验收记录只描述历史。
+
+## V3.6 身体配置补充
+
+Recipe V4新增bodyType（缺省male）；女性profileVersion=wanhu-body-profiles-v1，与男性共用拓扑和骨骼语义，绑定位置可不同。网格键和目标动画键都必须包含bodyType/profileVersion/height/build。男性12套几何哈希保持6627c2e基线；女性通过独立比例、头脸、低髻实现，不是只换衣服。详细范围及验收矩阵见女性角色接入.md。
