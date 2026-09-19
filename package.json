@@ -11,7 +11,9 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "check:mesh": "tsx scripts/check-v3.ts",
-    "check:visual": "node scripts/review-v3.mjs"
+    "check:visual": "node scripts/review-v3.mjs",
+    "check:actions": "tsx scripts/check-actions.ts",
+    "review:actions": "tsx scripts/review-actions.ts"
   },
   "dependencies": {
     "react": "19.1.1",
