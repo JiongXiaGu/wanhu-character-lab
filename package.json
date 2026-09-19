@@ -3,9 +3,7 @@
   "version": "0.3.0",
   "private": true,
   "type": "module",
-  "engines": {
-    "node": ">=22.12.0"
-  },
+  "engines": { "node": ">=22.12.0" },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -13,21 +11,16 @@
     "check:mesh": "tsx scripts/check-v3.ts",
     "check:visual": "node scripts/review-v3.mjs",
     "check:actions": "tsx scripts/check-actions.ts",
-    "review:actions": "tsx scripts/review-actions.ts"
+    "review:actions": "tsx scripts/review-actions.ts",
+    "prepare:mixamo": "tsx scripts/prepare-mixamo.ts",
+    "predev": "npm run prepare:mixamo",
+    "prebuild": "npm run prepare:mixamo",
+    "check:mixamo": "tsx scripts/check-mixamo.ts",
+    "review:mixamo": "tsx scripts/review-mixamo.ts"
   },
-  "dependencies": {
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
-    "three": "0.180.0"
-  },
+  "dependencies": { "react": "19.1.1", "react-dom": "19.1.1", "three": "0.180.0" },
   "devDependencies": {
-    "@types/react": "19.1.16",
-    "@types/react-dom": "19.1.9",
-    "@types/three": "0.180.0",
-    "@vitejs/plugin-react": "5.0.4",
-    "playwright": "1.55.0",
-    "tsx": "4.20.5",
-    "typescript": "5.9.2",
-    "vite": "7.1.7"
+    "@types/react": "19.1.16", "@types/react-dom": "19.1.9", "@types/three": "0.180.0",
+    "@vitejs/plugin-react": "5.0.4", "playwright": "1.55.0", "tsx": "4.20.5", "typescript": "5.9.2", "vite": "7.1.7"
   }
 }

@@ -8,3 +8,6 @@ review/
 *-review.log
 preview.log
 reviewed-source.tar.gz
+.scratch/
+public/mixamo/
+review-mixamo/

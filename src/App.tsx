@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import './labor.css';
+import './mixamo.css';
+import {MIXAMO_CLIPS,isMixamoId,mixamoDefinition,type MixamoSelection} from './character/mixamo/catalog';
 import { ACTIONS, WORK_IDS, isWorkId, type WorkSelection } from './character/actions/catalog';
 import { CharacterViewport, type Stats, type View, type Display, type PlaybackStatus } from './scene/CharacterViewport';
 import { DEFAULT_RECIPE, PRESET_IDS, applyPreset, cleanRecipe, patchSlots, type Recipe, type Motion, type Outfit, type CharacterSlots } from './character/v3/types';
@@ -44,9 +46,10 @@ interface SlotSelectProps<K extends keyof CharacterSlots> { slot:K; label:string
 function SlotSelect<K extends keyof CharacterSlots>({ slot,label,recipe,onChange }:SlotSelectProps<K>) {
   return <label className="slot-row"><span>{label}</span><select aria-label={label} value={recipe.slots[slot]} onChange={e => onChange(slot,e.target.value as CharacterSlots[K])}>{SLOT_OPTIONS[slot].map(option => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label>;
 }
-
 export default function App() {
-  const [workAction,setWorkAction] = useState<WorkSelection>(() => isWorkId(qs.get('action')) ? qs.get('action') as WorkSelection : 'none');
+  const [mixamo,setMixamo]=useState<MixamoSelection>(()=>isMixamoId(qs.get('mixamo'))?qs.get('mixamo') as MixamoSelection:'none');
+  const [compareSource,setCompareSource]=useState(qs.get('compare')==='1');
+  const [workAction,setWorkAction] = useState<WorkSelection>(() => !isMixamoId(qs.get('mixamo')) && isWorkId(qs.get('action')) ? qs.get('action') as WorkSelection : 'none');
   const [restart,setRestart] = useState(0), [contacts,setContacts] = useState(false);
   const [playback,setPlayback] = useState<PlaybackStatus>({ work:'none',phase:initialPhase(),stage:'',finished:false,eventCount:0,lastEvent:'—',propTriangles:0,maxGripError:0 });
   const [recipe,setRecipe] = useState<Recipe>(initialRecipe);
@@ -57,7 +60,10 @@ export default function App() {
   const [display,setDisplay] = useState<Display>(enumQuery('display',['beauty','cage','triangles','clay'] as const,'beauty'));
   const [skeleton,setSkeleton] = useState(false), [grid,setGrid] = useState(false), [error,setError] = useState(''), [stats,setStats] = useState<Stats|null>(null);
   const updatePlayback = useCallback((value:PlaybackStatus) => { setPlayback(value); if (value.finished) setPlaying(false); },[]);
-  const selectAction = (id:WorkSelection) => { setWorkAction(id); setPhase(0); setPlaying(true); setRestart(n => n+1); };
+  const selectAction = (id:WorkSelection) => { setMixamo('none'); setWorkAction(id); setPhase(0); setPlaying(true); setRestart(n => n+1); };
+  const selectMixamo=(id:MixamoSelection)=>{setWorkAction('none');setMixamo(id);setPhase(0);setPlaying(true);setRestart(n=>n+1);};
+  const exportMotion=()=>{const data=window.__WANHU_EXPORT_MOTION__?.();if(!data)return;const url=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`wanhu-${mixamo}-target-motion.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+  const activeMixamo=mixamo==='none'?null:mixamoDefinition(mixamo);
   const replay = () => { setPhase(0); setRestart(n => n+1); setPlaying(true); };
   const activeAction = workAction === 'none' ? null : ACTIONS[workAction];
   const patch = (value:Partial<Recipe>) => setRecipe(current => cleanRecipe({ ...current,...value }));
@@ -65,11 +71,19 @@ export default function App() {
   const selectView = (value:View) => { setView(value); setViewRevision(n => n+1); };
   const selectedPreset = recipe.preset === 'custom' ? null : PRESETS.find(p => p.id === recipe.preset) ?? null;
   return <main className={'studio ' + (activeAction ? 'work-mode' : '')}>
-    <header className="topbar"><div className="brand-mark">工</div><div><p className="eyebrow">WANHU / CHARACTER STUDIO</p><h1>万户人物工坊</h1></div><div className="header-right"><span className="status-dot"/>运行时生成 <span className="version">V3.3 · ACTIONS</span><button className="ghost" onClick={() => exportRecipe(recipe)}>导出配方 ↗</button></div></header>
+    <header className="topbar"><div className="brand-mark">工</div><div><p className="eyebrow">WANHU / CHARACTER STUDIO</p><h1>万户人物工坊</h1></div><div className="header-right"><span className="status-dot"/>运行时生成 <span className="version">V3.4 · MIXAMO</span><button className="ghost" onClick={() => exportRecipe(recipe)}>导出配方 ↗</button></div></header>
     <div className="workspace">
       <aside className="sidebar">
+        <section className="mixamo-library" aria-label="Mixamo 动画库">
+          <div className="section-title"><h2>Mixamo 动画</h2><span>FBX / {MIXAMO_CLIPS.length}</span></div>
+          <p className="labor-hint">外部动作驱动现有人物 · 20 骨骼不变</p>
+          <div className="labor-grid">{MIXAMO_CLIPS.map(clip=><button key={clip.id} data-testid={'mixamo-'+clip.id} aria-pressed={mixamo===clip.id} className={mixamo===clip.id?'active':''} onClick={()=>selectMixamo(clip.id)}>{clip.label}</button>)}</div>
+          <label className="switch-row">源骨架同步对照<input aria-label="源骨架同步对照" type="checkbox" checked={compareSource} onChange={e=>setCompareSource(e.target.checked)}/></label>
+          <button className="clear-equipment" disabled={!playback.mixamo||playback.mixamo.id!==mixamo} onClick={exportMotion}>导出目标骨架动画 JSON</button>
+          <p className="labor-hint">只导入人体动作。射箭的弓弦、箭和事件尚未重配；手持装备可在 DIY 中清空。</p>
+        </section>
         <section className="labor-library" aria-label="动作库">
-          <div className="section-title"><h2>动作库</h2><span>PHASE 4A / {WORK_IDS.length}</span></div>
+          <div className="section-title"><h2>程序动作对照</h2><span>PHASE 4A / {WORK_IDS.length}</span></div>
           {(['combat','labor'] as const).map(group => <div key={group} className="action-family">
             <h3>{group === 'combat' ? '射箭 · 完整流程与分段' : '搬运与生产'}</h3>
             <div className="labor-grid">{WORK_IDS.filter(id => group === 'combat' ? ACTIONS[id].family === 'combat' : ACTIONS[id].family !== 'combat').map(id => <button key={id} aria-pressed={workAction === id} className={workAction === id ? 'active' : ''} onClick={() => selectAction(id)}>{ACTIONS[id].label}</button>)}</div>
@@ -96,16 +110,21 @@ export default function App() {
         <p className="build-note">Slot Recipe · 固定 20 骨骼 · GPU 蒙皮<br/>预设只是一键组合，所有槽位可继续 DIY。</p>
       </aside>
       <section className="stage" aria-label="人物预览">
-        <div className="stage-heading"><p className="eyebrow">CHARACTER / {recipe.preset.toUpperCase()}</p><h2>{activeAction?.label ?? selectedPreset?.name ?? '自定义角色'}</h2><p>{activeAction ? activeAction.description : recipe.preset === 'custom' ? '职业预设已解锁，可任意混搭头饰、衣物与装备。' : '预设只是起点，修改任意槽位即可进入 DIY。'}</p></div>
+        <div className="stage-heading"><p className="eyebrow">CHARACTER / {recipe.preset.toUpperCase()}</p><h2>{activeMixamo?.label ?? activeAction?.label ?? selectedPreset?.name ?? '自定义角色'}</h2><p>{activeMixamo ? 'Mixamo FBX → 固定骨架重定向 → 当前程序人物与 DIY 装扮' : activeAction ? activeAction.description : recipe.preset === 'custom' ? '职业预设已解锁，可任意混搭头饰、衣物与装备。' : '预设只是起点，修改任意槽位即可进入 DIY。'}</p></div>
         <div className="camera-bar">{([['free','自由'],['front','正面'],['side','侧面'],['back','背面'],['three','三视图']] as [View,string][]).map(([value,label]) => <button key={value} className={view === value ? 'active' : ''} onClick={() => selectView(value)}>{label}</button>)}<button disabled={view === 'three'} title="切换正交 / 透视相机" onClick={() => setOrthographic(value => !value)}>{orthographic ? '正交' : '透视'}</button><button title="保存当前预览截图" aria-label="保存截图" onClick={() => window.__WANHU_CAPTURE__?.()}>截 图</button></div>
-        {error ? <div role="alert" className="error-panel">{error}<button onClick={() => location.reload()}>重新加载</button></div> : <CharacterViewport options={{ recipe,workAction,restart,contacts,motion,playing,speed,phase,view,viewRevision,orthographic,display,skeleton,grid }} onPlayback={updatePlayback} onStats={setStats} onError={setError}/>}
+        {error ? <div role="alert" className="error-panel">{error}<button onClick={() => location.reload()}>重新加载</button></div> : <CharacterViewport options={{ recipe,mixamo,compareSource,workAction,restart,contacts,motion,playing,speed,phase,view,viewRevision,orthographic,display,skeleton,grid }} onPlayback={updatePlayback} onStats={setStats} onError={setError}/>}
+        {mixamo!=='none'&&compareSource&&view!=='three'&&<div className="mixamo-compare-labels"><span>源动画骨架 · 同比例</span><span>现有人物 · 重定向</span></div>}
         {view === 'three' && <div className="three-labels"><span>FRONT / 正面</span><span>SIDE / 侧面</span><span>BACK / 背面</span></div>}
         <div className="stage-caption"><span>拖动旋转 · 右键平移 · 滚轮缩放</span><span>{activeAction ? `道具 ${playback.propTriangles} tris · 合计 ${(stats?.triangles ?? 0) + playback.propTriangles} tris · 原地动作` : '1 SKINNED MESH · SLOT-BASED RECIPE'}</span></div>
         <section className="motion-panel">
           <div className="motion-head"><span className="eyebrow">MOTION LAB</span><div className="speed"><label htmlFor="speed">速度</label><select id="speed" value={speed} onChange={e => setSpeed(+e.target.value)}>{[.25,.5,1,1.5,2].map(value => <option key={value} value={value}>{value}×</option>)}</select></div></div>
-          <div className="motion-actions">{(Object.keys(MOTION_LABELS) as Motion[]).map(value => <button className={!activeAction && motion === value ? 'active' : ''} key={value} onClick={() => { setWorkAction('none'); setMotion(value); setPhase(0); }}>{MOTION_LABELS[value]}</button>)}<button className="play-button" aria-label={playing ? '暂停' : '播放'} onClick={() => playback.finished ? replay() : setPlaying(value => !value)}>{playing ? 'Ⅱ 暂停' : '▶ 播放'}</button></div>
+          <div className="motion-actions">{(Object.keys(MOTION_LABELS) as Motion[]).map(value => <button className={!activeAction && !activeMixamo && motion === value ? 'active' : ''} key={value} onClick={() => { setMixamo('none'); setWorkAction('none'); setMotion(value); setPhase(0); }}>{MOTION_LABELS[value]}</button>)}<button className="play-button" aria-label={playing ? '暂停' : '播放'} onClick={() => playback.finished ? replay() : setPlaying(value => !value)}>{playing ? 'Ⅱ 暂停' : '▶ 播放'}</button></div>
+          {activeMixamo&&<div className="mixamo-status" data-testid="mixamo-status" role="status">
+            <span>{playback.loading?'正在载入并烘焙…':playback.loadError?playback.loadError:playback.mixamo?`${playback.mixamo.duration.toFixed(2)} 秒 · ${playback.mixamo.loop?'循环':'单次，结束保持'} · 20 / 20 骨骼`:'准备动画'}</span>
+            <button onClick={replay}>{playback.loadError?'重试加载':'重播外部动作'}</button>
+          </div>}
           {activeAction && <div className="work-status" data-testid="work-status"><span><b>{playback.stage}</b> · {activeAction.playback === 'hold' ? '持续保持，不触发放箭' : activeAction.loop ? '循环动作' : '单次动作，完成后保持'}</span><span data-testid="action-event">{playback.lastEvent} / {playback.eventCount}</span><button onClick={replay}>重播动作</button></div>}
-          <label className="timeline"><span>逐帧审查</span><input aria-label="动画进度" type="range" min="0" max={activeAction && !activeAction.loop ? '1' : '.999'} step=".001" value={playback.phase} onChange={e => { const next=+e.target.value; setPlaying(false); setPhase(next); setPlayback(current => ({ ...current,phase:next })); }}/><output>{Math.round(playback.phase*100)}%</output></label>
+          <label className="timeline"><span>逐帧审查</span><input aria-label="动画进度" type="range" min="0" max={activeMixamo || activeAction && !activeAction.loop ? '1' : '.999'} step=".001" value={playback.phase} onChange={e => { const next=+e.target.value; setPlaying(false); setPhase(next); setPlayback(current => ({ ...current,phase:next })); }}/><output>{Math.round(playback.phase*100)}%</output></label>
         </section>
       </section>
     </div>
