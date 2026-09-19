@@ -4,8 +4,8 @@ import { add, mul, sub, ring, bridge, face, vertex, OCT, BOX, orient } from '../
 /** 只生成绑定空间网格，不读取动画时钟，不创建骨骼。 */
 export const NEW_TOPS:readonly TopId[]=['rough_tunic','cross_jacket','layered_vest','ceremony_robe'];
 export const NEW_BOTTOMS:readonly BottomId[]=['loose_trousers','work_wrap','pleated_skirt','robe_skirt'];
-export const BODY_HIDE_VERSION='wanhu-garment-hide-v1';
-export const GARMENT_GEOMETRY_VERSION='wanhu-garment-geometry-v2';
+export const BODY_HIDE_VERSION='wanhu-garment-hide-v2';
+export const GARMENT_GEOMETRY_VERSION='wanhu-garment-geometry-v3';
 export function garmentColors(recipe:Recipe):GarmentDyes {
   const [primary,accent]=[['#415e68','#d4c5a5'],['#626854','#d7c9b2'],['#785549','#d7c8ae']][recipe.palette];
   return recipe.dyes??{primary,secondary:'#596363',accent};
@@ -84,7 +84,7 @@ function hem(target:Cage,id:string,s:HemShape):void {
         for(let i=0;i<=count;i++){
           // 约三厘米的交叠消除原正反面贯通细缝；前后仍可随两侧腿分开。
           // 右片稍外、左片稍内，厚度壁之间留距，不能用重合面或 DoubleSide 填缝。
-          const lap=s.wrap?.055:0;
+          const lap=s.wrap ? .055 : 0;
           const a=-lap+i*(Math.PI+lap*2)/count;
           const fold=s.pleats&&row>0?(i%2===0?1.025:.985):1;
           const x=side*(Math.sin(a)*(width-layer*.004)*fold+(s.wrap?0:.007*t));
@@ -134,8 +134,16 @@ export function addGarmentSilhouettes(c:Cage,recipe:Recipe):void {
   if(upper)hem(c,'GarmentTop',upper);
   if(lower){
     hem(c,'GarmentBottom',lower);
-    // 稳定 region 掩码：腰髋已由裳片替换。保留开衩可见的内衬裤与小腿。
-    c.faces=c.faces.filter(f=>f.region!=='pelvis');
+    // 仅过滤最终服饰表面，不改原始人体/绑定。穿回裤装时重新生成，遮挡自然撤销。
+    // 裳内不重复绘制髋面；长裳再隐藏大腿和膝部裤面，防止慢跑时从裙面穿出。
+    // 稳定语义区域/锚点，不依赖变形后世界高度。保留 Calf→Ankle 与足部供下摆露出。
+    c.faces=c.faces.filter(f=>{
+      if(f.region==='pelvis')return false;
+      if(!lower.wrap)return true;
+      if(f.region==='thigh')return false;
+      if(f.region==='shin')return f.v.some(i=>/^(Right|Left)Ankle/.test(c.vertices[i].id));
+      return true;
+    });
   }
 }
 function solidBox(c:Cage,id:string,p:Vec3,size:Vec3,color:string):void {
