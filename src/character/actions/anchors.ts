@@ -8,5 +8,7 @@ export const PROP_ANCHORS = {
   wheelbarrow: {rightGrip:[.245,.955,.29],leftGrip:[-.245,.955,.29],interactionRoot:[0,0,0],wheelCenter:[0,.225,1.30]},
   hoe: {rightGrip:[0,1.19,0],leftGrip:[0,.99,0],toolContact:[0,-.02,-.01]},
   hammer: {rightGrip:[0,.065,0],toolContact:[0,.38,0],supportHand:[-.16,.886,.37]},
+  // 相对持弓手握点；拉弦点、弓梢和箭离弦轨迹由 bow.ts 随时间求值并烘焙。
+  bow: {grip:[0,0,0],arrowRest:[0,.055,0]},
 } satisfies Record<PropId,Record<string,Vec3>>;
 export const WHEEL_RADIUS=.225;
