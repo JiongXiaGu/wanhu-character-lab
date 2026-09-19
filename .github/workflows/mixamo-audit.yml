@@ -1,0 +1,30 @@
+name: Mixamo Asset Audit
+on:
+  push:
+    branches: [tmp-mixamo-retarget-20260919]
+    paths: [.github/workflows/mixamo-audit.yml]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Package versioned source and locked build dependencies for local verification
+        run: |
+          mkdir -p /tmp/mixamo-audit
+          git rev-parse HEAD > /tmp/mixamo-audit/source-sha.txt
+          git archive --format=tar HEAD | gzip > /tmp/mixamo-audit/source.tar.gz
+          tar -czf /tmp/mixamo-audit/dependencies.tar.gz node_modules
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mixamo-audit-workspace
+          path: /tmp/mixamo-audit/
+          retention-days: 1
