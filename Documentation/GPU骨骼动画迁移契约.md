@@ -2,7 +2,9 @@
 
 ## 衣冠工坊 V1 更新
 
-衣冠 V1：新上衣/裙裳/头饰/发髻仍使用相同20骨骼，配方可选 dyes/hairStyle/hairColor。网格缓存键须包含部件、身材、发式和几何版本；当前颜色为顶点色，因此颜色亦影响网格输出。未来 Unity 参数染色需要单独实现，不能把网页多色网格当作已共享实例。绑定缓存至少含 bodyType/height/build/profileVersion；动画轨道与服饰网格键分开，衣服不创建独立Animator。新增掩码版本 wanhu-garment-hide-v1，目前只处理 pelvis region，不是通用遮挡系统。
+新上衣/裙裳/头饰/发髻仍使用相同20骨骼，配方可选 dyes/hairStyle/hairColor。网格缓存键须包含部件、身材、发式和几何版本（当前 wanhu-garment-geometry-v3）；当前颜色为顶点色，因此颜色亦影响网格输出。未来 Unity 参数染色需要单独实现，不能把网页多色网格当作已共享实例。
+
+绑定缓存至少含 bodyType/height/build/profileVersion；动画轨道与服饰网格键分开，衣服不创建独立Animator。掩码版本 wanhu-garment-hide-v2：裙裳替换pelvis面，长裳另隐藏覆盖的大腿/膝/上段小腿裤面，保留Calf→Ankle与足部；源人体不变，穿回裤装恢复。此掩码依赖当前拓扑/版型，不是通用碰撞或任意服装自动遮挡。迁移端必须同步遮挡语义，不可只移植外层衣服又渲染全部内层身体。
 
 ---
 
@@ -38,7 +40,7 @@ Root表示实例世界变换，导航负责世界运动。当前提取起终点�
 
 AnimationBakeKey至少：源SHA、ClipId、retargetVersion、SkeletonVersion、BodyProportionKey/height/build。校准升级须使缓存失效；不得无验证跨体型共享最终矩阵。可后续按有限体型分桶，但先验证手足接触。
 
-CharacterMeshKey：TopologyVersion、BodyProportionKey、量化height/build、SlotRecipe、LOD。Web颜色仍写顶点，未经分离不能从几何键排除palette。
+CharacterMeshKey：TopologyVersion、BodyProportionKey、量化height/build、SlotRecipe、GarmentGeometryVersion、BodyHideVersion、LOD。Web颜色仍写顶点，未经分离不能从几何键排除palette/dyes/hairColor。
 
 单居民目标保存Transform、MeshKey、外观、ClipId/Phase/Speed/Flags，共享只读Clip与Mesh；不默认N个Animator+N套GameObject骨架。
 

@@ -1,4 +1,4 @@
-# Mixamo 外部动画接入 · V3.6
+# Mixamo 外部动画接入 · V3.6 / 衣冠工坊
 
 ## 正式路径
 
@@ -6,7 +6,7 @@
 
 `npm ci && npm run dev`；predev/prebuild自动离线prepare:mixamo，输出public/mixamo，忽略提交。不联网下载、不携带源网格/贴图，不改原FBX。
 
-默认慢跑。支持暂停/变速/进度/逐帧/重播/完整末帧、DIY与体型、源骨架同步、头部朝向检查、目标动画JSON。静态bind仅重置绑定，不启动动画；加载失败显示错误/重试。切换FBX保留几何，改Recipe才重建。
+衣冠工坊普通入口默认静态试衣；`?review=1` 的诊断入口仍默认慢跑，用于保持旧回归。显式 `?mixamo=jogging` 等参数或界面选择才播放动作。支持暂停/变速/进度/逐帧/重播/完整末帧、DIY与体型、源骨架同步、头部朝向检查、目标动画JSON。静态bind仅重置绑定，不启动动画；加载失败显示错误/重试。切换FBX保留几何，改Recipe才重建并保留暂停相位。
 
 调试URL：`?mixamo=shooting-arrow&compare=1&paused=1&phase=.45&view=side&headwear=none&headAxes=1`。静态：`?pose=bind`。旧action/motion参数不再启用程序动作。
 
@@ -32,7 +32,7 @@ catalog.ts：稳定ID/文件/循环/地面策略。scripts/lib/mixamo-fbx.ts：�
 
 ## 边界与Unity
 
-配方不被动画重写；静态装备继续跟骨骼。源武器/场景/第二人物未导入。Shooting Arrow只驱动人体，弓弦/箭/释放事件/精确握点未重制；不能挪用旧程序相位。无五指、手掌IK、脚锁、自动接触、任意混合、任务导航；极端姿态可能有蒙皮/服装自交。
+配方不被动画重写；静态装备继续跟骨骼。源武器/场景/第二人物未导入。Shooting Arrow只驱动人体，弓弦/箭/释放事件/精确握点未重制；不能挪用旧程序相位。无五指、手掌IK、脚锁、自动接触、任意混合、任务导航；极端姿态可能有蒙皮/服装自交。长裳使用独立分片蒙皮和覆盖区隐藏，不是布料碰撞，不调整FBX迁就衣服。
 
 目标JSON wanhu-target-motion v1包含源SHA、retargetVersion=wanhu-mixamo-2、skeletonVersion、calibrationProfile、当前体型、20骨绑定/局部轨道、完整时间键/根轨迹；事件/道具为空。不是UnityClip/Avatar/Blob。先单人逐帧对照再做群体/LOD/性能；缓存包含源SHA/版本/体型。
 
@@ -40,7 +40,7 @@ catalog.ts：稳定ID/文件/循环/地面策略。scripts/lib/mixamo-fbx.ts：�
 
 ## 验收
 
-check:retired、check:mesh、build、check:mixamo。Actions只运行本地preview，不部署。11×2×3全源帧+全顶点检查；头部全四元数和辅助点扰动独立测试。11动作四视图/9相位，头部近景、4连续视频、DIY/快速切换/几何复用/错误重试/导出。下载实际审查后才能合main，数值通过不等于美术全部通过。
+check:retired、check:mesh、build、check:mixamo。Actions只运行本地preview，不部署。11×2×3全源帧+全顶点检查；头部全四元数和辅助点扰动独立测试。11动作四视图/9相位，头部近景、4连续视频、DIY/快速切换/几何复用/错误重试/导出。下载实际审查后才能合main，数值通过不等于美术全部通过。衣冠新增版型另外由Wardrobe Review检查，不替代原FBX回归。
 
 ## V3.6 身体配置补充
 
