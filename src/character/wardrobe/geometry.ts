@@ -5,6 +5,7 @@ import { add, mul, sub, ring, bridge, face, vertex, OCT, BOX, orient } from '../
 export const NEW_TOPS:readonly TopId[]=['rough_tunic','cross_jacket','layered_vest','ceremony_robe'];
 export const NEW_BOTTOMS:readonly BottomId[]=['loose_trousers','work_wrap','pleated_skirt','robe_skirt'];
 export const BODY_HIDE_VERSION='wanhu-garment-hide-v1';
+export const GARMENT_GEOMETRY_VERSION='wanhu-garment-geometry-v2';
 export function garmentColors(recipe:Recipe):GarmentDyes {
   const [primary,accent]=[['#415e68','#d4c5a5'],['#626854','#d7c9b2'],['#785549','#d7c8ae']][recipe.palette];
   return recipe.dyes??{primary,secondary:'#596363',accent};
@@ -50,7 +51,7 @@ function append(target:Cage,piece:Cage){
   const offset=target.vertices.length;target.vertices.push(...piece.vertices);
   target.faces.push(...piece.faces.map(f=>({...f,v:f.v.map(i=>i+offset)})));
 }
-interface HemShape { end:number; width:number; depth:number; color:string; trim:string; pleats?:boolean; outer?:number; start?:number; under?:HemShape }
+interface HemShape { end:number; width:number; depth:number; color:string; trim:string; pleats?:boolean; wrap?:boolean; outer?:number; start?:number; under?:HemShape }
 /** 所有衣层共用高度参数，不能各按自己的摆长生成不同权重。 */
 function hemRadius(s:HemShape,y:number):[number,number] {
   const t=Math.max(0,Math.min(1,(1.067-y)/(1.067-s.end)));
@@ -64,7 +65,7 @@ function hemRadius(s:HemShape,y:number):[number,number] {
   }
   return [width,depth];
 }
-/** 左右独立有厚度裳片；前后留窄开衩，不能将两腿硬绑在同一个裙筒。 */
+/** 左右独立有厚度裳片；长裙前后搭接，短衣保留开衩，不把双腿焊进一个裙筒。 */
 function hem(target:Cage,id:string,s:HemShape):void {
   const count=s.pleats?12:8;
   for(const side of [1,-1]){
@@ -81,10 +82,13 @@ function hem(target:Cage,id:string,s:HemShape):void {
         const [width,depth]=hemRadius(s,rows[row]);
         const loop:number[]=[];
         for(let i=0;i<=count;i++){
-          const a=i*Math.PI/count;
+          // 约三厘米的交叠消除原正反面贯通细缝；前后仍可随两侧腿分开。
+          // 右片稍外、左片稍内，厚度壁之间留距，不能用重合面或 DoubleSide 填缝。
+          const lap=s.wrap?.055:0;
+          const a=-lap+i*(Math.PI+lap*2)/count;
           const fold=s.pleats&&row>0?(i%2===0?1.025:.985):1;
-          const x=side*(Math.sin(a)*(width-layer*.004)*fold+.007*t);
-          const z=Math.cos(a)*(depth-layer*.004)*fold;
+          const x=side*(Math.sin(a)*(width-layer*.004)*fold+(s.wrap?0:.007*t));
+          const z=Math.cos(a)*(depth+(s.wrap?side*.006:0)-layer*.004)*fold;
           const leg=side>0?B.RightThigh:B.LeftThigh;
           const w:Weight=rows[row]>1.06?[B.Hips,B.Spine,.7]:[B.Hips,leg,1-t*.62];
           loop.push(vertex(c,`${id}.${side}.${layer}.${row}.${i}`,[x,rows[row],z],w));
@@ -118,8 +122,8 @@ export function addGarmentSilhouettes(c:Cage,recipe:Recipe):void {
   };
   const bottoms:Record<string,HemShape>={
     work_wrap:{end:.67,width:.226,depth:.154,color:secondary,trim:tone(secondary,1.13)},
-    pleated_skirt:{end:.29,width:.30,depth:.20,color:secondary,trim:accent,pleats:true},
-    robe_skirt:{end:.21,width:.28,depth:.185,color:secondary,trim:accent},
+    pleated_skirt:{end:.29,width:.30,depth:.20,color:secondary,trim:accent,pleats:true,wrap:true},
+    robe_skirt:{end:.21,width:.28,depth:.185,color:secondary,trim:accent,wrap:true},
   };
   const upper=tops[top],lower=bottoms[bottom];
   if(upper&&lower){
@@ -148,13 +152,14 @@ export function addWardrobeHeadwear(target:Cage,id:HeadwearId,recipe:Recipe):boo
     solidBox(c,'JadePin',[0,y,z],[.16,.008,.012],accent);
     solidBox(c,'JadeFinial',[.085,y,z],[.024,.025,.021],'#85b2a0');
   }else{
-    const formal=id==='scholar_cap',color=formal?'#303d42':tone(primary,.78);
+    const formal=id==='scholar_cap',color=formal?'#303d42':'#303d42';
+    const capColor=formal?color:tone(primary,.78);
     const a=ring(c,'WardrobeCapBase',[0,1.711,-.006],[1,0,0],[0,0,1],OCT,.112,.108,w);
     const b=ring(c,'WardrobeCapTop',[0,formal?1.874:1.786,-.012],[1,0,0],[0,0,1],OCT,formal?.069:.097,formal?.086:.088,w);
-    bridge(c,a,b,'equipment',color);face(c,[...a].reverse(),'equipment',color);face(c,b,'equipment',tone(color,1.07));
+    bridge(c,a,b,'equipment',capColor);face(c,[...a].reverse(),'equipment',capColor);face(c,b,'equipment',tone(capColor,1.07));
     if(formal){
       solidBox(c,'CapTablet',[0,1.761,.109],[.032,.042,.007],accent);
-      solidBox(c,'CapWings',[0,1.739,-.086],[.286,.018,.041],color);
+      solidBox(c,'CapWings',[0,1.739,-.086],[.286,.018,.041],capColor);
     }else solidBox(c,'WrapKnot',[0,1.739,-.115],[.072,.045,.028],tone(primary,.68));
   }
   append(target,c);return true;
