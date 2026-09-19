@@ -6,13 +6,13 @@ import {makeActor} from '../src/character/v3/rig';
 import {BODY_TYPES,cleanRecipe,patchSlots,HAIR_STYLE_IDS,type Recipe} from '../src/character/v3/types';
 import {cross,sub,triCount} from '../src/character/v3/cage';
 import {WARDROBE_LOOKS,WARDROBE_VERSION,applyLook,parseRecipeFile,randomizeLook,SLOT_OPTIONS} from '../src/character/wardrobe/catalog';
-import {GARMENT_GEOMETRY_VERSION} from '../src/character/wardrobe/geometry';
+import {GARMENT_GEOMETRY_VERSION,BODY_HIDE_VERSION} from '../src/character/wardrobe/geometry';
 import {assertComponentWinding} from './check-components';
 import {MIXAMO_CLIPS} from '../src/character/mixamo/catalog';
 import {retargetMixamo} from '../src/character/mixamo/retarget';
 import type {MixamoMotionData} from '../src/character/mixamo/data';
 const rows:{look:string;bodyType:string;height:number;build:number;triangles:number;vertices:number}[]=[];
-let wrapEdgesChecked=0;
+let wrapEdgesChecked=0,coveredLegCases=0;
 function inspect(recipe:Recipe){
   const d=makeCharacter(recipe),c=d.surface;
   assert.equal(d.joints.length,20);assert.equal(triCount(d.body),510);assert(triCount(c)<2600,'wardrobe triangle budget');
@@ -39,6 +39,13 @@ function inspect(recipe:Recipe){
       assert((inner.p[2]-left.p[2])*(edge===0?1:-1)>1e-4,'搭接内外壁必须留距，不能共面闪烁');
       wrapEdgesChecked++;
     }
+    assert(d.body.faces.some(f=>f.region==='thigh'),'源人体大腿不得被服饰遮挡删除');
+    assert(!c.faces.some(f=>f.region==='thigh'),'长裳覆盖的大腿裤面仍在绘制');
+    const shins=c.faces.filter(f=>f.region==='shin');
+    assert.equal(shins.length,12,'必须保留两侧各六面的 Calf→Ankle 外露裤脚');
+    assert(shins.every(f=>f.v.every(i=>!c.vertices[i].id.includes('Knee'))),'裙下不可重复绘制膝部裤面');
+    for(const side of['Right','Left'])assert(shins.some(f=>f.v.some(i=>c.vertices[i].id.startsWith(side+'Calf'))),'不可把外露小腿一并删除');
+    coveredLegCases++;
   }
   assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);
   return d;
@@ -51,6 +58,12 @@ for(const look of WARDROBE_LOOKS)for(const bodyType of BODY_TYPES)for(const [hei
 let combinations=0;
 for(const bodyType of BODY_TYPES)for(const top of SLOT_OPTIONS.top)for(const bottom of SLOT_OPTIONS.bottom){inspect(patchSlots(cleanRecipe({bodyType}),{top:top.id,bottom:bottom.id}));combinations++;}
 for(const bodyType of BODY_TYPES)for(const head of SLOT_OPTIONS.headwear)for(const hairStyle of HAIR_STYLE_IDS){inspect(cleanRecipe({...applyLook(cleanRecipe({bodyType}),'town-'+bodyType),slots:{...applyLook(cleanRecipe({bodyType}),'town-'+bodyType).slots,headwear:head.id},hairStyle,hairColor:'#ab9276'}));combinations++;}
+// 换回裤装必须恢复整条腿的可见面；穿脱不能污染共享源网格。
+for(const bodyType of BODY_TYPES){
+ const skirt=applyLook(cleanRecipe({bodyType}),'town-female');makeCharacter(skirt);
+ const trousers=makeCharacter(patchSlots(skirt,{bottom:'loose_trousers'}));
+ for(const region of['thigh','shin'])assert.equal(trousers.surface.faces.filter(f=>f.region===region).length,trousers.body.faces.filter(f=>f.region===region).length,'脱裙后腿部未恢复');
+}
 const r=applyLook(cleanRecipe({bodyType:'female',height:1.91,build:.8}),'town-female');
 assert.deepEqual(randomizeLook(r,123),randomizeLook(r,123));assert(new Set(Array.from({length:32},(_,i)=>randomizeLook(r,i).slots.top)).size>=4,'nearby seeds do not explore silhouettes');
 const locked=randomizeLook(r,234,['top','bottom','dyes','hairStyle']);assert.equal(locked.slots.top,r.slots.top);assert.equal(locked.slots.bottom,r.slots.bottom);assert.deepEqual(locked.dyes,r.dyes);assert.equal(locked.hairStyle,r.hairStyle);assert.equal(locked.height,r.height);assert.equal(locked.bodyType,r.bodyType);
@@ -70,6 +83,6 @@ for(const def of MIXAMO_CLIPS){const source=JSON.parse(readFileSync(`public/mixa
  }
  console.log('PASS wardrobe FBX '+def.id);
 }
-assert(wrapEdgesChecked>0,'未执行长裳搭接检查');
-const report={schema:WARDROBE_VERSION,geometryVersion:GARMENT_GEOMETRY_VERSION,sourceSha:process.env.REVIEW_HEAD_SHA??'local',staticVariants:rows.length,pairwiseCombinations:combinations,looks:8,bodyTypes:2,clips:11,phasesPerClip:9,sampledFrames:frames,vertexSamples,wrapEdgesChecked,invalidFilesRejected:bads.length,rows,passed:true,note:'Finite values, winding, weights and static wrap edges are checked. This is not a collision/cloth/Unity performance test.'};
+assert(wrapEdgesChecked>0&&coveredLegCases>0,'未执行长裳搭接/遮挡检查');
+const report={schema:WARDROBE_VERSION,geometryVersion:GARMENT_GEOMETRY_VERSION,bodyHideVersion:BODY_HIDE_VERSION,sourceSha:process.env.REVIEW_HEAD_SHA??'local',staticVariants:rows.length,pairwiseCombinations:combinations,looks:8,bodyTypes:2,clips:11,phasesPerClip:9,sampledFrames:frames,vertexSamples,wrapEdgesChecked,coveredLegCases,invalidFilesRejected:bads.length,rows,passed:true,note:'Finite values, winding, weights, static wrap edges and covered-body restoration are checked. This is not a collision/cloth/Unity performance test.'};
 mkdirSync('review-wardrobe',{recursive:true});writeFileSync('review-wardrobe/numeric.json',JSON.stringify(report,null,2));console.log('PASS wardrobe',JSON.stringify({...report,rows:undefined}));
