@@ -1,0 +1,26 @@
+name: Wardrobe Review
+on:
+  push:
+    branches: [feat/character-wardrobe-v1]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run prepare:mixamo
+      - name: Export isolated source workspace for offline review
+        run: tar --exclude=.git --exclude=offline-workspace.tgz -czf /tmp/offline-workspace.tgz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wardrobe-offline-workspace
+          path: /tmp/offline-workspace.tgz
+          retention-days: 1
