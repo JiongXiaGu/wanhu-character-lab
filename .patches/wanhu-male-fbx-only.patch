@@ -497,7 +497,8 @@ index f4b2e2c..cf70490 100644
  
 -## 交互检查
 +每个截图条目必须实际存在且非空，报告保存 sourceSha=REVIEW_HEAD_SHA 与 testedSha=GITHUB_SHA。PR merge SHA与源head区别记录。不拿旧artifact证明新代码；只改文档时可引用父代码产物，明确代码未变。
- -Carry/Push/Pull：左右掌心与 Grip/Handle，肩肘变形，负重步态中手是否脱离，道具与躯干/腿的位置，轮子是否跟随播放暂停。
+ 
+-Carry/Push/Pull：左右掌心与 Grip/Handle，肩肘变形，负重步态中手是否脱离，道具与躯干/腿的位置，轮子是否跟随播放暂停。
 +上传review/report.json/index.html与PNG、review-mixamo/report.json/head-calibration.json/PNG/WebM、源inventory和相关日志，失败也上传已产生的证据，保留7天。不把大量截图提交源码库。
  
 -Pick/Place：站姿、下探、接触事件、落地、松手、恢复。检查箱体落地与脚底，不能只看最漂亮一帧。
@@ -996,7 +997,8 @@ index 93a4658..0c331b5 100644
 -- Wave
 -- Squat
 -
--动画在构建时生成 KeyframeTrack，运行时 AnimationMixer 只更新骨骼，不重建 Mesh。-
+-动画在构建时生成 KeyframeTrack，运行时 AnimationMixer 只更新骨骼，不重建 Mesh。
+-
 -主体角色使用 Three.js SkinnedMesh GPU skinning。
 -
 -CPU 蒙皮只存在于：
@@ -1495,7 +1497,8 @@ diff --git a/scripts/check-head-calibration.ts b/scripts/check-head-calibration.
 new file mode 100644
 index 0000000..39c3d4c
 --- /dev/null
-+++ b/scripts/check-head-calibration.ts@@ -0,0 +1,52 @@
++++ b/scripts/check-head-calibration.ts
+@@ -0,0 +1,52 @@
 +import assert from 'node:assert/strict';
 +import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 +import * as T from 'three';
@@ -1994,7 +1997,8 @@ index 255b40b..af8beba 100644
 -  captures = [];
 -page.on("pageerror", (e) => errors.push(String(e)));
 -page.on("console", (m) => {
--  if (m.type() === "error") errors.push(m.text());-});
+-  if (m.type() === "error") errors.push(m.text());
+-});
 -const hash = (b) => createHash("sha256").update(b).digest("hex");
 -async function open(options = {}) {
 -  const query = new URLSearchParams({ review: "1", paused: "1", ...options });
@@ -2493,7 +2497,8 @@ index 5d778ac..dd71b7b 100644
 +          <p className="fbx-hint">男性居民校准 · 唯一 FBX 动画路径</p>
 +          <div className="fbx-grid">{MIXAMO_CLIPS.map(clip=><button key={clip.id} data-testid={'mixamo-'+clip.id} aria-pressed={mixamo===clip.id} className={mixamo===clip.id?'active':''} onClick={()=>selectMixamo(clip.id)}>{clip.label}</button>)}</div>
            <label className="switch-row">源骨架同步对照<input aria-label="源骨架同步对照" type="checkbox" checked={compareSource} onChange={e=>setCompareSource(e.target.checked)}/></label>
-+          <label className="switch-row">头部朝向检查<input aria-label="头部朝向检查" type="checkbox" checked={headAxes} onChange={e=>setHeadAxes(e.target.checked)}/></label>+          {headAxes&&<p className="fbx-hint">青色：面前方 · 金色：头部向上。保留源动作自身的低头和转头。</p>}
++          <label className="switch-row">头部朝向检查<input aria-label="头部朝向检查" type="checkbox" checked={headAxes} onChange={e=>setHeadAxes(e.target.checked)}/></label>
++          {headAxes&&<p className="fbx-hint">青色：面前方 · 金色：头部向上。保留源动作自身的低头和转头。</p>}
            <button className="clear-equipment" disabled={!playback.mixamo||playback.mixamo.id!==mixamo} onClick={exportMotion}>导出目标骨架动画 JSON</button>
 -          <p className="labor-hint">只导入人体动作。射箭的弓弦、箭和事件尚未重配；手持装备可在 DIY 中清空。</p>
 -        </section>
@@ -2992,7 +2997,8 @@ index fb475e9..0000000
 -    const along=(a*a+d*d-b*b)/(2*d),side=Math.sqrt(Math.max(0,a*a-along*along));const elbow=start.clone().addScaledVector(dir,along).addScaledVector(bend,side);
 -    const q1=new Q().setFromUnitVectors(this.offsets[lower].clone().normalize(),elbow.clone().sub(start).normalize());this.worldRotation(upper,q1);
 -    const q2=new Q().setFromUnitVectors(this.offsets[end].clone().normalize(),target.clone().sub(elbow).normalize());this.worldRotation(lower,q2);
--    return Math.max(0,raw-(a+b));-  }
+-    return Math.max(0,raw-(a+b));
+-  }
 -}
 -export const palmOffset=(side:number,recipe:Recipe)=>new V(side*.026,-.048,.006).multiplyScalar(recipe.height/1.76);
 -export function aimHand(s:PoseSolver,side:number,grip:V,direction:V,recipe:Recipe) {
@@ -3491,7 +3497,8 @@ index 96265af..c733023 100644
 -    seek(t) {
 -      mixer.stopAllAction();
 -      action.reset().play();
--      action.time = t % action.getClip().duration;-      mixer.update(0);
+-      action.time = t % action.getClip().duration;
+-      mixer.update(0);
 -      debug();
 -    },
      dispose() {
