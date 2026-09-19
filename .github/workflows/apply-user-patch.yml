@@ -1,0 +1,42 @@
+name: Apply uploaded FBX-only patch
+on:
+  push:
+    branches:
+      - apply/fbx-only-v3-5-20260919-patch
+    paths:
+      - .patches/wanhu-male-fbx-only.patch
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify patch applies cleanly
+        run: git apply --check .patches/wanhu-male-fbx-only.patch
+      - name: Apply uploaded patch
+        run: git apply .patches/wanhu-male-fbx-only.patch
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Verify retired paths are gone
+        run: npm run check:retired
+      - name: Validate mesh
+        run: npm run check:mesh
+      - name: Build
+        run: npm run build
+      - name: Validate Mixamo retarget
+        run: npm run check:mixamo
+      - name: Commit applied patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "refactor: switch male character validation to FBX-only V3.5"
+          git push origin "HEAD:apply/fbx-only-v3-5-20260919-patch"
