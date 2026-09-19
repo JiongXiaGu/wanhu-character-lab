@@ -1,0 +1,104 @@
+{
+  "sourceSha": "5472912384c637df695a9fa92b2c6f8777014371",
+  "testedSha": "200c4260a3b8c778344c4135e62c88609f7eae3d",
+  "runId": 35460567625,
+  "sourceImages": 159,
+  "sourceVideos": [
+    "ceremony-male-jogging-continuous.webm",
+    "ceremony-male-shooting-arrow-continuous.webm",
+    "ceremony-female-jogging-continuous.webm",
+    "ceremony-female-shooting-arrow-continuous.webm"
+  ],
+  "looks": [
+    "ceremony-female",
+    "ceremony-male",
+    "elegant-female",
+    "elegant-male",
+    "plain-female",
+    "plain-male",
+    "town-female",
+    "town-male"
+  ],
+  "videoSequences": [
+    {
+      "sourceVideo": "ceremony-male-jogging-continuous.webm",
+      "frames": 56,
+      "samplingFPS": 4,
+      "sheets": [
+        "ceremony-male-jogging-continuous-frames-01.jpg",
+        "ceremony-male-jogging-continuous-frames-02.jpg",
+        "ceremony-male-jogging-continuous-frames-03.jpg"
+      ]
+    },
+    {
+      "sourceVideo": "ceremony-male-shooting-arrow-continuous.webm",
+      "frames": 55,
+      "samplingFPS": 4,
+      "sheets": [
+        "ceremony-male-shooting-arrow-continuous-frames-01.jpg",
+        "ceremony-male-shooting-arrow-continuous-frames-02.jpg",
+        "ceremony-male-shooting-arrow-continuous-frames-03.jpg"
+      ]
+    },
+    {
+      "sourceVideo": "ceremony-female-jogging-continuous.webm",
+      "frames": 56,
+      "samplingFPS": 4,
+      "sheets": [
+        "ceremony-female-jogging-continuous-frames-01.jpg",
+        "ceremony-female-jogging-continuous-frames-02.jpg",
+        "ceremony-female-jogging-continuous-frames-03.jpg"
+      ]
+    },
+    {
+      "sourceVideo": "ceremony-female-shooting-arrow-continuous.webm",
+      "frames": 54,
+      "samplingFPS": 4,
+      "sheets": [
+        "ceremony-female-shooting-arrow-continuous-frames-01.jpg",
+        "ceremony-female-shooting-arrow-continuous-frames-02.jpg",
+        "ceremony-female-shooting-arrow-continuous-frames-03.jpg"
+      ]
+    }
+  ],
+  "note": "Derived from original GitHub Actions artifact. Images are only cropped, resized and arranged; videos sampled across their full durations. Preparation is not a declaration of visual acceptance.",
+  "files": [
+    "all-looks-unlocked.png",
+    "ceremony-female-jogging-continuous-frames-01.jpg",
+    "ceremony-female-jogging-continuous-frames-02.jpg",
+    "ceremony-female-jogging-continuous-frames-03.jpg",
+    "ceremony-female-motion.jpg",
+    "ceremony-female-shooting-arrow-continuous-frames-01.jpg",
+    "ceremony-female-shooting-arrow-continuous-frames-02.jpg",
+    "ceremony-female-shooting-arrow-continuous-frames-03.jpg",
+    "ceremony-female-static.jpg",
+    "ceremony-male-jogging-continuous-frames-01.jpg",
+    "ceremony-male-jogging-continuous-frames-02.jpg",
+    "ceremony-male-jogging-continuous-frames-03.jpg",
+    "ceremony-male-motion.jpg",
+    "ceremony-male-shooting-arrow-continuous-frames-01.jpg",
+    "ceremony-male-shooting-arrow-continuous-frames-02.jpg",
+    "ceremony-male-shooting-arrow-continuous-frames-03.jpg",
+    "ceremony-male-static.jpg",
+    "cross-body-diy.png",
+    "eight-looks-front.jpg",
+    "elegant-female-motion.jpg",
+    "elegant-female-static.jpg",
+    "elegant-male-motion.jpg",
+    "elegant-male-static.jpg",
+    "mobile-female.png",
+    "mobile-male.png",
+    "plain-female-motion.jpg",
+    "plain-female-static.jpg",
+    "plain-male-motion.jpg",
+    "plain-male-static.jpg",
+    "random-locked.png",
+    "source-report.json",
+    "studio-default.png",
+    "studio-female.png",
+    "town-female-motion.jpg",
+    "town-female-static.jpg",
+    "town-male-motion.jpg",
+    "town-male-static.jpg"
+  ]
+}
