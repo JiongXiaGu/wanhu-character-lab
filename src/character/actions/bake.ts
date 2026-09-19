@@ -2,6 +2,7 @@ import {AnimationClip,QuaternionKeyframeTrack,VectorKeyframeTrack,Vector3 as V,Q
 import {B,type Joint,type Recipe,type Vec3} from '../v3/types';
 import {ACTIONS,type WorkId} from './catalog';
 import {PoseSolver,aimHand} from './kinematics';
+import {PROP_ANCHORS as ANCHOR} from './anchors';
 export interface Contact {bone:number;point:Vec3;offset:Vec3;unreachable:number}
 export interface WorkSample {pose:PoseSolver;propP:V;propQ:Q;contacts:Contact[];attached:boolean;toolContact:V|null}
 export const smooth=(a:number,b:number,t:number)=>{const x=MathUtils.clamp((t-a)/(b-a),0,1);return x*x*(3-2*x);};
@@ -14,7 +15,7 @@ export function sampleWork(joints:Joint[],recipe:Recipe,id:WorkId,phase:number):
   let crouch=0,lean=.06,hipDown=.025;
   if(id==='pick')crouch=smooth(.05,.33,p)*(1-smooth(.46,.9,p));
   if(id==='place')crouch=smooth(.10,.55,p)*(1-smooth(.70,.98,p));
-  if(id==='pick'||id==='place'){hipDown=.56*crouch;lean=.65*crouch;}
+  if(id==='pick'||id==='place'){hipDown=.49*crouch;lean=.98*crouch;}
   if(id==='carry_back')lean=.17;
   if(id==='carry_shoulder')lean=.09;
   if(id==='push')lean=.18;
@@ -23,13 +24,13 @@ export function sampleWork(joints:Joint[],recipe:Recipe,id:WorkId,phase:number):
   if(id==='hoe'){lean=.04+.33*strike;hipDown=.025+.07*strike;}
   if(id==='hammer')lean=.13;
   if(def.locomotion==='walk')hipDown=.038-.005*Math.cos(t*2);
-  s.hips.y-=hipDown*h;s.hips.z+=.12*crouch*h;
+  s.hips.y-=hipDown*h;s.hips.z+=.10*crouch*h;
   s.euler(B.Spine,lean*.6);s.euler(B.Chest,lean*.4);s.euler(B.Head,-lean*.45);s.fk();
   for(const side of [1,-1]) {
     const u=side>0?B.RightThigh:B.LeftThigh,l=side>0?B.RightShin:B.LeftShin,f=side>0?B.RightFoot:B.LeftFoot;
     const local=t+(side>0?0:Math.PI),z=def.locomotion==='walk'?.135*Math.cos(local):0,lift=def.locomotion==='walk'?.045*Math.max(0,-Math.sin(local)):0;
-    const ankle=new V(...joints[f].p).add(point(side*.025*crouch,lift,z));
-    s.chain(u,l,f,ankle,point(side*(.101+.23*crouch),.36,.35));s.worldRotation(f,new Q());
+    const ankle=new V(...joints[f].p).add(point(side*.085*crouch,lift,z));
+    s.chain(u,l,f,ankle,point(side*(.101+.16*crouch),.36,.45));s.worldRotation(f,new Q());
   }
   s.euler(B.RightUpperArm,def.locomotion==='walk'?.19*Math.cos(t):0,0,-.37);
   s.euler(B.LeftUpperArm,def.locomotion==='walk'?-.19*Math.cos(t):0,0,.37);
@@ -39,7 +40,7 @@ export function sampleWork(joints:Joint[],recipe:Recipe,id:WorkId,phase:number):
   const hand=(side:number,grip:V,direction:V)=>contacts.push(aimHand(s,side,grip,direction,recipe));
   const localGrip=(x:number,y:number,z:number)=>point(x,y,z).applyQuaternion(propQ).add(propP);
   if(def.prop==='crate') {
-    const ground=point(0,.16,.52),held=point(0,1.01,.34);
+    const ground=point(...ANCHOR.crate.groundCenter),held=point(0,1.01,.34);
     let carry=1;
     if(id==='pick'){carry=smooth(.46,.9,p);attached=p>=.38;}
     if(id==='place'){carry=1-smooth(.14,.60,p);attached=p<.66;}
@@ -47,31 +48,31 @@ export function sampleWork(joints:Joint[],recipe:Recipe,id:WorkId,phase:number):
     else propP.copy(ground).lerp(held,carry);
     const reach=id==='pick'?smooth(.04,.33,p):id==='place'?1-smooth(.68,.96,p):1;
     for(const side of [1,-1]) {
-      const grip=localGrip(side*.198,.135,-.055),end=side>0?B.RightHand:B.LeftHand;
+      const grip=localGrip(...(side>0?ANCHOR.crate.rightGrip:ANCHOR.crate.leftGrip)),end=side>0?B.RightHand:B.LeftHand;
       if(reach>0) {const neutral=s.positions[end].clone().add(point(0,-.045,0));const target=neutral.lerp(grip,reach);hand(side,target,new V(-side,0,0));if(reach<.999)contacts.pop();}
     }
   } else if(id==='carry_shoulder') {
     propQ.copy(s.world[B.Chest]);propP.copy(chestPoint(.248,.183,-.015));
-    hand(1,localGrip(0,-.072,.27),new V(0,1,0));
+    hand(1,localGrip(...ANCHOR.timber.rightGrip),new V(0,1,0));
   } else if(id==='carry_back') {
     propQ.copy(s.world[B.Chest]);propP.copy(chestPoint(0,-.065,-.237));
-    for(const side of [1,-1])hand(side,localGrip(side*.145,.025,.345),new V(0,0,-1));
+    for(const side of [1,-1])hand(side,localGrip(...(side>0?ANCHOR.firewood.rightGrip:ANCHOR.firewood.leftGrip)),new V(0,0,-1));
   } else if(def.prop==='wheelbarrow') {
     if(id==='pull')propQ.setFromAxisAngle(new V(0,1,0),Math.PI);
-    for(const side of [1,-1])hand(side,localGrip((id==='pull'?-side:side)*.245,.955,.29),new V(0,-.3,id==='pull'?-1:1));
+    for(const side of [1,-1])hand(side,localGrip(...((id==='pull'?-side:side)>0?ANCHOR.wheelbarrow.rightGrip:ANCHOR.wheelbarrow.leftGrip)),new V(0,-.3,id==='pull'?-1:1));
   } else if(id==='hoe') {
     propQ.copy(qx(MathUtils.lerp(-2.05,-.55,strike)));
     const impact=point(.04, .026 + 1.19*Math.cos(.55), .89-1.19*Math.sin(.55));
     const primary=point(.04,1.24,.29).lerp(impact,strike);
-    propP.copy(primary).sub(point(0,1.19,0).applyQuaternion(propQ));
-    hand(1,primary,new V(-1,0,0));hand(-1,localGrip(0,.99,0),new V(1,0,0));
-    toolContact=localGrip(0,-.02,-.01);
+    propP.copy(primary).sub(point(...ANCHOR.hoe.rightGrip).applyQuaternion(propQ));
+    hand(1,primary,new V(-1,0,0));hand(-1,localGrip(...ANCHOR.hoe.leftGrip),new V(1,0,0));
+    toolContact=localGrip(...ANCHOR.hoe.toolContact);
   } else {
     propQ.copy(qx(MathUtils.lerp(.12,2.45,strike)));
     const hit=point(.235,.875,.53),impact=hit.clone().sub(point(0,.315,0).applyQuaternion(qx(2.45)));
     const grip=point(.235,1.20,.27).lerp(impact,strike);
-    propP.copy(grip).sub(point(0,.065,0).applyQuaternion(propQ));
-    hand(1,grip,new V(-1,0,0));hand(-1,point(-.16,.886,.37),new V(0,-1,0));toolContact=localGrip(0,.38,0);
+    propP.copy(grip).sub(point(...ANCHOR.hammer.rightGrip).applyQuaternion(propQ));
+    hand(1,grip,new V(-1,0,0));hand(-1,point(...ANCHOR.hammer.supportHand),new V(0,-1,0));toolContact=localGrip(...ANCHOR.hammer.toolContact);
   }
   s.fk();return {pose:s,propP,propQ,contacts,attached,toolContact};
 }

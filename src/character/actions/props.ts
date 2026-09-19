@@ -1,5 +1,6 @@
 import * as T from 'three';
 import {ACTIONS,type WorkId} from './catalog';
+import {PROP_ANCHORS as ANCHOR,WHEEL_RADIUS} from './anchors';
 import type {Recipe,Vec3} from '../v3/types';
 class GeometryBatch {
   p:number[]=[];n:number[]=[];c:number[]=[];
@@ -28,7 +29,7 @@ export function createWorkProps(id:WorkId,recipe:Recipe):WorkProps {
     for(const z of [-.30,.30])b.cylinder([0,0,z-.015],[0,0,z+.015],.080,dark,8);
   } else if(kind==='firewood') {
     for(let i=0;i<5;i++){const x=(i-2)*.066,dy=(i%2)*.04;b.cylinder([x,-.27-dy,0],[x,.29+dy,.015],.041,i%2?wood:dark,6);b.cylinder([x,.29+dy,.015],[x,.303+dy,.015],.037,end,6);}
-    for(const y of [-.15,.15])b.beam([-.18,y,.06],[.18,y,.06],.018,rope);
+    for(const y of [-.15,.15]){b.beam([-.18,y,.06],[.18,y,.06],.018,rope);b.beam([-.18,y,-.048],[.18,y,-.048],.018,rope);for(const x of [-.18,.18])b.beam([x,y,-.048],[x,y,.06],.018,rope);}
     for(const x of [-.145,.145]){b.beam([x,-.22,.045],[x,.30,.14],.025,dark);b.beam([x,.30,.14],[x,.25,.33],.021,rope);b.beam([x,.25,.33],[x,-.19,.355],.019,rope);}
   } else if(kind==='wheelbarrow') {
     // 槽体、支架、两个把手，靠前单轮。把手末端是固定交互坐标。
@@ -38,15 +39,15 @@ export function createWorkProps(id:WorkId,recipe:Recipe):WorkProps {
     for(const x of [-.245,.245]){b.beam([x,.955,.22],[x,.52,1.21],.055,dark);b.cylinder([x,.955,.22],[x,.955,.36],.033,end,6);b.beam([x,.57,.66],[x,.17,.57],.04,dark);}
     b.beam([-.31,.225,1.30],[.31,.225,1.30],.045,dark);
     for(const x of [-.22,.22])b.beam([x,.57,1.19],[x,.225,1.30],.045,dark);
-    const w=new GeometryBatch();w.cylinder([-.044,0,0],[.044,0,0],.225,dark,12);w.cylinder([-.048,0,0],[.048,0,0],.184,wood,12);
+    const w=new GeometryBatch();w.cylinder([-.044,0,0],[.044,0,0],WHEEL_RADIUS,dark,12);w.cylinder([-.048,0,0],[.048,0,0],.184,wood,12);
     for(const x of [-.052,.052])for(const ang of [0,Math.PI/3,Math.PI*2/3]){const y=Math.cos(ang)*.178,z=Math.sin(ang)*.178;w.beam([x,-y,-z],[x,y,z],.022,end);}
-    wheel=w.mesh(h,material);wheel.position.set(0,.225*h,1.30*h);object.add(wheel);
+    wheel=w.mesh(h,material);wheel.position.fromArray(ANCHOR.wheelbarrow.wheelCenter).multiplyScalar(h);object.add(wheel);
     // 货物：低矮木箱不挡住车把。
     b.box([0,.72,.93],[.35,.19,.45],'#a89467');
   } else if(kind==='hoe') {
     b.cylinder([0,.03,0],[0,1.40,0],.017,'#aa8354',6);
     b.box([0,0,.068],[.205,.04,.16],'#6e7c77');b.box([0,.026,.015],[.053,.05,.065],'#4e5b59');
-    for(const y of [.99,1.19])b.cylinder([0,y-.024,0],[0,y+.024,0],.019,dark,6);
+    for(const y of [ANCHOR.hoe.leftGrip[1],ANCHOR.hoe.rightGrip[1]])b.cylinder([0,y-.024,0],[0,y+.024,0],.019,dark,6);
     const soil=new GeometryBatch();soil.box([.04,.005,.92],[.65,.01,.65],'#72604b');group.add(soil.mesh(h,material));
   } else {
     b.cylinder([0,0,0],[0,.35,0],.019,wood,6);b.box([0,.34,0],[.17,.08,.072],'#75837b');
