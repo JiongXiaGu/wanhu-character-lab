@@ -20,7 +20,7 @@ GitHub Actions
 
 Runner 内的 localhost 只服务截图，不是部署环境。
 
-仓库不保存 Vercel 配置，不新增视觉部署 workflow。
+仓库只保留最小 `vercel.json`：`git.deploymentEnabled=false`，用于阻止已连接的 Vercel Git 集成自动部署。不得在该文件重新加入 framework / build / output 配置，也不新增视觉部署 workflow。
 
 ## 2. Agent 的连续执行责任
 

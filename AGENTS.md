@@ -81,7 +81,7 @@ Recipe
 
 本仓库不部署 Visual / Vercel / Preview Site 来做视觉验收。
 
-- 不创建 Vercel Deployment。
+- `vercel.json` 只允许保留 `git.deploymentEnabled=false`，用于阻止 Vercel Git 自动部署；不得恢复构建/预览配置。
 - 不新增视觉预览部署 workflow。
 - 不要求用户打开线上临时站点。
 - GitHub Actions 在 runner 内启动本地 Vite preview，Playwright 截图后上传 Artifact。

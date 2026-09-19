@@ -6,7 +6,7 @@
 
 ## 视觉验收方式
 
-本仓库不使用 Visual / Vercel 部署做人物视觉验收。
+本仓库不使用 Visual / Vercel 部署做人物视觉验收。`vercel.json` 仅用于设置 `git.deploymentEnabled=false`，阻止已连接的 Vercel Git 集成继续自动部署。
 
 GitHub Actions 会在 runner 内启动本地 Vite Preview，由 Playwright 自动截图并上传 Artifact。每个已实现动作必须有截图覆盖。Agent 应先自行下载并审查截图，确认模型、蒙皮、道具和动作没有明显问题后再通知用户验收。
 
