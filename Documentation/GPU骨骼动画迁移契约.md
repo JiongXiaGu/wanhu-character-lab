@@ -2,9 +2,11 @@
 
 ## 衣冠工坊 V1 更新
 
-新上衣/裙裳/头饰/发髻仍使用相同20骨骼，配方可选 dyes/hairStyle/hairColor。网格缓存键须包含部件、身材、发式和几何版本（当前 wanhu-garment-geometry-v3）；当前颜色为顶点色，因此颜色亦影响网格输出。未来 Unity 参数染色需要单独实现，不能把网页多色网格当作已共享实例。
+新上衣/裙裳/头饰/发髻仍使用相同20骨骼，配方可选 dyes/hairStyle/hairColor。网格缓存键须包含部件、身材、发式和几何版本（当前 wanhu-garment-geometry-v4）；当前颜色为顶点色，因此颜色亦影响网格输出。未来 Unity 参数染色需要单独实现，不能把网页多色网格当作已共享实例。
 
-绑定缓存至少含 bodyType/height/build/profileVersion；动画轨道与服饰网格键分开，衣服不创建独立Animator。掩码版本 wanhu-garment-hide-v2：裙裳替换pelvis面，长裳另隐藏覆盖的大腿/膝/上段小腿裤面，保留Calf→Ankle与足部；源人体不变，穿回裤装恢复。此掩码依赖当前拓扑/版型，不是通用碰撞或任意服装自动遮挡。迁移端必须同步遮挡语义，不可只移植外层衣服又渲染全部内层身体。
+绑定缓存至少含 bodyType/height/build/profileVersion；动画轨道与服饰网格键分开，衣服不创建独立Animator。掩码版本 wanhu-garment-hide-v3：裙裳替换pelvis面，长裳另隐藏覆盖的大腿/膝前裤面，必须保留完整KneeLower→Calf→Ankle内衬与足部；源人体不变，穿回裤装恢复。不能只留Calf→Ankle，以免侧视动作出现小腿截断。
+
+此掩码依赖当前拓扑/版型，不是通用碰撞或任意服装自动遮挡。迁移端必须同步遮挡语义，不可只移植外层衣服又渲染全部内层身体。宽步时的后侧内衬露出与极端动作穿插仍是已知限制。
 
 ---
 
@@ -20,7 +22,7 @@ SkeletonDefinition：Version、BoneSemantic、ParentIndex、BindLocalPosition/Ro
 
 TargetMotion：源SHA、retargetVersion、skeletonVersion、calibrationProfile、ClipId、Duration、Loop、实际TimeKeys、每骨局部旋转、Hips局部位置、提取根轨迹。局部旋转须按父关系累乘，最终蒙皮=姿态世界骨矩阵×inverse bind，不能把局部四元数直接当世界矩阵。
 
-导出仍为wanhu-target-motion v1，重定向升级wanhu-mixamo-2。头部直接遵循源相对真实绑定的旋转差；HeadTop_End不决定脸向。不要额外套一次校准。events/props目前为空，JSON不是UnityClip/Avatar/Blob。
+导出仍为wanhu-target-motion v1，重定向版本wanhu-mixamo-2。头部直接遵循源相对真实绑定的旋转差；HeadTop_End不决定脸向。不要额外套一次校准。events/props目前为空，JSON不是UnityClip/Avatar/Blob。
 
 ## 位移、时间与事件
 
