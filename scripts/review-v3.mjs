@@ -37,6 +37,16 @@ async function open(options = {}) {
     "页面出现错误提示",
   );
 }
+
+const ACTION_SCREENSHOT_MATRIX = [
+  { id: "idle", outfit: "farmer", phase: ".25" },
+  { id: "walk", outfit: "farmer", phase: ".25", cycle: true },
+  { id: "run", outfit: "farmer", phase: ".25", cycle: true },
+  { id: "wave", outfit: "farmer", phase: ".5" },
+  { id: "squat", outfit: "farmer", phase: ".5" },
+  { id: "bind", outfit: "body", phase: "0" },
+];
+
 async function capture(name, options) {
   await open(options);
   const stats = await page.evaluate(() => window.__WANHU_REVIEW__.stats);
@@ -171,6 +181,49 @@ try {
     view: "top",
     display: "cage",
   });
+
+  // 每个已实现 Motion 都必须进入截图矩阵。新增 Motion 时，
+  // scripts/check-review-coverage.mjs 会阻止“只有代码、没有视觉审查”的提交。
+  for (const action of ACTION_SCREENSHOT_MATRIX) {
+    const base = {
+      outfit: action.outfit,
+      motion: action.id,
+      phase: action.phase,
+    };
+
+    await capture(`action-${action.id}-front`, {
+      ...base,
+      view: "front",
+    });
+    await capture(`action-${action.id}-side`, {
+      ...base,
+      view: "side",
+    });
+    await capture(`action-${action.id}-back`, {
+      ...base,
+      view: "back",
+    });
+    await capture(`action-${action.id}-cage`, {
+      ...base,
+      view: "front",
+      display: "cage",
+    });
+
+    if (action.cycle) {
+      for (const phaseValue of ["0", ".25", ".5", ".75"]) {
+        const phaseName = phaseValue
+          .replace("0", "00")
+          .replace(".25", "25")
+          .replace(".5", "50")
+          .replace(".75", "75");
+        await capture(`action-${action.id}-side-p${phaseName}`, {
+          ...base,
+          phase: phaseValue,
+          view: "side",
+        });
+      }
+    }
+  }
   // 测试真实 UI，不用 hook 代替用户交互。
   await open();
   await page.getByRole("button", { name: "行走", exact: true }).click();

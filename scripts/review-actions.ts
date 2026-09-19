@@ -16,6 +16,7 @@ async function open(action:string,view='free',display='beauty',phase=.25) {
   assert.equal(await page.locator('[role="alert"]').count(),0);
 }
 try {
+  assert.deepEqual(Object.keys(ACTIONS).sort(),[...WORK_IDS].sort(),'存在可播放动作没有加入审查入口');
   for(const id of WORK_IDS){
     const def=ACTIONS[id],record:{id:string;label:string;files:string[];status?:unknown}={id,label:def.label,files:[]};await mkdir(`${out}/${id}`,{recursive:true});
     for(const [view,display]of [['front','beauty'],['side','beauty'],['back','beauty'],['free','cage']]) {
@@ -23,7 +24,9 @@ try {
       const file=`${id}/${view}-${display}.png`;await page.screenshot({path:`${out}/${file}`,fullPage:true});record.files.push(file);
     }
     await open(id,'free','beauty',0);
-    for(const phase of [0,.2,.38,.52,.75,def.loop?.999:1]){
+    // 循环必须包含四分周期；单次动作覆盖起始/接触/恢复。
+    const phases=def.loop?[0,.25,.5,.52,.75,.999]:[0,.2,.38,.52,.75,1];
+    for(const phase of phases){
       await page.evaluate(p=>window.__WANHU_REVIEW__!.seek(p),phase);await page.waitForTimeout(100);
       const file=`${id}/frame-${Math.round(phase*100).toString().padStart(3,'0')}.png`;await page.locator('.stage').screenshot({path:`${out}/${file}`});record.files.push(file);
     }
@@ -48,8 +51,9 @@ try {
   await page.getByRole('button',{name:'待机',exact:true}).click();await page.waitForFunction(()=>window.__WANHU_REVIEW__?.work==='none');
   assert.equal(await page.getByLabel('左手',{exact:true}).inputValue(),'archer_bow');assert.equal(await page.getByLabel('背部',{exact:true}).inputValue(),'archer_quiver');
   await page.setViewportSize({width:390,height:844});await open('push');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`${out}/mobile-push.png`,fullPage:true});
-  assert.deepEqual(errors,[]);assert.equal(records.length,9);assert(records.every(r=>r.files.length===10));
-  const report={pass:true,sha:process.env.GITHUB_SHA??'local',actions:records,errors,checks:['9 actions x 10 views/frames','real playback','one shot endpoint','semantic events retained after stop','seek no events','pause','DIY restored','body size endpoints','mobile']};
+  assert.deepEqual(errors,[]);assert.equal(records.length,WORK_IDS.length);assert(records.every(r=>r.files.length===10));
+  for(const id of WORK_IDS){const record=records.find(r=>r.id===id)!;for(const view of ['front-beauty','side-beauty','back-beauty','free-cage'])assert(record.files.includes(`${id}/${view}.png`));if(ACTIONS[id].loop)for(const phase of ['000','025','050','075'])assert(record.files.includes(`${id}/frame-${phase}.png`));}
+  const report={pass:true,sha:process.env.GITHUB_SHA??'local',actions:records,errors,checks:['all catalog actions x 10 views/frames','0/25/50/75 loop coverage','real playback','one shot endpoint','semantic events retained after stop','seek no events','pause','DIY restored','body size endpoints','mobile']};
   await writeFile(`${out}/report.json`,JSON.stringify(report,null,2));
   const html=`<!doctype html><html lang="zh"><meta charset="utf-8"><title>万户劳动动作审查</title><style>body{font:15px system-ui;background:#16252b;color:#deded0;max-width:1440px;margin:30px auto;padding:20px}section{border-top:1px solid #546164;margin-top:35px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}img{max-width:100%}a{color:#ddc6a0}h1{font-weight:500}</style><h1>第一轮劳动动作 · GitHub Actions 截图</h1><p>Commit: ${report.sha}。测试通过不等于美术自动通过；每项含正面、侧面、背面、布线与六个关键帧。</p>${records.map(r=>`<section><h2>${r.label} / ${r.id}</h2><div class="grid">${r.files.map(f=>`<figure><a href="${f}"><img loading="lazy" src="${f}"></a><figcaption>${f}</figcaption></figure>`).join('')}</div></section>`).join('')}</html>`;
   await writeFile(`${out}/index.html`,html);console.log('PASS: 9 action reviews and browser interactions. Human screenshot review required.');
