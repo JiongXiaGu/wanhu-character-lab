@@ -40,7 +40,7 @@ try{
  const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'导出配方',exact:true}).click()]);
  await download.saveAs(`${dir}/reviewed-recipe.json`);const text=await readFile(`${dir}/reviewed-recipe.json`,'utf8');assert.deepEqual(parseRecipeFile(text),before);
  await page.getByLabel('下装',{exact:true}).selectOption('loose_trousers');await page.getByLabel('导入配方文件',{exact:true}).setInputFiles({name:'saved.json',mimeType:'application/json',buffer:Buffer.from(text)});await page.waitForFunction(r=>JSON.stringify(window.__WANHU_RECIPE__!())===r,JSON.stringify(before));
- await page.getByLabel('导入配方文件',{exact:true}).setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{broken')});await page.getByText('不是有效的 JSON 配方。',{exact:true}).waitFor();assert.deepEqual(await recipe(),before);
+ await page.getByLabel('导入配方文件',{exact:true}).setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{broken')});await page.locator('.studio-notice.notice-error').waitFor();assert((await page.locator('.studio-notice.notice-error').textContent())?.includes('不是有效的 JSON 配方。'));assert.deepEqual(await recipe(),before);
  await page.getByTestId('body-type-male').click();after=await recipe();assert.deepEqual(after.slots,before.slots);assert.equal(after.height,before.height);assert.equal(after.bodyType,'male');await shot('cross-body-diy');
  await page.getByRole('button',{name:'全部 8 款',exact:true}).click();await page.getByTestId('look-ceremony-female').click();assert.equal((await recipe()).bodyType,'male','preset silently changed body');await shot('all-looks-unlocked');
  for(const bodyType of ['male','female'])for(const id of ['jogging','shooting-arrow']){

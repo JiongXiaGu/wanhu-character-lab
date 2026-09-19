@@ -19,6 +19,10 @@ function inspect(recipe:Recipe){
   for(const f of c.faces){assert(f.v.every(i=>Number.isInteger(i)&&i>=0&&i<c.vertices.length));for(let i=1;i<f.v.length-1;i++)assert(Math.hypot(...cross(sub(c.vertices[f.v[i]].p,c.vertices[f.v[0]].p),sub(c.vertices[f.v[i+1]].p,c.vertices[f.v[0]].p)))>1e-10,`degenerate ${c.vertices[f.v[0]].id}`);}
   const base=makeCharacter({...recipe,slots:{headwear:'none',top:'body',bottom:'body',shoes:'body',back:'none',leftHand:'none',rightHand:'none'}});
   assert.deepEqual(d.body,base.body,'garment changed source body');assert.deepEqual(d.joints,base.joints,'garment changed skeleton');
+  // 不同摆长共享高度处必须具有同一权重，防止静态不穿、走动分离。
+  const topRows=c.vertices.filter(v=>/^GarmentTop\.1\.0\.[0-9]+\.0$/.test(v.id));
+  const bottomRows=c.vertices.filter(v=>/^GarmentBottom\.1\.0\.[0-9]+\.0$/.test(v.id));
+  for(const a of topRows)for(const b of bottomRows)if(Math.abs(a.p[1]-b.p[1])<1e-7)assert.deepEqual(a.w,b.w,'衣层在同一高度的权重不一致');
   assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);
   return d;
 }

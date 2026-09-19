@@ -50,20 +50,35 @@ function append(target:Cage,piece:Cage){
   const offset=target.vertices.length;target.vertices.push(...piece.vertices);
   target.faces.push(...piece.faces.map(f=>({...f,v:f.v.map(i=>i+offset)})));
 }
-interface HemShape { end:number; width:number; depth:number; color:string; trim:string; pleats?:boolean; outer?:number }
+interface HemShape { end:number; width:number; depth:number; color:string; trim:string; pleats?:boolean; outer?:number; start?:number; under?:HemShape }
+/** 所有衣层共用高度参数，不能各按自己的摆长生成不同权重。 */
+function hemRadius(s:HemShape,y:number):[number,number] {
+  const t=Math.max(0,Math.min(1,(1.067-y)/(1.067-s.end)));
+  let width=.166+(s.width-.166)*Math.min(1,t*1.25)+(s.outer??0);
+  let depth=.112+(s.depth-.112)*t+(s.outer??0)*.7;
+  if(s.under){
+    const [uw,ud]=hemRadius(s.under,y),clearance=.018*Math.min(1,(1.067-y)/.16);
+    const pleatFactor=s.under.pleats?1.025:1;
+    width=Math.max(width,uw*pleatFactor+clearance);
+    depth=Math.max(depth,ud*pleatFactor+clearance);
+  }
+  return [width,depth];
+}
 /** 左右独立有厚度裳片；前后留窄开衩，不能将两腿硬绑在同一个裙筒。 */
 function hem(target:Cage,id:string,s:HemShape):void {
   const count=s.pleats?12:8;
   for(const side of [1,-1]){
     const c:Cage={vertices:[],faces:[],anchors:{}};
-    const rows=[1.067,.90,(.90+s.end)*.5,s.end];
+    const start=s.start??1.067;
+    const rows=[start,...[.90,.80,.67,.56,.449,.293].filter(y=>y<start-1e-6&&y>s.end+1e-6),s.end];
+    if(s.under?.start&&s.under.start>s.end&&s.under.start<start&&!rows.some(y=>Math.abs(y-s.under!.start!)<1e-6))rows.push(s.under.start);
+    rows.sort((a,b)=>b-a);
     const layers:number[][][]=[];
     for(let layer=0;layer<2;layer++){
       const loops:number[][]=[];
       for(let row=0;row<rows.length;row++){
-        const t=(1.067-rows[row])/(1.067-s.end);
-        const width=.166+(s.width-.166)*Math.min(1,t*1.25)+(s.outer??0);
-        const depth=.112+(s.depth-.112)*t+(s.outer??0)*.7;
+        const t=Math.max(0,Math.min(1,(1.067-rows[row])/.857));
+        const [width,depth]=hemRadius(s,rows[row]);
         const loop:number[]=[];
         for(let i=0;i<=count;i++){
           const a=i*Math.PI/count;
@@ -71,7 +86,7 @@ function hem(target:Cage,id:string,s:HemShape):void {
           const x=side*(Math.sin(a)*(width-layer*.004)*fold+.007*t);
           const z=Math.cos(a)*(depth-layer*.004)*fold;
           const leg=side>0?B.RightThigh:B.LeftThigh;
-          const w:Weight=row===0?[B.Hips,B.Spine,.7]:[B.Hips,leg,Math.max(.42,1-t*.58)];
+          const w:Weight=rows[row]>1.06?[B.Hips,B.Spine,.7]:[B.Hips,leg,1-t*.62];
           loop.push(vertex(c,`${id}.${side}.${layer}.${row}.${i}`,[x,rows[row],z],w));
         }
         loops.push(loop);
@@ -95,22 +110,26 @@ function hem(target:Cage,id:string,s:HemShape):void {
 }
 export function addGarmentSilhouettes(c:Cage,recipe:Recipe):void {
   const {primary,secondary,accent}=garmentColors(recipe),{top,bottom}=recipe.slots;
-  if(NEW_TOPS.includes(top)){
-    const shape:Record<string,HemShape>={
-      rough_tunic:{end:.865,width:.188,depth:.128,color:primary,trim:tone(primary,.92)},
-      cross_jacket:{end:.80,width:.215,depth:.145,color:primary,trim:accent},
-      layered_vest:{end:.67,width:.248,depth:.163,color:primary,trim:accent,outer:.007},
-      ceremony_robe:{end:.56,width:.27,depth:.176,color:primary,trim:accent,outer:.012},
-    };
-    hem(c,'GarmentTop',shape[top]);
+  const tops:Record<string,HemShape>={
+    rough_tunic:{end:.865,width:.188,depth:.128,color:primary,trim:tone(primary,.92)},
+    cross_jacket:{end:.80,width:.215,depth:.145,color:primary,trim:accent},
+    layered_vest:{end:.67,width:.248,depth:.163,color:primary,trim:accent,outer:.007},
+    ceremony_robe:{end:.56,width:.27,depth:.176,color:primary,trim:accent,outer:.012},
+  };
+  const bottoms:Record<string,HemShape>={
+    work_wrap:{end:.67,width:.226,depth:.154,color:secondary,trim:tone(secondary,1.13)},
+    pleated_skirt:{end:.29,width:.30,depth:.20,color:secondary,trim:accent,pleats:true},
+    robe_skirt:{end:.21,width:.28,depth:.185,color:secondary,trim:accent},
+  };
+  const upper=tops[top],lower=bottoms[bottom];
+  if(upper&&lower){
+    // 上层盖住的下装不重复生成，接口保留 3.5cm 搭接；宽度考虑褶面最大凸起。
+    if(lower.end<upper.end){lower.start=upper.end+.035;upper.under=lower;}
+    else {upper.start=lower.end+.035;lower.under=upper;}
   }
-  if(['work_wrap','pleated_skirt','robe_skirt'].includes(bottom)){
-    const shape:Record<string,HemShape>={
-      work_wrap:{end:.67,width:.226,depth:.154,color:secondary,trim:tone(secondary,1.13)},
-      pleated_skirt:{end:.29,width:.30,depth:.20,color:secondary,trim:accent,pleats:true},
-      robe_skirt:{end:.21,width:.28,depth:.185,color:secondary,trim:accent},
-    };
-    hem(c,'GarmentBottom',shape[bottom]);
+  if(upper)hem(c,'GarmentTop',upper);
+  if(lower){
+    hem(c,'GarmentBottom',lower);
     // 稳定 region 掩码：腰髋已由裳片替换。保留开衩可见的内衬裤与小腿。
     c.faces=c.faces.filter(f=>f.region!=='pelvis');
   }
@@ -124,7 +143,7 @@ export function addWardrobeHeadwear(target:Cage,id:HeadwearId,recipe:Recipe):boo
   if(!['cloth_wrap','scholar_cap','jade_pin'].includes(id))return false;
   const c:Cage={vertices:[],faces:[],anchors:{}},w=rigid(B.Head),{primary,accent}=garmentColors(recipe);
   if(id==='jade_pin'){
-    const low=recipe.hairStyle==='low_bun'||(!recipe.hairStyle&&recipe.bodyType==='female');
+    const low=recipe.hairStyle==='low_bun'||((!recipe.hairStyle||recipe.hairStyle==='auto')&&recipe.bodyType==='female');
     const y=low?1.67:recipe.hairStyle==='double_bun'?1.738:1.80,z=low?-.164:-.035;
     solidBox(c,'JadePin',[0,y,z],[.16,.008,.012],accent);
     solidBox(c,'JadeFinial',[.085,y,z],[.024,.025,.021],'#85b2a0');

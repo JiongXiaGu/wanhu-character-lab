@@ -1,5 +1,11 @@
 # GPU 骨骼动画迁移契约 · V3.6 / FBX
 
+## 衣冠工坊 V1 更新
+
+衣冠 V1：新上衣/裙裳/头饰/发髻仍使用相同20骨骼，配方可选 dyes/hairStyle/hairColor。网格缓存键须包含部件、身材、发式和几何版本；当前颜色为顶点色，因此颜色亦影响网格输出。未来 Unity 参数染色需要单独实现，不能把网页多色网格当作已共享实例。绑定缓存至少含 bodyType/height/build/profileVersion；动画轨道与服饰网格键分开，衣服不创建独立Animator。新增掩码版本 wanhu-garment-hide-v1，目前只处理 pelvis region，不是通用遮挡系统。
+
+---
+
 ## 状态
 
 当前网页是程序人物+外部FBX局部轨道；旧程序动作已删除。迁移的是SkeletonDefinition、Bind Pose、SkinBinding、局部轨道与未来事件/道具语义，不是Three.js AnimationMixer。Unity正式实现未完成。
