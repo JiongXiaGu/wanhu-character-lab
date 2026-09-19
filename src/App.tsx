@@ -1,128 +1,83 @@
-import { useState, useCallback } from 'react';
-import './mixamo.css';
-import {MIXAMO_CLIPS,isMixamoId,mixamoDefinition,type MixamoSelection} from './character/mixamo/catalog';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { MIXAMO_CLIPS,isMixamoId,mixamoDefinition,type MixamoSelection } from './character/mixamo/catalog';
 import { CharacterViewport, type Stats, type View, type Display, type PlaybackStatus } from './scene/CharacterViewport';
-import { DEFAULT_RECIPE, BODY_TYPES, defaultHeight, PRESET_IDS, applyPreset, cleanRecipe, patchSlots, type Recipe, type Outfit, type CharacterSlots } from './character/v3/types';
+import { BODY_TYPES, HAIR_STYLE_IDS, defaultHeight, PRESET_IDS, applyPreset, cleanRecipe, patchSlots, type Recipe, type Outfit, type CharacterSlots, type GarmentDyes } from './character/v3/types';
+import { WARDROBE_LOOKS, DYE_PALETTES, SLOT_OPTIONS, SLOT_LABELS, HAIR_NAMES, applyLook, randomizeLook, parseRecipeFile, type RandomLock } from './character/wardrobe/catalog';
+import { garmentColors } from './character/wardrobe/geometry';
+import { LookGlyph } from './character/wardrobe/LookGlyph';
 
-const PRESETS: { id:Outfit; name:string; desc:string; glyph:string }[] = [
-  { id:'farmer', name:'农户', desc:'短衣 · 草帽 · 布鞋', glyph:'农' },
-  { id:'guard', name:'卫兵', desc:'轻甲 · 头盔 · 剑盾', glyph:'卫' },
-  { id:'archer', name:'弓手', desc:'短衣 · 箭袋 · 弓', glyph:'弓' },
-  { id:'body', name:'基础人体', desc:'连续拓扑 · 无装扮', glyph:'体' },
-];
-const SLOT_OPTIONS: { [K in keyof CharacterSlots]:readonly { id:CharacterSlots[K]; name:string }[] } = {
-  headwear:[{ id:'none',name:'无头饰' },{ id:'farmer_straw_hat',name:'农户草帽' },{ id:'guard_helmet',name:'卫兵轻盔' },{ id:'archer_headband',name:'弓手头巾' }],
-  top:[{ id:'body',name:'无上衣' },{ id:'farmer_tunic',name:'农户短衣' },{ id:'guard_light_armor',name:'卫兵轻甲' },{ id:'archer_tunic',name:'弓手短衣' }],
-  bottom:[{ id:'body',name:'无下装' },{ id:'work_pants',name:'劳动布裤' },{ id:'guard_pants',name:'卫兵裤' },{ id:'archer_pants',name:'弓手裤' }],
-  shoes:[{ id:'body',name:'无鞋' },{ id:'cloth_shoes',name:'布鞋' },{ id:'boots',name:'短靴' }],
-  back:[{ id:'none',name:'无背部装备' },{ id:'archer_quiver',name:'箭袋' }],
-  leftHand:[{ id:'none',name:'左手空' },{ id:'guard_shield',name:'盾牌' },{ id:'archer_bow',name:'短弓' }],
-  rightHand:[{ id:'none',name:'右手空' },{ id:'farmer_hoe',name:'锄头' },{ id:'guard_sword',name:'短剑' }],
-};
-const qs = new URLSearchParams(location.search);
-function enumQuery<T extends string>(key:string, allowed:readonly T[], fallback:T):T {
-  const value = qs.get(key) as T | null; return value && allowed.includes(value) ? value : fallback;
-}
-const initialPhase = () => { const n = Number(qs.get('phase') ?? 0); return Number.isFinite(n) ? Math.max(0,Math.min(1,n)) : 0; };
+const qs=new URLSearchParams(location.search),review=qs.has('review'),STORAGE_KEY='wanhu.character.wardrobe.v1';
+function enumQuery<T extends string>(key:string,allowed:readonly T[],fallback:T):T{const v=qs.get(key) as T|null;return v&&allowed.includes(v)?v:fallback;}
+function initialPhase(){const n=Number(qs.get('phase')??0);return Number.isFinite(n)?Math.max(0,Math.min(1,n)):0;}
 function initialRecipe():Recipe {
-  const bodyType = enumQuery('bodyType',BODY_TYPES,'male');
-  const outfit = enumQuery('outfit',PRESET_IDS,'farmer'), equipment = qs.get('equipment');
-  let recipe = cleanRecipe({ bodyType,outfit,height:Number(qs.get('height')??defaultHeight(bodyType)),build:Number(qs.get('build')??DEFAULT_RECIPE.build),palette:DEFAULT_RECIPE.palette,hat:qs.get('hat') === '0' ? false : undefined,equipment:equipment === '0' ? false : equipment === '1' ? true : undefined });
-  const slotPatch: Partial<CharacterSlots> = {};
-  for (const key of Object.keys(SLOT_OPTIONS) as (keyof CharacterSlots)[]) {
-    const value = qs.get(key); if (value) (slotPatch as Record<string,string>)[key] = value;
-  }
-  if (Object.keys(slotPatch).length) recipe = cleanRecipe({ ...recipe,preset:'custom',slots:{ ...recipe.slots,...slotPatch } });
-  return recipe;
+  const bodyType=enumQuery('bodyType',BODY_TYPES,'male'),outfit=enumQuery('outfit',PRESET_IDS,'farmer');
+  const equipment=qs.get('equipment');
+  let r=cleanRecipe({bodyType,outfit,height:Number(qs.get('height')??defaultHeight(bodyType)),build:Number(qs.get('build')??.5),palette:Number(qs.get('palette')??0),hat:qs.get('hat')==='0'?false:undefined,equipment:equipment==='0'?false:equipment==='1'?true:undefined});
+  // 无显式旧预设时，进入换装工作台；诊断链接仍兼容原版。
+  if(qs.has('look'))r=applyLook(r,qs.get('look')!);
+  else if(!qs.has('outfit')&&!review)r=applyLook(r,'town-'+bodyType);
+  const slots:Record<string,string>={};for(const key of Object.keys(SLOT_OPTIONS)){const v=qs.get(key);if(v)slots[key]=v;}
+  if(Object.keys(slots).length)r=cleanRecipe({...r,preset:'custom',slots:{...r.slots,...slots}});
+  return r;
 }
-function exportRecipe(recipe:Recipe) {
-  const url = URL.createObjectURL(new Blob([JSON.stringify(recipe,null,2)],{ type:'application/json' }));
-  const link = document.createElement('a'); link.href=url; link.download=`wanhu-${recipe.bodyType}-recipe.json`; link.click();
-  setTimeout(() => URL.revokeObjectURL(url),1000);
-}
-interface SlotSelectProps<K extends keyof CharacterSlots> { slot:K; label:string; recipe:Recipe; onChange:(slot:K,value:CharacterSlots[K])=>void }
-function SlotSelect<K extends keyof CharacterSlots>({ slot,label,recipe,onChange }:SlotSelectProps<K>) {
-  return <label className="slot-row"><span>{label}</span><select aria-label={label} value={recipe.slots[slot]} onChange={e => onChange(slot,e.target.value as CharacterSlots[K])}>{SLOT_OPTIONS[slot].map(option => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label>;
-}
-export default function App() {
-  const [mixamo,setMixamo]=useState<MixamoSelection>(()=>qs.get('pose')==='bind'?'none':isMixamoId(qs.get('mixamo'))?qs.get('mixamo') as MixamoSelection:'jogging');
-  const [compareSource,setCompareSource]=useState(qs.get('compare')==='1');
-  const [restart,setRestart] = useState(0);
-  const [headAxes,setHeadAxes] = useState(qs.get('headAxes')==='1');
-  const [playback,setPlayback] = useState<PlaybackStatus>({phase:initialPhase(),stage:'',finished:false});
-  const [recipe,setRecipe] = useState<Recipe>(initialRecipe);
-  const [playing,setPlaying] = useState(!qs.has('paused')), [speed,setSpeed] = useState(1), [phase,setPhase] = useState(initialPhase);
-  const [view,setView] = useState<View>(enumQuery('view',['free','front','side','back','top','three'] as const,'free'));
-  const [viewRevision,setViewRevision] = useState(0), [orthographic,setOrthographic] = useState(true);
-  const [display,setDisplay] = useState<Display>(enumQuery('display',['beauty','cage','triangles','clay'] as const,'beauty'));
-  const [skeleton,setSkeleton] = useState(false), [grid,setGrid] = useState(false), [error,setError] = useState(''), [stats,setStats] = useState<Stats|null>(null);
-  const updatePlayback = useCallback((value:PlaybackStatus) => { setPlayback(value); if (value.finished) setPlaying(false); },[]);
+function download(name:string,data:unknown){const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function sameAppearance(a:Recipe,b:Recipe){return JSON.stringify([a.slots,a.dyes,a.hairStyle])===JSON.stringify([b.slots,b.dyes,b.hairStyle]);}
+export default function App(){
+  // review 链接保持原来的 FBX 默认以进行独立回归；玩家换装默认静态绑定。
+  const [mixamo,setMixamo]=useState<MixamoSelection>(()=>qs.get('pose')==='bind'?'none':isMixamoId(qs.get('mixamo'))?qs.get('mixamo') as MixamoSelection:review?'jogging':'none');
+  const [recipe,setRecipe]=useState<Recipe>(initialRecipe),[past,setPast]=useState<Recipe[]>([]);
+  const [allLooks,setAllLooks]=useState(false),[locks,setLocks]=useState<RandomLock[]>([]),[seed,setSeed]=useState('1');
+  const [notice,setNotice]=useState(''),[importError,setImportError]=useState('');const fileRef=useRef<HTMLInputElement>(null);
+  const [compareSource,setCompareSource]=useState(qs.get('compare')==='1'),[headAxes,setHeadAxes]=useState(qs.get('headAxes')==='1');
+  const [restart,setRestart]=useState(0),[playback,setPlayback]=useState<PlaybackStatus>({phase:initialPhase(),stage:'',finished:false});
+  const [playing,setPlaying]=useState(!qs.has('paused')&&(review||qs.has('mixamo'))),[speed,setSpeed]=useState(1),[phase,setPhase]=useState(initialPhase);
+  const [view,setView]=useState<View>(enumQuery('view',['free','front','side','back','top','three'] as const,'front')),[viewRevision,setViewRevision]=useState(0),[orthographic,setOrthographic]=useState(true);
+  const [display,setDisplay]=useState<Display>(enumQuery('display',['beauty','cage','triangles','clay'] as const,'beauty'));
+  const [skeleton,setSkeleton]=useState(false),[grid,setGrid]=useState(false),[error,setError]=useState(''),[stats,setStats]=useState<Stats|null>(null);
+  const updatePlayback=useCallback((v:PlaybackStatus)=>{setPlayback(v);if(v.finished)setPlaying(false);},[]);
+  const recipeRef=useRef(recipe);recipeRef.current=recipe;
+  const edit=(fn:(r:Recipe)=>Recipe)=>{const current=recipeRef.current,next=fn(current);if(JSON.stringify(next)===JSON.stringify(current))return;recipeRef.current=next;setPast(p=>[...p.slice(-29),current]);setRecipe(next);};
+  const patch=(value:Partial<Recipe>)=>edit(r=>cleanRecipe({...r,...value}));
+  const patchSlot=<K extends keyof CharacterSlots>(slot:K,value:CharacterSlots[K])=>edit(r=>patchSlots(r,{[slot]:value} as Partial<CharacterSlots>));
   const selectMixamo=(id:MixamoSelection)=>{setMixamo(id);setPhase(0);setPlaying(id!=='none');setRestart(n=>n+1);};
-  const exportMotion=()=>{const data=window.__WANHU_EXPORT_MOTION__?.();if(!data)return;const url=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`wanhu-${recipe.bodyType}-${mixamo}-target-motion.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
-  const activeMixamo=mixamo==='none'?null:mixamoDefinition(mixamo);
-  const replay = () => { setPhase(0); setRestart(n => n+1); setPlaying(true); };
-  const patch = (value:Partial<Recipe>) => setRecipe(current => cleanRecipe({ ...current,...value }));
-  const patchSlot = <K extends keyof CharacterSlots>(slot:K,value:CharacterSlots[K]) => setRecipe(current => patchSlots(current,{ [slot]:value } as Partial<CharacterSlots>));
-  const selectView = (value:View) => { setView(value); setViewRevision(n => n+1); };
-  const selectedPreset = recipe.preset === 'custom' ? null : PRESETS.find(p => p.id === recipe.preset) ?? null;
-  return <main className="studio">
-    <header className="topbar"><div className="brand-mark">工</div><div><p className="eyebrow">WANHU / CHARACTER STUDIO</p><h1>万户人物工坊</h1></div><div className="header-right"><span className="status-dot"/>运行时生成 <span className="version">V3.6 · FBX ONLY</span><button className="ghost" onClick={() => exportRecipe(recipe)}>导出配方 ↗</button></div></header>
+  const selectView=(v:View)=>{setView(v);setViewRevision(n=>n+1);};
+  const replay=()=>{setPhase(0);setRestart(n=>n+1);setPlaying(true);};
+  const active=mixamo==='none'?null:mixamoDefinition(mixamo),ready=Boolean(playback.mixamo&&playback.mixamo.id===mixamo);
+  const currentLook=WARDROBE_LOOKS.find(l=>sameAppearance(recipe,applyLook(recipe,l.id)));
+  const toggleLock=(key:RandomLock)=>setLocks(current=>current.includes(key)?current.filter(k=>k!==key):[...current,key]);
+  const randomize=()=>{const n=Number(seed);if(!Number.isFinite(n)||!Number.isInteger(n)||n<0||n>4294967295){setNotice('种子需为 0–4294967295 的整数。');return;}edit(r=>randomizeLook(r,n,locks));setNotice(`已按种子 ${n} 生成装扮，锁定项保持不变。`);setSeed(String((n+1)>>>0));};
+  const save=()=>{try{localStorage.setItem(STORAGE_KEY,JSON.stringify(recipe));setNotice('已保存到此浏览器。');}catch{setNotice('浏览器存储不可用，请导出配方保存。');}};
+  const restore=()=>{try{const text=localStorage.getItem(STORAGE_KEY);if(!text){setNotice('此浏览器还没有保存的装扮。');return;}const next=parseRecipeFile(text);edit(()=>next);setNotice('已恢复保存的装扮。');}catch(e){setNotice('恢复失败：'+String(e));}};
+  const importFile=async(file:File|undefined)=>{if(!file)return;try{if(file.size>32768)throw new Error('配方文件过大（最多 32 KB）。');const r=parseRecipeFile(await file.text());edit(()=>r);setImportError('');setNotice('已导入配方。');}catch(e){setImportError(e instanceof Error?e.message:String(e));}finally{if(fileRef.current)fileRef.current.value='';}};
+  useEffect(()=>{if(!review)return;window.__WANHU_RECIPE__=()=>recipe;return()=>{delete window.__WANHU_RECIPE__;};},[recipe]);
+  return <main className="studio wardrobe-studio">
+    <header className="topbar"><div className="brand-mark">工</div><div><p className="eyebrow">WANHU / CHARACTER ATELIER</p><h1>万户 · 衣冠工坊</h1></div><div className="header-right"><span className="version">写意衣冠 · 01</span><button className="ghost" disabled={!past.length} onClick={()=>{const previous=past.at(-1);if(previous){setRecipe(previous);setPast(p=>p.slice(0,-1));}}}>撤销</button><button className="ghost" onClick={()=>fileRef.current?.click()}>导入配方</button><button className="primary-button" onClick={()=>download(`wanhu-${recipe.bodyType}-recipe.json`,recipe)}>导出配方</button><input ref={fileRef} aria-label="导入配方文件" type="file" accept=".json,application/json" hidden onChange={e=>void importFile(e.target.files?.[0])}/></div></header>
     <div className="workspace">
-      <aside className="sidebar">
-        <section className="body-type-section" aria-label="居民体型">
-          <div className="section-title"><h2>居民体型</h2><span>BODY / 02</span></div>
-          <div className="display-grid">{BODY_TYPES.map(type=><button key={type} data-testid={'body-type-'+type} className={recipe.bodyType===type?'active':''} aria-pressed={recipe.bodyType===type} onClick={()=>patch({bodyType:type})}>{type==='female'?'女性':'男性'}</button>)}</div>
-          <p className="fbx-hint">独立身体比例与头脸 · 共用 20 骨骼。切换体型保留身高、装扮和动画进度。</p>
-        </section>
-        <section className="mixamo-library" aria-label="Mixamo 动画库">
-          <div className="section-title"><h2>Mixamo 动画</h2><span>FBX / {MIXAMO_CLIPS.length}</span></div>
-          <p className="fbx-hint">男女居民共用 · 唯一 FBX 动画路径</p>
-          <div className="fbx-grid">{MIXAMO_CLIPS.map(clip=><button key={clip.id} data-testid={'mixamo-'+clip.id} aria-pressed={mixamo===clip.id} className={mixamo===clip.id?'active':''} onClick={()=>selectMixamo(clip.id)}>{clip.label}</button>)}</div>
-          <label className="switch-row">源骨架同步对照<input aria-label="源骨架同步对照" type="checkbox" checked={compareSource} onChange={e=>setCompareSource(e.target.checked)}/></label>
-          <label className="switch-row">头部朝向检查<input aria-label="头部朝向检查" type="checkbox" checked={headAxes} onChange={e=>setHeadAxes(e.target.checked)}/></label>
-          {headAxes&&<p className="fbx-hint">青色：面前方 · 金色：头部向上。保留源动作自身的低头和转头。</p>}
-          <button className="clear-equipment" disabled={!playback.mixamo||playback.mixamo.id!==mixamo} onClick={exportMotion}>导出目标骨架动画 JSON</button>
-          <p className="fbx-hint">只导入人体动作。射箭的弓弦、箭和事件尚未重配；手持装备可在 DIY 中清空。</p>
-        </section>
-        <div className="section-title"><h2>人物预设</h2><span>01 / PRESET</span></div>
-        <div className="outfit-list">{PRESETS.map(preset => <button key={preset.id} className={'outfit ' + (recipe.preset === preset.id ? 'selected' : '')} aria-pressed={recipe.preset === preset.id} onClick={() => setRecipe(current => applyPreset(current,preset.id))}><span className={'outfit-glyph ' + preset.id}>{preset.glyph}</span><span><strong>{preset.name}</strong><small>{preset.desc}</small></span><span className="radio"/></button>)}</div>
-        <div className="section-title spaced diy-heading"><div><h2>自定义装扮</h2><span className="diy-subtitle">任意混搭，同一骨架</span></div><span className={'diy-state ' + (recipe.preset === 'custom' ? 'active' : '')}>{recipe.preset === 'custom' ? 'CUSTOM' : 'PRESET'}</span></div>
-        <div className="slot-grid">
-          <SlotSelect slot="headwear" label="头饰" recipe={recipe} onChange={patchSlot}/><SlotSelect slot="top" label="上衣" recipe={recipe} onChange={patchSlot}/><SlotSelect slot="bottom" label="下装" recipe={recipe} onChange={patchSlot}/><SlotSelect slot="shoes" label="鞋" recipe={recipe} onChange={patchSlot}/><SlotSelect slot="back" label="背部" recipe={recipe} onChange={patchSlot}/><SlotSelect slot="leftHand" label="左手" recipe={recipe} onChange={patchSlot}/><SlotSelect slot="rightHand" label="右手" recipe={recipe} onChange={patchSlot}/>
-        </div>
-        <button className="clear-equipment" type="button" onClick={() => setRecipe(current => patchSlots(current,{ back:'none',leftHand:'none',rightHand:'none' }))}>清空随身装备</button>
-        <div className="section-title spaced"><h2>身材与配色</h2><button className="text-button" onClick={() => patch({ height:defaultHeight(recipe.bodyType),build:.5,palette:0 })}>重置</button></div>
-        <label className="slider-label">身高 <output>{recipe.height.toFixed(2)} m</output><input aria-label="身高" type="range" min="1.58" max="1.92" step=".01" value={recipe.height} onChange={e => patch({ height:+e.target.value })}/></label>
-        <label className="slider-label">体格 <output>{['偏瘦','匀称','壮实'][recipe.build < .33 ? 0 : recipe.build > .66 ? 2 : 1]}</output><input aria-label="体格" type="range" min="0" max="1" step=".05" value={recipe.build} onChange={e => patch({ build:+e.target.value })}/></label>
-        <div className="palette-row"><span>布料色组</span>{['黛蓝','苔绿','赭红'].map((name,index) => <button aria-label={name} title={name} key={name} className={'swatch swatch-' + index + (recipe.palette === index ? ' active' : '')} onClick={() => patch({ palette:index })}/>)}</div>
-        <div className="section-title spaced"><h2>检查工具</h2><span>02 / INSPECT</span></div>
-        <div className="display-grid">{([['beauty','着色'],['clay','素模'],['cage','结构布线'],['triangles','三角网格']] as [Display,string][]).map(([id,label]) => <button key={id} className={display === id ? 'active' : ''} aria-pressed={display === id} onClick={() => setDisplay(id)}>{label}</button>)}</div>
-        <div className="switch-row"><label htmlFor="skeleton">骨骼叠加</label><input id="skeleton" type="checkbox" checked={skeleton} onChange={e => setSkeleton(e.target.checked)}/></div>
-        <div className="switch-row"><label htmlFor="grid">地面网格</label><input id="grid" type="checkbox" checked={grid} onChange={e => setGrid(e.target.checked)}/></div>
-        <div className="metrics"><div><span>人体基模</span><strong>{stats?.bodyTriangles ?? '—'} <small>tris</small></strong></div><div><span>角色面数</span><strong data-testid="triangles">{stats?.triangles ?? '—'} <small>tris</small></strong></div><div><span>骨骼 / 权重</span><strong>{stats?.bones ?? '—'} <small>/ ≤ 2</small></strong></div><div><span>渲染顶点</span><strong>{stats?.gpuVertices ?? '—'}</strong></div></div>
-        <p className="build-note">Slot Recipe · 固定 20 骨骼 · GPU 蒙皮<br/>预设只是一键组合，所有槽位可继续 DIY。</p>
+      <aside className="sidebar look-sidebar">
+        <section aria-label="居民体型"><div className="section-title"><h2>你的角色</h2><span>01 / BODY</span></div><div className="display-grid">{BODY_TYPES.map(type=><button key={type} data-testid={'body-type-'+type} aria-pressed={recipe.bodyType===type} className={recipe.bodyType===type?'active':''} onClick={()=>patch({bodyType:type})}>{type==='female'?'女性':'男性'}</button>)}</div><p className="hint">切换体型保留当前身高与装扮。</p></section>
+        <section className="look-section"><div className="section-title"><h2>搭配灵感</h2><button className="text-button" aria-pressed={allLooks} onClick={()=>setAllLooks(v=>!v)}>{allLooks?'推荐款式':'全部 8 款'}</button></div><p className="hint">预设只是起点，每件都可自由替换。</p><div className="look-grid">{WARDROBE_LOOKS.filter(l=>allLooks||l.suggestedBody===recipe.bodyType).map(l=><button key={l.id} data-testid={'look-'+l.id} aria-pressed={currentLook?.id===l.id} className={'look-card '+(currentLook?.id===l.id?'selected':'')} onClick={()=>edit(r=>applyLook(r,l.id))}><span className="look-illustration"><LookGlyph look={l}/><span>{l.family}</span></span><strong>{l.name}</strong><small>{l.description}</small></button>)}</div></section>
+        <details className="legacy-presets" open={review}><summary>原有装扮</summary><div className="legacy-grid">{([['farmer','农户'],['guard','卫兵'],['archer','弓手'],['body','基础人体']] as [Outfit,string][]).map(([id,label])=><button key={id} onClick={()=>edit(r=>applyPreset({...r,dyes:undefined,hairStyle:undefined,hairColor:undefined},id))}>{label}</button>)}</div></details>
+        <section className="spaced"><div className="section-title"><h2>身材比例</h2><button className="text-button" onClick={()=>patch({height:defaultHeight(recipe.bodyType),build:.5})}>重置</button></div><label className="slider-label">身高 <output>{recipe.height.toFixed(2)} m</output><input aria-label="身高" type="range" min="1.58" max="1.92" step=".01" value={recipe.height} onChange={e=>patch({height:+e.target.value})}/></label><label className="slider-label">体格 <output>{recipe.build<.33?'偏瘦':recipe.build>.66?'壮实':'匀称'}</output><input aria-label="体格" type="range" min="0" max="1" step=".05" value={recipe.build} onChange={e=>patch({build:+e.target.value})}/></label></section>
+        <section className="spaced"><div className="section-title"><h2>探索组合</h2><span>SEED</span></div><div className="seed-row"><input aria-label="搭配种子" type="number" min="0" max="4294967295" value={seed} onChange={e=>setSeed(e.target.value)}/><button className="primary-button" onClick={randomize}>随机搭配</button></div><p className="hint">相同种子可复现；不改体型和身材。</p><div className="display-grid"><button onClick={save}>保存装扮</button><button onClick={restore}>恢复装扮</button></div></section>
       </aside>
       <section className="stage" aria-label="人物预览">
-        <div className="stage-heading"><p className="eyebrow">CHARACTER / {recipe.bodyType.toUpperCase()} / {recipe.preset.toUpperCase()}</p><h2>{activeMixamo?.label ?? '绑定姿态'}</h2><p>{activeMixamo ? `Mixamo FBX → ${recipe.bodyType==='female'?'女性':'男性'}居民 → 当前 DIY 装扮` : `${selectedPreset?.name ?? '自定义角色'} · 静态 A 姿态，只检查模型和绑定，不是动画`}</p></div>
-        <div className="camera-bar">{([['free','自由'],['front','正面'],['side','侧面'],['back','背面'],['three','三视图']] as [View,string][]).map(([value,label]) => <button key={value} className={view === value ? 'active' : ''} onClick={() => selectView(value)}>{label}</button>)}<button disabled={view === 'three'} title="切换正交 / 透视相机" onClick={() => setOrthographic(value => !value)}>{orthographic ? '正交' : '透视'}</button><button title="保存当前预览截图" aria-label="保存截图" onClick={() => window.__WANHU_CAPTURE__?.()}>截 图</button></div>
-        {error ? <div role="alert" className="error-panel">{error}<button onClick={() => location.reload()}>重新加载</button></div> : <CharacterViewport options={{ recipe,mixamo,compareSource,headAxes,restart,playing,speed,phase,view,viewRevision,orthographic,display,skeleton,grid }} onPlayback={updatePlayback} onStats={setStats} onError={setError}/>}
-        {mixamo!=='none'&&compareSource&&view!=='three'&&<div className="mixamo-compare-labels"><span>源动画骨架 · 同比例</span><span>现有人物 · 重定向</span></div>}
-        {view === 'three' && <div className="three-labels"><span>FRONT / 正面</span><span>SIDE / 侧面</span><span>BACK / 背面</span></div>}
-        <div className="stage-caption"><span>拖动旋转 · 右键平移 · 滚轮缩放</span><span>1 SKINNED MESH · 20 BONES · FBX ONLY</span></div>
-        <section className="motion-panel">
-          <div className="motion-head"><span className="eyebrow">MOTION LAB</span><div className="speed"><label htmlFor="speed">速度</label><select id="speed" value={speed} onChange={e => setSpeed(+e.target.value)}>{[.25,.5,1,1.5,2].map(value => <option key={value} value={value}>{value}×</option>)}</select></div></div>
-          <div className="motion-actions">
-            <button aria-pressed={!activeMixamo} className={!activeMixamo?'active':''} onClick={()=>selectMixamo('none')}>绑定姿态（静态）</button>
-            <button disabled={!playback.mixamo||playback.mixamo.id!==mixamo} onClick={replay}>重播外部动作</button>
-            <button disabled={!playback.mixamo||playback.mixamo.id!==mixamo} className="play-button" aria-label={playing?'暂停':'播放'} onClick={()=>playback.finished?replay():setPlaying(value=>!value)}>{playing?'Ⅱ 暂停':'▶ 播放'}</button>
-          </div>
-          <div className="mixamo-status" data-testid="mixamo-status" role="status">
-            <span>{!activeMixamo?'静态绑定检查 · 选择左侧 FBX 动画开始播放':playback.loading?'正在载入并烘焙…':playback.loadError?playback.loadError:playback.mixamo?`${playback.mixamo.duration.toFixed(2)} 秒 · ${playback.mixamo.loop?'循环':'单次，结束保持'} · 20 / 20 骨骼`:'准备动画'}</span>
-            {playback.loadError&&<button onClick={replay}>重试加载</button>}
-          </div>
-          <label className="timeline"><span>逐帧审查</span><input aria-label="动画进度" type="range" min="0" max="1" disabled={!playback.mixamo||playback.mixamo.id!==mixamo} step=".001" value={playback.phase} onChange={e => { const next=+e.target.value; setPlaying(false); setPhase(next); setPlayback(current => ({ ...current,phase:next })); }}/><output>{Math.round(playback.phase*100)}%</output></label>
-        </section>
+        <div className="stage-heading"><p className="eyebrow">DRESS YOUR CHARACTER</p><h2>{currentLook?.name??'自定义装扮'}</h2><p>{recipe.bodyType==='female'?'女性':'男性'} · {recipe.height.toFixed(2)} m · {active?.label??'静态试衣'}</p></div>
+        <div className="camera-bar">{([['free','自由'],['front','正面'],['side','侧面'],['back','背面'],['three','三视图']] as [View,string][]).map(([v,label])=><button key={v} className={view===v?'active':''} onClick={()=>selectView(v)}>{label}</button>)}<button disabled={view==='three'} onClick={()=>setOrthographic(v=>!v)}>{orthographic?'正交':'透视'}</button><button aria-label="保存截图" onClick={()=>window.__WANHU_CAPTURE__?.()}>截图</button></div>
+        {error?<div role="alert" className="error-panel">{error}<button onClick={()=>location.reload()}>重新加载</button></div>:<CharacterViewport options={{recipe,mixamo,compareSource,headAxes,restart,playing,speed,phase,view,viewRevision,orthographic,display,skeleton,grid}} onPlayback={updatePlayback} onStats={setStats} onError={setError}/>}
+        {mixamo!=='none'&&compareSource&&view!=='three'&&<div className="mixamo-compare-labels"><span>源动画骨架</span><span>当前角色</span></div>}
+        {view==='three'&&<div className="three-labels"><span>正面</span><span>侧面</span><span>背面</span></div>}
+        <div className="stage-caption"><span>拖动旋转 · 滚轮缩放</span><span data-testid="triangles">{stats?.triangles??'—'} tris · {stats?.bones??'—'} 骨骼</span></div>
+        <section className="motion-panel"><div className="motion-head"><span className="eyebrow">试衣 / 动作</span><select aria-label="试衣动画" value={mixamo} onChange={e=>selectMixamo(e.target.value as MixamoSelection)}><option value="none">静态绑定</option>{MIXAMO_CLIPS.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</select><div className="speed"><label htmlFor="speed">速度</label><select id="speed" value={speed} onChange={e=>setSpeed(+e.target.value)}>{[.25,.5,1,1.5,2].map(v=><option key={v} value={v}>{v}×</option>)}</select></div></div><div className="motion-actions"><button className={!active?'active':''} aria-pressed={!active} onClick={()=>selectMixamo('none')}>绑定姿态（静态）</button><button disabled={!ready} onClick={replay}>重播外部动作</button><button disabled={!ready} className="play-button" aria-label={playing?'暂停':'播放'} onClick={()=>playback.finished?replay():setPlaying(v=>!v)}>{playing?'Ⅱ 暂停':'▶ 播放'}</button></div><div className="mixamo-status" data-testid="mixamo-status" role="status"><span>{!active?'静态试衣 · 选择 FBX 检查衣物变形':playback.loading?'正在载入并烘焙…':playback.loadError??(ready?`${playback.mixamo!.duration.toFixed(2)} 秒 · ${playback.mixamo!.loop?'循环':'单次，结束保持'}`:'准备动画')}</span>{playback.loadError&&<button onClick={replay}>重试加载</button>}</div><label className="timeline"><span>进度</span><input aria-label="动画进度" type="range" disabled={!ready} min="0" max="1" step=".001" value={playback.phase} onChange={e=>{const n=+e.target.value;setPlaying(false);setPhase(n);setPlayback(p=>({...p,phase:n}));}}/><output>{Math.round(playback.phase*100)}%</output></label></section>
+        {(notice||importError)&&<div className={'studio-notice '+(importError?'notice-error':'')} role="status">{importError||notice}<button aria-label="关闭提示" onClick={()=>{setNotice('');setImportError('');}}>×</button></div>}
       </section>
+      <aside className="sidebar wardrobe-sidebar">
+        <div className="section-title"><h2>衣冠部件</h2><span>02 / WARDROBE</span></div><p className="hint">勾选锁定项，仅影响随机搭配。</p><div className="slot-grid">{(['top','bottom','headwear','shoes'] as const).map(key=><div className="slot-item" key={key}><label className="slot-row"><span>{SLOT_LABELS[key]}</span><select aria-label={SLOT_LABELS[key]} value={recipe.slots[key]} onChange={e=>patchSlot(key,e.target.value as CharacterSlots[typeof key])}>{SLOT_OPTIONS[key].map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label><label className="lock-control"><input aria-label={'锁定'+SLOT_LABELS[key]} type="checkbox" checked={locks.includes(key)} onChange={()=>toggleLock(key)}/>锁定</label></div>)}</div>
+        <section className="spaced"><div className="section-title"><h2>染色</h2><label className="lock-control"><input aria-label="锁定染色" type="checkbox" checked={locks.includes('dyes')} onChange={()=>toggleLock('dyes')}/>锁定</label></div><div className="dye-palettes">{DYE_PALETTES.map(({name,...colors})=><button key={name} aria-label={'色组'+name} title={name} onClick={()=>patch({dyes:colors})}>{Object.values(colors).map((color,i)=><span key={i} style={{background:color}}/>)}</button>)}</div><div className="dye-controls">{([['primary','主布'],['secondary','下装 / 内衬'],['accent','缘边 / 腰带']] as [keyof GarmentDyes,string][]).map(([key,label])=><label key={key}><span>{label}</span><input aria-label={label+'颜色'} type="color" value={garmentColors(recipe)[key]} onChange={e=>patch({dyes:{...garmentColors(recipe),[key]:e.target.value}})}/></label>)}</div><p className="hint">新衣支持三色分区；原有兵装保留固定色。</p></section>
+        <section className="spaced"><div className="section-title"><h2>发式</h2><label className="lock-control"><input aria-label="锁定发型" type="checkbox" checked={locks.includes('hairStyle')} onChange={()=>toggleLock('hairStyle')}/>锁定</label></div><label className="slot-row"><span>发型</span><select aria-label="发型" value={recipe.hairStyle??'auto'} onChange={e=>patch({hairStyle:e.target.value as Recipe['hairStyle']})}>{HAIR_STYLE_IDS.map(id=><option key={id} value={id}>{HAIR_NAMES[id]}</option>)}</select></label><label className="hair-color"><span>发色</span><input aria-label="发色" type="color" value={recipe.hairColor??'#282b29'} onChange={e=>patch({hairColor:e.target.value})}/></label><p className="hint">帽冠遮蔽发髻，取下后自动恢复。</p></section>
+        <details className="spaced" open={review}><summary>随身装备</summary><div className="slot-grid">{(['back','leftHand','rightHand'] as const).map(key=><div className="slot-item" key={key}><label className="slot-row"><span>{SLOT_LABELS[key]}</span><select aria-label={SLOT_LABELS[key]} value={recipe.slots[key]} onChange={e=>patchSlot(key,e.target.value as CharacterSlots[typeof key])}>{SLOT_OPTIONS[key].map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label><label className="lock-control"><input aria-label={'锁定'+SLOT_LABELS[key]} type="checkbox" checked={locks.includes(key)} onChange={()=>toggleLock(key)}/>锁定</label></div>)}</div><button className="clear-equipment" onClick={()=>edit(r=>patchSlots(r,{back:'none',leftHand:'none',rightHand:'none'}))}>清空随身装备</button></details>
+        <details className="spaced inspect-tools" open={review}><summary>动画与结构检查</summary><div className="display-grid">{([['beauty','着色'],['clay','素模'],['cage','结构布线'],['triangles','三角网格']] as [Display,string][]).map(([id,label])=><button key={id} className={display===id?'active':''} onClick={()=>setDisplay(id)}>{label}</button>)}</div><label className="switch-row">骨骼叠加<input type="checkbox" checked={skeleton} onChange={e=>setSkeleton(e.target.checked)}/></label><label className="switch-row">地面网格<input type="checkbox" checked={grid} onChange={e=>setGrid(e.target.checked)}/></label><label className="switch-row">源骨架同步对照<input aria-label="源骨架同步对照" type="checkbox" checked={compareSource} onChange={e=>setCompareSource(e.target.checked)}/></label><label className="switch-row">头部朝向检查<input aria-label="头部朝向检查" type="checkbox" checked={headAxes} onChange={e=>setHeadAxes(e.target.checked)}/></label><div className="fbx-grid">{MIXAMO_CLIPS.map(c=><button key={c.id} data-testid={'mixamo-'+c.id} aria-pressed={mixamo===c.id} onClick={()=>selectMixamo(c.id)}>{c.label}</button>)}</div><button className="clear-equipment" disabled={!ready} onClick={()=>{const d=window.__WANHU_EXPORT_MOTION__?.();if(d)download(`wanhu-${recipe.bodyType}-${mixamo}-target-motion.json`,d);}}>导出目标骨架动画 JSON</button><p className="hint">FBX 仅提供人体动作；长摆极端动作与精确道具接触仍需后续制作。</p></details>
+      </aside>
     </div>
   </main>;
 }
+declare global {interface Window {__WANHU_RECIPE__?:()=>Recipe}}

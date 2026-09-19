@@ -1,3 +1,4 @@
+import { garmentColors, NEW_TOPS, NEW_BOTTOMS, styleGarmentSurface, addGarmentSilhouettes, addWardrobeHeadwear, finishHair } from "../wardrobe/geometry";
 import {
   B,
   rigid,
@@ -356,8 +357,9 @@ function faceDetails(c: Cage, hat: boolean, female = false) {
     face(c, cap, "detail", HAIR);
   }
 }
-function headwear(c: Cage, id: HeadwearId) {
+function headwear(c: Cage, id: HeadwearId, recipe: Recipe) {
   if (id === "none") return;
+  if (addWardrobeHeadwear(c,id,recipe)) return;
 
   const skin = rigid(B.Head);
 
@@ -645,11 +647,12 @@ function addRightHand(c: Cage, id: RightHandId) {
 function topColor(top: TopId, cloth: string): string {
   if (top === "guard_light_armor") return "#566561";
   if (top === "archer_tunic") return "#756247";
-  if (top === "farmer_tunic") return cloth;
+  if (top === "farmer_tunic" || NEW_TOPS.includes(top)) return cloth;
   return SKIN;
 }
 
-function bottomColor(bottom: BottomId): string {
+function bottomColor(bottom: BottomId, secondary?: string): string {
+  if (NEW_BOTTOMS.includes(bottom)) return secondary ?? "#596363";
   if (bottom === "guard_pants") return "#394247";
   if (bottom === "archer_pants") return "#4b493d";
   if (bottom === "work_pants") return "#3c4445";
@@ -698,7 +701,9 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   const recipe = cleanRecipe(input);
   const body = makeBody();
   const c = cloneCage(body);
-  const [cloth, trim, leather] = palettes[recipe.palette];
+  const legacyPalette = palettes[recipe.palette];
+  const colors = garmentColors(recipe);
+  const [cloth, trim, leather] = recipe.dyes ? [colors.primary, colors.accent, colors.accent] : legacyPalette;
 
   const hasTop = recipe.slots.top !== "body";
   const hasBottom = recipe.slots.bottom !== "body";
@@ -711,15 +716,17 @@ export function makeCharacter(input: RecipeInput): CharacterData {
     if (["torso", "upperArm"].includes(f.region) && hasTop) {
       f.color = topColor(recipe.slots.top, cloth);
     } else if (["pelvis", "thigh"].includes(f.region) && hasBottom) {
-      f.color = bottomColor(recipe.slots.bottom);
+      f.color = bottomColor(recipe.slots.bottom,colors.secondary);
     } else if (f.region === "shin" && hasBottom) {
-      f.color = bottomColor(recipe.slots.bottom);
+      f.color = bottomColor(recipe.slots.bottom,colors.secondary);
     } else if (f.region === "foot" && hasShoes) {
       f.color = shoesColor(recipe.slots.shoes);
     }
   }
 
   if (dressed) expandClothingLoops(c, recipe);
+  styleGarmentSurface(c,recipe);
+  addGarmentSilhouettes(c,recipe);
 
   if (hasTop || hasBottom) belt(c, leather);
 
@@ -786,10 +793,11 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   }
 
   const female = recipe.bodyType === "female";
-  const hidesBun = female ? recipe.slots.headwear === "guard_helmet" : recipe.slots.headwear !== "none";
+  const hidesBun = ["cloth_wrap", "scholar_cap"].includes(recipe.slots.headwear) || (female ? recipe.slots.headwear === "guard_helmet" : recipe.slots.headwear !== "none" && recipe.slots.headwear !== "jade_pin");
   faceDetails(c, hidesBun, female);
+  finishHair(c,recipe);
   const rigidStart = c.vertices.length;
-  headwear(c, recipe.slots.headwear);
+  headwear(c, recipe.slots.headwear, recipe);
   addBack(c, recipe.slots.back);
   addLeftHand(c, recipe.slots.leftHand);
   addRightHand(c, recipe.slots.rightHand);
@@ -804,6 +812,7 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   if (hasTop) {
     coveredRegions.add("torso");
     coveredRegions.add("upperArm");
+    if(NEW_TOPS.includes(recipe.slots.top)&&recipe.slots.top!=="rough_tunic") coveredRegions.add("forearm");
   }
   if (hasBottom) {
     coveredRegions.add("pelvis");

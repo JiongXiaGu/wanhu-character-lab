@@ -1,26 +1,54 @@
 name: Wardrobe Review
 on:
   push:
-    branches: [feat/character-wardrobe-v1]
+    branches: [main]
+  pull_request:
   workflow_dispatch:
+concurrency:
+  group: wardrobe-review-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
-  review:
+  wardrobe:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run prepare:mixamo
-      - name: Export isolated source workspace for offline review
-        run: tar --exclude=.git --exclude=offline-workspace.tgz -czf /tmp/offline-workspace.tgz .
+      - run: npm run check:retired
+      - run: npm run build 2>&1 | tee wardrobe-build-review.log
+      - run: npm run check:mesh 2>&1 | tee wardrobe-mesh-review.log
+      - run: npm run check:wardrobe 2>&1 | tee wardrobe-numeric-review.log
+      - name: Install browser and Chinese fonts
+        run: |
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Review wardrobe in local runner
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > preview.log 2>&1 &
+          ready=0
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          test "$ready" = 1
+          npm run review:wardrobe 2>&1 | tee wardrobe-browser-review.log
+      - run: git diff --exit-code
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: wardrobe-offline-workspace
-          path: /tmp/offline-workspace.tgz
-          retention-days: 1
+          name: wardrobe-review
+          path: |
+            review-wardrobe/
+            wardrobe-*-review.log
+            preview.log
+          retention-days: 7
