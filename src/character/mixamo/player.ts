@@ -12,7 +12,7 @@ export function loadMixamo(id: MixamoId): Promise<MixamoMotionData> {
   const pending = fetch(`${import.meta.env.BASE_URL}mixamo/${id}.json`).then(async response => {
     if (!response.ok) throw new Error(`动画资源 ${response.status}；请在仓库根目录运行 npm run prepare:mixamo 后重新启动。`);
     const data = await response.json() as MixamoMotionData; validateMixamoData(data, id); return data;
-  }).catch(error => { cache.delete(id); throw error; });
+  }).catch(error => { if (cache.get(id) === pending) cache.delete(id); throw error; });
   cache.set(id, pending);
   if (cache.size > 3) cache.delete(cache.keys().next().value!);
   return pending;
@@ -38,7 +38,7 @@ export function createMixamoPlayer(actor: Actor, source: MixamoMotionData): Mixa
   const grid = new T.GridHelper(3.2, 16, '#697b7d', '#40585e'); scene.add(grid);
   actor.mixer.stopAllAction();
   const action = actor.mixer.clipAction(bake.clip);
-  // 时间游标统一驱动源骨架与目标，不借助 Mixer 独立回绕，保证暂停/seek/末帧精确同步。
+  // 同一时间游标驱动源骨架与目标，暂停、定位和完整末帧保持同步。
   action.reset().setLoop(T.LoopOnce, 1).setEffectiveWeight(1).play(); action.clampWhenFinished = true; action.paused = true; actor.action = action;
   actor.mesh.boundingSphere = bake.bounds.getBoundingSphere(new T.Sphere());
   let time = 0, disposed = false;
@@ -59,7 +59,7 @@ export function createMixamoPlayer(actor: Actor, source: MixamoMotionData): Mixa
   }
   const player: MixamoPlayer = {
     id: source.id, sourceScene: scene, bake,
-    update(delta) { if (!Number.isFinite(delta) || delta < 0) delta = 0; const next = time + delta; time = bake.loop ? next % source.duration : Math.min(source.duration, next); sync(); },
+    update(delta) { if (!Number.isFinite(delta) || delta <= 0) { sync(); return; } const next = time + delta; time = bake.loop ? next % source.duration : Math.min(source.duration, next); sync(); },
     seek(phase) { time = T.MathUtils.clamp(Number.isFinite(phase) ? phase : 0, 0, 1) * source.duration; sync(); },
     replay() { time = 0; sync(); },
     status() { return { id: source.id, ready: true, duration: source.duration, loop: bake.loop, seamDegrees: bake.seamDegrees, sourceHash: source.source.sha256,

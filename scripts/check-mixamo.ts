@@ -4,6 +4,7 @@ import * as T from 'three';
 import { MIXAMO_CLIPS } from '../src/character/mixamo/catalog';
 import { CALIBRATION_CHILD, SAMPLE_BONE_COUNT, validateMixamoData, type MixamoMotionData } from '../src/character/mixamo/data';
 import { retargetMixamo, exportTargetMotion } from '../src/character/mixamo/retarget';
+import { createMixamoPlayer } from '../src/character/mixamo/player';
 import { makeCharacter } from '../src/character/v3/outfit';
 import { makeActor } from '../src/character/v3/rig';
 import { DEFAULT_RECIPE, applyPreset, patchSlots } from '../src/character/v3/types';
@@ -34,7 +35,6 @@ for (const def of MIXAMO_CLIPS) {
         worstDirection = Math.max(worstDirection, error);
         assert(error < .2, `${def.id}/${i}/${f}: source-target direction ${error}`);
       }
-      // 当前生成角色的真实蒙皮，不以源骨架代替目标检查。
       for (let i = 0; i < actor.mesh.geometry.attributes.position.count; i += 9) {
         const p = actor.mesh.getVertexPosition(i, new T.Vector3());
         assert(p.toArray().every(Number.isFinite)); assert(p.length() < 8);
@@ -56,4 +56,13 @@ const first = JSON.parse(readFileSync('public/mixamo/jogging.json','utf8'));
 for (const mutate of [(d:any)=>d.times.reverse(),(d:any)=>d.worldDeltas[0]=NaN,(d:any)=>d.names[2]='BadBone',(d:any)=>d.schema=999]) {
   const bad=structuredClone(first);mutate(bad);assert.throws(()=>validateMixamoData(bad,'jogging'));
 }
-console.log(JSON.stringify({clips:MIXAMO_CLIPS.length,proportions:3,sampledFrames:frames,worstDirectionDegrees:worstDirection,invalidDataRejected:4}));
+for(const id of ['jogging','shooting-arrow'] as const){
+  const actor=makeActor(makeCharacter(DEFAULT_RECIPE));
+  const player=createMixamoPlayer(actor,JSON.parse(readFileSync(`public/mixamo/${id}.json`,'utf8')));
+  player.seek(1);player.update(0);assert.equal(player.status().phase,1);
+  player.replay();assert.equal(player.status().phase,0);player.update(.3);const paused=player.status().phase;
+  player.update(0);player.update(NaN);assert.equal(player.status().phase,paused);
+  player.seek(-5);assert.equal(player.status().phase,0);player.seek(5);assert.equal(player.status().phase,1);
+  player.dispose();actor.dispose();
+}
+console.log(JSON.stringify({clips:MIXAMO_CLIPS.length,proportions:3,sampledFrames:frames,worstDirectionDegrees:worstDirection,invalidDataRejected:4,playerBoundaryCases:2}));
