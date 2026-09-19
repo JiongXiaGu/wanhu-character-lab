@@ -1,179 +1,78 @@
-# Wanhu Character Lab · V3
+# Wanhu Character Lab · V3.2
 
-《万户天工》低多边形人物网页实验台。
+《万户天工》低多边形人物与劳动动作网页实验台。最终运行时面向 Unity；网页用于先验收模型、换装、骨骼和交互动作。
 
-当前可以使用同一套连续人体、固定骨架和运行时生成规则切换农户、卫兵、弓手与基础人体，并播放基础骨骼动作。
+## 本地运行
 
-## 视觉验收方式
+安装 Node.js 22.12+，拉取 main 后双击根目录 `Start-Local.cmd`。手动运行：
 
-本仓库不使用 Visual / Vercel 部署做人物视觉验收。`vercel.json` 仅用于设置 `git.deploymentEnabled=false`，阻止已连接的 Vercel Git 集成继续自动部署。
-
-GitHub Actions 会在 runner 内启动本地 Vite Preview，由 Playwright 自动截图并上传 Artifact。每个已实现动作必须有截图覆盖。Agent 应先自行下载并审查截图，确认模型、蒙皮、道具和动作没有明显问题后再通知用户验收。
-
-详见：
-
-`Documentation/GitHubActions截图验收规范.md`
-
-## 本地使用
-
-安装 Node.js 22.12+。
-
-拉取 main 后双击根目录：
-
-`Start-Local.cmd`
-
-手动运行：
-
-~~~sh
+```sh
 npm ci
 npm run dev
-~~~
+```
 
-构建与检查：
+检查与构建：
 
-~~~sh
+```sh
 npm run check:mesh
+npm run check:actions
+node scripts/check-review-coverage.mjs
 npm run build
-~~~
-
-## 当前功能
-
-- 连续、封闭、四边面主导的固定三维人体 cage。
-- 基础人体 510 triangles / 257 逻辑顶点。
-- 固定 20 骨骼，职业和体型不改变 Bone ID / Parent Map。
-- 每顶点最多两个非零权重。
-- Three.js SkinnedMesh 主体走 GPU skinning；AnimationMixer 只负责 Web 动画播放。
-- 待机、行走、慢跑、招手、屈膝、静态 A-Pose。
-- 农户、卫兵、弓手预设；预设只是默认组合，头饰、上衣、下装、鞋、背部、左右手可以任意 DIY。
-- 身高、体格和三组布料配色；Recipe JSON 导出。
-- 同屏正 / 侧 / 背三视图、素模、结构布线、三角线框、骨骼叠加和 PNG 截图。
-
-当前默认预算：
-
-- 基础人体：510 tris
-- 默认农户（含斗笠，无农具）：675 tris
-- 农户带农具：699 tris
-- 卫兵带剑盾：806 tris
-- 弓手带弓和箭袋：805 tris
-
-渲染顶点由于硬法线 / 颜色拆点会大于逻辑顶点，界面分别统计。
-
-## Recipe V4 · Slot DIY
-
-当前导出 Recipe 已升级到 Version 4：
-
-```text
-preset
-slots.headwear
-slots.top
-slots.bottom
-slots.shoes
-slots.back
-slots.leftHand
-slots.rightHand
-height
-build
-palette
 ```
 
-例如“弓手 + 农户草帽”：
+## 第一轮劳动动作
 
-```json
-{
-  "version": 4,
-  "preset": "custom",
-  "slots": {
-    "headwear": "farmer_straw_hat",
-    "top": "archer_tunic",
-    "bottom": "archer_pants",
-    "shoes": "boots",
-    "back": "archer_quiver",
-    "leftHand": "archer_bow",
-    "rightHand": "none"
-  }
-}
-```
+左侧顶部“劳动动作库”新增九项，点击即显示实际道具：
 
-旧版 URL / Recipe 的 `outfit / hat / equipment` 仍能读取并迁移。
+| 动作 | 行为 |
+| --- | --- |
+| 拾起木箱 | 屈膝、接触、抓稳、提起，单次结束保持 |
+| 放下木箱 | 下放、落地、松手、起身，单次结束保持 |
+| 抱箱行走 | 双手抱持，脚步与上半身组合 |
+| 扛木行走 | 原木置于肩上，右手支撑 |
+| 背柴行走 | 背架柴捆与绑带，前倾负重 |
+| 推独轮车 | 双手车把，车轮连续滚动 |
+| 拉车行走 | 车在身后，人物仍面向 +Z |
+| 双手锄地 | 举锄、挥下、触地、收锄 |
+| 单手锤击 | 台面工件、右手锤击、左手在安全侧 |
 
-## 动画方向约定
+支持暂停、变速、定位、重播、握点叠加和动作事件显示。定位不触发劳动事件，结束和暂停不清空已触发事件。点击下方基础动作可退出劳动演示。
 
-统一坐标：
+工作道具只临时占用对应手/背槽；Recipe V4不变，退出后恢复原DIY装备。头饰、衣服、身高和体格仍可修改。
 
-~~~text
-+X = 人物右侧
-+Y = 向上
-+Z = 人物正前方
-~~~
+## 保留功能
 
-Walk / Run 是原地动作，导航系统负责角色世界位移。
+连续封闭、四边面主导人体：510三角形 / 257逻辑顶点；固定20骨骼，最多两个非零权重。硬法线/颜色拆分后的渲染顶点另计。
 
-Walk 当前回归检查：
+农户、卫兵、弓手和基础人体预设；独立头饰/上衣/下装/鞋/背部/左右手Slot，允许弓手戴农户草帽。Recipe V4 JSON导出，保留旧配方入口兼容。
 
-~~~text
-0%   右脚前触地，右臂后摆
-25%  左脚抬起向前摆
-50%  左脚前触地
-75%  右脚抬起向前摆
-~~~
+六种基础动作、正/侧/背三视图、素模、结构布线、三角网格、骨骼叠加和PNG截图。主体角色GPU蒙皮，不逐帧重建Mesh；工作IK在构建采样期执行。
 
-这条规则用于防止“月球步 / 倒着走”回归。
+## 只用 GitHub Actions 截图验收
 
-## Unity 迁移方向
+**不部署 Visual / Vercel / Preview Site。** `vercel.json` 只保留关闭 Git 自动部署的设置，不恢复构建/输出配置。Runner内Vite preview只服务Playwright截图，不是线上预览站点。
 
-网页的 Three.js AnimationMixer 不会直接迁移到 Unity。
+- `Build`：基模和原动作检查、构建。
+- `Character Action Screenshot Review`：六种Motion截图矩阵、DIY、基础动作和网页回归；新增Motion漏截图时覆盖检查失败。
+- `Labor Action Review`：九动作×三体型×61姿态；每个可播放Action必须输出正/侧/背/布线及六关键帧。循环含0/25/50/75%，漏Action/漏图失败。
 
-正式共用的数据语义是：
+`labor-actions-review`产物包含90张劳动动作图及握点、混搭、移动端和推拉三视图，提供 `review-actions/index.html`、报告和日志。
 
-~~~text
-SkeletonDefinition
-SkinBinding
-MotionClip
-AnimationState
-~~~
-
-近景先验证常规 GPU Skinning。
-
-中远景 Crowd 目标：
-
-~~~text
-ResidentAnimationState
-→ ClipId / Phase / Speed
-→ Animation Texture / Bone Buffer
-→ Entities Graphics
-→ GPU Skinning
-~~~
-
-详细见：
-
-`Documentation/GPU骨骼动画迁移契约.md`
+Agent必须下载Artifact逐项审图，修正后重新运行，直到当前阶段可以验收再通知用户；不要求用户每完成一个动作回复“继续”。CI绿色不等于美术自动通过。
 
 ## 阅读顺序
 
 1. AGENTS.md
 2. Documentation/工作交接.md
-3. Documentation/项目概览.md
-4. Documentation/运行时人物生成架构.md
-5. Documentation/GPU骨骼动画迁移契约.md
-6. Documentation/服装生成架构.md
-7. Documentation/动作系统架构.md
-8. Documentation/GitHubActions截图验收规范.md
-9. Documentation/V3验收记录.md
+3. Documentation/动作系统架构.md
+4. Documentation/GitHubActions截图验收规范.md
+5. Documentation/Phase4A使用与验收.md
+6. Documentation/运行时人物生成架构.md
+7. Documentation/GPU骨骼动画迁移契约.md
+8. Documentation/服装生成架构.md
 
 ## 当前边界
 
-这是人物重构 + 基础动作网页验证阶段，不是已经完成 Unity 生产运行时。
+负重、推拉为原地动作，导航负责世界位移；车轮当前按标定速度滚动，游戏中应按实际距离驱动。劳动事件尚未连接生产资源和AI逻辑。跨动作装卸生命周期、通用实时骨骼分层、射箭战斗、女性体型、长袍、Unity GPU Crowd/LOD/万人性能仍未完成。
 
-尚未完成：
-
-- Unity MeshData / Burst 实现
-- SkeletonDefinitionBlob / MotionClipBlob
-- Entities GPU Skinning
-- Animation Texture / Bone Buffer
-- Animation LOD
-- Mesh Cache
-- 万人性能验证
-- 战斗 / 拉弓射击动画
-- 完整长袍与宽袖系统
-- 五指抓握
-- 自动 Humanoid Avatar 映射
+不同身材骨长和逆绑定矩阵不同；未来GPU最终矩阵缓存必须区分绑定配置，不能仅凭相同20骨骼ID直接复用所有体型的最终蒙皮矩阵。
