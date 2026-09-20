@@ -18,40 +18,38 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci && npm run prepare:mixamo
-      - name: Isolated parameter experiment, not the acceptance gate
+      - name: Boundary based experiment, acceptance script restored afterwards
         shell: python
         run: |
           from pathlib import Path
           import subprocess,json
-          seat=Path('src/character/wardrobe/seat.ts')
-          original=seat.read_text()
-          test=Path('scripts/check-tailoring-intersections.ts')
-          original_test=test.read_text()
-          # Keep exact pierce logic. Reduce duplicate look variants only for diagnosis.
-          diagnostic=original_test.replace("['plain-female','town-female','ceremony-female']","['ceremony-female']")
-          test.write_text(diagnostic)
-          out=Path('hip-diagnosis');out.mkdir(exist_ok=True)
-          results=[]
+          seat=Path('src/character/wardrobe/seat.ts');original=seat.read_text()
+          test=Path('scripts/check-tailoring-intersections.ts');original_test=test.read_text()
+          test.write_text(original_test.replace("['plain-female','town-female','ceremony-female']","['ceremony-female']"))
+          out=Path('hip-diagnosis');out.mkdir(exist_ok=True);results=[]
           try:
-            for hips in [0.0,0.12,0.25,0.42,0.6]:
-              for size in [0.3,0.6,1.0]:
-                text=original.replace('[B.Hips,thigh,.42]',f'[B.Hips,thigh,{hips}]').replace('[thigh,opposite,.85]','[thigh,opposite,.75]')
-                text=text.replace('[0,.900,.028]',f'[0,.900,{.028*size}]').replace('[0,.902,-.036]',f'[0,.900,{- .036*size}]')
-                text=text.replace('[.025,.884,0]',f'[{.025*size},{.9-.016*size},0]').replace('[-.025,.884,0]',f'[{- .025*size},{.9-.016*size},0]')
-                text=text.replace('[B.RightThigh,B.LeftThigh,.8]','[B.RightThigh,B.LeftThigh,.5]').replace('[B.LeftThigh,B.RightThigh,.8]','[B.LeftThigh,B.RightThigh,.5]')
-                seat.write_text(text)
-                result=subprocess.run(['./node_modules/.bin/tsx','scripts/check-tailoring-intersections.ts'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
-                report=json.loads(Path('review-tailoring-v2/intersections.json').read_text())
-                score=sum(r['piercedFrames'] for r in report['rows'])
-                row={'hips':hips,'size':size,'piercedFrames':score,'maxPairs':max(r['maxPairs'] for r in report['rows'])}
-                results.append(row)
-                print('DIAGNOSIS',json.dumps(row),flush=True)
-                (out/f'hips-{hips}-size-{size}.json').write_text(json.dumps(report))
-                (out/f'hips-{hips}-size-{size}.ts').write_text(text)
+            for volume in [False,True]:
+              for hips in [0.25,0.5,0.7]:
+                for amount in [0.12,0.3,0.5]:
+                  text=original.replace('[B.Hips,thigh,.42]',f'[B.Hips,thigh,{hips}]').replace('[thigh,opposite,.85]','[thigh,opposite,.75]')
+                  text=text.replace('const front=crotch;', 'const pivot:Vec3=[...c.vertices[crotch].p];\n  const cut=(i:number):Vec3=>add(mul(pivot,'+str(1-amount)+'),mul(c.vertices[i].p,'+str(amount)+'));\n  const frontPoint=cut(hip[0]),backPoint=cut(hip[4]),rightPoint=cut(right),leftPoint=cut(left);\n  const front=crotch;')
+                  text=text.replace('[0,.900,.028]','frontPoint').replace('[0,.902,-.036]','backPoint').replace('[.025,.884,0]','rightPoint').replace('[-.025,.884,0]','leftPoint')
+                  text=text.replace('[B.RightThigh,B.LeftThigh,.8]','[B.RightThigh,B.LeftThigh,.5]').replace('[B.LeftThigh,B.RightThigh,.8]','[B.LeftThigh,B.RightThigh,.5]')
+                  if not volume:
+                    text=text.replace('p[1]=1.005','p[1]=1.025').replace('p[2]*=1.16','p[2]*=1').replace('p[2]*=p[2]<0?1.25:1.12','p[2]*=1')
+                  seat.write_text(text)
+                  report_path=Path('review-tailoring-v2/intersections.json');report_path.unlink(missing_ok=True)
+                  run=subprocess.run(['./node_modules/.bin/tsx','scripts/check-tailoring-intersections.ts'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+                  if not report_path.exists():raise RuntimeError(run.stdout)
+                  report=json.loads(report_path.read_text());score=sum(r['piercedFrames'] for r in report['rows'])
+                  row={'volume':volume,'hips':hips,'amount':amount,'piercedFrames':score,'maxPairs':max(r['maxPairs'] for r in report['rows'])}
+                  results.append(row);print('DIAGNOSIS',json.dumps(row),flush=True)
+                  key=f'v-{volume}-h-{hips}-a-{amount}'
+                  (out/(key+'.json')).write_text(json.dumps(report));(out/(key+'.ts')).write_text(text)
+                  if len(results)==1 or score==0:print('DETAIL',json.dumps({'first':report['failures'][:4],'failedRows':[r for r in report['rows'] if r['piercedFrames']]}),flush=True)
             (out/'summary.json').write_text(json.dumps(sorted(results,key=lambda r:r['piercedFrames']),indent=2))
           finally:
-            seat.write_text(original)
-            test.write_text(original_test)
+            seat.write_text(original);test.write_text(original_test)
           print('SUMMARY',json.dumps(sorted(results,key=lambda r:r['piercedFrames'])),flush=True)
       - uses: actions/upload-artifact@v4
         if: always()
