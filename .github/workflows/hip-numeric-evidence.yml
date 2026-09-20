@@ -1,0 +1,41 @@
+name: Hip Numeric Evidence
+on:
+  push:
+    branches: [tmp-hip-proof]
+    paths: [.github/workflows/hip-numeric-evidence.yml]
+permissions:
+  contents: write
+jobs:
+  diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-hip-proof
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run prepare:mixamo
+      - name: Preserve actual numeric output
+        run: |
+          set +e
+          mkdir -p ReviewEvidence/hips-5ddc443/numeric
+          REVIEW_HEAD_SHA=5ddc4438ff9bb0ceb8da4b7c8141c129fe192005 npm run check:tailoring > ReviewEvidence/hips-5ddc443/numeric/run.log 2>&1
+          echo $? > ReviewEvidence/hips-5ddc443/numeric/exit-code.txt
+          cp review-tailoring-v2/*.json ReviewEvidence/hips-5ddc443/numeric/
+          tail -n 100 ReviewEvidence/hips-5ddc443/numeric/run.log
+      - name: Store diagnostic text on evidence branch only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ReviewEvidence
+          git commit -m 'review: 5ddc443 numeric evidence with original failure state'
+          git push origin HEAD:tmp-hip-proof
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hip-numeric-evidence
+          path: ReviewEvidence/hips-5ddc443/numeric/
+      - run: test "$(cat ReviewEvidence/hips-5ddc443/numeric/exit-code.txt)" = 0
