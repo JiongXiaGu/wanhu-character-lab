@@ -1,0 +1,30 @@
+name: Wardrobe source snapshot (temporary)
+on:
+  push:
+    branches: [feat/wardrobe-batch-one]
+    paths: [.github/workflows/wardrobe-source-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 98d2344e82392fe04b3f76ce691cb5a270f56940
+          persist-credentials: false
+      - name: Export tracked source without git configuration or credentials
+        run: |
+          git archive --format=tar.gz --output=/tmp/wardrobe-main-source.tar.gz HEAD
+          git rev-parse HEAD > /tmp/wardrobe-main-sha.txt
+          git ls-tree -r --full-tree HEAD > /tmp/wardrobe-main-tree.txt
+          ls -lh /tmp/wardrobe-main-source.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wardrobe-main-source
+          path: |
+            /tmp/wardrobe-main-source.tar.gz
+            /tmp/wardrobe-main-sha.txt
+            /tmp/wardrobe-main-tree.txt
+          retention-days: 1
