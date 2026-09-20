@@ -13,7 +13,5 @@ for(const[a,b]of[['交叠褶裙','褶纹分裳'],["name:'长裳'","name:'长式�
 patch('scripts/review-tailoring-v2.ts',"assert((await page.evaluate(()=>window.__WANHU_REVIEW__!.getStatus().phase))>.5);","await page.waitForFunction(()=>window.__WANHU_REVIEW__!.getStatus().phase>.5);");
 patch('scripts/review-tailoring-v2.ts',"for(const id of ['pilot-switches','shooting-arrow','jogging'])","for(const id of ['pilot-switches','shooting-arrow','jogging','snatch'])");
 patch('scripts/review-tailoring-v2.ts',"try{await p.goto(base+","try{p.on('pageerror',e=>errors.push(e.message));await p.goto(base+");
-patch('scripts/review-tailoring-v2.ts',"await page.screenshot({path:dir+'/workbench.png'});","await page.screenshot({path:dir+'/workbench.png'});");
-// 对真实录屏按全时间范围提取帧序列，不用一张截图替代动画观感。
 const compose='scripts/compose-tailoring-v2.py';let s=read(compose,'utf8');s+='\nimport subprocess\nfor video in meta["videos"]:\n    stem=Path(video).stem\n    frames=root/(stem+"-frames");frames.mkdir(exist_ok=True)\n    subprocess.run(["ffmpeg","-v","error","-i",str(root/video),"-vf","fps=3,scale=720:-1",str(frames/"%04d.jpg")],check=True)\n    paths=sorted(frames.glob("*.jpg"))\n    for offset in range(0,len(paths),24):\n        sheet([str(p.relative_to(root)) for p in paths[offset:offset+24]],stem+"-timeline-"+str(offset//24)+".jpg",4)\n';write(compose,s);
-console.log('V2 labels, camera preservation, lifting coverage and video timelines updated.');
+console.log('V2 source-only polish complete.');
