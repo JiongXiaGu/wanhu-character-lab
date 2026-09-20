@@ -1,0 +1,72 @@
+name: Hip Gusset Fit
+on:
+  push:
+    branches: [tmp-hip-proof]
+    paths: [.github/workflows/hip-gusset-fit.yml]
+permissions:
+  contents: write
+jobs:
+  fit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-hip-proof
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci && npm run prepare:mixamo
+      - name: Offline construction trials (never modify runtime source automatically)
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,subprocess,itertools
+          target=Path('src/character/wardrobe/seat.ts');original=target.read_text()
+          test=Path('scripts/check-tailoring-intersections.ts').read_text()
+          test=test.replace("['plain-female','town-female','ceremony-female']","['town-female']")
+          Path('scripts/tmp-fit-check.ts').write_text(test)
+          out=Path('ReviewEvidence/hips-5ddc443/fits');out.mkdir(exist_ok=True)
+          rows=[]
+          # Control keeps the same real mesh, same clips, five profiles and all time keys.
+          # Vary only bind-space construction; full test will be rerun on chosen code.
+          for idx,(outer,inner,bevel,volume) in enumerate(itertools.product([.15,.35,.5],[.65,.75,.85],[.18,.32],[False])):
+              s=original.replace('[B.Hips,thigh,.42]',f'[B.Hips,thigh,{outer}]').replace('[thigh,opposite,.85]',f'[thigh,opposite,{inner}]')
+              a=s.index('  const front=crotch;');b=s.index('  const cuts=',a)
+              s=s[:a]+f'''  const center=[...c.vertices[crotch].p] as Vec3;
+            const along=(to:number)=>add(mul(center,{1-bevel}),mul(c.vertices[to].p,{bevel}));
+            const pf=along(hip[0]),pb=along(hip[4]),pr=along(right),pl=along(left);
+            const front=crotch;
+            c.vertices[front]={{id:'SeatGusset.Front',p:pf,w:[...centerWeight]}};
+            const back=vertex(c,'SeatGusset.Back',pb,[...centerWeight]);
+            const r=vertex(c,'SeatGusset.Right',pr,[B.RightThigh,B.LeftThigh,{.5+(inner-.5)*bevel}]);
+            const l=vertex(c,'SeatGusset.Left',pl,[B.LeftThigh,B.RightThigh,{.5+(inner-.5)*bevel}]);
+          '''+s[b:]
+              if not volume:s=s[:s.index('export function restoreSeatVolume')]+"export function restoreSeatVolume(_c:Cage):void {}\n"
+              target.write_text(s)
+              run=subprocess.run(['./node_modules/.bin/tsx','scripts/tmp-fit-check.ts'],capture_output=True,text=True)
+              path=Path('review-tailoring-v2/intersections.json')
+              if not path.exists():raise RuntimeError(run.stderr[-3000:])
+              report=json.loads(path.read_text());n=sum(r['piercedFrames'] for r in report['rows']);maxpairs=max(r['maxPairs'] for r in report['rows'])
+              item=dict(index=idx,outer=outer,inner=inner,bevel=bevel,volume=volume,frames=n,maxPairs=maxpairs,passed=report['passed'])
+              rows.append(item);print(item,flush=True)
+              (out/f'candidate-{idx}.ts').write_text(s)
+              (out/f'failure-{idx}.json').write_text(json.dumps({'rows':[r for r in report['rows'] if r['piercedFrames']],'failures':report['failures'][:6]},indent=2))
+          target.write_text(original)
+          rows.sort(key=lambda r:(r['frames'],r['maxPairs']))
+          (out/'results.json').write_text(json.dumps(rows,indent=2))
+          print('BEST',rows[:5])
+          PY
+      - name: Persist evaluated candidates and diagnostics only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ReviewEvidence
+          git commit -m 'review: bounded gusset geometry trial reports, no auto promotion'
+          git push origin HEAD:tmp-hip-proof
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hip-gusset-fit-reports
+          path: ReviewEvidence/hips-5ddc443/fits
