@@ -1,0 +1,36 @@
+name: Preserve V2 Review Evidence
+on:
+  push:
+    branches: [review/wardrobe-v2-evidence]
+    paths: [.github/workflows/review-evidence.yml]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REVIEW_RUN: '35490857109'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download completed real Actions keyframes
+        run: |
+          for i in $(seq 1 30); do
+            state=$(gh run view "$REVIEW_RUN" --json status --jq '.status')
+            if [ "$state" = completed ]; then break; fi
+            sleep 15
+          done
+          gh run download "$REVIEW_RUN" -n tailoring-v2-keyframes -D /tmp/evidence
+          mkdir -p review-evidence/3dec9eb
+          find /tmp/evidence -type f \( -name '*.jpg' -o -name '*.png' -o -name '*.json' \) -exec cp {} review-evidence/3dec9eb/ \;
+          test -f review-evidence/3dec9eb/seated-lod0.jpg
+          echo "Actual artifact from Actions run $REVIEW_RUN. Tested SHA is recorded in visual.json/numeric.json. Not a generated illustration." > review-evidence/3dec9eb/README.txt
+      - name: Commit evidence only to this review branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add review-evidence/
+          git commit -m "docs: actual V2 review keyframes from run $REVIEW_RUN"
+          git push origin HEAD:review/wardrobe-v2-evidence
