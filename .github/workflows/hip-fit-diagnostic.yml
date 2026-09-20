@@ -18,7 +18,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci && npm run prepare:mixamo
-      - name: Boundary based experiment, acceptance script restored afterwards
+      - name: Transition-ring experiment, no change to acceptance thresholds
         shell: python
         run: |
           from pathlib import Path
@@ -28,25 +28,23 @@ jobs:
           test.write_text(original_test.replace("['plain-female','town-female','ceremony-female']","['ceremony-female']"))
           out=Path('hip-diagnosis');out.mkdir(exist_ok=True);results=[]
           try:
-            for volume in [False,True]:
-              for hips in [0.25,0.5,0.7]:
-                for amount in [0.12,0.3,0.5]:
-                  text=original.replace('[B.Hips,thigh,.42]',f'[B.Hips,thigh,{hips}]').replace('[thigh,opposite,.85]','[thigh,opposite,.75]')
-                  text=text.replace('const front=crotch;', 'const pivot:Vec3=[...c.vertices[crotch].p];\n  const cut=(i:number):Vec3=>add(mul(pivot,'+str(1-amount)+'),mul(c.vertices[i].p,'+str(amount)+'));\n  const frontPoint=cut(hip[0]),backPoint=cut(hip[4]),rightPoint=cut(right),leftPoint=cut(left);\n  const front=crotch;')
-                  text=text.replace('[0,.900,.028]','frontPoint').replace('[0,.902,-.036]','backPoint').replace('[.025,.884,0]','rightPoint').replace('[-.025,.884,0]','leftPoint')
-                  text=text.replace('[B.RightThigh,B.LeftThigh,.8]','[B.RightThigh,B.LeftThigh,.5]').replace('[B.LeftThigh,B.RightThigh,.8]','[B.LeftThigh,B.RightThigh,.5]')
-                  if not volume:
-                    text=text.replace('p[1]=1.005','p[1]=1.025').replace('p[2]*=1.16','p[2]*=1').replace('p[2]*=p[2]<0?1.25:1.12','p[2]*=1')
-                  seat.write_text(text)
-                  report_path=Path('review-tailoring-v2/intersections.json');report_path.unlink(missing_ok=True)
-                  run=subprocess.run(['./node_modules/.bin/tsx','scripts/check-tailoring-intersections.ts'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
-                  if not report_path.exists():raise RuntimeError(run.stdout)
-                  report=json.loads(report_path.read_text());score=sum(r['piercedFrames'] for r in report['rows'])
-                  row={'volume':volume,'hips':hips,'amount':amount,'piercedFrames':score,'maxPairs':max(r['maxPairs'] for r in report['rows'])}
-                  results.append(row);print('DIAGNOSIS',json.dumps(row),flush=True)
-                  key=f'v-{volume}-h-{hips}-a-{amount}'
-                  (out/(key+'.json')).write_text(json.dumps(report));(out/(key+'.ts')).write_text(text)
-                  if len(results)==1 or score==0:print('DETAIL',json.dumps({'first':report['failures'][:4],'failedRows':[r for r in report['rows'] if r['piercedFrames']]}),flush=True)
+            for along in [0.65,0.8,0.9,0.95]:
+              for hips in [0,0.05,0.15]:
+                text=original.replace('[B.Hips,thigh,.42]',f'[B.Hips,thigh,{hips}]').replace('[thigh,opposite,.85]',f'[thigh,opposite,{(1+along)/2}]')
+                text=text.replace('mul(add(c.vertices[a].p,c.vertices[lower[i]].p),.5)',f'add(mul(c.vertices[a].p,{1-along}),mul(c.vertices[lower[i]].p,{along}))')
+                text=text.replace('const front=crotch;', 'const pivot:Vec3=[...c.vertices[crotch].p];\n  const cut=(i:number):Vec3=>add(mul(pivot,.75),mul(c.vertices[i].p,.25));\n  const frontPoint=cut(hip[0]),backPoint=cut(hip[4]),rightPoint=cut(right),leftPoint=cut(left);\n  const front=crotch;')
+                text=text.replace('[0,.900,.028]','frontPoint').replace('[0,.902,-.036]','backPoint').replace('[.025,.884,0]','rightPoint').replace('[-.025,.884,0]','leftPoint')
+                text=text.replace('[B.RightThigh,B.LeftThigh,.8]','[B.RightThigh,B.LeftThigh,.5]').replace('[B.LeftThigh,B.RightThigh,.8]','[B.LeftThigh,B.RightThigh,.5]')
+                text=text.replace('p[1]=1.005','p[1]=1.025').replace('p[2]*=1.16','p[2]*=1').replace('p[2]*=p[2]<0?1.25:1.12','p[2]*=1')
+                seat.write_text(text)
+                report_path=Path('review-tailoring-v2/intersections.json');report_path.unlink(missing_ok=True)
+                run=subprocess.run(['./node_modules/.bin/tsx','scripts/check-tailoring-intersections.ts'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+                if not report_path.exists():raise RuntimeError(run.stdout)
+                report=json.loads(report_path.read_text());score=sum(r['piercedFrames'] for r in report['rows'])
+                row={'along':along,'hips':hips,'piercedFrames':score,'maxPairs':max(r['maxPairs'] for r in report['rows'])};results.append(row)
+                print('DIAGNOSIS',json.dumps(row),flush=True)
+                key=f't-{along}-h-{hips}';(out/(key+'.json')).write_text(json.dumps(report));(out/(key+'.ts')).write_text(text)
+                if len(results)==1 or score==0:print('DETAIL',json.dumps({'first':report['failures'][:3],'failedRows':[r for r in report['rows'] if r['piercedFrames']]}),flush=True)
             (out/'summary.json').write_text(json.dumps(sorted(results,key=lambda r:r['piercedFrames']),indent=2))
           finally:
             seat.write_text(original);test.write_text(original_test)
