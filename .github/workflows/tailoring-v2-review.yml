@@ -23,8 +23,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run prepare:mixamo
-      - name: Isolate posterior knee slope and existing skin failures without changing source
-        run: npx tsx scripts/diagnose-knee-field.ts
+      - name: Check four-panel skin saddle without changing production source
+        run: npx tsx scripts/diagnose-saddle.ts
       - run: git diff --exit-code
   review:
     defaults:
