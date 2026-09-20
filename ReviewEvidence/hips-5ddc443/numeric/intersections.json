@@ -1,0 +1,2862 @@
+{
+  "testedSha": "5ddc4438ff9bb0ceb8da4b7c8141c129fe192005",
+  "sampling": "all source keys plus interval midpoints; 5 body proportion profiles",
+  "checkedFrames": 30270,
+  "pairsChecked": 4778572,
+  "rows": [
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 92,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 92,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 92,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 91,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 91,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 91,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 132,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 31,
+      "maxPairs": 9
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 132,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 31,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 132,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 31,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 134,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 31,
+      "maxPairs": 9
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 134,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 31,
+      "maxPairs": 9
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 134,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 31,
+      "maxPairs": 9
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 25,
+      "maxPairs": 2
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 28,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 25,
+      "maxPairs": 2
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 28,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 25,
+      "maxPairs": 2
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 28,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 20,
+      "maxPairs": 2
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 28,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 20,
+      "maxPairs": 2
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 28,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 20,
+      "maxPairs": 2
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 28,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 108,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 108,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 108,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 109,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 9
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 109,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 9
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 109,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 30,
+      "maxPairs": 9
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 73,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 29,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 73,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 29,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 73,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 29,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 70,
+      "maxPairs": 3
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 29,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 70,
+      "maxPairs": 2
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 29,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "samples": 303,
+      "piercedFrames": 70,
+      "maxPairs": 2
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "shooting-arrow",
+      "samples": 301,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "jogging",
+      "samples": 155,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 29,
+      "maxPairs": 14
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "lod": 2,
+      "id": "start-walking",
+      "samples": 179,
+      "piercedFrames": 0,
+      "maxPairs": 0
+    }
+  ],
+  "failures": [
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0,
+      "phase": 0,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0,
+      "phase": 0,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.016666666666666666,
+      "phase": 0.0033112582990586885,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.016666666666666666,
+      "phase": 0.0033112582990586885,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.03333333333333333,
+      "phase": 0.006622516598117377,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.03333333333333333,
+      "phase": 0.006622516598117377,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.05,
+      "phase": 0.009933774897176067,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.05,
+      "phase": 0.009933774897176067,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.06666666666666667,
+      "phase": 0.013245033196234754,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.06666666666666667,
+      "phase": 0.013245033196234754,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.08333333333333334,
+      "phase": 0.016556291495293446,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.08333333333333334,
+      "phase": 0.016556291495293446,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.1,
+      "phase": 0.019867549794352134,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.1,
+      "phase": 0.019867549794352134,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.11666666666666667,
+      "phase": 0.023178808093410823,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.11666666666666667,
+      "phase": 0.023178808093410823,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.13333333333333333,
+      "phase": 0.026490066392469508,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.13333333333333333,
+      "phase": 0.026490066392469508,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.15,
+      "phase": 0.029801324691528196,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.15,
+      "phase": 0.029801324691528196,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.16666666666666666,
+      "phase": 0.033112582990586885,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.16666666666666666,
+      "phase": 0.033112582990586885,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.18333333333333335,
+      "phase": 0.03642384128964558,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.18333333333333335,
+      "phase": 0.03642384128964558,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.2,
+      "phase": 0.03973509958870427,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.2,
+      "phase": 0.03973509958870427,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.21666666666666667,
+      "phase": 0.043046357887762954,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.21666666666666667,
+      "phase": 0.043046357887762954,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.23333333333333334,
+      "phase": 0.046357616186821646,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.23333333333333334,
+      "phase": 0.046357616186821646,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.25,
+      "phase": 0.04966887448588033,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.25,
+      "phase": 0.04966887448588033,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.26666666666666666,
+      "phase": 0.052980132784939016,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.26666666666666666,
+      "phase": 0.052980132784939016,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.2833333333333333,
+      "phase": 0.05629139108399771,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.2833333333333333,
+      "phase": 0.05629139108399771,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.3,
+      "phase": 0.05960264938305639,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.3,
+      "phase": 0.05960264938305639,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.31666666666666665,
+      "phase": 0.06291390768211508,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.31666666666666665,
+      "phase": 0.06291390768211508,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.3333333333333333,
+      "phase": 0.06622516598117377,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.3333333333333333,
+      "phase": 0.06622516598117377,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.35,
+      "phase": 0.06953642428023246,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.35,
+      "phase": 0.06953642428023246,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.36666666666666664,
+      "phase": 0.07284768257929114,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.36666666666666664,
+      "phase": 0.07284768257929114,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.3833333333333333,
+      "phase": 0.07615894087834983,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.3833333333333333,
+      "phase": 0.07615894087834983,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.4,
+      "phase": 0.07947019917740854,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.4,
+      "phase": 0.07947019917740854,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.4166666666666667,
+      "phase": 0.08278145747646722,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.4166666666666667,
+      "phase": 0.08278145747646722,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.43333333333333335,
+      "phase": 0.08609271577552591,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.43333333333333335,
+      "phase": 0.08609271577552591,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.45,
+      "phase": 0.0894039740745846,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.45,
+      "phase": 0.0894039740745846,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.4666666666666667,
+      "phase": 0.09271523237364329,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.4666666666666667,
+      "phase": 0.09271523237364329,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.48333333333333334,
+      "phase": 0.09602649067270197,
+      "a": [
+        "LeftSeat.4",
+        "SeatGusset.Left",
+        "SeatGusset.Front"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": 2,
+      "id": "pilot-switches",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0.48333333333333334,
+      "phase": 0.09602649067270197,
+      "a": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ],
+      "b": [
+        "SeatGusset.Left",
+        "SeatGusset.Right",
+        "SeatGusset.Front"
+      ]
+    }
+  ],
+  "passed": false,
+  "scope": "离线腰髋/腿部衣面非共面贯穿；排除共享顶点的邻接三角。不涵盖全部共面接触、手臂/道具、任意体型或连续时间碰撞；仍需实际审图。"
+}

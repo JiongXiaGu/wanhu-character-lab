@@ -1,0 +1,62 @@
+
+> wanhu-character-lab@0.3.0 check:tailoring
+> npm run check:seat && tsx scripts/check-tailoring-v2.ts && tsx scripts/check-tailoring-intersections.ts
+
+
+> wanhu-character-lab@0.3.0 check:seat
+> tsx scripts/check-seat.ts
+
+PASS seat topology and standard profile 80
+TAILORING sampled complete clip pilot-switches
+TAILORING sampled complete clip shooting-arrow
+TAILORING sampled complete clip jogging
+TAILORING sampled complete clip snatch
+PASS tailoring V2 {"schema":"wanhu-tailoring-v2.1","geometryVersion":"wanhu-tailoring-v2.1-seat-1","testedSha":"5ddc4438ff9bb0ceb8da4b7c8141c129fe192005","inventoryFiles":23,"staticVariants":48,"priority":["pilot-switches","shooting-arrow","jogging","snatch"],"frames":2502,"vertices":3607884,"failures":[],"passed":true,"visualApproval":false,"note":"Topology, weights, complete time sampling and LOD are checked. These tests do not prove absence of self-intersection. Review actual images and complete timelines separately."}
+INTERSECTION male 1.76 0.5 plain-female 2
+INTERSECTION male 1.76 0.5 town-female 2
+INTERSECTION male 1.76 0.5 ceremony-female 2
+INTERSECTION female 1.76 0.5 plain-female 2
+INTERSECTION female 1.76 0.5 town-female 2
+INTERSECTION female 1.76 0.5 ceremony-female 2
+INTERSECTION male 1.58 0 plain-female 2
+INTERSECTION male 1.58 0 town-female 2
+INTERSECTION male 1.58 0 ceremony-female 2
+INTERSECTION female 1.58 0 plain-female 2
+INTERSECTION female 1.58 0 town-female 2
+INTERSECTION female 1.58 0 ceremony-female 2
+INTERSECTION male 1.92 1 plain-female 2
+INTERSECTION male 1.92 1 town-female 2
+INTERSECTION male 1.92 1 ceremony-female 2
+INTERSECTION female 1.92 1 plain-female 2
+INTERSECTION female 1.92 1 town-female 2
+INTERSECTION female 1.92 1 ceremony-female 2
+INTERSECTION male 1.66 0.25 plain-female 2
+INTERSECTION male 1.66 0.25 town-female 2
+INTERSECTION male 1.66 0.25 ceremony-female 2
+INTERSECTION female 1.66 0.25 plain-female 2
+INTERSECTION female 1.66 0.25 town-female 2
+INTERSECTION female 1.66 0.25 ceremony-female 2
+INTERSECTION male 1.85 0.75 plain-female 2
+INTERSECTION male 1.85 0.75 town-female 2
+INTERSECTION male 1.85 0.75 ceremony-female 2
+INTERSECTION female 1.85 0.75 plain-female 2
+INTERSECTION female 1.85 0.75 town-female 2
+INTERSECTION female 1.85 0.75 ceremony-female 2
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: V2常用动作主衣面自交；查看intersections.json定位，不得以拓扑闭合代替此检查
+    at <anonymous> (/home/runner/work/wanhu-character-lab/wanhu-character-lab/scripts/check-tailoring-intersections.ts:43:425)
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.23.2

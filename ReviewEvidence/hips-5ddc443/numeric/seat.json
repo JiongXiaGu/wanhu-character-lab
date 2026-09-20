@@ -1,0 +1,650 @@
+{
+  "testedSha": "5ddc4438ff9bb0ceb8da4b7c8141c129fe192005",
+  "geometryVersion": "wanhu-tailoring-v2.1-seat-1",
+  "standardProfile": "wanhu-standard-low-v1",
+  "rows": [
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-male",
+      "triangles": 721,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-male",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "elegant-male",
+      "triangles": 733,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "elegant-female",
+      "triangles": 793,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-male",
+      "triangles": 733,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "triangles": 749,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-male",
+      "triangles": 721,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-male",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "elegant-male",
+      "triangles": 733,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "elegant-female",
+      "triangles": 793,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-male",
+      "triangles": 733,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "triangles": 749,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-male",
+      "triangles": 721,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-male",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "elegant-male",
+      "triangles": 733,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "elegant-female",
+      "triangles": 793,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-male",
+      "triangles": 733,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "triangles": 749,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-male",
+      "triangles": 721,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-male",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "elegant-male",
+      "triangles": 733,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "elegant-female",
+      "triangles": 793,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-male",
+      "triangles": 733,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "triangles": 749,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-male",
+      "triangles": 721,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-male",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "triangles": 725,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "elegant-male",
+      "triangles": 733,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "elegant-female",
+      "triangles": 793,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-male",
+      "triangles": 733,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "triangles": 749,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-male",
+      "triangles": 723,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "plain-female",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-male",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "elegant-male",
+      "triangles": 735,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "elegant-female",
+      "triangles": 795,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-male",
+      "triangles": 735,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "ceremony-female",
+      "triangles": 751,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-male",
+      "triangles": 723,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "plain-female",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-male",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "elegant-male",
+      "triangles": 735,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "elegant-female",
+      "triangles": 795,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-male",
+      "triangles": 735,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "ceremony-female",
+      "triangles": 751,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-male",
+      "triangles": 723,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "plain-female",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-male",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "elegant-male",
+      "triangles": 735,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "elegant-female",
+      "triangles": 795,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-male",
+      "triangles": 735,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "ceremony-female",
+      "triangles": 751,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-male",
+      "triangles": 723,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "plain-female",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-male",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "elegant-male",
+      "triangles": 735,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "elegant-female",
+      "triangles": 795,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-male",
+      "triangles": 735,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "ceremony-female",
+      "triangles": 751,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-male",
+      "triangles": 723,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "plain-female",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-male",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "triangles": 727,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "elegant-male",
+      "triangles": 735,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "elegant-female",
+      "triangles": 795,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-male",
+      "triangles": 735,
+      "softenedCorners": 144
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "ceremony-female",
+      "triangles": 751,
+      "softenedCorners": 144
+    }
+  ],
+  "passed": true,
+  "manuallyReviewed": false,
+  "scope": "绑定空间闭合/权重/法线与旧质量参数归一；动作贯穿门槛独立执行，不代表最终美术验收。"
+}
