@@ -26,8 +26,10 @@ Web 只做外观与试衣。职业、导航、生产、战斗和场景交互在 
 
 自动扫描全部 FBX，数量不写死；提取失败明确报错。使用真实 inverse bind，不以首帧代替。保留头部相对真实 bind 的完整旋转差，不把 HeadTop_End 当脸前向或按动作锁定俯仰。换衣／男女切换保持暂停相位，切动画复用网格。
 
-执行 npm ci、check:retired、check:mesh、build、check:mixamo、check:wardrobe、check:tailoring，并核对原五条正式 Actions 与新增 Modular Garment Review。只在 runner 启动预览与截图，不部署 Vercel/Visual。
+日常美术／服装迭代不再要求每轮等待 GitHub Actions。优先采用“修改 → 本地或执行环境渲染 → 多角度截图 → 实际看图 → 继续修改”的短循环；能启动 Vite/Three.js 时优先真实本地浏览器截图。若当前执行环境无法安装依赖或启动浏览器，而改动只涉及确定性的程序化静态网格，可从当前 SHA 源码重建静态角色并渲染正面／侧面／背面／三分之四与局部近景，用于轮廓、裆部、衣裤接口、头发和比例审查。必须明确标注“源码几何重建截图”，不得冒充网页实机、WebGL 或动画验证。
 
-2026-09-20 用户更新：自动检查通过、实际图片审查无新增阻塞后合并 main，再由用户简单视觉复核。只做图片人工审查，不录制视频；原播放结束和循环数自动检查保留。保留 Pilot Flips Switches、Shooting Arrow、Jogging、Snatch、起步／行走／劳动动作及多相位、多视角图片；源帧／中点采样、检测算法和容差不变。
+GitHub Actions 保留为自动检查与关键节点兜底。准备合并运行时代码、修改网格／绑定／retarget／FBX／播放器／测试／工作流、建立正式基线或阶段收尾时，执行相关 npm 检查并核对正式 Actions（Build、Character Model Review、Mixamo Retarget Review、Wardrobe Review、Tailoring V2 Review、Modular Garment Review）。纯文档修改不需要重新跑 Actions；高频静态美术探索可以先连续本地 Review，候选稳定后集中跑一次相关 Actions。不部署 Vercel/Visual。
+
+图片人工审查不要求视频；原播放结束和循环数自动检查保留。Pilot Flips Switches、Shooting Arrow、Jogging、Snatch、起步／行走／劳动动作及多相位、多视角图片继续作为动画正式验收内容；源帧／中点采样、检测算法和容差不变。静态源码重建图不能证明 Mixamo 动画、连续穿模、浏览器交互或小屏布局通过。
 
 记录受测 SHA、run、真实结果、下载与实际查看范围、未查看的视频、已知限制和最终 main SHA。图片抽样不等于所有连续瞬间通过；工程重构通过不等于髋裆修复。独立衣裤的领口/腰口/袖口/裤脚按声明边界检查，裆底不可破洞。旧衣面表面哈希退役，身体/绑定哈希仍保留。仅文档变更可引用未变化的受测代码，代码或测试变更重新验收。正常合并，核对最新 HEAD，避免覆盖并发提交。详细规则以最新截图验收规范为准。
