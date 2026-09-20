@@ -28,7 +28,9 @@ function refine(c:Cage,lod:WardrobeLod){
  * 只修改可见衣面，不修改源人体、骨架、FBX，也不进行逐帧碰撞求解。
  * 裆点跟随双腿；髋环提高、膝过渡拉长、前后褶窝收量，避免深屈曲时折入。
  */
-function fitJointCreases(c:Cage){
+function fitJointCreases(c:Cage,build:number){
+ // 高壮体格需要更深的前褶窝；纤细体格保留厚度，避免低LOD内侧反折。
+ const thighFront=.6-.2*Math.max(0,build-.5);
  const ring=(name:string)=>{const ids=c.anchors[name];if(!ids?.length)throw new Error('缺少衣面接口 '+name);return ids.map(i=>c.vertices[i]);};
  const crotch=c.vertices.find(v=>v.id==='Crotch');
  if(!crotch)throw new Error('缺少衣面裆点');
@@ -46,7 +48,7 @@ function fitJointCreases(c:Cage){
  }
  for(const name of ['Hip','Waist'])for(const v of ring(name))if(v.p[2]>0)v.p[2]*=name==='Hip'?.5:.7;
  for(const side of ['Right','Left']){
-  for(const name of ['Thigh','KneeUpper'])for(const v of ring(side+name))if(v.p[2]>0)v.p[2]*=name==='Thigh'?.5:.7;
+  for(const name of ['Thigh','KneeUpper'])for(const v of ring(side+name))if(v.p[2]>0)v.p[2]*=name==='Thigh'?thighFront:.7;
   for(const name of ['Thigh','KneeUpper','KneeLower','Calf'])for(const v of ring(side+name))if(v.p[2]<0)v.p[2]*=.5;
   const sign=side==='Right'?1:-1;
   for(const v of ring(side+'Thigh'))v.p[0]=sign*Math.min(.17,sign*v.p[0]);
@@ -76,7 +78,7 @@ export function tailorSurface(c:Cage,r:Recipe,colors:GarmentDyes,lod:WardrobeLod
     }
    }
   }
-  fitJointCreases(c);
+  fitJointCreases(c,r.build);
   refine(c,lod);
   const hem=skirt?(r.slots.bottom==='robe_skirt'?.30:.39):wrap?.68:.84;
   const topHem:Record<string,number>={rough_tunic:.88,cross_jacket:.81,layered_vest:.72,ceremony_robe:.60};
