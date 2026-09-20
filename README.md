@@ -1,5 +1,12 @@
 # 万户 · 衣冠工坊 V5
 
+## 当前：服饰第一批3＋2
+
+劳作短衣、交领常服、半臂配内衬＋直筒布裤、束脚行动裤，男女可混搭。升级现有5个ID，不增Recipe版本或内衬槽位。人体保持524tris；新衣220/290/340tris、新裤272/304tris。完整制作/色区/性能/审图边界见[服饰第一批制作与验收](Documentation/服饰第一批制作与验收.md)。
+
+本地服饰审图：`npm run review:local -- --wardrobe`；完整加`--full`。六项Actions保留，新衣服矩阵并入Modular。
+
+
 《万户天工》3D玩家/居民换装与FBX试衣工作台。两个固定成年男女基模，一种标准低模精度；重点是服饰、混搭、染色与动画。职业、导航、生产、战斗和场景交互留在Unity，儿童与老人是未来制作范围。
 
 ## 运行
@@ -14,7 +21,7 @@ Node.js>=22.12；`npm ci` 后 `npm run dev`，或使用 `Start-Local.cmd`。打�
 
 现有7种上衣和7种下装迁入同一框架，不代表新创作了14套成熟成衣。农户/卫兵/弓手仍是可编辑资产；礼衣和分裳目前为简化衣裤轮廓，不是完整长袍/宫装。
 
-当前形变收尾：裸模骨盆改为有限宽度裆底与左右独立腿根，人体510→524tris；膝部坐标保持原低模轮廓，膝后采用按深度放宽的静态双权重梯度。独立裤装删除膝后压薄和冗余过渡环，252→220tris。服装几何 `wanhu-modular-garments-v4`，皮肤几何/蒙皮 `wanhu-skin-cage-v3`，绑定仍为 `wanhu-fixed-bodies-v1`。这仍是低模稳定版而非高精度人体，实际状态见[本轮任务](Documentation/膝部与裆底修正.md)及[交接](Documentation/工作交接.md)。
+PR #15 的形变收尾已合并：裸模采用有限宽度裆底与独立腿根，皮肤524tris；膝后静态双权重梯度保留。历史基础裤装220tris，本轮直筒布裤272tris、束脚行动裤304tris，其他裤款仍220tris。当前服装几何 `wanhu-modular-garments-v5`，皮肤 `wanhu-skin-cage-v3`，绑定 `wanhu-fixed-bodies-v1`。当前制作与审查见[服饰第一批](Documentation/服饰第一批制作与验收.md)及[交接](Documentation/工作交接.md)；[膝部与裆底修正](Documentation/膝部与裆底修正.md)是上一阶段历史记录。
 
 Recipe V5精确六字段 `version/bodyType/slots/dyes/hairStyle/hairColor`；只读取 `wanhu.character.wardrobe.v5`。旧版、未知字段和缺字段明确拒绝，不迁移。没有连续身高/胖瘦、多档LOD、无限叠穿或实时布料；20骨骼语义、最多双权重、一套角色骨架保持。
 

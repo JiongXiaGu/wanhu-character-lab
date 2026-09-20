@@ -11,7 +11,7 @@ concurrency:
 jobs:
   compare:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     env:
       HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -63,6 +63,12 @@ jobs:
           REVIEW_HEAD_SHA="$BASE_SHA" REVIEW_STAGE=before REVIEW_URL=http://127.0.0.1:4174 npm run review:deformation
           REVIEW_HEAD_SHA="$HEAD_SHA" REVIEW_STAGE=after REVIEW_URL=http://127.0.0.1:4173 npm run review:deformation
           python scripts/compose-deformation.py
+      - name: First clothing batch - twelve mixes, dyes, upper-body details and phase sequences
+        run: |
+          REVIEW_HEAD_SHA="$HEAD_SHA" npm run check:wardrobe-batch
+          REVIEW_HEAD_SHA="$BASE_SHA" REVIEW_STAGE=before REVIEW_URL=http://127.0.0.1:4174 npm run review:wardrobe-batch
+          REVIEW_HEAD_SHA="$HEAD_SHA" REVIEW_STAGE=after REVIEW_URL=http://127.0.0.1:4173 npm run review:wardrobe-batch
+          python scripts/compose-wardrobe-batch.py
       - name: Verify source remains unchanged by review
         run: git diff --exit-code
       - name: Preserve diagnostics
@@ -77,4 +83,16 @@ jobs:
           path: |
             candidate/review-modular/
             candidate/review-deformation/
+            candidate/review-wardrobe-batch/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wardrobe-batch-keyframes
+          path: |
+            candidate/review-wardrobe-batch/*.jpg
+            candidate/review-wardrobe-batch/*.json
+            candidate/review-wardrobe-batch/after/report.json
+            candidate/review-wardrobe-batch/before/report.json
+            candidate/review-wardrobe-batch/after/workbench.png
           retention-days: 14

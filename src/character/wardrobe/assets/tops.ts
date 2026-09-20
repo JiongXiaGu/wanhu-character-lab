@@ -1,3 +1,6 @@
+import { makeWorkShirt } from './work-shirt';
+import { makeCrossShirt } from './cross-shirt';
+import { makeHalfSleeve } from './half-sleeve';
 import { B, rigid, type Cage, type Recipe, type Vec3, type Weight } from '../../v3/types';
 import { OCT, HEX, ring, bridge, face, orient } from '../../v3/cage';
 import { TOP_PATTERNS } from '../patterns';
@@ -9,7 +12,11 @@ export function makeTop(recipe:Recipe):GarmentPiece|undefined {
   if(id==='body')return;
   const pattern=TOP_PATTERNS[id];
   if(!pattern)throw new Error('上衣资产未注册：'+id);
-  const c:Cage={vertices:[],faces:[],anchors:{}}, {primary,secondary,accent}=recipe.dyes;
+  if(pattern.asset==='work-shirt')return makeWorkShirt(recipe);
+  if(pattern.asset==='cross-shirt')return makeCrossShirt(recipe);
+  if(pattern.asset==='half-sleeve')return makeHalfSleeve(recipe);
+  if(pattern.asset!=='classic')throw new Error('未知上衣构造器');
+  const c:Cage={vertices:[],faces:[],anchors:{}}, {primary,accent}=recipe.dyes;
   const rows:[string,number,number,number,Weight][]=[
     ['Hem',pattern.hem,.161,.104,[B.Hips,B.Spine,.35]],
     ['Belt',1.083,.162,.104,[B.Hips,B.Spine,.35]],
@@ -44,7 +51,7 @@ export function makeTop(recipe:Recipe):GarmentPiece|undefined {
     for(let row=0;row<arm.length;row++){
       const [label,center,width,depth,w]=arm[row];
       const next=ring(c,`Top.${name}.${label}`,center,[side*.866,.5,0],[0,0,1],HEX,width,depth,w);
-      const color=label==='Cuff'?accent:pattern.sleeve==='layered'&&row>1?secondary:primary;
+      const color=label==='Cuff'?accent:primary;
       bridge(c,prev,next,row<2?'upperArm':'forearm',color);prev=next;
     }
     openings[name+'Cuff']=prev;
