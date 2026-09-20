@@ -1,0 +1,34 @@
+name: Refactor Workspace
+on:
+  push:
+    branches: [feat/fixed-wardrobe-contract]
+    paths: [.github/workflows/refactor-workspace.yml]
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run prepare:mixamo
+      - name: Package tracked sources and local verification dependencies
+        run: |
+          git ls-files -s > /tmp/tracked-files.txt
+          git archive HEAD | gzip > /tmp/source.tar.gz
+          tar -czf /tmp/verification-deps.tar.gz node_modules public/mixamo
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fixed-wardrobe-workspace
+          path: |
+            /tmp/source.tar.gz
+            /tmp/verification-deps.tar.gz
+            /tmp/tracked-files.txt
+          retention-days: 1
