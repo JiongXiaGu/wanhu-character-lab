@@ -22,7 +22,7 @@ try{
  for(const bodyType of ['male','female'])for(const id of priority.filter(id=>id!=='pilot-switches')){
   await open({bodyType,look:'ceremony-female',mixamo:id,view:'side'});for(let k=0;k<=16;k++)await shot(`${bodyType}-${id}-sequence-${k}`,k/16,{bodyType,clip:id,kind:'sequence'});
  }
- for(const bodyType of ['male','female']){await open({bodyType,look:'town-female',mixamo:'pilot-switches',view:'front',clay:'1'});await shot(`clay-${bodyType}-standard`, .5,{bodyType,kind:'clay'});}
+ for(const bodyType of ['male','female']){await open({bodyType,look:'town-female',mixamo:'pilot-switches',view:'front',display:'clay'});await shot(`clay-${bodyType}-standard`, .5,{bodyType,kind:'clay'});}
  // 交互检查：搜索、收藏、筛选空结果、快捷坐姿及固定基模换装时序保持。
  await open({bodyType:'female',look:'town-female',mixamo:'pilot-switches',view:'front'});
  await page.getByLabel('搜索动画',{exact:true}).fill('劳动');assert.equal(await page.getByTestId('mixamo-snatch').count(),1);
