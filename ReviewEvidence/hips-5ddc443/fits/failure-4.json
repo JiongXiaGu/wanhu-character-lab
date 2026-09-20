@@ -1,0 +1,236 @@
+{
+  "rows": [
+    {
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 21,
+      "maxPairs": 10
+    },
+    {
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 21,
+      "maxPairs": 10
+    },
+    {
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 24,
+      "maxPairs": 10
+    },
+    {
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 24,
+      "maxPairs": 10
+    },
+    {
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 20,
+      "maxPairs": 12
+    },
+    {
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 21,
+      "maxPairs": 10
+    },
+    {
+      "bodyType": "male",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 22,
+      "maxPairs": 10
+    },
+    {
+      "bodyType": "female",
+      "height": 1.66,
+      "build": 0.25,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 22,
+      "maxPairs": 10
+    },
+    {
+      "bodyType": "male",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 21,
+      "maxPairs": 10
+    },
+    {
+      "bodyType": "female",
+      "height": 1.85,
+      "build": 0.75,
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "samples": 71,
+      "piercedFrames": 21,
+      "maxPairs": 10
+    }
+  ],
+  "failures": [
+    {
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0,
+      "phase": 0,
+      "a": [
+        "LeftThigh.2",
+        "LeftThigh.3",
+        "LeftSeat.3"
+      ],
+      "b": [
+        "LeftSeat.2",
+        "Hip.7",
+        "Hip.6"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0,
+      "phase": 0,
+      "a": [
+        "LeftThigh.2",
+        "LeftSeat.3",
+        "LeftSeat.2"
+      ],
+      "b": [
+        "LeftSeat.1",
+        "Hip.6",
+        "Hip.5"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0,
+      "phase": 0,
+      "a": [
+        "LeftSeat.1",
+        "Hip.6",
+        "Hip.5"
+      ],
+      "b": [
+        "LeftSeat.2",
+        "LeftSeat.3",
+        "Hip.7"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0,
+      "phase": 0,
+      "a": [
+        "LeftSeat.2",
+        "Hip.7",
+        "Hip.6"
+      ],
+      "b": [
+        "LeftThigh.3",
+        "LeftSeat.4",
+        "LeftSeat.3"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0,
+      "phase": 0,
+      "a": [
+        "LeftSeat.3",
+        "LeftSeat.4",
+        "Hip.0"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "LeftSeat.0",
+        "Hip.4"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": 2,
+      "id": "snatch",
+      "height": 1.76,
+      "build": 0.5,
+      "time": 0,
+      "phase": 0,
+      "a": [
+        "LeftSeat.3",
+        "LeftSeat.4",
+        "Hip.0"
+      ],
+      "b": [
+        "LeftSeat.5",
+        "Hip.4",
+        "SeatGusset.Back"
+      ]
+    }
+  ]
+}
