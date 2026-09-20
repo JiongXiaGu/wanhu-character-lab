@@ -17,20 +17,20 @@ const slots = (top:CharacterSlots['top'], bottom:CharacterSlots['bottom'], headw
   ({top,bottom,headwear,shoes:'cloth_shoes',back:'none',leftHand:'none',rightHand:'none'});
 const dyes = (index:number):GarmentDyes => { const {primary,secondary,accent}=DYE_PALETTES[index]; return {primary,secondary,accent}; };
 export const WARDROBE_LOOKS: readonly LookDefinition[] = [
-  {id:'plain-male',name:'布衣短褐',family:'布衣',description:'窄袖短衣 · 收口布裤',suggestedBody:'male',slots:slots('rough_tunic','loose_trousers','cloth_wrap'),dyes:dyes(0),hairStyle:'topknot'},
-  {id:'plain-female',name:'布衣围裳',family:'布衣',description:'素衣短裳 · 利落束发',suggestedBody:'female',slots:slots('rough_tunic','work_wrap'),dyes:{primary:'#978576',secondary:'#685e55',accent:'#bbaa8d'},hairStyle:'low_bun'},
+  {id:'plain-male',name:'布衣短褐',family:'布衣',description:'窄袖短衣 · 直筒布裤',suggestedBody:'male',slots:slots('rough_tunic','loose_trousers','cloth_wrap'),dyes:dyes(0),hairStyle:'topknot'},
+  {id:'plain-female',name:'布衣围裳',family:'布衣',description:'素衣布裤 · 利落束发',suggestedBody:'female',slots:slots('rough_tunic','work_wrap'),dyes:{primary:'#978576',secondary:'#685e55',accent:'#bbaa8d'},hairStyle:'low_bun'},
   {id:'town-male',name:'青衿市井',family:'市井',description:'交领长袖 · 束腰短摆',suggestedBody:'male',slots:slots('cross_jacket','loose_trousers'),dyes:dyes(1),hairStyle:'topknot'},
   {id:'town-female',name:'杏衫青裙',family:'市井',description:'交领袄衫 · 裤式分裳',suggestedBody:'female',slots:slots('cross_jacket','pleated_skirt'),dyes:{primary:'#d3b08b',secondary:'#537775',accent:'#ece0c4'},hairStyle:'low_bun'},
-  {id:'elegant-male',name:'月白雅服',family:'雅居',description:'半臂叠穿 · 分裳垂线',suggestedBody:'male',slots:slots('layered_vest','robe_skirt','scholar_cap'),dyes:dyes(3),hairStyle:'topknot'},
+  {id:'elegant-male',name:'月白雅服',family:'雅居',description:'半臂叠穿 · 阔裤直线',suggestedBody:'male',slots:slots('layered_vest','robe_skirt','scholar_cap'),dyes:dyes(3),hairStyle:'topknot'},
   {id:'elegant-female',name:'藕色绮裳',family:'雅居',description:'半臂叠穿 · 褶面层次',suggestedBody:'female',slots:slots('layered_vest','pleated_skirt','jade_pin'),dyes:{primary:'#a57b80',secondary:'#d6b5aa',accent:'#e6c98a'},hairStyle:'double_bun'},
-  {id:'ceremony-male',name:'绛色礼衣',family:'礼仪',description:'整肃袍形 · 冠帽与缘边',suggestedBody:'male',slots:{...slots('ceremony_robe','robe_skirt','scholar_cap'),shoes:'boots'},dyes:dyes(5),hairStyle:'topknot'},
-  {id:'ceremony-female',name:'黛紫宫装',family:'礼仪',description:'收束袖形 · 长裳与簪饰',suggestedBody:'female',slots:slots('ceremony_robe','robe_skirt','jade_pin'),dyes:dyes(4),hairStyle:'topknot'},
+  {id:'ceremony-male',name:'绛色礼衣',family:'礼仪',description:'滚边短衣 · 冠帽与缘边',suggestedBody:'male',slots:{...slots('ceremony_robe','robe_skirt','scholar_cap'),shoes:'boots'},dyes:dyes(5),hairStyle:'topknot'},
+  {id:'ceremony-female',name:'黛紫宫装',family:'礼仪',description:'收束袖形 · 阔裤与簪饰',suggestedBody:'female',slots:slots('ceremony_robe','robe_skirt','jade_pin'),dyes:dyes(4),hairStyle:'topknot'},
 ];
 export const SLOT_LABELS:Record<keyof CharacterSlots,string>={headwear:'头饰',top:'上衣',bottom:'下装',shoes:'鞋',back:'背部',leftHand:'左手',rightHand:'右手'};
 export const SLOT_OPTIONS: { [K in keyof CharacterSlots]: readonly {id:CharacterSlots[K];name:string}[] } = {
   headwear:[{id:'none',name:'无头饰'},{id:'cloth_wrap',name:'素布包巾'},{id:'scholar_cap',name:'方冠'},{id:'jade_pin',name:'玉色簪饰'},{id:'farmer_straw_hat',name:'草帽'},{id:'guard_helmet',name:'轻盔'},{id:'archer_headband',name:'头巾'}],
-  top:[{id:'rough_tunic',name:'粗布短衣'},{id:'cross_jacket',name:'交领袄衫'},{id:'layered_vest',name:'半臂叠衣'},{id:'ceremony_robe',name:'礼仪袍衣'},{id:'farmer_tunic',name:'原版农户短衣'},{id:'guard_light_armor',name:'轻甲'},{id:'archer_tunic',name:'原版弓手短衣'},{id:'body',name:'无上衣'}],
-  bottom:[{id:'loose_trousers',name:'收口布裤'},{id:'work_wrap',name:'劳作短围裳'},{id:'pleated_skirt',name:'褶纹分裳'},{id:'robe_skirt',name:'长式分裳'},{id:'work_pants',name:'原版劳动裤'},{id:'guard_pants',name:'卫兵裤'},{id:'archer_pants',name:'弓手裤'},{id:'body',name:'无下装'}],
+  top:[{id:'rough_tunic',name:'粗布短衣'},{id:'cross_jacket',name:'交领袄衫'},{id:'layered_vest',name:'半臂叠衣'},{id:'ceremony_robe',name:'滚边礼衣'},{id:'farmer_tunic',name:'农户短衣'},{id:'guard_light_armor',name:'轻甲'},{id:'archer_tunic',name:'弓手短衣'},{id:'body',name:'无上衣'}],
+  bottom:[{id:'loose_trousers',name:'直筒布裤'},{id:'work_wrap',name:'劳作束脚裤'},{id:'pleated_skirt',name:'褶纹分裳'},{id:'robe_skirt',name:'礼仪阔裤'},{id:'work_pants',name:'劳动直裤'},{id:'guard_pants',name:'卫兵裤'},{id:'archer_pants',name:'弓手裤'},{id:'body',name:'无下装'}],
   shoes:[{id:'cloth_shoes',name:'布鞋'},{id:'boots',name:'短靴'},{id:'body',name:'无鞋'}],
   back:[{id:'none',name:'无背部装备'},{id:'archer_quiver',name:'箭袋'}],
   leftHand:[{id:'none',name:'左手空'},{id:'guard_shield',name:'盾牌'},{id:'archer_bow',name:'短弓'}],

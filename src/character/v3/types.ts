@@ -91,6 +91,7 @@ export interface Face {
   v: number[];
   region: Region;
   color?: string;
+  part?: "skin" | "top" | "bottom" | "shoes";
 }
 export interface Cage {
   vertices: Vertex[];
@@ -109,6 +110,7 @@ export interface CharacterData {
   recipe: Recipe;
   replacedTriangles: number;
   bodyTriangles: number;
+  garments: { id: string; slot: "top" | "bottom" | "shoes"; version: string; triangles: number; covers: Region[]; openings: string[] }[];
 }
 
 export const PRESET_IDS = ["farmer", "guard", "archer", "body"] as const;

@@ -1,20 +1,12 @@
-import {tailorSurface} from './tailoring';
-export {GARMENT_GEOMETRY_VERSION,BODY_HIDE_VERSION} from './tailoring';
-import { B, rigid, type Cage, type Recipe, type TopId, type BottomId, type HeadwearId, type Vec3, type Weight, type GarmentDyes } from '../v3/types';
+import { B, rigid, type Cage, type Recipe, type HeadwearId, type Vec3, type Weight } from '../v3/types';
 import { add, mul, sub, ring, bridge, face, vertex, OCT, BOX, orient } from '../v3/cage';
 
 /** 只生成绑定空间网格，不读取动画时钟，不创建骨骼。 */
-export const NEW_TOPS:readonly TopId[]=['rough_tunic','cross_jacket','layered_vest','ceremony_robe'];
-export const NEW_BOTTOMS:readonly BottomId[]=['loose_trousers','work_wrap','pleated_skirt','robe_skirt'];
-export function garmentColors(recipe:Recipe):GarmentDyes {
-  return recipe.dyes;
-}
 function tone(hex:string,factor:number):string {
   return '#'+[1,3,5].map(i=>Math.round(Math.min(255,parseInt(hex.slice(i,i+2),16)*factor)).toString(16).padStart(2,'0')).join('');
 }
 
 function append(target:Cage,piece:Cage){orient(piece);const offset=target.vertices.length;target.vertices.push(...piece.vertices);target.faces.push(...piece.faces.map(f=>({...f,v:f.v.map(i=>i+offset)})));}
-export function styleGarmentSurface(c:Cage,r:Recipe){tailorSurface(c,r,garmentColors(r));}
 function solidBox(c:Cage,id:string,p:Vec3,size:Vec3,color:string):void {
   const a=ring(c,id+'Low',[p[0],p[1]-size[1]/2,p[2]],[1,0,0],[0,0,1],BOX,size[0]/2,size[2]/2,rigid(B.Head));
   const b=ring(c,id+'High',[p[0],p[1]+size[1]/2,p[2]],[1,0,0],[0,0,1],BOX,size[0]/2,size[2]/2,rigid(B.Head));
@@ -22,7 +14,7 @@ function solidBox(c:Cage,id:string,p:Vec3,size:Vec3,color:string):void {
 }
 export function addWardrobeHeadwear(target:Cage,id:HeadwearId,recipe:Recipe):boolean {
   if(!['cloth_wrap','scholar_cap','jade_pin'].includes(id))return false;
-  const c:Cage={vertices:[],faces:[],anchors:{}},w=rigid(B.Head),{primary,accent}=garmentColors(recipe);
+  const c:Cage={vertices:[],faces:[],anchors:{}},w=rigid(B.Head),{primary,accent}=recipe.dyes;
   if(id==='jade_pin'){
     const low=recipe.hairStyle==='low_bun';
     const y=low?1.67:recipe.hairStyle==='double_bun'?1.738:1.80,z=low?-.164:-.035;
@@ -44,7 +36,6 @@ export function finishHair(c:Cage,recipe:Recipe):void {
   const {hairStyle,hairColor}=recipe;
   const concealed=['guard_helmet','cloth_wrap','scholar_cap'].includes(recipe.slots.headwear)||recipe.slots.headwear==='farmer_straw_hat';
   {
-    c.faces=c.faces.filter(f=>!f.v.some(i=>/^(Bun|FemaleBun|FemaleHairPin)/.test(c.vertices[i].id)));
     if(!concealed){
       const piece:Cage={vertices:[],faces:[],anchors:{}},w=rigid(B.Head),color=hairColor;
       const bun=(id:string,p:Vec3,width:number,depth:number,height:number)=>{

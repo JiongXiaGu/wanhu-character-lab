@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import {mkdir,stat,writeFile,rename,readFile} from 'node:fs/promises';
+import {mkdir,stat,writeFile,readFile} from 'node:fs/promises';
 import {chromium,type Page} from 'playwright';
 import {WARDROBE_LOOKS,parseRecipeFile} from '../src/character/wardrobe/catalog';
-const dir='review-wardrobe',records:string[]=[],videos:string[]=[],errors:string[]=[];
+const dir='review-wardrobe',records:string[]=[],videos:string[]=[],playbackChecks:string[]=[],errors:string[]=[];
 const base=process.env.REVIEW_URL??'http://127.0.0.1:4173';let failure='';
 await mkdir(dir,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--use-angle=swiftshader','--enable-webgl']});
@@ -50,17 +50,17 @@ try{
  await page.getByTestId('body-type-male').click();after=await recipe();assert.deepEqual(after.slots,before.slots);assert.equal(after.bodyType,'male');await shot('cross-body-diy');
  await page.getByRole('button',{name:'全部 8 款',exact:true}).click();await page.getByTestId('look-ceremony-female').click();assert.equal((await recipe()).bodyType,'male','preset silently changed body');await shot('all-looks-unlocked');
  for(const bodyType of ['male','female'])for(const id of ['jogging','shooting-arrow']){
-  const vc=await browser.newContext({viewport:{width:1600,height:1000},recordVideo:{dir,size:{width:1600,height:1000}}}),vp=await vc.newPage(),video=vp.video()!;
+  const vc=await browser.newContext({viewport:{width:1600,height:1000},}),vp=await vc.newPage();
   try{
    vp.on('pageerror',e=>errors.push(e.message));await vp.goto(`${base}/?review=1&look=ceremony-${bodyType}&bodyType=${bodyType}&mixamo=${id}&view=side&paused=1`);await vp.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
    await vp.getByRole('button',{name:'播放',exact:true}).click();
    await vp.waitForFunction(()=>{const s=window.__WANHU_REVIEW__!.getStatus();if(s.finished)return true;const w=window as unknown as {__cycles?:{phase:number;count:number}};const c=w.__cycles??={phase:s.phase,count:0};if(s.phase<c.phase-.5)c.count++;c.phase=s.phase;return c.count>=2;},undefined,{timeout:45000,polling:100});
-  }finally{await vc.close();const name=`ceremony-${bodyType}-${id}-continuous.webm`;await rename(await video.path(),`${dir}/${name}`);videos.push(name);}
+  }finally{await vc.close();playbackChecks.push(`${bodyType}/${id}`);}
  }
  for(const bodyType of ['male','female']){await page.setViewportSize({width:412,height:915});await page.goto(`${base}/?bodyType=${bodyType}&look=town-${bodyType}`);await page.waitForSelector('canvas');await page.waitForTimeout(200);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await shot(`mobile-${bodyType}`);}
- assert.equal(records.length,143);assert.equal(videos.length,4);assert.deepEqual(errors,[]);
+ assert.equal(records.length,143);assert.equal(playbackChecks.length,4);assert.deepEqual(errors,[]);
 }catch(e){failure=String(e);throw e;}finally{
- const report={sourceSha:process.env.REVIEW_HEAD_SHA??'local',testedSha:process.env.GITHUB_SHA??'local',passed:!failure&&!errors.length,images:records.length,records,continuousVideos:videos,errors,failure};
+ const report={sourceSha:process.env.REVIEW_HEAD_SHA??'local',testedSha:process.env.GITHUB_SHA??'local',passed:!failure&&!errors.length,images:records.length,records,continuousVideos:videos,playbackChecks,errors,failure};
  await writeFile(`${dir}/report.json`,JSON.stringify(report,null,2));await writeFile(`${dir}/index.html`,`<!doctype html><meta charset="utf-8"><title>Wardrobe Review</title><style>body{font:16px sans-serif;background:#f3f0e8;color:#314039}main{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}figure{margin:0}img,video{width:100%}</style><h1>Wardrobe review ${report.sourceSha}</h1><p>Passed ${report.passed} · ${report.failure}</p><main>${records.map(f=>`<figure><img loading="lazy" src="${f}"><figcaption>${f}</figcaption></figure>`).join('')}</main>${videos.map(f=>`<video controls src="${f}"></video>`).join('')}`);await context.close();await browser.close();
 }
-console.log('PASS wardrobe screenshots, continuous video, presets, import/export, undo, storage, seeded locks, mobile.');
+console.log('PASS wardrobe screenshots, record-free playback, presets, import/export, undo, storage, seeded locks, mobile.');

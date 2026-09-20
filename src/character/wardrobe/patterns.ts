@@ -1,30 +1,37 @@
-import type { TopId, BottomId, BodyType } from '../v3/types';
+import type { TopId, BottomId } from '../v3/types';
 
-/** 美术资源数据：可独立修版，不向玩家暴露衣服尺寸或连续体型参数。 */
+/** 固定服装资产注册，不是体型编辑参数，也不包含旧衣面补偿。 */
 export interface TopPattern {
   id: string;
+  sleeve: 'short' | 'long' | 'layered';
+  width: number;
+  cuff: number;
   hem: number;
-  forearm: 'skin' | 'primary' | 'secondary';
-  cuffScale: number;
 }
 export interface BottomPattern {
   id: string;
-  kind: 'trousers' | 'wrap' | 'split';
+  thigh: number;
+  knee: number;
+  calf: number;
   hem: number;
-  extension: readonly [number, number, number]; // 腿根 / 膝区 / 小腿
+  trim: boolean;
 }
-export const TOP_PATTERNS: Partial<Record<TopId, TopPattern>> = {
-  rough_tunic: { id: 'short-work-v1', hem: .88, forearm: 'skin', cuffScale: 1 },
-  cross_jacket: { id: 'cross-jacket-v1', hem: .81, forearm: 'primary', cuffScale: 1.06 },
-  layered_vest: { id: 'layered-vest-v1', hem: .72, forearm: 'secondary', cuffScale: 1.06 },
-  ceremony_robe: { id: 'ceremony-top-v1', hem: .60, forearm: 'primary', cuffScale: 1.12 },
+export const TOP_PATTERNS: Record<Exclude<TopId, 'body'>, TopPattern> = {
+  farmer_tunic: { id:'farmer-short-v2', sleeve:'short', width:1, cuff:1, hem:1.035 },
+  guard_light_armor: { id:'guard-lamellar-v2', sleeve:'short', width:1.035, cuff:1.04, hem:1.035 },
+  archer_tunic: { id:'archer-short-v2', sleeve:'short', width:.98, cuff:.95, hem:1.035 },
+  rough_tunic: { id:'work-short-v2', sleeve:'short', width:1.015, cuff:1.06, hem:1.035 },
+  cross_jacket: { id:'cross-jacket-v2', sleeve:'long', width:1, cuff:1.05, hem:1.035 },
+  layered_vest: { id:'layered-half-sleeve-v2', sleeve:'layered', width:1.035, cuff:1, hem:1.035 },
+  ceremony_robe: { id:'ceremony-jacket-v2', sleeve:'long', width:1.045, cuff:1.16, hem:1.035 },
 };
-export const BOTTOM_PATTERNS: Partial<Record<BottomId, BottomPattern>> = {
-  loose_trousers: { id: 'loose-trousers-v1', kind: 'trousers', hem: .84, extension: [.008,.008,.008] },
-  work_wrap: { id: 'work-wrap-v1', kind: 'wrap', hem: .68, extension: [.012,.012,.012] },
-  pleated_skirt: { id: 'pleated-split-v1', kind: 'split', hem: .39, extension: [.018,.038,.046] },
-  robe_skirt: { id: 'long-split-v1', kind: 'split', hem: .30, extension: [.018,.038,.046] },
+export const BOTTOM_PATTERNS: Record<Exclude<BottomId, 'body'>, BottomPattern> = {
+  work_pants: { id:'work-straight-v2', thigh:1, knee:1, calf:1, hem:.095, trim:false },
+  guard_pants: { id:'guard-bound-v2', thigh:1.015, knee:1, calf:.95, hem:.095, trim:true },
+  archer_pants: { id:'archer-bound-v2', thigh:.99, knee:.98, calf:.94, hem:.095, trim:false },
+  loose_trousers: { id:'straight-cloth-v2', thigh:1.025, knee:1.06, calf:1.06, hem:.095, trim:false },
+  work_wrap: { id:'work-split-v2', thigh:1.045, knee:1.06, calf:1, hem:.095, trim:true },
+  pleated_skirt: { id:'pleated-trousers-v2', thigh:1.06, knee:1.16, calf:1.22, hem:.095, trim:true },
+  robe_skirt: { id:'ceremony-trousers-v2', thigh:1.06, knee:1.2, calf:1.24, hem:.095, trim:true },
 };
-/** 适配目标只可能是两个固定基模；今后独立网格资源也从此契约注册。 */
-export const PATTERN_BODY_TYPES: readonly BodyType[] = ['male','female'];
-export const PATTERN_VERSION = 'wanhu-authored-patterns-v1';
+export const PATTERN_VERSION = 'wanhu-authored-patterns-v2';

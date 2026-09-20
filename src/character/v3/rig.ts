@@ -4,6 +4,8 @@ import type { CharacterData } from "./types";
 import { polygonNormal, edgeKey } from "./cage";
 export interface Actor {
   mesh: T.SkinnedMesh;
+  beautyMaterial: T.MeshStandardMaterial;
+  unlitMaterial: T.MeshBasicMaterial;
   skeleton: T.Skeleton;
   bones: T.Bone[];
   mixer: T.AnimationMixer;
@@ -51,6 +53,7 @@ export function makeActor(data: CharacterData): Actor {
     roughness: 0.95,
     metalness: 0,
   });
+  const unlitMaterial = new T.MeshBasicMaterial({vertexColors:true, toneMapped:false});
   const mesh = new T.SkinnedMesh(geometry, material);
   mesh.name = "WanhuCharacter";
   mesh.castShadow = true;
@@ -139,6 +142,8 @@ export function makeActor(data: CharacterData): Actor {
   };
   const actor: Actor = {
     mesh,
+    beautyMaterial:material,
+    unlitMaterial,
     skeleton,
     bones,
     mixer,
@@ -160,6 +165,7 @@ export function makeActor(data: CharacterData): Actor {
       mixer.uncacheRoot(mesh);
       geometry.dispose();
       material.dispose();
+      unlitMaterial.dispose();
       wireGeo.dispose();
       wireMat.dispose();
       helper.geometry.dispose();

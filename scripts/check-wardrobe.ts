@@ -6,7 +6,7 @@ import {makeActor} from '../src/character/v3/rig';
 import {BODY_TYPES,createRecipe,patchSlots,HAIR_STYLE_IDS,type Recipe} from '../src/character/v3/types';
 import {cross,sub,triCount} from '../src/character/v3/cage';
 import {WARDROBE_LOOKS,WARDROBE_VERSION,applyLook,parseRecipeFile,randomizeLook,SLOT_OPTIONS} from '../src/character/wardrobe/catalog';
-import {GARMENT_GEOMETRY_VERSION,BODY_HIDE_VERSION} from '../src/character/wardrobe/geometry';
+import {GARMENT_GEOMETRY_VERSION,BODY_HIDE_VERSION} from '../src/character/wardrobe/assembly';
 import {assertComponentWinding} from './check-components';
 import {MIXAMO_CLIPS} from '../src/character/mixamo/catalog';
 import {retargetMixamo} from '../src/character/mixamo/retarget';
@@ -21,9 +21,9 @@ function inspect(recipe:Recipe){
   for(const f of c.faces){assert(f.v.every(i=>Number.isInteger(i)&&i>=0&&i<c.vertices.length));for(let i=1;i<f.v.length-1;i++)assert(Math.hypot(...cross(sub(c.vertices[f.v[i]].p,c.vertices[f.v[0]].p),sub(c.vertices[f.v[i+1]].p,c.vertices[f.v[0]].p)))>1e-10,`degenerate ${c.vertices[f.v[0]].id}`);}
   const base=makeCharacter({...recipe,slots:{headwear:'none',top:'body',bottom:'body',shoes:'body',back:'none',leftHand:'none',rightHand:'none'}});
   assert.deepEqual(d.body,base.body,'garment changed source body');assert.deepEqual(d.joints,base.joints,'garment changed skeleton');
-  // V2 不存在双层裙壳，独立检查衣面连续、原人体未变以及腿部仍被覆盖。
+  // 独立裤装必须保留腰臀和两条裤腿，身体覆盖不能代替衣服连接。
   if(['pleated_skirt','robe_skirt'].includes(recipe.slots.bottom)){
-   for(const region of ['pelvis','thigh','shin'])assert(c.faces.some(f=>f.region===region),'V2 不得隐藏整段腿部');
+   for(const region of ['pelvis','thigh','shin'])assert(c.faces.some(f=>f.region===region),'裤装可见腿部缺失');
    assert(!c.vertices.some(v=>/^Garment(Top|Bottom)/.test(v.id)),'旧重叠裙壳未移除');
    const counts=new Map<string,number>();for(const f of c.faces.filter(f=>['pelvis','thigh','shin','torso','foot'].includes(f.region)))for(let i=0;i<f.v.length;i++){const a=f.v[i],b=f.v[(i+1)%f.v.length],k=a<b?a+':'+b:b+':'+a;counts.set(k,(counts.get(k)??0)+1);}
    assert([...counts.values()].every(n=>n<=2),'连续衣面出现非流形重叠');wrapEdgesChecked+=counts.size;coveredLegCases++;

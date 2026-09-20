@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "check:mesh": "tsx scripts/check-v3.ts && tsx scripts/check-body-profiles.ts",
+    "check:mesh": "tsx scripts/check-v3.ts && tsx scripts/check-body-profiles.ts && tsx scripts/check-garment-assets.ts",
     "check:visual": "node scripts/review-v3.mjs",
     "prepare:mixamo": "tsx scripts/prepare-mixamo.ts",
     "predev": "npm run prepare:mixamo",
