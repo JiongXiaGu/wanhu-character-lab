@@ -1,0 +1,61 @@
+name: Hip Fit Diagnostic
+on:
+  push:
+    branches: [tmp-standard-hip-gusset]
+    paths: ['.github/workflows/hip-fit-diagnostic.yml']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci && npm run prepare:mixamo
+      - name: Isolated parameter experiment, not the acceptance gate
+        shell: python
+        run: |
+          from pathlib import Path
+          import subprocess,json
+          seat=Path('src/character/wardrobe/seat.ts')
+          original=seat.read_text()
+          test=Path('scripts/check-tailoring-intersections.ts')
+          original_test=test.read_text()
+          # Keep exact pierce logic. Reduce duplicate look variants only for diagnosis.
+          diagnostic=original_test.replace("['plain-female','town-female','ceremony-female']","['ceremony-female']")
+          test.write_text(diagnostic)
+          out=Path('hip-diagnosis');out.mkdir(exist_ok=True)
+          results=[]
+          try:
+            for hips in [0.0,0.12,0.25,0.42,0.6]:
+              for size in [0.3,0.6,1.0]:
+                text=original.replace('[B.Hips,thigh,.42]',f'[B.Hips,thigh,{hips}]').replace('[thigh,opposite,.85]','[thigh,opposite,.75]')
+                text=text.replace('[0,.900,.028]',f'[0,.900,{.028*size}]').replace('[0,.902,-.036]',f'[0,.900,{- .036*size}]')
+                text=text.replace('[.025,.884,0]',f'[{.025*size},{.9-.016*size},0]').replace('[-.025,.884,0]',f'[{- .025*size},{.9-.016*size},0]')
+                text=text.replace('[B.RightThigh,B.LeftThigh,.8]','[B.RightThigh,B.LeftThigh,.5]').replace('[B.LeftThigh,B.RightThigh,.8]','[B.LeftThigh,B.RightThigh,.5]')
+                seat.write_text(text)
+                result=subprocess.run(['./node_modules/.bin/tsx','scripts/check-tailoring-intersections.ts'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+                report=json.loads(Path('review-tailoring-v2/intersections.json').read_text())
+                score=sum(r['piercedFrames'] for r in report['rows'])
+                row={'hips':hips,'size':size,'piercedFrames':score,'maxPairs':max(r['maxPairs'] for r in report['rows'])}
+                results.append(row)
+                print('DIAGNOSIS',json.dumps(row),flush=True)
+                (out/f'hips-{hips}-size-{size}.json').write_text(json.dumps(report))
+                (out/f'hips-{hips}-size-{size}.ts').write_text(text)
+            (out/'summary.json').write_text(json.dumps(sorted(results,key=lambda r:r['piercedFrames']),indent=2))
+          finally:
+            seat.write_text(original)
+            test.write_text(original_test)
+          print('SUMMARY',json.dumps(sorted(results,key=lambda r:r['piercedFrames'])),flush=True)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hip-fit-diagnosis
+          path: hip-diagnosis/
+          retention-days: 2
