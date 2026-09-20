@@ -1,3 +1,4 @@
+import type {WardrobeLod} from '../wardrobe/tailoring';
 import { garmentColors, NEW_TOPS, NEW_BOTTOMS, styleGarmentSurface, addGarmentSilhouettes, addWardrobeHeadwear, finishHair } from "../wardrobe/geometry";
 import {
   B,
@@ -697,7 +698,7 @@ function expandClothingLoops(c: Cage, recipe: Recipe) {
     }
   }
 }
-export function makeCharacter(input: RecipeInput): CharacterData {
+export function makeCharacter(input: RecipeInput, options:{lod?:WardrobeLod}={}): CharacterData {
   const recipe = cleanRecipe(input);
   const body = makeBody();
   const c = cloneCage(body);
@@ -725,7 +726,7 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   }
 
   if (dressed) expandClothingLoops(c, recipe);
-  styleGarmentSurface(c,recipe);
+  styleGarmentSurface(c,recipe,options.lod??0);
   addGarmentSilhouettes(c,recipe);
 
   if (hasTop || hasBottom) belt(c, leather);
