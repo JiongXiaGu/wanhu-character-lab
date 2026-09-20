@@ -1,16 +1,16 @@
-> V2更新：当前采用连续裤式分裳，原V1双层裙壳/隐藏大腿策略已退役。LOD0/1/2仅衣面细分，原20骨骼/510tris身体保留。缓存必须区分LOD、wanhu-tailoring-v2-continuous-1和wanhu-tailoring-no-duplicate-lining-v2。全FBX自动扫描（本次23）；inventory.json包含clips/failures。后文V1阶段描述仅作历史背景，V2实现和验收以[服装动画适配V2](服装动画适配V2.md)为准。
+# GPU 骨骼动画迁移契约 · 衣冠工坊 V2
 
-# GPU 骨骼动画迁移契约 · V3.6 / FBX
+## 当前服饰版本
 
-## 衣冠工坊 V1 更新
+当前为连续裤式分裳；旧V1双层裙壳和整段隐藏大腿的策略已退役，不能再作为迁移端遮挡规则。几何版本 `wanhu-tailoring-v2-continuous-2`，衣面语义 `wanhu-tailoring-no-duplicate-lining-v2`。
 
-新上衣/裙裳/头饰/发髻仍使用相同20骨骼，配方可选 dyes/hairStyle/hairColor。网格缓存键须包含部件、身材、发式和几何版本（当前 wanhu-garment-geometry-v4）；当前颜色为顶点色，因此颜色亦影响网格输出。未来 Unity 参数染色需要单独实现，不能把网页多色网格当作已共享实例。
+源人体闭合510tris保持；可见主衣面克隆源拓扑，使用静态腰髋/膝褶窝与双权重改善深屈曲，不同时绘制内腿与外裙两层。裆点由双大腿各半权重驱动；衣面校正发生在标准制作空间，再统一应用体型场。源人体、骨架及FBX不随衣物改写。
 
-绑定缓存至少含 bodyType/height/build/profileVersion；动画轨道与服饰网格键分开，衣服不创建独立Animator。掩码版本 wanhu-garment-hide-v3：裙裳替换pelvis面，长裳另隐藏覆盖的大腿/膝前裤面，必须保留完整KneeLower→Calf→Ankle内衬与足部；源人体不变，穿回裤装恢复。不能只留Calf→Ankle，以免侧视动作出现小腿截断。
+LOD0/1/2只控制服饰几何细分，使用相同20骨骼、部件ID和动画相位，不写入Recipe。不能宣称完成全人物低模、人群性能、自动屏幕占比切换或动画LOD。细分不能改变连续衣面语义；每级实际动画都需检查。
 
-此掩码依赖当前拓扑/版型，不是通用碰撞或任意服装自动遮挡。迁移端必须同步遮挡语义，不可只移植外层衣服又渲染全部内层身体。宽步时的后侧内衬露出与极端动作穿插仍是已知限制。
+衣服、三色染色、发髻、配方V4继续共用生成器。当前颜色仍烘焙到顶点色，颜色必须参与现有网格缓存键。Unity参数染色与跨颜色共享网格尚需实现。服装不创建独立Animator。
 
----
+全部FBX从 `动画参考/` 自动扫描；当前23份，inventory.json包含totalFiles/prepared/clips/failures。提取缺失必须显式失败，不忽略新增资源。
 
 ## 状态
 
