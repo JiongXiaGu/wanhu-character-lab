@@ -1,3 +1,5 @@
+> V2更新：当前采用连续裤式分裳，原V1双层裙壳/隐藏大腿策略已退役。LOD0/1/2仅衣面细分，原20骨骼/510tris身体保留。缓存必须区分LOD、wanhu-tailoring-v2-continuous-1和wanhu-tailoring-no-duplicate-lining-v2。全FBX自动扫描（本次23）；inventory.json包含clips/failures。后文V1阶段描述仅作历史背景，V2实现和验收以[服装动画适配V2](服装动画适配V2.md)为准。
+
 # GPU 骨骼动画迁移契约 · V3.6 / FBX
 
 ## 衣冠工坊 V1 更新

@@ -137,6 +137,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
   useEffect(()=>{
     const r=runtime.current;if(!r)return;
     const lodChanged=r.builtLod!==(options.lod??0), recipeChanged=r.builtRecipe!==options.recipe||lodChanged, selectionChanged=r.selection!==options.mixamo, restarted=r.restart!==options.restart;
+    const keepCamera=lodChanged&&r.builtRecipe===options.recipe;
     r.restart=options.restart;
     if(!recipeChanged&&!selectionChanged&&!(restarted&&r.loadError)){
       if(restarted){r.desiredPhase=0;r.mixamo?.replay();playbackRef.current(playback(r));}
@@ -148,7 +149,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
       if(recipeChanged){r.disposeActor();r.actor=makeActor(makeCharacter(options.recipe,{lod:options.lod}));r.builtRecipe=options.recipe;r.builtLod=options.lod??0;r.scene.add(r.actor.mesh,r.actor.wire,r.actor.skeletonHelper);}
       else {r.disposePlayer();r.actor.resetBindPose();}
       r.selection=options.mixamo;r.desiredPhase=phase;r.loading=options.mixamo!=='none';r.loadError='';
-      applyDisplay(r,options);applyCamera(r,options);r.resize();
+      applyDisplay(r,options);if(!keepCamera)applyCamera(r,options);r.resize();
       const stats=actorStats(r.actor);statsRef.current(stats);if(window.__WANHU_REVIEW__)window.__WANHU_REVIEW__.stats=stats;
       playbackRef.current(playback(r));
       if(options.mixamo!=='none'){
@@ -156,7 +157,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
         loadMixamo(options.mixamo).then(source=>{
           if(runtime.current!==r||r.generation!==generation)return;
           r.mixamo=createMixamoPlayer(actor,source);r.scene.add(r.mixamo.targetDebug);r.loading=false;
-          r.mixamo.seek(r.desiredPhase);applyDisplay(r,latest.current);applyCamera(r,latest.current);r.resize();playbackRef.current(playback(r));
+          r.mixamo.seek(r.desiredPhase);applyDisplay(r,latest.current);if(!keepCamera)applyCamera(r,latest.current);r.resize();playbackRef.current(playback(r));
         }).catch(error=>{if(runtime.current!==r||r.generation!==generation)return;r.loading=false;r.loadError=String(error);playbackRef.current(playback(r));});
       }
     }catch(error){errorRef.current(String(error));}

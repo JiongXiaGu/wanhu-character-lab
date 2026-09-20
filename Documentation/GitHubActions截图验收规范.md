@@ -1,15 +1,16 @@
-# GitHub Actions 截图验收规范 · 衣冠工坊 V1
+# GitHub Actions 截图验收规范 · 衣冠工坊 V2
 
 只在 GitHub Actions runner 内启动 Vite Preview + Playwright，产物经 upload-artifact 保存；不部署 Visual、Vercel 或其它 Preview Site。vercel.json 的 git.deploymentEnabled=false 保持。
 
-## 四条流水线
+## 五条流水线
 
 | Workflow | 责任 |
 | --- | --- |
 | Build | Node22、锁依赖安装、类型与生产构建 |
 | Character Model Review | 原男女×4外观×3身材、绑定/布线、DIY、旧链接、去帽头部、手机与男女切换 |
-| Mixamo Retarget Review | 全11动作源/目标、多视图、关键相位、连续播放、头部校准、快速切换、失败重试、导出 |
-| Wardrobe Review | 新48组服饰体型、184部件组合、11 FBX新增服饰采样；8推荐的多视图/素模/布线、体型端点、长摆动画视频、自定义操作 |
+| Mixamo Retarget Review | 全部扫描动作源/目标、多视图、关键相位、连续播放、头部校准、快速切换、失败重试、导出 |
+| Tailoring V2 Review | 连续衣面/独立贯穿、三级LOD、坐姿/射箭/搬举/慢跑全时间序列和动作库交互 |
+| Wardrobe Review | 新48组服饰体型、184部件组合、全部FBX新增服饰采样；8推荐的多视图/素模/布线、体型端点、长摆动画视频、自定义操作 |
 
 沿用固定20骨骼/双权重/男体基线。动态动画唯一来源FBX；静态bind是检视，不创建程序片段。目录、动作catalog与独立review矩阵必须一致，新增FBX不能静默跳过。
 
@@ -32,3 +33,5 @@
 合并前核对最新main，不能强推覆盖用户并发提交。交付包含实际main/PR状态、关键截图和动作视频、操作入口及限制。没有完成下载审图，不写“已完成视觉review”。
 
 工作流显式使用 bash（pipefail），防止 npm 失败被 tee 掩盖；上传前额外断言 report.passed、截图总数和连续视频数量。下载后仍要核对 JSON，不能只读 Actions 结论。
+
+实际截图可另存隔离review证据分支，不合入main资源，不部署网站。所有产物绑定testedSha，不把自动化生成视为实际审图。

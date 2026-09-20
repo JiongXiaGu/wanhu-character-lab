@@ -41,7 +41,7 @@ export const GENERATED_CLIPS=[
     "label": "街舞",
     "file": "Hip Hop Dancing",
     "filename": "Vanguard By T. Choonyung@Hip Hop Dancing.fbx",
-    "category": "其他",
+    "category": "压力测试",
     "loop": false,
     "ground": true
   },
@@ -101,7 +101,7 @@ export const GENERATED_CLIPS=[
   },
   {
     "id": "breakdance-freeze-var-2",
-    "label": "压力测试 · Breakdance Freeze Var 2",
+    "label": "倒立定格 2",
     "file": "Breakdance Freeze Var 2",
     "filename": "Vanguard By T. Choonyung@Breakdance Freeze Var 2.fbx",
     "category": "压力测试",
@@ -110,7 +110,7 @@ export const GENERATED_CLIPS=[
   },
   {
     "id": "chicken-dance",
-    "label": "压力测试 · Chicken Dance",
+    "label": "小鸡舞",
     "file": "Chicken Dance",
     "filename": "Vanguard By T. Choonyung@Chicken Dance.fbx",
     "category": "压力测试",
@@ -119,34 +119,34 @@ export const GENERATED_CLIPS=[
   },
   {
     "id": "headspin-start",
-    "label": "其他 · Headspin Start",
+    "label": "头旋起势",
     "file": "Headspin Start",
     "filename": "Vanguard By T. Choonyung@Headspin Start.fbx",
-    "category": "其他",
+    "category": "压力测试",
     "loop": false,
     "ground": true
   },
   {
     "id": "hip-hop-dancing-1",
-    "label": "其他 · Hip Hop Dancing (1)",
+    "label": "街舞变体 1",
     "file": "Hip Hop Dancing (1)",
     "filename": "Vanguard By T. Choonyung@Hip Hop Dancing (1).fbx",
-    "category": "其他",
+    "category": "压力测试",
     "loop": false,
     "ground": true
   },
   {
     "id": "hip-hop-dancing-2",
-    "label": "其他 · Hip Hop Dancing (2)",
+    "label": "街舞变体 2",
     "file": "Hip Hop Dancing (2)",
     "filename": "Vanguard By T. Choonyung@Hip Hop Dancing (2).fbx",
-    "category": "其他",
+    "category": "压力测试",
     "loop": false,
     "ground": true
   },
   {
     "id": "jumping-down",
-    "label": "压力测试 · Jumping Down",
+    "label": "向下跳落",
     "file": "Jumping Down",
     "filename": "Vanguard By T. Choonyung@Jumping Down.fbx",
     "category": "压力测试",
@@ -155,7 +155,7 @@ export const GENERATED_CLIPS=[
   },
   {
     "id": "locking-hip-hop-dance",
-    "label": "压力测试 · Locking Hip Hop Dance",
+    "label": "锁舞组合",
     "file": "Locking Hip Hop Dance",
     "filename": "Vanguard By T. Choonyung@Locking Hip Hop Dance.fbx",
     "category": "压力测试",
@@ -164,34 +164,34 @@ export const GENERATED_CLIPS=[
   },
   {
     "id": "northern-soul-spin-combo",
-    "label": "其他 · Northern Soul Spin Combo",
+    "label": "旋转舞步组合",
     "file": "Northern Soul Spin Combo",
     "filename": "Vanguard By T. Choonyung@Northern Soul Spin Combo.fbx",
-    "category": "其他",
+    "category": "压力测试",
     "loop": false,
     "ground": true
   },
   {
     "id": "snatch",
-    "label": "其他 · Snatch",
+    "label": "抓举（搬举压力测试）",
     "file": "Snatch",
     "filename": "Vanguard By T. Choonyung@Snatch.fbx",
-    "category": "其他",
+    "category": "劳动",
     "loop": false,
     "ground": true
   },
   {
     "id": "standing-aim-idle-01",
-    "label": "日常 · Standing Aim Idle 01",
+    "label": "站姿瞄准 01",
     "file": "Standing Aim Idle 01",
     "filename": "Vanguard By T. Choonyung@Standing Aim Idle 01.fbx",
-    "category": "日常",
+    "category": "战斗",
     "loop": false,
     "ground": true
   },
   {
     "id": "start-walking",
-    "label": "移动 · Start Walking",
+    "label": "起步行走",
     "file": "Start Walking",
     "filename": "Vanguard By T. Choonyung@Start Walking.fbx",
     "category": "移动",
@@ -200,10 +200,10 @@ export const GENERATED_CLIPS=[
   },
   {
     "id": "wave-hip-hop-dance",
-    "label": "日常 · Wave Hip Hop Dance",
+    "label": "波浪街舞",
     "file": "Wave Hip Hop Dance",
     "filename": "Vanguard By T. Choonyung@Wave Hip Hop Dance.fbx",
-    "category": "日常",
+    "category": "压力测试",
     "loop": false,
     "ground": true
   }

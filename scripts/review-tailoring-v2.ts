@@ -30,12 +30,12 @@ try{
  const counts:number[]=[];for(const lod of [2,1,0]){const before=await page.evaluate(()=>window.__WANHU_REVIEW__!.stats.triangles);await page.getByTestId('lod-'+lod).click();await page.waitForFunction(n=>window.__WANHU_REVIEW__!.stats.triangles!==n,before);await page.waitForFunction(()=>!!window.__WANHU_REVIEW__!.getStatus().mixamo?.ready);assert(Math.abs((await page.evaluate(()=>window.__WANHU_REVIEW__!.getStatus().phase))-.5)<1e-5);assert.equal(await page.evaluate(()=>JSON.stringify(window.__WANHU_RECIPE__!())),saved);counts.push(await page.evaluate(()=>window.__WANHU_REVIEW__!.stats.triangles));}
  assert(counts[0]<counts[1]&&counts[1]<counts[2]);
  await page.screenshot({path:dir+'/workbench.png'});shots.push({file:'workbench.png',kind:'ui'});
- await page.getByRole('button',{name:'下一帧',exact:true}).click();assert((await page.evaluate(()=>window.__WANHU_REVIEW__!.getStatus().phase))>.5);
+ await page.getByRole('button',{name:'下一帧',exact:true}).click();await page.waitForFunction(()=>window.__WANHU_REVIEW__!.getStatus().phase>.5);
  await page.setViewportSize({width:430,height:932});await page.screenshot({path:dir+'/mobile.png',fullPage:true});shots.push({file:'mobile.png',kind:'ui'});
  // 真实播放视频，以播放器相位/完成状态判断结束，不以墙钟估计录制时长。
- for(const bodyType of ['male','female'])for(const id of ['pilot-switches','shooting-arrow','jogging']){
+ for(const bodyType of ['male','female'])for(const id of ['pilot-switches','shooting-arrow','jogging','snatch']){
   const ctx=await browser.newContext({viewport:{width:1440,height:1000},recordVideo:{dir,size:{width:1440,height:1000}}});const p=await ctx.newPage(),video=p.video()!;
-  try{await p.goto(base+'/?'+new URLSearchParams({review:'1',paused:'1',bodyType,mixamo:id,look:'ceremony-female',view:'side',headwear:'none'}));await p.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);await p.getByRole('button',{name:'播放',exact:true}).click();
+  try{p.on('pageerror',e=>errors.push(e.message));await p.goto(base+'/?'+new URLSearchParams({review:'1',paused:'1',bodyType,mixamo:id,look:'ceremony-female',view:'side',headwear:'none'}));await p.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);await p.getByRole('button',{name:'播放',exact:true}).click();
    if(id==='jogging')await p.waitForFunction(()=>{const w=window as any;const phase=w.__WANHU_REVIEW__.getStatus().phase;if(w.__lastPhase!==undefined&&phase<w.__lastPhase-.5)w.__loops=(w.__loops??0)+1;w.__lastPhase=phase;return w.__loops>=2;},undefined,{timeout:90000,polling:100});
    else await p.waitForFunction(()=>window.__WANHU_REVIEW__!.getStatus().finished,undefined,{timeout:120000});
   }finally{await ctx.close();const name=`${bodyType}-${id}-continuous.webm`;await rename(await video.path(),dir+'/'+name);videos.push(name);}

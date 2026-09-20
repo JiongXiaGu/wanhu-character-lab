@@ -1,8 +1,8 @@
 # AGENTS.md
 
-接手读取最新 main，依次阅读 README、Documentation/玩家角色自定义与服饰分期.md、Documentation/换装工作台使用.md、Documentation/工作交接.md、男性FBX校正.md、Mixamo动画接入.md、项目概览.md、运行时人物生成架构.md、GPU骨骼动画迁移契约.md、服装生成架构.md、GitHubActions截图验收规范.md。
+接手读取最新 main，依次阅读 README、Documentation/服装动画适配V2.md、Documentation/玩家角色自定义与服饰分期.md、Documentation/换装工作台使用.md、Documentation/工作交接.md、男性FBX校正.md、Mixamo动画接入.md、项目概览.md、运行时人物生成架构.md、GPU骨骼动画迁移契约.md、服装生成架构.md、GitHubActions截图验收规范.md。
 
-## 当前决定 · 衣冠工坊 V1
+## 当前决定 · 衣冠工坊 V2
 
 用户确认只靠外部 FBX 动画，淘汰全部手写程序动作对照。**不得恢复旧 Motion、Phase4A Action 或作为失败回退。** 男性已在 6627c2e 合入，女性在 V3.6 接入。现在玩家自定义优先：服饰偏写意，Web 仅为换装/外观制作与试衣，玩法在 Unity。预设是推荐而非身份，不按职业、财富、宫廷或性别锁衣服；先做好可编辑部件，再由同一 Recipe 供城市居民取样。
 
@@ -25,13 +25,13 @@
 
 女性通过 proportions.ts 同拓扑形态场同时调整身体/衣物/关节；不能只换发型冒充女性。男性 6627c2e 的12套几何/骨架哈希由 check-body-profiles 固定，不能自动刷新基准。不要为适配女性改写男性数据。
 
-刚性帽子/工具以源/目标骨骼锚点变换，不能把非线性体型场逐点套在工具上导致直杆弯曲。旧 auto 发式保留历史遮蔽规则；显式新发髻在帽冠下隐藏，取下恢复。新长裳为双权重分片蒙皮，没有实时布料、额外服装骨骼或程序摆动。BodyType 切换必须保留 DIY、身高、配色与当前动画相位；旧 V4 输入默认 male，女性直达默认1.66m。
+刚性帽子/工具以源/目标骨骼锚点变换，不能把非线性体型场逐点套在工具上导致直杆弯曲。旧 auto 发式保留历史遮蔽规则；显式新发髻在帽冠下隐藏，取下恢复。新长裳采用连续裤式分裳衣面，三级服饰LOD保持双权重，没有实时布料、额外服装骨骼或程序摆动。BodyType 切换必须保留 DIY、身高、配色与当前动画相位；旧 V4 输入默认 male，女性直达默认1.66m。
 
 目标动画导出必须含 bodyType、profileVersion；女性 calibrationProfile=female-anatomical-v1，男性仍male-anatomical-v2。两性骨骼ID和父关系相同，但不能共享未经验证的最终骨矩阵。
 
 ## 校准与动画
 
-目录 FBX、catalog.ts、review-mixamo.ts 独立矩阵必须一致。新文件不能静默忽略。读取真实 inverse bind，不拿首帧当参考姿态；处理坐标/单位、T/A pose、Spine1 折叠。
+prepare:mixamo扫描目录生成catalog.generated.ts；独立文件清单与全动作review一致。新文件不能静默忽略。读取真实 inverse bind，不拿首帧当参考姿态；处理坐标/单位、T/A pose、Spine1 折叠。
 
 **HeadTop_End 不是面前方向。** 已知源辅助骨段前倾 5.456°。头部直接使用相对真实 bind 的世界旋转差；不可按片段加固定抬头偏移、清零俯仰或扭曲脸部网格掩盖问题。源点头/转头必须保留。头部全四元数误差测试独立于骨段方向测试。
 
@@ -45,7 +45,7 @@ public/mixamo 不提交；predev/prebuild 离线提取，无外部下载/部署/
 
 ## 开发与验收
 
-连续完成：读文档 → 实现 → check:retired/check:mesh/build/check:mixamo/check:wardrobe → GitHub Actions → 下载实际审图和连续视频 → 修正重跑 → 合入 main。不要每子步骤要求继续，不承诺回复后后台开发。
+连续完成：读文档 → 实现 → check:retired/check:mesh/build/check:mixamo/check:wardrobe/check:tailoring → GitHub Actions → 下载实际审图和连续视频 → 修正重跑 → 合入 main。不要每子步骤要求继续，不承诺回复后后台开发。
 
 FBX 每动作正/侧/背/布线与完整关键相位；男女慢跑/射箭连续视频；男女×4外观×3身材；去帽子头部近景、DIY、快速切换、暂停/末帧、重试和导出。静态绑定不得有隐式呼吸等程序运动。
 
@@ -55,8 +55,11 @@ FBX 每动作正/侧/背/布线与完整关键相位；男女慢跑/射箭连续
 
 ## 衣冠工坊约束
 
-普通入口默认静态试衣；review=1 保留旧 FBX 慢跑默认。不把目录 SVG 示意当作真实模型缩略图。新增衣服实现放 wardrobe/geometry.ts，推荐/随机/导入逻辑放 wardrobe/catalog.ts；不要继续扩展按职业分支的生成器。
+普通入口默认静态试衣；review=1 保留旧 FBX 慢跑默认。不把目录 SVG 示意当作真实模型缩略图。新增衣面/LOD实现放 wardrobe/tailoring.ts，头饰发髻保留 wardrobe/geometry.ts，推荐/随机/导入逻辑放 wardrobe/catalog.ts；不要继续扩展按职业分支的生成器。
 
 固定七槽位，完整上衣含领/袖/腰带。手动选择不受随机锁限制；应用预设不改体型与身材。随机复现依赖输入 Recipe、种子、锁定集与生成器版本。导入非法文件保持原角色。localStorage 单槽不是账号/云存档。
 
 新增服饰需 Wardrobe Review 多视图、素模、体型端点、慢跑/射箭连续视频、跨体型混搭和配方导出重入。正式合并前核对实际截图对应提交，不自动更新男体基线。长摆高抬腿、翻转、贴地限制明确记录，不用 DoubleSide 或改 FBX 掩盖。
+
+## V2门槛
+坐姿拨开关、射箭、慢跑、抓举压力测试为重点。Tailoring V2需闭合拓扑及离线三角贯穿诊断；数字通过不代表视觉通过。LOD仅服饰，不宣称全人物Crowd。实际状态见服装动画适配V2.md。
