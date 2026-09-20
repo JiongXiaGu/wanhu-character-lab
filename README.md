@@ -26,9 +26,11 @@ FBX 放入 `动画参考/`（支持子目录），重启开发服务或重新构
 
 ## 验证与边界
 
-执行 `npm run check:retired`、`check:mesh`、`build`、`check:mixamo`、`check:wardrobe`、`check:tailoring`。原五条Actions继续运行；新增Modular Garment Review生成基线/候选同相机图片、独立裤装近景、浅色和无光照/线框。
+日常美术与服装迭代优先本地视觉 Review，不要求每一轮都等待 GitHub Actions：修改后直接运行项目截图检查；若当前执行环境无法启动完整 Vite/Three.js，但改动属于确定性的程序化静态网格，可以从当前 SHA 源码重建静态角色并渲染多角度图片，用于轮廓、裆部、衣裤接口、头发和比例判断。此类图片必须明确标注为源码几何重建，不能代替网页、WebGL 或动画验证。
 
-只在Actions runner启动预览生成截图，不部署Vercel/Visual。实际检查图片后合main，再由用户简单视觉复核。不录制视频，但保留真实播放结束和循环检查、原动作源键/中点采样及贯穿阈值。
+执行 `npm run check:retired`、`check:mesh`、`build`、`check:mixamo`、`check:wardrobe`、`check:tailoring`。正式 Actions 继续保留，并在运行时代码准备合 main、修改网格／绑定／动画链路、建立正式基线或阶段收尾时作为自动化兜底；纯文档和高频静态美术探索不必每个小提交都等待完整 Actions。Modular Garment Review 继续生成基线/候选同相机图片、独立裤装近景、浅色和无光照/线框。
+
+不部署 Vercel/Visual。不录制视频，但保留真实播放结束和循环检查、原动作源键/中点采样及贯穿阈值。详细边界见验收规范。
 
 人体与绑定黄金数据保持；旧人体复制衣面的表面哈希明确退役。PR #12失败补面不合入。独立裤装改造不是裸模修复，数值通过也不等于所有袖子、道具和连续姿态零穿插。实际受测SHA/Actions/看图范围见交接与PR。
 
