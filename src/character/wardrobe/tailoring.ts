@@ -4,7 +4,7 @@ import {add,mul,vertex,orient} from '../v3/cage';
 /** @deprecated 旧调用兼容；三种数值都映射到同一标准模型。 */
 export type WardrobeLod=0|1|2;
 export const STANDARD_MODEL_PROFILE='wanhu-standard-low-v1';
-export const GARMENT_GEOMETRY_VERSION='wanhu-tailoring-v2.1-seat-1';
+export const GARMENT_GEOMETRY_VERSION='wanhu-tailoring-v2.1-seat-2';
 export const BODY_HIDE_VERSION='wanhu-tailoring-no-duplicate-lining-v2';
 const TOPS=['rough_tunic','cross_jacket','layered_vest','ceremony_robe'];
 const BOTTOMS=['loose_trousers','work_wrap','pleated_skirt','robe_skirt'];

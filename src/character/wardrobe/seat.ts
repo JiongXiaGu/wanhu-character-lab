@@ -3,8 +3,9 @@ import {add,mul,vertex,bridge,face,orient} from '../v3/cage';
 
 /**
  * 只重建克隆后的服装表层，不改 source body、绑定或 FBX。
- * 一圈低成本髋根过渡 + 有前后长度的四角裆底；没有独立遮挡壳。
+ * 一圈低成本髋根过渡 + 沿实际邻接边截出的四角裆底；没有独立遮挡壳。
  * 所有接缝共享逻辑索引。20 骨骼、每点至多两项影响不变。
+ * 注意：Snatch 深屈曲仍未通过独立贯穿检查，本模块仍属候选版。
  */
 export function rebuildSeat(c:Cage):void {
   if(c.anchors.SeatGusset)throw new Error('裆底不可重复生成');
@@ -27,21 +28,28 @@ export function rebuildSeat(c:Cage):void {
     c.faces=c.faces.filter(f=>!remove.has(f));
     const seat=root.map((a,i)=>{
       const p=mul(add(c.vertices[a].p,c.vertices[lower[i]].p),.5);
-      // 内腿不受第三根骨骼影响；左右对称，且和实际裆底连续。
-      const w:Weight=i===5?[thigh,opposite,.85]:[B.Hips,thigh,.42];
+      // 内腿使用对称双大腿过渡，避免为了稳定中线引入第三根骨骼。
+      const w:Weight=i===5?[thigh,opposite,.75]:[B.Hips,thigh,.25];
       return vertex(c,side+'Seat.'+i,p,w);
     });
     bridge(c,root,seat,'thigh');bridge(c,seat,lower,'thigh');
     c.anchors[side+'Seat']=seat;
   }
-  // 截去原来的单点极点，而不是在它外面叠一个补丁。
   const right=c.anchors.RightSeat[5],left=c.anchors.LeftSeat[5];
   const centerWeight:Weight=[B.RightThigh,B.LeftThigh,.5];
+  // 四角必须先从原极点和真实邻接边同时求出，再覆盖原极点。
+  // 固定世界坐标会越过邻接边；顺序覆盖后再求坐标则会让前后切点不对称。
+  const pivot:Vec3=[...c.vertices[crotch].p];
+  const cutAmount=.30;
+  const cut=(i:number):Vec3=>add(mul(pivot,1-cutAmount),mul(c.vertices[i].p,cutAmount));
+  const frontPoint=cut(hip[0]),backPoint=cut(hip[4]);
+  const rightPoint=cut(right),leftPoint=cut(left);
   const front=crotch;
-  c.vertices[front]={id:'SeatGusset.Front',p:[0,.900,.028],w:[...centerWeight]};
-  const back=vertex(c,'SeatGusset.Back',[0,.902,-.036],[...centerWeight]);
-  const r=vertex(c,'SeatGusset.Right',[.025,.884,0],[B.RightThigh,B.LeftThigh,.8]);
-  const l=vertex(c,'SeatGusset.Left',[-.025,.884,0],[B.LeftThigh,B.RightThigh,.8]);
+  c.vertices[front]={id:'SeatGusset.Front',p:frontPoint,w:[...centerWeight]};
+  const back=vertex(c,'SeatGusset.Back',backPoint,[...centerWeight]);
+  // 四角保持同一变换混合，中线补面不会因左右不同权重先自行剪切。
+  const r=vertex(c,'SeatGusset.Right',rightPoint,[...centerWeight]);
+  const l=vertex(c,'SeatGusset.Left',leftPoint,[...centerWeight]);
   const cuts=new Map<number,number>([[hip[0],front],[hip[4],back],[right,r],[left,l]]);
   let affected=0;
   for(const f of c.faces){
@@ -59,7 +67,7 @@ export function rebuildSeat(c:Cage):void {
   orient(c);
 }
 
-/** 绑定空间制作参数，只改善被旧褶窝压薄的上段；膝/小腿仍用既有稳定版型。 */
+/** 绑定空间制作参数，只改善被旧褶窝压薄的上段；膝/小腿仍用既有版型。 */
 export function restoreSeatVolume(c:Cage):void {
   for(const i of c.anchors.Hip){const p=c.vertices[i].p;p[1]=1.005;if(p[2]>0)p[2]*=1.16;}
   for(const side of ['Right','Left'])for(const i of c.anchors[side+'Thigh']){
