@@ -1,0 +1,10 @@
+{
+  "referenceCommit":"f432357f1cf2a5219acbae87e7e1b0e1cca9481d",
+  "extractionCommit":"eb2e2948d1486ecd471d87b27d2884eb054ab7b7",
+  "extractionRun":35535965803,
+  "note":"Extracted from the unchanged reference skin, not from the replacement saddle. Prior full-body delta checks proved all data outside Crotch weights equal the old baseline. Exclude only retired/replacement pelvis vertices, affected connecting faces and declared leg weights. All remaining coordinates (including knees), faces, anchors, upper-body/foot weights remain exact. This is not visual approval.",
+  "rows":[
+    {"bodyType":"male","signature":{"positions":"5936a2734abb1b4445ce3ad2b2083f069630789c63d28c7b2c9490e8aff71870","weights":"172fb9198fd0932c4cbae417adc31dda6a988577924eda8569e7c4ae046f6ead","faces":"e27eb015c52d92712c522f1503da14934500bc19808844b96571b56c2a9c90c8","anchors":"7ea1f16bbfda17c46a738f78d91951c1648f6c43265df776b750aa16f1829627","positionCount":248,"weightCount":188,"faceCount":229,"anchorCount":40}},
+    {"bodyType":"female","signature":{"positions":"57e09ac9393f83180162d201c516d4743d477f2590693606401f29b987859208","weights":"172fb9198fd0932c4cbae417adc31dda6a988577924eda8569e7c4ae046f6ead","faces":"e27eb015c52d92712c522f1503da14934500bc19808844b96571b56c2a9c90c8","anchors":"7ea1f16bbfda17c46a738f78d91951c1648f6c43265df776b750aa16f1829627","positionCount":248,"weightCount":188,"faceCount":229,"anchorCount":40}}
+  ]
+}

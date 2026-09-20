@@ -1,0 +1,8 @@
+{
+  "sourceCommit": "f432357f1cf2a5219acbae87e7e1b0e1cca9481d",
+  "note": "Original male/female bind hashes retained exactly. Clothing looks are iterated by the test, not duplicated here. Whole-body hashes are explicitly retired for the authored pelvis topology; protected old regions have a separate fixture, not a refreshed full-body art baseline.",
+  "rows": [
+    {"bodyType":"male","jointsHash":"abebd2da0caea053daf406d52bfec649767c14e8d319f3a9547628d85b5df41e"},
+    {"bodyType":"female","jointsHash":"3e5ea3f2de3bc2b370782bbecdeabd9c88d005da9392dd08910f114ad05a16c1"}
+  ]
+}
