@@ -45,6 +45,8 @@ jobs:
           node scripts/instrument-baseline-camera.mjs ../baseline
           ln -s "$PWD/node_modules" ../baseline/node_modules
           (cd ../baseline && npm run build)
+      - name: Smoke test one-command local review (executed in runner)
+        run: npm run review:local
       - name: Capture actual before and after in runner
         run: |
           npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/modular-after.log 2>&1 &
@@ -56,6 +58,13 @@ jobs:
           REVIEW_HEAD_SHA="$BASE_SHA" REVIEW_STAGE=before REVIEW_URL=http://127.0.0.1:4174 node scripts/review-modular.mjs
           REVIEW_HEAD_SHA="$HEAD_SHA" REVIEW_STAGE=after REVIEW_URL=http://127.0.0.1:4173 node scripts/review-modular.mjs
           python scripts/compose-modular.py
+      - name: Compare bare and clothed knees and seated midline
+        run: |
+          REVIEW_HEAD_SHA="$BASE_SHA" REVIEW_STAGE=before REVIEW_URL=http://127.0.0.1:4174 npm run review:deformation
+          REVIEW_HEAD_SHA="$HEAD_SHA" REVIEW_STAGE=after REVIEW_URL=http://127.0.0.1:4173 npm run review:deformation
+          python scripts/compose-deformation.py
+      - name: Verify source remains unchanged by review
+        run: git diff --exit-code
       - name: Preserve diagnostics
         if: always()
         run: |
@@ -65,5 +74,7 @@ jobs:
         if: always()
         with:
           name: modular-garment-review-${{ env.HEAD_SHA }}
-          path: candidate/review-modular/
+          path: |
+            candidate/review-modular/
+            candidate/review-deformation/
           retention-days: 14
