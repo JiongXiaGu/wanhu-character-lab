@@ -5,6 +5,7 @@ import {makeCharacter} from '../src/character/v3/outfit';
 import {makeActor} from '../src/character/v3/rig';
 import {BODY_TYPES,createRecipe,patchSlots,HAIR_STYLE_IDS,type Recipe} from '../src/character/v3/types';
 import {cross,sub,triCount} from '../src/character/v3/cage';
+import {BODY_TRIANGLES} from '../src/character/v3/leg-deformation';
 import {WARDROBE_LOOKS,WARDROBE_VERSION,applyLook,parseRecipeFile,randomizeLook,SLOT_OPTIONS} from '../src/character/wardrobe/catalog';
 import {GARMENT_GEOMETRY_VERSION,BODY_HIDE_VERSION} from '../src/character/wardrobe/assembly';
 import {assertComponentWinding} from './check-components';
@@ -15,7 +16,7 @@ const rows:{look:string;bodyType:string;triangles:number;vertices:number}[]=[];
 let wrapEdgesChecked=0,coveredLegCases=0;
 function inspect(recipe:Recipe){
   const d=makeCharacter(recipe),c=d.surface;
-  assert.equal(d.joints.length,20);assert.equal(triCount(d.body),510);assert(triCount(c)<2600,'wardrobe triangle budget');
+  assert.equal(d.joints.length,20);assert.equal(triCount(d.body),BODY_TRIANGLES);assert(triCount(c)<2600,'wardrobe triangle budget');
   assertComponentWinding(c);
   for(const v of c.vertices){assert(v.p.every(Number.isFinite));assert(v.w.slice(0,2).every(i=>Number.isInteger(i)&&i>=0&&i<20));assert(v.w[2]>=0&&v.w[2]<=1);}
   for(const f of c.faces){assert(f.v.every(i=>Number.isInteger(i)&&i>=0&&i<c.vertices.length));for(let i=1;i<f.v.length-1;i++)assert(Math.hypot(...cross(sub(c.vertices[f.v[i]].p,c.vertices[f.v[0]].p),sub(c.vertices[f.v[i+1]].p,c.vertices[f.v[0]].p)))>1e-10,`degenerate ${c.vertices[f.v[0]].id}`);}
