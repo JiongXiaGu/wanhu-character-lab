@@ -1,0 +1,32 @@
+name: Asset Migration Workspace
+on:
+  push:
+    branches: [feat/modular-garment-assets]
+    paths: [.github/workflows/asset-migration-workspace.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Export tracked source and locked tooling (no secrets or git credentials)
+        run: |
+          mkdir -p /tmp/asset-workspace
+          git archive --format=tar HEAD | gzip > /tmp/asset-workspace/source.tar.gz
+          tar -czf /tmp/asset-workspace/dependencies.tar.gz node_modules
+          printf '%s\n' "$GITHUB_SHA" > /tmp/asset-workspace/source-sha.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asset-workspace-${{ github.sha }}
+          path: /tmp/asset-workspace
+          retention-days: 1
+          if-no-files-found: error
