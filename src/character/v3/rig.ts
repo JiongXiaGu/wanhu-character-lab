@@ -1,3 +1,4 @@
+import { BODY_HEIGHT } from './types';
 import * as T from "three";
 import type { CharacterData } from "./types";
 import { polygonNormal, edgeKey } from "./cage";
@@ -75,8 +76,8 @@ export function makeActor(data: CharacterData): Actor {
   mesh.normalizeSkinWeights();
   // 固定安全包围盒涵盖已实现的动作。不能只使用 Bind Pose 包围盒剔除动画。
   mesh.boundingSphere = new T.Sphere(
-    new T.Vector3(0, data.recipe.height * 0.5, 0),
-    data.recipe.height * 1.4,
+    new T.Vector3(0, BODY_HEIGHT[data.recipe.bodyType] * 0.5, 0),
+    BODY_HEIGHT[data.recipe.bodyType] * 1.4,
   );
   const mixer = new T.AnimationMixer(mesh);
   const edges = new Map<string, [number, number]>();

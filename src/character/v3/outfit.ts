@@ -1,9 +1,8 @@
-import type {WardrobeLod} from '../wardrobe/tailoring';
-import { garmentColors, NEW_TOPS, NEW_BOTTOMS, styleGarmentSurface, addGarmentSilhouettes, addWardrobeHeadwear, finishHair } from "../wardrobe/geometry";
+import { garmentColors, NEW_TOPS, NEW_BOTTOMS, styleGarmentSurface, addWardrobeHeadwear, finishHair } from "../wardrobe/geometry";
 import {
   B,
   rigid,
-  cleanRecipe,
+  createRecipe,
   type Cage,
   type Recipe,
   type RecipeInput,
@@ -39,11 +38,6 @@ import { makeBody, makeJoints, shapePoint, shapeRigidPoint } from "./body";
 const SKIN = "#c8956e",
   HAIR = "#282b29",
   INK = "#272b2b";
-const palettes = [
-  ["#415e68", "#d4c5a5", "#574637"],
-  ["#626854", "#d7c9b2", "#534637"],
-  ["#785549", "#d7c8ae", "#4d4033"],
-];
 function patch(
   c: Cage,
   id: string,
@@ -698,13 +692,12 @@ function expandClothingLoops(c: Cage, recipe: Recipe) {
     }
   }
 }
-export function makeCharacter(input: RecipeInput, options:{lod?:WardrobeLod}={}): CharacterData {
-  const recipe = cleanRecipe(input);
+export function makeCharacter(input: RecipeInput): CharacterData {
+  const recipe = createRecipe(input);
   const body = makeBody();
   const c = cloneCage(body);
-  const legacyPalette = palettes[recipe.palette];
   const colors = garmentColors(recipe);
-  const [cloth, trim, leather] = recipe.dyes ? [colors.primary, colors.accent, colors.accent] : legacyPalette;
+  const [cloth, trim, leather] = [colors.primary, colors.accent, colors.accent];
 
   const hasTop = recipe.slots.top !== "body";
   const hasBottom = recipe.slots.bottom !== "body";
@@ -726,8 +719,7 @@ export function makeCharacter(input: RecipeInput, options:{lod?:WardrobeLod}={})
   }
 
   if (dressed) expandClothingLoops(c, recipe);
-  styleGarmentSurface(c,recipe,options.lod??0);
-  addGarmentSilhouettes(c,recipe);
+  styleGarmentSurface(c,recipe);
 
   if (hasTop || hasBottom) belt(c, leather);
 
@@ -803,7 +795,7 @@ export function makeCharacter(input: RecipeInput, options:{lod?:WardrobeLod}={})
   addLeftHand(c, recipe.slots.leftHand);
   addRightHand(c, recipe.slots.rightHand);
   const joints = makeJoints(recipe);
-  const baseJoints = makeJoints(cleanRecipe({ bodyType:"male", height:1.76, build:.5 }));
+  const baseJoints = makeJoints(createRecipe({ bodyType:"male" }));
   c.vertices.forEach((v,i) => {
     v.p = i < rigidStart ? shapePoint(v.p,recipe) : shapeRigidPoint(v.p,v.w[0],recipe,baseJoints,joints);
   });

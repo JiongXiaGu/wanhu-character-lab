@@ -3,11 +3,10 @@ import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import * as T from 'three';
 import {makeCharacter} from '../src/character/v3/outfit';
 import {makeActor} from '../src/character/v3/rig';
-import {cleanRecipe,type Vec3,type Cage} from '../src/character/v3/types';
+import {createRecipe,type Vec3,type Cage} from '../src/character/v3/types';
 import {applyLook} from '../src/character/wardrobe/catalog';
 import {retargetMixamo} from '../src/character/mixamo/retarget';
 import {MIXAMO_CLIPS} from '../src/character/mixamo/catalog';
-import type {WardrobeLod} from '../src/character/wardrobe/tailoring';
 const sub=(a:Vec3,b:Vec3):Vec3=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
 const dot=(a:Vec3,b:Vec3)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 const cross=(a:Vec3,b:Vec3):Vec3=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
@@ -17,8 +16,8 @@ assert(pierces([.2,.2,-1],[.2,.2,1],[[0,0,0],[1,0,0],[0,1,0]]));assert(!pierces(
 function skin(c:Cage,m:Float32Array):Vec3[]{return c.vertices.map(v=>{const p:Vec3=[0,0,0];for(const[bone,w]of[[v.w[0],v.w[2]],[v.w[1],1-v.w[2]]]){const k=bone*16;for(let a=0;a<3;a++)p[a]+=w*(m[k+a]*v.p[0]+m[k+4+a]*v.p[1]+m[k+8+a]*v.p[2]+m[k+12+a]);}return p;});}
 const ids=['pilot-switches','shooting-arrow','jogging',...MIXAMO_CLIPS.filter(c=>['snatch','start-walking'].includes(c.id)).map(c=>c.id)],rows:any[]=[],failures:any[]=[];
 let checkedFrames=0,pairsChecked=0;
-for(const profile of [{height:1.76,build:.5},{height:1.58,build:0},{height:1.92,build:1},{height:1.66,build:.25},{height:1.85,build:.75}])for(const bodyType of ['male','female'] as const)for(const look of ['plain-female','town-female','ceremony-female'])for(const lod of [0,1,2] as WardrobeLod[]){
- const d=makeCharacter(applyLook(cleanRecipe({bodyType,...profile}),look),{lod}),c=d.surface,actor=makeActor(d),indices:number[][]=[];
+for(const bodyType of ['male','female'] as const)for(const look of ['plain-female','town-female','ceremony-female']){
+ const d=makeCharacter(applyLook(createRecipe({bodyType}),look)),c=d.surface,actor=makeActor(d),indices:number[][]=[];
  for(const f of c.faces)if(['pelvis','thigh','shin'].includes(f.region))for(let i=1;i<f.v.length-1;i++)indices.push([f.v[0],f.v[i],f.v[i+1]]);
  actor.update(0);actor.mesh.skeleton.update();const bind=skin(c,actor.mesh.skeleton.boneMatrices);assert(Math.max(...bind.map((p,i)=>Math.hypot(...sub(p,c.vertices[i].p))))<1e-5,'独立蒙皮必须还原bind');
  for(const id of ids){const source=JSON.parse(readFileSync(`public/mixamo/${id}.json`,'utf8')),bake=retargetMixamo(d,source);actor.resetBindPose();const action=actor.mixer.clipAction(bake.clip);action.setLoop(T.LoopOnce,1);action.clampWhenFinished=true;action.play();action.paused=true;let piercedFrames=0,maxPairs=0;
@@ -31,13 +30,13 @@ for(const profile of [{height:1.76,build:.5},{height:1.58,build:0},{height:1.92,
     for(let bi=ai+1;bi<order.length;bi++){const b=order[bi],y=tris[b];if(y.lo[0]>x.hi[0])break;
      if(x.hi[1]<y.lo[1]||y.hi[1]<x.lo[1]||x.hi[2]<y.lo[2]||y.hi[2]<x.lo[2]||indices[a].some(i=>indices[b].includes(i)))continue;
      pairsChecked++;if(![0,1,2].some(t=>pierces(x.p[t],x.p[(t+1)%3],y.p)||pierces(y.p[t],y.p[(t+1)%3],x.p)))continue;
-     n++;if(failures.length<60)failures.push({bodyType,look,lod,id,...profile,time,phase:time/source.duration,a:indices[a].map(i=>c.vertices[i].id),b:indices[b].map(i=>c.vertices[i].id)});
+     n++;if(failures.length<60)failures.push({bodyType,look,id,time,phase:time/source.duration,a:indices[a].map(i=>c.vertices[i].id),b:indices[b].map(i=>c.vertices[i].id)});
     }
    }
    if(n)piercedFrames++;maxPairs=Math.max(maxPairs,n);
   }
-  rows.push({bodyType,...profile,look,lod,id,samples:times.length,piercedFrames,maxPairs});action.stop();actor.mixer.uncacheClip(bake.clip);
+  rows.push({bodyType,look,id,samples:times.length,piercedFrames,maxPairs});action.stop();actor.mixer.uncacheClip(bake.clip);
  }
- actor.dispose();console.log('INTERSECTION',bodyType,profile.height,profile.build,look,lod);
+ actor.dispose();console.log('INTERSECTION',bodyType,look);
 }
-const passed=rows.every(r=>r.piercedFrames===0);mkdirSync('review-tailoring-v2',{recursive:true});writeFileSync('review-tailoring-v2/intersections.json',JSON.stringify({testedSha:process.env.REVIEW_HEAD_SHA??'local',sampling:'all source keys plus interval midpoints; 5 body proportion profiles',checkedFrames,pairsChecked,rows,failures,passed,scope:'离线腰髋/腿部衣面非共面贯穿；排除共享顶点的邻接三角。不涵盖全部共面接触、手臂/道具、任意体型或连续时间碰撞；仍需实际审图。'},null,2));assert(passed,'V2常用动作主衣面自交；查看intersections.json定位，不得以拓扑闭合代替此检查');
+const passed=rows.every(r=>r.piercedFrames===0);mkdirSync('review-tailoring-v2',{recursive:true});writeFileSync('review-tailoring-v2/intersections.json',JSON.stringify({testedSha:process.env.REVIEW_HEAD_SHA??'local',sampling:'all source keys plus interval midpoints; two fixed body profiles; same source-key and midpoint sampling / geometric thresholds',checkedFrames,pairsChecked,rows,failures,passed,scope:'离线腰髋/腿部衣面非共面贯穿；排除共享顶点的邻接三角。不涵盖全部共面接触、手臂/道具、任意体型或连续时间碰撞；仍需实际审图。'},null,2));assert(passed,'V2常用动作主衣面自交；查看intersections.json定位，不得以拓扑闭合代替此检查');

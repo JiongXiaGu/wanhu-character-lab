@@ -14,8 +14,8 @@ for (const def of MIXAMO_CLIPS) {
   validateMixamoData(source, def.id);
   assert.equal(source.source.uniqueBones, 65); assert.equal(source.source.rawBoneNodes, 130);
   for (const bodyType of BODY_TYPES)
-  for (const [height, build] of [[1.58, 0], [1.76, .5], [1.92, 1]]) {
-    const recipe = patchSlots(applyPreset({ ...DEFAULT_RECIPE, bodyType, height, build }, 'archer'), { headwear: 'farmer_straw_hat', leftHand: 'none' });
+  {
+    const recipe = patchSlots(applyPreset({ ...DEFAULT_RECIPE, bodyType }, 'archer'), { headwear: 'farmer_straw_hat', leftHand: 'none' });
     const saved = JSON.stringify(recipe), data = makeCharacter(recipe), actor = makeActor(data), geometry = actor.mesh.geometry;
     const bake = retargetMixamo(data, source);
     assert.equal(JSON.stringify(recipe), saved); assert.equal(actor.bones.length, 20);
@@ -44,6 +44,7 @@ for (const def of MIXAMO_CLIPS) {
     const out = exportTargetMotion(data, source, bake);
     assert.equal(out.bones.length, 20); assert.equal(out.bones[0].parent, -1);
     assert(out.bones.every(b => b.rotations.length === source.times.length * 4));
+    assert.equal(out.version,2);assert.equal(out.bodyProfile.id,bodyType);assert(!("proportion" in out));
     assert.equal(out.events.length, 0); assert.equal(out.props.length, 0);
     assert.equal(out.source.sha256, source.source.sha256);
     assert.equal(bake.hips[0], 0); assert.equal(bake.hips[2], 0);
@@ -51,7 +52,7 @@ for (const def of MIXAMO_CLIPS) {
     if (bake.loop) assert(bake.seamDegrees < 12);
     actor.mixer.uncacheClip(bake.clip); actor.dispose();
   }
-  console.log(`PASS ${def.id} · 2 body types × 3 proportions · ${source.times.length} source frames`);
+  console.log(`PASS ${def.id} · 2 fixed body types · ${source.times.length} source frames`);
 }
 const first = JSON.parse(readFileSync('public/mixamo/jogging.json','utf8'));
 for (const mutate of [(d:any)=>d.times.reverse(),(d:any)=>d.worldDeltas[0]=NaN,(d:any)=>d.names[2]='BadBone',(d:any)=>d.schema=999]) {
@@ -66,4 +67,4 @@ for(const id of ['jogging','shooting-arrow'] as const){
   player.seek(-5);assert.equal(player.status().phase,0);player.seek(5);assert.equal(player.status().phase,1);
   player.dispose();actor.dispose();
 }
-console.log(JSON.stringify({clips:MIXAMO_CLIPS.length,bodyTypes:2,proportionsPerBodyType:3,sampledFrames:frames,worstDirectionDegrees:worstDirection,invalidDataRejected:4,playerBoundaryCases:2}));
+console.log(JSON.stringify({clips:MIXAMO_CLIPS.length,bodyTypes:2,profilesPerBodyType:1,sampledFrames:frames,worstDirectionDegrees:worstDirection,invalidDataRejected:4,playerBoundaryCases:2}));

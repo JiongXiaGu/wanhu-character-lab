@@ -1,47 +1,13 @@
-# Mixamo 外部动画接入 · V3.6 / 衣冠工坊
+# FBX动画接入 · 固定基模
 
-## 正式路径
+动画参考目录自动递归扫描。当前23份Mixamo FBX由prepare:mixamo提取到public/mixamo（生成文件不提交）；新增文件重启服务后出现。错误明确给出文件，不静默略过，不外部下载源模型，不恢复程序动作。
 
-用户上传的11份Mixamo FBX用于实验。程序生成人体/衣服/装备，外部FBX是唯一动画来源；旧程序动作已删除。男女使用独立身体比例，共用固定骨架与全部FBX。
+FBXLoader只提取动画与骨架；用户人物始终是程序低模，不替换为Vanguard网格。catalog.generated.ts与inventory.json一致，手工中文标签不替代实际资源检查。已知片段名有明确目录元数据，新未知片段默认单次保持，不猜测循环。
 
-`npm ci && npm run dev`；predev/prebuild自动离线prepare:mixamo，输出public/mixamo，忽略提交。不联网下载、不携带源网格/贴图，不改原FBX。
+重定向使用真实inverse bind，处理源重复名/单位/轴向、T/A差异和Spine1折叠，目标固定20骨骼。retargetVersion仍wanhu-mixamo-2；本次不改变姿态计算。女性固定校准和男性头部旋转校准继续保留。
 
-衣冠工坊普通入口默认静态试衣；`?review=1` 的诊断入口仍默认慢跑，用于保持旧回归。显式 `?mixamo=jogging` 等参数或界面选择才播放动作。支持暂停/变速/进度/逐帧/重播/完整末帧、DIY与体型、源骨架同步、头部朝向检查、目标动画JSON。静态bind仅重置绑定，不启动动画；加载失败显示错误/重试。切换FBX保留几何，改Recipe才重建并保留暂停相位。
+导出wanhu-target-motion v2，bodyProfile只有固定基模ID和版本；无连续体型数据，不读取v1旧导出。换衣/男女切换保留暂停相位；切动画不重建Mesh。完整末帧、暂停重播、失败重试均参与检查。
 
-调试URL：`?mixamo=shooting-arrow&compare=1&paused=1&phase=.45&view=side&headwear=none&headAxes=1`。静态：`?pose=bind`。旧action/motion参数不再启用程序动作。
+23动作×2固定基模全源帧数值检查、源/目标关键相位和正侧背/线框，男女慢跑射箭连续视频。服饰另重点检查Pilot Flips Switches、Snatch和Start Walking。不是所有袖子/道具/极端动作零穿插保证。
 
-## 源文件
-
-Jogging、Shooting Arrow、Catwalk Walk Forward HighKnees、Punching Bag、Zombie Stand Up、Pilot Flips Switches、Swimming、Hip Hop Dancing、Capoeira、Flair、Brutal Assassination。
-
-当前每文件2蒙皮网格、130原始Bone节点、65唯一语义骨骼、1片段/53轨道。共享同名骨骼副本在提取阶段去重，避免绑定错误节点。inventory记录文件名/SHA256/时长/帧数/Three版本。所有源文件与catalog和独立review矩阵须一致。
-
-## 提取与校准
-
-绑定来自SkinCluster inverse bind，不能取首帧。源右侧-X到目标+X通过基矩阵共轭，保留+Z前，厘米转米；不整体转180°或交换左右。源T姿态适配目标A绑定，不更换目标inverse bind。
-
-源世界旋转差加目标/源骨段校准，再按目标父关系还原局部四元数；源Spine1折叠到Spine→Chest整段。手脚端点用于校准，**头顶端点不用于脸向**。Head直接保留源相对bind的旋转差，修复额外5.456°低头，见男性FBX校正.md。
-
-约30Hz提取，保留末帧/归一/符号连续。烘焙在载入或体型改变时进行，不逐帧全身IK。原地化剥离线性水平趋势，保留骨盆侧摆、高度、转体；地面策略只向上防穿地，不压低跳跃，游泳不做地面修正。这不是脚锁。
-
-循环候选须通过首尾旋转与骨盆误差检查，否则单次保持，不篡改末帧伪造无缝。源骨架/头轴为CPU审查路径。
-
-## 模块
-
-catalog.ts：稳定ID/文件/循环/地面策略。scripts/lib/mixamo-fbx.ts：解析/去重/真实bind/坐标采样。prepare-mixamo.ts：目录校验与产物。data.ts：20语义骨骼+5调试端点协议。retarget.ts：当前体型校准/烘焙/导出。player.ts：有限源缓存/唯一时钟/源对照/释放。
-
-## 边界与Unity
-
-配方不被动画重写；静态装备继续跟骨骼。源武器/场景/第二人物未导入。Shooting Arrow只驱动人体，弓弦/箭/释放事件/精确握点未重制；不能挪用旧程序相位。无五指、手掌IK、脚锁、自动接触、任意混合、任务导航；极端姿态可能有蒙皮/服装自交。长裳使用独立分片蒙皮和覆盖区隐藏，不是布料碰撞，不调整FBX迁就衣服。
-
-目标JSON wanhu-target-motion v1包含源SHA、retargetVersion=wanhu-mixamo-2、skeletonVersion、calibrationProfile、当前体型、20骨绑定/局部轨道、完整时间键/根轨迹；事件/道具为空。不是UnityClip/Avatar/Blob。先单人逐帧对照再做群体/LOD/性能；缓存包含源SHA/版本/体型。
-
-来源记录保留Mixamo与用户原文件名，当前仅实验；发行和原始文件分发授权需发布前另行核查，不以接入成功宣称授权审查完成。
-
-## 验收
-
-check:retired、check:mesh、build、check:mixamo。Actions只运行本地preview，不部署。11×2×3全源帧+全顶点检查；头部全四元数和辅助点扰动独立测试。11动作四视图/9相位，头部近景、4连续视频、DIY/快速切换/几何复用/错误重试/导出。下载实际审查后才能合main，数值通过不等于美术全部通过。衣冠新增版型另外由Wardrobe Review检查，不替代原FBX回归。
-
-## V3.6 身体配置补充
-
-Recipe V4新增bodyType（缺省male）；女性profileVersion=wanhu-body-profiles-v1，与男性共用拓扑和骨骼语义，绑定位置可不同。网格键和目标动画键都必须包含bodyType/profileVersion/height/build。男性12套几何哈希保持6627c2e基线；女性通过独立比例、头脸、低髻实现，不是只换衣服。详细范围及验收矩阵见女性角色接入.md。
+源Mixamo授权由用户管理，本项目不添加额外源文件分发权限声明；当前用于实验。动画所缺的椅子、开关、弓弦和道具事件不伪称已导入。

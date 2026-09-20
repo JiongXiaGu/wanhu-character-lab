@@ -5,7 +5,8 @@ import { makeCharacter } from "../src/character/v3/outfit";
 import { makeActor } from "../src/character/v3/rig";
 import { edgeKey, triCount, cross, sub, dot } from "../src/character/v3/cage";
 import {
-  cleanRecipe,
+  createRecipe,
+  presetSlots,
   BODY_TYPES,
   type Cage,
   type Outfit,
@@ -91,12 +92,8 @@ const skeletonMaps: string[] = [];
 let variants = 0;
 for (const bodyType of BODY_TYPES)
 for (const outfit of ["body", "farmer", "guard", "archer"] as Outfit[])
-  for (const variant of [
-    { height: 1.76, build: 0.5 },
-    { height: 1.58, build: 0 },
-    { height: 1.92, build: 1 },
-  ]) {
-    const data = makeCharacter({ bodyType, outfit, ...variant, equipment: true });
+  {
+    const data = makeCharacter(createRecipe({ bodyType, slots: { ...presetSlots(outfit), ...(outfit==='farmer'?{rightHand:'farmer_hoe' as const}:{}) } }));
     validate(data.body, true);
     validate(data.surface, false);
     assertComponentWinding(data.surface);
@@ -133,19 +130,13 @@ for (const outfit of ["body", "farmer", "guard", "archer"] as Outfit[])
     variants++;
     a.dispose();
     console.log(
-      `${bodyType} ${outfit.padEnd(7)} ${variant.height}m / build ${variant.build} | body ${triCount(data.body)} tris | final ${triCount(data.surface)} tris | topology + weights + static bind PASS`,
+      `${bodyType} ${outfit.padEnd(7)} fixed standard | body ${triCount(data.body)} tris | final ${triCount(data.surface)} tris | topology + weights + static bind PASS`,
     );
   }
 assert(new Set(skeletonMaps).size === 1, "职业或体型改变了骨架语义");
 
 // DIY 回归：弓手预设必须可以换成农户草帽，同时保留弓和箭袋。
-const diyArcher = makeCharacter({
-  outfit: "archer",
-  equipment: true,
-  preset: "custom",
-  slots: { headwear: "farmer_straw_hat" },
-});
-assert.equal(diyArcher.recipe.preset, "custom");
+const diyArcher = makeCharacter(createRecipe({ slots: { ...presetSlots('archer'), headwear: 'farmer_straw_hat' } }));
 assert.equal(diyArcher.recipe.slots.headwear, "farmer_straw_hat");
 assert.equal(diyArcher.recipe.slots.leftHand, "archer_bow");
 assert.equal(diyArcher.recipe.slots.back, "archer_quiver");
@@ -166,17 +157,6 @@ assert(
   "DIY 草帽与原弓手头巾重复生成",
 );
 
-const legacyFarmerWithHoe = makeCharacter({
-  outfit: "farmer",
-  equipment: true,
-});
-assert.equal(
-  legacyFarmerWithHoe.recipe.slots.rightHand,
-  "farmer_hoe",
-  "V3 农户 equipment=true 没有迁移为锄头",
-);
-
-assert.equal(cleanRecipe({ height: NaN, build: Infinity }).height, 1.76);
 console.log(
   `PASS: ${variants} character variants, static bind checks, real-edge garment anchors, closed continuous base body, fixed rig, <=2 weights, runtime-only geometry.`,
 );

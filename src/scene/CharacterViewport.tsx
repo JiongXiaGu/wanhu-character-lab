@@ -1,11 +1,10 @@
-import type {WardrobeLod} from '../character/wardrobe/tailoring';
 import { useEffect, useRef } from 'react';
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { makeCharacter } from '../character/v3/outfit';
 import { makeActor, type Actor } from '../character/v3/rig';
 import { triCount } from '../character/v3/cage';
-import type { Recipe } from '../character/v3/types';
+import { BODY_HEIGHT, type Recipe } from '../character/v3/types';
 import { createMixamoPlayer, loadMixamo, type MixamoPlayer, type MixamoStatus } from '../character/mixamo/player';
 import type { MixamoSelection } from '../character/mixamo/catalog';
 
@@ -14,7 +13,7 @@ export type View = 'free' | 'front' | 'side' | 'back' | 'top' | 'three';
 export type Display = 'beauty' | 'cage' | 'triangles' | 'clay';
 export interface Stats { triangles:number; bodyTriangles:number; vertices:number; gpuVertices:number; bones:number; replaced:number }
 export interface ViewOptions {
-  recipe:Recipe; lod?:WardrobeLod; mixamo:MixamoSelection; compareSource:boolean; headAxes:boolean; restart:number;
+  recipe:Recipe; mixamo:MixamoSelection; compareSource:boolean; headAxes:boolean; restart:number;
   playing:boolean; speed:number; phase:number; view:View; viewRevision:number;
   orthographic:boolean; display:Display; skeleton:boolean; grid:boolean;
 }
@@ -22,7 +21,7 @@ interface Props { options:ViewOptions; onStats:(v:Stats)=>void; onPlayback:(v:Pl
 interface Runtime {
   renderer:T.WebGLRenderer; scene:T.Scene; actor:Actor; mixamo?:MixamoPlayer;
   selection:MixamoSelection; generation:number; loading:boolean; loadError:string; desiredPhase:number; restart:number;
-  builtRecipe:Recipe; builtLod:WardrobeLod; pairPerspective:T.PerspectiveCamera; pairOrtho:T.OrthographicCamera;
+  builtRecipe:Recipe; pairPerspective:T.PerspectiveCamera; pairOrtho:T.OrthographicCamera;
   controls:OrbitControls; camera:T.Camera; perspective:T.PerspectiveCamera; ortho:T.OrthographicCamera; views:T.OrthographicCamera[];
   resize:()=>void; render:()=>void; grid:T.GridHelper; disposePlayer:()=>void; disposeActor:()=>void;
 }
@@ -61,7 +60,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     const camera=latest.current.orthographic?o:p, controls=new OrbitControls(camera,renderer.domElement);
     controls.enableDamping=true; controls.minDistance=1.4; controls.maxDistance=8; controls.minZoom=.55; controls.maxZoom=5;
     let actor:Actor;
-    try { actor=makeActor(makeCharacter(latest.current.recipe,{lod:latest.current.lod})); }
+    try { actor=makeActor(makeCharacter(latest.current.recipe)); }
     catch(error){renderer.dispose();renderer.domElement.remove();errorRef.current(String(error));return;}
     scene.add(actor.mesh,actor.wire,actor.skeletonHelper);
     const resize=()=>{
@@ -70,8 +69,8 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
       renderer.setSize(w,h,false); p.aspect=aspect; p.updateProjectionMatrix();
       const extent=rt.mixamo?.bake.bounds.getSize(new T.Vector3());
       const effectiveAspect=latest.current.compareSource&&rt.mixamo&&latest.current.view!=='three'?aspect/2:aspect;
-      const width=extent?Math.max(extent.x,extent.z)*.56:latest.current.recipe.height*.43;
-      const half=Math.max(latest.current.recipe.height*.67,extent?extent.y*.56:0,width/effectiveAspect);
+      const width=extent?Math.max(extent.x,extent.z)*.56:BODY_HEIGHT[latest.current.recipe.bodyType]*.43;
+      const half=Math.max(BODY_HEIGHT[latest.current.recipe.bodyType]*.67,extent?extent.y*.56:0,width/effectiveAspect);
       o.left=-half*aspect; o.right=half*aspect; o.top=half; o.bottom=-half; o.updateProjectionMatrix();
       for(const c of views){
         const threeHalf=Math.max(half,width/(aspect/3));
@@ -97,7 +96,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
       renderer.setScissorTest(false);renderer.setViewport(0,0,w,h);
     };
     rt={renderer,scene,actor,selection:'none',generation:0,loading:false,loadError:'',desiredPhase:options.phase,restart:options.restart,
-      pairPerspective:p.clone(),pairOrtho:o.clone(),builtRecipe:latest.current.recipe,builtLod:latest.current.lod??0,controls,camera,perspective:p,ortho:o,views,resize,render,grid,
+      pairPerspective:p.clone(),pairOrtho:o.clone(),builtRecipe:latest.current.recipe,controls,camera,perspective:p,ortho:o,views,resize,render,grid,
       disposePlayer(){if(!rt)return;rt.generation++;rt.mixamo?.dispose();rt.mixamo=undefined;},
       disposeActor(){if(!rt)return;rt.disposePlayer();scene.remove(rt.actor.mesh,rt.actor.wire,rt.actor.skeletonHelper);rt.actor.dispose();}};
     runtime.current=rt; applyCamera(rt,latest.current); applyDisplay(rt,latest.current);
@@ -105,7 +104,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     if(new URLSearchParams(location.search).has('review')||import.meta.env.DEV){
       window.__WANHU_REVIEW__={stats,seek(phase){if(rt)seek(rt,phase);},getStatus:()=>rt?playback(rt):{phase:0,stage:'',finished:false},
         geometryId:()=>rt?.actor.mesh.geometry.uuid??'',focusHead(){if(!rt)return;
-          const center=rt.actor.bones[5].getWorldPosition(new T.Vector3()).add(new T.Vector3(0,.1*latest.current.recipe.height/1.76,0));
+          const center=rt.actor.bones[5].getWorldPosition(new T.Vector3()).add(new T.Vector3(0,.1*BODY_HEIGHT[latest.current.recipe.bodyType]/1.76,0));
           const direction=rt.camera.position.clone().sub(rt.controls.target).normalize();
           rt.controls.target.copy(center);rt.camera.position.copy(center).addScaledVector(direction,2);
           if(rt.camera instanceof T.OrthographicCamera){rt.camera.zoom=3;rt.camera.updateProjectionMatrix();}
@@ -124,7 +123,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     window.__WANHU_EXPORT_MOTION__=()=>rt?.mixamo?.export();
     window.__WANHU_CAPTURE__=()=>{render();renderer.domElement.toBlob(blob=>{
       if(!blob)return;const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;
-      link.download=`wanhu-${latest.current.recipe.preset}-${latest.current.mixamo==='none'?'bind':latest.current.mixamo}.png`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+      link.download=`wanhu-${latest.current.recipe.bodyType}-${latest.current.mixamo==='none'?'bind':latest.current.mixamo}.png`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     });};
     return()=>{
       disposed=true;cancelAnimationFrame(frame);observer.disconnect();rt?.controls.dispose();rt?.disposeActor();
@@ -136,8 +135,8 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
   },[]);
   useEffect(()=>{
     const r=runtime.current;if(!r)return;
-    const lodChanged=r.builtLod!==(options.lod??0), recipeChanged=r.builtRecipe!==options.recipe||lodChanged, selectionChanged=r.selection!==options.mixamo, restarted=r.restart!==options.restart;
-    const keepCamera=lodChanged&&r.builtRecipe===options.recipe;
+    const recipeChanged=r.builtRecipe!==options.recipe, selectionChanged=r.selection!==options.mixamo, restarted=r.restart!==options.restart;
+    const keepCamera=recipeChanged && r.builtRecipe.bodyType===options.recipe.bodyType;
     r.restart=options.restart;
     if(!recipeChanged&&!selectionChanged&&!(restarted&&r.loadError)){
       if(restarted){r.desiredPhase=0;r.mixamo?.replay();playbackRef.current(playback(r));}
@@ -146,7 +145,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     // 换 FBX 不重建模型；改 Recipe 才重建几何。异步代次阻止过期资源覆盖当前选择。
     const phase=!selectionChanged&&!restarted?playback(r).phase:options.phase;
     try{
-      if(recipeChanged){r.disposeActor();r.actor=makeActor(makeCharacter(options.recipe,{lod:options.lod}));r.builtRecipe=options.recipe;r.builtLod=options.lod??0;r.scene.add(r.actor.mesh,r.actor.wire,r.actor.skeletonHelper);}
+      if(recipeChanged){r.disposeActor();r.actor=makeActor(makeCharacter(options.recipe));r.builtRecipe=options.recipe;r.scene.add(r.actor.mesh,r.actor.wire,r.actor.skeletonHelper);}
       else {r.disposePlayer();r.actor.resetBindPose();}
       r.selection=options.mixamo;r.desiredPhase=phase;r.loading=options.mixamo!=='none';r.loadError='';
       applyDisplay(r,options);if(!keepCamera)applyCamera(r,options);r.resize();
@@ -161,7 +160,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
         }).catch(error=>{if(runtime.current!==r||r.generation!==generation)return;r.loading=false;r.loadError=String(error);playbackRef.current(playback(r));});
       }
     }catch(error){errorRef.current(String(error));}
-  },[options.recipe,options.lod,options.mixamo,options.restart]);
+  },[options.recipe,options.mixamo,options.restart]);
   useEffect(()=>{const r=runtime.current;if(r&&!options.playing)seek(r,options.phase);},[options.phase]);
   useEffect(()=>{const r=runtime.current;if(r){applyCamera(r,options);r.resize();}},[options.view,options.viewRevision,options.orthographic,options.mixamo,options.compareSource]);
   useEffect(()=>{const r=runtime.current;if(r)applyDisplay(r,options);},[options.display,options.skeleton,options.grid,options.headAxes]);
@@ -178,7 +177,7 @@ function applyCamera(r:Runtime,o:ViewOptions){
   const next=o.orthographic?r.ortho:r.perspective;
   if(r.camera!==next){r.controls.dispose();r.camera=next;r.controls=new OrbitControls(next,r.renderer.domElement);
     r.controls.enableDamping=true;r.controls.minDistance=1.4;r.controls.maxDistance=8;r.controls.minZoom=.55;r.controls.maxZoom=5;}
-  const y=o.recipe.height*.53,target=r.mixamo?r.mixamo.bake.bounds.getCenter(new T.Vector3()):new T.Vector3(0,y,0);
+  const y=BODY_HEIGHT[o.recipe.bodyType]*.53,target=r.mixamo?r.mixamo.bake.bounds.getCenter(new T.Vector3()):new T.Vector3(0,y,0);
   next.up.set(0,1,0);if(next instanceof T.OrthographicCamera)next.zoom=o.view==='top'?1.7:1;
   const position=o.view==='front'?[0,y,4]:o.view==='back'?[0,y,-4]:o.view==='side'?[4,y,0]:o.view==='top'?[0,5,.001]:[2.8,y+1.05,4.5];
   next.position.fromArray(position).add(new T.Vector3(target.x,target.y-y,target.z));
