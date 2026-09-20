@@ -1,0 +1,56 @@
+name: Tailoring V2 Review
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tailoring-v2-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Numeric contracts
+        run: npm run check:tailoring
+      - run: npx playwright install --with-deps chromium
+      - name: Preview and browser review
+        run: |
+          npm run preview -- --host 127.0.0.1 > /tmp/v2-preview.log 2>&1 &
+          for i in $(seq 1 40); do curl -fsS http://127.0.0.1:4173 > /dev/null && break; sleep 1; done
+          if command -v agent-browser >/dev/null; then agent-browser open http://127.0.0.1:4173; agent-browser snapshot -i; agent-browser close; else echo 'agent-browser CLI unavailable; using repository Playwright WebGL verification'; fi
+          npm run review:tailoring
+      - name: Compose real screenshot sheets
+        if: always()
+        run: |
+          python -m pip install Pillow
+          if test -f review-tailoring-v2/visual.json; then python scripts/compose-tailoring-v2.py; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tailoring-v2-review-${{ github.event.pull_request.head.sha || github.sha }}
+          path: review-tailoring-v2/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tailoring-v2-keyframes
+          path: |
+            review-tailoring-v2/*.jpg
+            review-tailoring-v2/workbench.png
+            review-tailoring-v2/visual.json
+            review-tailoring-v2/numeric.json
+            public/mixamo/inventory.json
+          retention-days: 14
