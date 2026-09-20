@@ -19,7 +19,7 @@ function refine(c:Cage,lod:WardrobeLod){
   if(selected.has(f)){
    const center=vertex(c,'Tailoring.Center.'+faces.length,mul(f.v.reduce((p,i)=>add(p,c.vertices[i].p),[0,0,0] as Vec3),1/f.v.length),averageWeight(c,f.v));
    for(let i=0;i<4;i++)faces.push({...f,v:[f.v[i],edges.get(key(f.v[i],f.v[(i+1)%4]))!,center,edges.get(key(f.v[(i+3)%4],f.v[i]))!]});
-  }else{const ids:number[]=[];for(let i=0;i<f.v.length;i++){const a=f.v[i],b=f.v[(i+1)%f.v.length];ids.push(a);const mid=edges.get(key(a,b));if(mid!==undefined)ids.push(mid);}faces.push({...f,v:ids});}
+  }else{const ids:number[]=[];for(let i=0;i<f.v.length;i++){const a=f.v[i],b=f.v[(i+1)%f.v.length];ids.push(a);const mid=edges.get(key(a,b));if(mid!==undefined)ids.push(mid);}if(ids.length===f.v.length)faces.push({...f,v:ids});else{const center=vertex(c,'Tailoring.Join.'+faces.length,mul(f.v.reduce((p,i)=>add(p,c.vertices[i].p),[0,0,0] as Vec3),1/f.v.length),averageWeight(c,f.v));for(let i=0;i<ids.length;i++)faces.push({...f,v:[ids[i],ids[(i+1)%ids.length],center]});}}
  }
  c.faces=faces;
 }

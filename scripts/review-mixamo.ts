@@ -1,9 +1,10 @@
+import {readFileSync} from 'node:fs';
 import { chromium } from 'playwright';
 import { mkdir, writeFile, stat, rename } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { MIXAMO_CLIPS } from '../src/character/mixamo/catalog';
 
-const REVIEW_IDS = ['jogging','shooting-arrow','catwalk','punching-bag','zombie-stand-up','pilot-switches','swimming','hip-hop','capoeira','flair','assassination'];
+const REVIEW_IDS:string[] = JSON.parse(readFileSync('public/mixamo/inventory.json','utf8')).clips.map((c:{id:string})=>c.id);
 assert.deepEqual([...REVIEW_IDS].sort(), MIXAMO_CLIPS.map(c=>c.id).sort());
 const BODY_TYPES=['male','female'];let activeBodyType='male';
 const directory='review-mixamo'; await mkdir(directory,{recursive:true});
