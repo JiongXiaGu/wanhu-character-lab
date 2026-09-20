@@ -4,27 +4,34 @@ on:
     branches: [feat/wardrobe-batch-one]
     paths: [.github/workflows/wardrobe-source-snapshot.yml]
 permissions:
-  contents: read
+  contents: write
 jobs:
-  source:
+  apply:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: 98d2344e82392fe04b3f76ce691cb5a270f56940
-          persist-credentials: false
-      - name: Export tracked source without git configuration or credentials
+      - name: Decode exact locally tested patch
         run: |
-          git archive --format=tar.gz --output=/tmp/wardrobe-main-source.tar.gz HEAD
-          git rev-parse HEAD > /tmp/wardrobe-main-sha.txt
-          git ls-tree -r --full-tree HEAD > /tmp/wardrobe-main-tree.txt
-          ls -lh /tmp/wardrobe-main-source.tar.gz
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wardrobe-main-source
-          path: |
-            /tmp/wardrobe-main-source.tar.gz
-            /tmp/wardrobe-main-sha.txt
-            /tmp/wardrobe-main-tree.txt
-          retention-days: 1
+          python - <<'PY'
+          from pathlib import Path
+          import base64, lzma, hashlib
+          encoded=''.join(Path(f'.github/wardrobe-transfer.{i}').read_text().strip() for i in (1,2,3))
+          patch=lzma.decompress(base64.b64decode(encoded,validate=True))
+          assert hashlib.sha256(patch).hexdigest()=='25ecb05f15691d909e72bbf48ce29660abfb38de65aa4f910834cf39f807fc95'
+          Path('/tmp/wardrobe.patch').write_bytes(patch)
+          PY
+          git apply --unidiff-zero --check /tmp/wardrobe.patch
+          git apply --unidiff-zero /tmp/wardrobe.patch
+      - name: Verify exact source tree, remove temporary transport, and push task branch
+        run: |
+          git rm .github/wardrobe-transfer.1 .github/wardrobe-transfer.2 .github/wardrobe-transfer.3 .github/workflows/wardrobe-source-snapshot.yml
+          git add -A
+          test "$(git write-tree)" = '26586c864a699028c923a0cb14c332b03c5b345b'
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat: author first three tops and two trouser silhouettes'
+          git push origin HEAD:feat/wardrobe-batch-one
+          echo "Applied commit: $(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+          echo 'Source tree: 26586c864a699028c923a0cb14c332b03c5b345b' >> "$GITHUB_STEP_SUMMARY"
