@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {mkdir, stat, writeFile} from 'node:fs/promises';
-import {chromium, type Page} from 'playwright';
+import {chromium} from 'playwright';
 import {MIXAMO_CLIPS} from '../src/character/mixamo/catalog';
 import {applyLook} from '../src/character/wardrobe/catalog';
 import {createRecipe, type Recipe} from '../src/character/v3/types';
@@ -73,8 +73,8 @@ async function changeAtPhase(action: () => Promise<unknown>, phase: number) {
   await settle();
   assert(Math.abs((await page.evaluate(() => window.__WANHU_REVIEW__!.getStatus())).phase - phase) < 1e-6, 'appearance edit reset paused phase');
 }
-async function color(label: string, value: string) {
-  // 系统颜色弹窗无法由无头浏览器操作；通过原生 input 事件走同一个 React handler。
+async function nativeInput(label: string, value: string) {
+  // 系统颜色弹窗无法由无头浏览器操作；颜色与进度通过原生 input 事件走同一个 React handler。
   await page.getByLabel(label, {exact: true}).evaluate((element, value) => {
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
     setter.call(element, value);
@@ -116,7 +116,7 @@ try {
   await changeAtPhase(() => page.getByLabel('下装', {exact: true}).selectOption('work_wrap'), phase);
   await changeAtPhase(() => page.getByLabel('发型', {exact: true}).selectOption('double_bun'), phase);
   for (const [label, value] of [['主布颜色', '#e8dcc8'], ['下装 / 内衬颜色', '#c8d8df'], ['缘边 / 腰带颜色', '#906040'], ['发色', '#543a29']]) {
-    await changeAtPhase(() => color(label, value), phase);
+    await changeAtPhase(() => nativeInput(label, value), phase);
   }
   const dyed = await recipe();
   assert.deepEqual(dyed.dyes, {primary: '#e8dcc8', secondary: '#c8d8df', accent: '#906040'});
@@ -190,9 +190,10 @@ try {
   assert.equal(await page.evaluate(() => window.__WANHU_REVIEW__!.geometryId()), geometry, 'animation navigation rebuilt geometry');
   await page.getByTestId('quick-pilot-switches').click(); await waitMotion('pilot-switches');
   await page.getByRole('button', {name: '暂停', exact: true}).click();
-  await page.getByLabel('动画进度', {exact: true}).fill('.4');
+  await nativeInput('动画进度', '.4');
   await settle();
   const beforeStep = await page.evaluate(() => window.__WANHU_REVIEW__!.getStatus());
+  assert(Math.abs(beforeStep.phase - .4) < 1e-6, 'timeline input did not seek');
   await page.getByRole('button', {name: '下一帧', exact: true}).click(); await settle();
   const afterStep = await page.evaluate(() => window.__WANHU_REVIEW__!.getStatus());
   assert(Math.abs(afterStep.phase - beforeStep.phase - 1 / (30 * beforeStep.mixamo!.duration)) < 1e-6);
