@@ -1,0 +1,33 @@
+name: Hip Diagnostic Workspace
+on:
+  push:
+    branches: [tmp-standard-hip-gusset]
+    paths: ['.github/workflows/hip-workspace.yml']
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci && npm run prepare:mixamo
+      - name: Archive only tracked source and local test dependencies
+        run: |
+          git archive HEAD -o /tmp/hip-workspace.tar
+          tar -rf /tmp/hip-workspace.tar node_modules public
+          gzip /tmp/hip-workspace.tar
+          git rev-parse HEAD > /tmp/hip-workspace-sha.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hip-diagnostic-workspace
+          path: |
+            /tmp/hip-workspace.tar.gz
+            /tmp/hip-workspace-sha.txt
+          retention-days: 2
