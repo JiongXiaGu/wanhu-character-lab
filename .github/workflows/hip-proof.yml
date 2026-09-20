@@ -1,0 +1,98 @@
+name: Hip Before After Evidence
+on:
+  push:
+    branches: [tmp-hip-proof]
+    paths: [.github/workflows/hip-proof.yml]
+permissions:
+  contents: write
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-hip-proof
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Build unchanged reference
+        run: |
+          mkdir -p /tmp/hip-before
+          git archive 4740a5cca22a94604a90e4f86d885a8ef64dbb47 | tar -x -C /tmp/hip-before
+          ln -s "$PWD/node_modules" /tmp/hip-before/node_modules
+          cp -r public /tmp/hip-before/
+          (cd /tmp/hip-before && ./node_modules/.bin/vite build)
+      - run: npx playwright install --with-deps chromium
+      - name: Render actual models with identical camera and phase
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/hip-after.log 2>&1 &
+          (cd /tmp/hip-before && ./node_modules/.bin/vite preview --host 127.0.0.1 --port 4174) > /tmp/hip-before.log 2>&1 &
+          for port in 4173 4174; do for i in $(seq 1 40); do curl -fsS "http://127.0.0.1:$port" >/dev/null && break; sleep 1; done; done
+          if command -v agent-browser >/dev/null; then agent-browser open http://127.0.0.1:4173; agent-browser snapshot -i; agent-browser close; else echo 'agent-browser unavailable; explicit Playwright content, error and WebGL checks follow'; fi
+          cat > scripts/tmp-hip-proof.mjs <<'JS'
+          import {chromium} from 'playwright';
+          import {mkdir,writeFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const dir='ReviewEvidence/hips-5ddc443';await mkdir(dir,{recursive:true});
+          const browser=await chromium.launch({args:['--no-sandbox','--use-angle=swiftshader','--enable-webgl']});
+          const page=await browser.newPage({viewport:{width:1600,height:1000}}),errors=[],files=[];
+          page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+          for(const version of ['before','after'])for(const bodyType of ['male','female'])for(const pose of ['bind','pilot-switches'])for(const view of ['front','side','back']){
+            const q=new URLSearchParams({review:'1',paused:'1',lod:'2',bodyType,look:'town-female',view,headwear:'none',leftHand:'none',rightHand:'none',back:'none',phase:'.5',...(pose==='bind'?{pose:'bind'}:{mixamo:pose})});
+            await page.goto(`http://127.0.0.1:${version==='after'?4173:4174}/?${q}`);
+            await page.waitForFunction(()=>!!window.__WANHU_REVIEW__);
+            if(pose!=='bind')await page.waitForFunction(()=>!!window.__WANHU_REVIEW__.getStatus().mixamo?.ready);
+            assert.equal(await page.locator('[role=alert]').count(),0);assert((await page.locator('body').innerText()).length>100);
+            if(version==='after')assert.equal(await page.getByTestId('standard-model').count(),1);
+            await page.evaluate(()=>window.__WANHU_REVIEW__.seek(.5));await page.waitForTimeout(120);
+            const name=`${version}-${bodyType}-${pose}-${view}.png`;await page.getByTestId('viewport').screenshot({path:dir+'/'+name});files.push(name);
+          }
+          for(const bodyType of ['male','female'])for(const clip of ['pilot-switches','jogging','snatch']){
+            const q=new URLSearchParams({review:'1',paused:'1',bodyType,look:'town-female',view:'front',headwear:'none',mixamo:clip});
+            await page.goto('http://127.0.0.1:4173/?'+q);await page.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
+            for(let k=0;k<=16;k++){await page.evaluate(p=>window.__WANHU_REVIEW__.seek(p),k/16);await page.waitForTimeout(70);const name=`sequence-${bodyType}-${clip}-${String(k).padStart(2,'0')}.png`;await page.getByTestId('viewport').screenshot({path:dir+'/'+name});files.push(name);}
+          }
+          await browser.close();await writeFile(dir+'/report.json',JSON.stringify({sourceSha:'5ddc4438ff9bb0ceb8da4b7c8141c129fe192005',beforeSha:'4740a5cca22a94604a90e4f86d885a8ef64dbb47',files,errors,manuallyReviewed:false},null,2));assert.deepEqual(errors,[]);
+          JS
+          node scripts/tmp-hip-proof.mjs
+      - name: Compose unretouched comparison sheets
+        run: |
+          python -m pip install Pillow
+          python - <<'PY'
+          from PIL import Image,ImageDraw,ImageOps
+          from pathlib import Path
+          import math
+          root=Path('ReviewEvidence/hips-5ddc443')
+          def sheet(paths,name,cols):
+              w,h=500,500
+              out=Image.new('RGB',(w*cols,h*math.ceil(len(paths)/cols)),(31,44,49));d=ImageDraw.Draw(out)
+              for i,p in enumerate(paths):
+                  im=Image.open(p).convert('RGB');im=ImageOps.contain(im,(w-12,h-36));x=(i%cols)*w+(w-im.width)//2;y=(i//cols)*h+30;out.paste(im,(x,y));d.text(((i%cols)*w+5,(i//cols)*h+7),p.stem,fill='white')
+              out.save(root/name)
+          for sex in ['male','female']:
+              for pose in ['bind','pilot-switches']:
+                  paths=[root/f'{v}-{sex}-{pose}-{view}.png' for view in ['front','side','back'] for v in ['before','after']]
+                  sheet(paths,f'compare-{sex}-{pose}.png',2)
+              for clip in ['pilot-switches','jogging','snatch']:
+                  sheet(sorted(root.glob(f'sequence-{sex}-{clip}-*.png')),f'timeline-{sex}-{clip}.png',4)
+          PY
+      - name: Store review evidence separately, never on main
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ReviewEvidence
+          git commit -m 'review: actual 5ddc443 before-after and phase evidence'
+          git push origin HEAD:tmp-hip-proof
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hip-before-after-evidence
+          path: ReviewEvidence/
+          retention-days: 10
