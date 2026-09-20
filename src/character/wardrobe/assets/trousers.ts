@@ -1,4 +1,5 @@
-import { B, type Cage, type Recipe, type Weight } from '../../v3/types';
+import { KNEE } from '../../v3/leg-deformation';
+import { B, rigid, type Cage, type Recipe, type Weight } from '../../v3/types';
 import { ring, bridge, vertex, face, orient } from '../../v3/cage';
 import { BOTTOM_PATTERNS } from '../patterns';
 import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from './contract';
@@ -21,19 +22,17 @@ export function makeTrousers(recipe: Recipe): GarmentPiece | undefined {
     roots.push(root);
     const rows:[string,number,number,number,Weight][]=[
       ['Thigh',.805,.089*pattern.thigh,.087,[B.Hips,thigh,.28]],
-      ['UpperLeg',.69,.078*pattern.thigh,.080,[thigh,shin,.94]],
-      ['KneeUpper',.60,.064*pattern.knee,.061,[thigh,shin,.76]],
-      ['Knee',.489,.060*pattern.knee,.058,[thigh,shin,.5]],
-      ['KneeLower',.375,.061*pattern.knee,.056,[thigh,shin,.24]],
-      ['Calf',.29,.066*pattern.calf,.064,[thigh,shin,.08]],
+      ['KneeUpper',KNEE.upperY,.064*pattern.knee,.061,[thigh,shin,KNEE.upperThighWeight]],
+      ['Knee',KNEE.centerY,.060*pattern.knee,.058,[thigh,shin,KNEE.centerThighWeight]],
+      ['KneeLower',KNEE.lowerY,.061*pattern.knee,.056,[thigh,shin,KNEE.lowerThighWeight]],
+      ['Calf',.29,.066*pattern.calf,.064,rigid(shin)],
       ['Cuff',pattern.hem,.046,.045,[shin,foot,.2]],
     ];
     let prev=root;
     for(let row=0;row<rows.length;row++){
       const [label,y,w,d,weights]=rows[row];
       const next=ring(c,`Pants.${name}.${label}`,[side*.101,y,0],[1,0,0],[0,0,1],directed,w,d,weights);
-      if(label==='Knee')for(const i of next)if(c.vertices[i].p[2]<0)c.vertices[i].p[2]=-.012;
-      bridge(c,prev,next,row<3?'thigh':'shin',pattern.trim&&label==='Cuff'?accent:secondary);prev=next;
+      bridge(c,prev,next,row<2?'thigh':'shin',pattern.trim&&label==='Cuff'?accent:secondary);prev=next;
     }
     openings[name+'Cuff']=prev;
   }

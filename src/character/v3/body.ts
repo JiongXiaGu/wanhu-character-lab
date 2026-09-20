@@ -1,3 +1,4 @@
+import { KNEE } from "./leg-deformation";
 import { femalePoint } from "./proportions";
 import {
   B,
@@ -72,7 +73,8 @@ export function makeBody(): Cage {
   }
   face(c, [...loops.at(-1)!], "head");
   const hips = loops[0];
-  const crotch = vertex(c, "Crotch", [0, 0.815, 0], rigid(B.Hips));
+  // 中缝随左右大腿的平均姿态移动，不能在抬腿时仍钉在骨盆下方。
+  const crotch = vertex(c, "Crotch", [0, 0.815, 0], [B.RightThigh, B.LeftThigh, 0.5]);
   for (const side of [1, -1]) {
     const right = side === 1,
       prefix = right ? "Right" : "Left";
@@ -147,12 +149,12 @@ export function makeBody(): Cage {
       ? [hips[0], hips[1], hips[2], hips[3], hips[4], crotch]
       : [hips[4], hips[5], hips[6], hips[7], hips[0], crotch];
     c.anchors[`${prefix}LegRoot`] = legRoot;
-    // 两条腿都由同一骨盆边界分叉，裆点由 Hips 驱动，不重复。
+    // 两条腿从同一骨盆边界连接；中央点为左右大腿双权重，不再刚性悬挂。
     const legRows: [string, number, number, number, number, Weight][] = [
       ["Thigh", 0.805, 0.091, 0.078, 0, [B.Hips, thigh, 0.12]],
-      ["KneeUpper", 0.529, 0.058, 0.057, 0, [thigh, shin, 0.94]],
-      ["Knee", 0.489, 0.055, 0.055, 0, [thigh, shin, 0.5]],
-      ["KneeLower", 0.449, 0.056, 0.052, 0, [thigh, shin, 0.06]],
+      ["KneeUpper", KNEE.upperY, 0.058, 0.057, 0, [thigh, shin, KNEE.upperThighWeight]],
+      ["Knee", KNEE.centerY, 0.055, 0.055, 0, [thigh, shin, KNEE.centerThighWeight]],
+      ["KneeLower", KNEE.lowerY, 0.056, 0.052, 0, [thigh, shin, KNEE.lowerThighWeight]],
       ["Calf", 0.293, 0.062, 0.063, -0.008, rigid(shin)],
       ["Ankle", 0.105, 0.04, 0.039, 0, [shin, foot, 0.2]],
       ["Instep", 0.064, 0.052, 0.104, 0.05, rigid(foot)],
@@ -214,7 +216,7 @@ export function makeJoints(recipe: Recipe): Joint[] {
     const name = s === 1 ? "Right" : "Left",
       t = j.length;
     put(`${name}Thigh`, 1, [s * 0.101, 0.929, 0]);
-    put(`${name}Shin`, t, [s * 0.101, 0.489, 0]);
+    put(`${name}Shin`, t, [s * 0.101, KNEE.centerY, 0]);
     put(`${name}Foot`, t + 1, [s * 0.101, 0.105, 0]);
   }
   return j;

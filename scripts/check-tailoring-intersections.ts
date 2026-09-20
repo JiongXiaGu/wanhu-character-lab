@@ -15,7 +15,7 @@ assert(pierces([.2,.2,-1],[.2,.2,1],[[0,0,0],[1,0,0],[0,1,0]]));assert(!pierces(
 function skin(c:Cage,m:Float32Array):Vec3[]{return c.vertices.map(v=>{const p:Vec3=[0,0,0];for(const[bone,w]of[[v.w[0],v.w[2]],[v.w[1],1-v.w[2]]]){const k=bone*16;for(let a=0;a<3;a++)p[a]+=w*(m[k+a]*v.p[0]+m[k+4+a]*v.p[1]+m[k+8+a]*v.p[2]+m[k+12+a]);}return p;});}
 const ids=['pilot-switches','shooting-arrow','jogging',...MIXAMO_CLIPS.filter(c=>['snatch','start-walking'].includes(c.id)).map(c=>c.id)],rows:any[]=[],failures:any[]=[];
 let checkedFrames=0,pairsChecked=0;
-for(const bodyType of ['male','female'] as const)for(const bottom of BOTTOM_IDS.filter(id=>id!=='body')){
+for(const bodyType of ['male','female'] as const)for(const bottom of BOTTOM_IDS){
  const look=bottom;
  const d=makeCharacter(createRecipe({bodyType,slots:{top:'rough_tunic',bottom}})),c=d.surface,actor=makeActor(d),indices:number[][]=[];
  for(const f of c.faces)if(['pelvis','thigh','shin'].includes(f.region))for(let i=1;i<f.v.length-1;i++)indices.push([f.v[0],f.v[i],f.v[i+1]]);
