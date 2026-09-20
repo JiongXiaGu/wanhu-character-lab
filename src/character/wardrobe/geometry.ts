@@ -15,7 +15,7 @@ function tone(hex:string,factor:number):string {
 }
 
 function append(target:Cage,piece:Cage){orient(piece);const offset=target.vertices.length;target.vertices.push(...piece.vertices);target.faces.push(...piece.faces.map(f=>({...f,v:f.v.map(i=>i+offset)})));}
-export function styleGarmentSurface(c:Cage,r:Recipe,lod:WardrobeLod=0){tailorSurface(c,r,garmentColors(r),lod);}
+export function styleGarmentSurface(c:Cage,r:Recipe,lod:WardrobeLod=2){tailorSurface(c,r,garmentColors(r),lod);}
 /** 兼容旧调用；轮廓已在连续可见衣面内生成，不添加叠层壳体。 */
 export function addGarmentSilhouettes(_c:Cage,_r:Recipe):void{}
 function solidBox(c:Cage,id:string,p:Vec3,size:Vec3,color:string):void {

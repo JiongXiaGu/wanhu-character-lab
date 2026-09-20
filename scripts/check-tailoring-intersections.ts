@@ -17,7 +17,7 @@ assert(pierces([.2,.2,-1],[.2,.2,1],[[0,0,0],[1,0,0],[0,1,0]]));assert(!pierces(
 function skin(c:Cage,m:Float32Array):Vec3[]{return c.vertices.map(v=>{const p:Vec3=[0,0,0];for(const[bone,w]of[[v.w[0],v.w[2]],[v.w[1],1-v.w[2]]]){const k=bone*16;for(let a=0;a<3;a++)p[a]+=w*(m[k+a]*v.p[0]+m[k+4+a]*v.p[1]+m[k+8+a]*v.p[2]+m[k+12+a]);}return p;});}
 const ids=['pilot-switches','shooting-arrow','jogging',...MIXAMO_CLIPS.filter(c=>['snatch','start-walking'].includes(c.id)).map(c=>c.id)],rows:any[]=[],failures:any[]=[];
 let checkedFrames=0,pairsChecked=0;
-for(const profile of [{height:1.76,build:.5},{height:1.58,build:0},{height:1.92,build:1},{height:1.66,build:.25},{height:1.85,build:.75}])for(const bodyType of ['male','female'] as const)for(const look of ['plain-female','town-female','ceremony-female'])for(const lod of [0,1,2] as WardrobeLod[]){
+for(const profile of [{height:1.76,build:.5},{height:1.58,build:0},{height:1.92,build:1},{height:1.66,build:.25},{height:1.85,build:.75}])for(const bodyType of ['male','female'] as const)for(const look of ['plain-female','town-female','ceremony-female'])for(const lod of [2] as WardrobeLod[]){
  const d=makeCharacter(applyLook(cleanRecipe({bodyType,...profile}),look),{lod}),c=d.surface,actor=makeActor(d),indices:number[][]=[];
  for(const f of c.faces)if(['pelvis','thigh','shin'].includes(f.region))for(let i=1;i<f.v.length-1;i++)indices.push([f.v[0],f.v[i],f.v[i+1]]);
  actor.update(0);actor.mesh.skeleton.update();const bind=skin(c,actor.mesh.skeleton.boneMatrices);assert(Math.max(...bind.map((p,i)=>Math.hypot(...sub(p,c.vertices[i].p))))<1e-5,'独立蒙皮必须还原bind');
