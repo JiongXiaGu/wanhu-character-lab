@@ -1,6 +1,7 @@
+import {surfaceCornerNormals} from './normals';
 import * as T from "three";
 import type { CharacterData } from "./types";
-import { polygonNormal, edgeKey } from "./cage";
+import { edgeKey } from "./cage";
 export interface Actor {
   mesh: T.SkinnedMesh;
   skeleton: T.Skeleton;
@@ -23,20 +24,22 @@ export function makeActor(data: CharacterData): Actor {
     ix: number[] = [];
   const c = data.surface,
     color = new T.Color();
+  const cornerNormals=surfaceCornerNormals(c);
+  let faceIndex=0;
   for (const f of c.faces) {
-    const start = p.length / 3,
-      normal = polygonNormal(c, f);
+    const start = p.length / 3;
     color.set(f.color ?? "#b79773");
-    for (const vi of f.v) {
+    for (const [corner,vi] of f.v.entries()) {
       const v = c.vertices[vi];
       p.push(...v.p);
-      n.push(...normal);
+      n.push(...cornerNormals[faceIndex][corner]);
       col.push(color.r, color.g, color.b);
       si.push(v.w[0], v.w[1], 0, 0);
       sw.push(v.w[2], 1 - v.w[2], 0, 0);
     }
     for (let i = 1; i < f.v.length - 1; i++)
       ix.push(start, start + i, start + i + 1);
+    faceIndex++;
   }
   const geometry = new T.BufferGeometry();
   geometry.setAttribute("position", new T.Float32BufferAttribute(p, 3));

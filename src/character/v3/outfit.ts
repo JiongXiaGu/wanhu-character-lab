@@ -726,7 +726,7 @@ export function makeCharacter(input: RecipeInput, options:{lod?:WardrobeLod}={})
   }
 
   if (dressed) expandClothingLoops(c, recipe);
-  styleGarmentSurface(c,recipe,options.lod??0);
+  styleGarmentSurface(c,recipe,options.lod??2);
   addGarmentSilhouettes(c,recipe);
 
   if (hasTop || hasBottom) belt(c, leather);

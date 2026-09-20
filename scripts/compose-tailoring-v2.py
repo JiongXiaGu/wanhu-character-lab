@@ -11,11 +11,13 @@ def sheet(files,name,cols=3):
         x=(i%cols)*width+(width-im.width)//2;y=(i//cols)*height+30;out.paste(im,(x,y));d.text(((i%cols)*width+8,(i//cols)*height+8),f[:65],fill='white')
     out.save(root/name)
 files=[s['file'] for s in meta['shots']]
-for lod in range(3):
+for lod in [2]:
     chosen=[f for f in files if f'-lod{lod}-pilot-front-0.5' in f]
     if chosen:sheet(chosen,f'seated-lod{lod}.jpg')
-chosen=[f for f in files if '-lod0-pilot-side-0.5' in f]
+chosen=[f for f in files if '-lod2-pilot-side-0.5' in f]
 if chosen:sheet(chosen,'seated-side.jpg')
+chosen=[f for f in files if f.startswith('hips-')]
+if chosen:sheet(chosen,'hips-closeups.jpg',3)
 for name in ['pilot-switches','shooting-arrow','jogging','snatch']:
     chosen=[f for f in files if name in f and ('sequence-' in f or 'library-' in f)]
     if chosen:sheet(chosen,'motion-'+name+'.jpg',4)

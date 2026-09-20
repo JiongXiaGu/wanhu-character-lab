@@ -15,21 +15,25 @@ try{
  // 每个文件都由独立清单参与实际浏览器加载；不是只增加按钮或复用旧十一条。
  const inventory=JSON.parse(readFileSync('public/mixamo/inventory.json','utf8'));assert.equal(MIXAMO_CLIPS.length,inventory.prepared);
  for(const clip of MIXAMO_CLIPS){await open({bodyType:'female',look:'town-female',mixamo:clip.id,view:'front'});await shot('library-'+clip.id,.5,{clip:clip.id,kind:'library'});}
- for(const bodyType of ['male','female'])for(const look of ['plain-female','town-female','ceremony-female'])for(const lod of ['0','1','2']){
+ for(const bodyType of ['male','female'])for(const look of ['plain-female','town-female','ceremony-female'])for(const lod of ['2']){
   for(const view of ['front','side','back']){await open({bodyType,look,lod,mixamo:'pilot-switches',view});for(const phase of [0,.25,.5,.75,1])await shot(`${bodyType}-${look}-lod${lod}-pilot-${view}-${phase}`,phase,{bodyType,look,lod,view,clip:'pilot-switches'});}
  }
  for(const bodyType of ['male','female'])for(const id of priority.filter(id=>id!=='pilot-switches')){
   await open({bodyType,look:'ceremony-female',mixamo:id,view:'side'});for(let k=0;k<=16;k++)await shot(`${bodyType}-${id}-sequence-${k}`,k/16,{bodyType,clip:id,kind:'sequence'});
  }
  for(const bodyType of ['male','female'])for(const [height,build] of [['1.58','0'],['1.92','1']]){await open({bodyType,height,build,look:'town-female',mixamo:'pilot-switches',view:'front'});await shot(`endpoint-${bodyType}-${height}`, .5,{bodyType,height,build});}
+ for(const bodyType of ['male','female'])for(const view of ['front','side','back'])for(const display of ['beauty','clay','cage']){
+  await open({bodyType,look:'town-female',mixamo:'pilot-switches',view,display});
+  await page.evaluate(()=>{window.__WANHU_REVIEW__!.seek(.5);window.__WANHU_REVIEW__!.focusHips();});
+  await shot(`hips-${bodyType}-${view}-${display}`,.5,{bodyType,view,display,kind:'hips'});
+ }
  // 交互检查：搜索、收藏、筛选空结果、快捷坐姿及LOD时序保持。
  await open({bodyType:'female',look:'town-female',mixamo:'pilot-switches',view:'front'});
  await page.getByLabel('搜索动画',{exact:true}).fill('劳动');assert.equal(await page.getByTestId('mixamo-snatch').count(),1);
  await page.getByLabel('搜索动画',{exact:true}).fill('Pilot');assert.equal(await page.getByRole('listitem').count(),1);
  await page.getByLabel('收藏 Pilot Flips Switches',{exact:true}).click();await page.getByLabel('搜索动画',{exact:true}).fill('no-such-motion-xyz');assert.equal(await page.getByRole('listitem').count(),0);await page.getByLabel('搜索动画',{exact:true}).fill('');
  await page.evaluate(()=>window.__WANHU_REVIEW__!.seek(.5));const saved=await page.evaluate(()=>JSON.stringify(window.__WANHU_RECIPE__!()));
- const counts:number[]=[];for(const lod of [2,1,0]){const before=await page.evaluate(()=>window.__WANHU_REVIEW__!.stats.triangles);await page.getByTestId('lod-'+lod).click();await page.waitForFunction(n=>window.__WANHU_REVIEW__!.stats.triangles!==n,before);await page.waitForFunction(()=>!!window.__WANHU_REVIEW__!.getStatus().mixamo?.ready);assert(Math.abs((await page.evaluate(()=>window.__WANHU_REVIEW__!.getStatus().phase))-.5)<1e-5);assert.equal(await page.evaluate(()=>JSON.stringify(window.__WANHU_RECIPE__!())),saved);counts.push(await page.evaluate(()=>window.__WANHU_REVIEW__!.stats.triangles));}
- assert(counts[0]<counts[1]&&counts[1]<counts[2]);
+ assert.equal(await page.getByTestId('standard-model').count(),1);assert.equal(await page.locator('[data-testid^=lod-]').count(),0);assert.equal(await page.evaluate(()=>JSON.stringify(window.__WANHU_RECIPE__!())),saved);
  await page.screenshot({path:dir+'/workbench.png'});shots.push({file:'workbench.png',kind:'ui'});
  await page.getByRole('button',{name:'下一帧',exact:true}).click();await page.waitForFunction(()=>window.__WANHU_REVIEW__!.getStatus().phase>.5);
  await page.setViewportSize({width:430,height:932});await page.screenshot({path:dir+'/mobile.png',fullPage:true});shots.push({file:'mobile.png',kind:'ui'});
