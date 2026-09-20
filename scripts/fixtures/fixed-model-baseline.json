@@ -1,0 +1,118 @@
+{
+  "sourceCommit": "4740a5cca22a94604a90e4f86d885a8ef64dbb47",
+  "note": "Pre-refactor default male/female, original LOD2, eight looks each. Captured before editing; not a new anatomy acceptance.",
+  "rows": [
+    {
+      "bodyType": "male",
+      "look": "plain-male",
+      "bodyHash": "e9172e6841318c46e1d9a77c782ef78110ca896c57ca6881b0d3e1d6845f1f0e",
+      "surfaceHash": "1d0734ec4c815e53b963dca0e9d7d6b3744aadfdc32f1bbc581e24d3a402e4d3",
+      "jointsHash": "abebd2da0caea053daf406d52bfec649767c14e8d319f3a9547628d85b5df41e"
+    },
+    {
+      "bodyType": "male",
+      "look": "plain-female",
+      "bodyHash": "e9172e6841318c46e1d9a77c782ef78110ca896c57ca6881b0d3e1d6845f1f0e",
+      "surfaceHash": "a5fcd1b8f42369bdec9f06f4feaff8c183efdc30086f7a033ef5dfeecdc1f371",
+      "jointsHash": "abebd2da0caea053daf406d52bfec649767c14e8d319f3a9547628d85b5df41e"
+    },
+    {
+      "bodyType": "male",
+      "look": "town-male",
+      "bodyHash": "e9172e6841318c46e1d9a77c782ef78110ca896c57ca6881b0d3e1d6845f1f0e",
+      "surfaceHash": "5c4c4b9c471e37fa9838db36a9273b9aca8c68465e9eb1ca3a0b0469804b0762",
+      "jointsHash": "abebd2da0caea053daf406d52bfec649767c14e8d319f3a9547628d85b5df41e"
+    },
+    {
+      "bodyType": "male",
+      "look": "town-female",
+      "bodyHash": "e9172e6841318c46e1d9a77c782ef78110ca896c57ca6881b0d3e1d6845f1f0e",
+      "surfaceHash": "01d81138dd53bb4e9490e0293f3255cc39a2de6f0b5e2b4c4d3d45eaa7d61a1a",
+      "jointsHash": "abebd2da0caea053daf406d52bfec649767c14e8d319f3a9547628d85b5df41e"
+    },
+    {
+      "bodyType": "male",
+      "look": "elegant-male",
+      "bodyHash": "e9172e6841318c46e1d9a77c782ef78110ca896c57ca6881b0d3e1d6845f1f0e",
+      "surfaceHash": "4bc145916fbd77cf569ba3853c9ee421bd215e1407978867d53fad3475edfa26",
+      "jointsHash": "abebd2da0caea053daf406d52bfec649767c14e8d319f3a9547628d85b5df41e"
+    },
+    {
+      "bodyType": "male",
+      "look": "elegant-female",
+      "bodyHash": "e9172e6841318c46e1d9a77c782ef78110ca896c57ca6881b0d3e1d6845f1f0e",
+      "surfaceHash": "332b73cfe3636ab0fd99d5f6545cfeb480e8c2797a1e2958931c2345c26dd5c4",
+      "jointsHash": "abebd2da0caea053daf406d52bfec649767c14e8d319f3a9547628d85b5df41e"
+    },
+    {
+      "bodyType": "male",
+      "look": "ceremony-male",
+      "bodyHash": "e9172e6841318c46e1d9a77c782ef78110ca896c57ca6881b0d3e1d6845f1f0e",
+      "surfaceHash": "b9d9d43853663b61cf59d5e6e57721025f6df1e1a501449e659a0e7512ab4103",
+      "jointsHash": "abebd2da0caea053daf406d52bfec649767c14e8d319f3a9547628d85b5df41e"
+    },
+    {
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "bodyHash": "e9172e6841318c46e1d9a77c782ef78110ca896c57ca6881b0d3e1d6845f1f0e",
+      "surfaceHash": "947ab25eed3492a4aef246387f1d1cccc41a72dee8e0f8b1a0ad7125cdcc8e19",
+      "jointsHash": "abebd2da0caea053daf406d52bfec649767c14e8d319f3a9547628d85b5df41e"
+    },
+    {
+      "bodyType": "female",
+      "look": "plain-male",
+      "bodyHash": "6ad6c0d0de948303cf3704d124b493609ad35d5a4e7e87a2714628f05bbbf8bd",
+      "surfaceHash": "0fed41506e5eb1edf25feab29bf583da163b1412d4264fc23bc3399fe260be2b",
+      "jointsHash": "3e5ea3f2de3bc2b370782bbecdeabd9c88d005da9392dd08910f114ad05a16c1"
+    },
+    {
+      "bodyType": "female",
+      "look": "plain-female",
+      "bodyHash": "6ad6c0d0de948303cf3704d124b493609ad35d5a4e7e87a2714628f05bbbf8bd",
+      "surfaceHash": "5b7a4fa9162dde4a54783d8b81ca859b4ece15e102ca7a7c781a0645ac048c0d",
+      "jointsHash": "3e5ea3f2de3bc2b370782bbecdeabd9c88d005da9392dd08910f114ad05a16c1"
+    },
+    {
+      "bodyType": "female",
+      "look": "town-male",
+      "bodyHash": "6ad6c0d0de948303cf3704d124b493609ad35d5a4e7e87a2714628f05bbbf8bd",
+      "surfaceHash": "b5788c9f3b97516556a50fe0f77f6ca55ea15bee95c5c8b695e0ebdf48d3ee02",
+      "jointsHash": "3e5ea3f2de3bc2b370782bbecdeabd9c88d005da9392dd08910f114ad05a16c1"
+    },
+    {
+      "bodyType": "female",
+      "look": "town-female",
+      "bodyHash": "6ad6c0d0de948303cf3704d124b493609ad35d5a4e7e87a2714628f05bbbf8bd",
+      "surfaceHash": "b1ce4eda569502061dee0b8e023236501191f0a55a7a2929555af58f057f6df9",
+      "jointsHash": "3e5ea3f2de3bc2b370782bbecdeabd9c88d005da9392dd08910f114ad05a16c1"
+    },
+    {
+      "bodyType": "female",
+      "look": "elegant-male",
+      "bodyHash": "6ad6c0d0de948303cf3704d124b493609ad35d5a4e7e87a2714628f05bbbf8bd",
+      "surfaceHash": "1441d8c32b57a7c41bb3817b026880fe65d4c7e21b1e7aa9192065a43dae2421",
+      "jointsHash": "3e5ea3f2de3bc2b370782bbecdeabd9c88d005da9392dd08910f114ad05a16c1"
+    },
+    {
+      "bodyType": "female",
+      "look": "elegant-female",
+      "bodyHash": "6ad6c0d0de948303cf3704d124b493609ad35d5a4e7e87a2714628f05bbbf8bd",
+      "surfaceHash": "d33ec739cf73772bbda07a0aa632364ac8c72d4fa79c504abfd523a02eda7d6e",
+      "jointsHash": "3e5ea3f2de3bc2b370782bbecdeabd9c88d005da9392dd08910f114ad05a16c1"
+    },
+    {
+      "bodyType": "female",
+      "look": "ceremony-male",
+      "bodyHash": "6ad6c0d0de948303cf3704d124b493609ad35d5a4e7e87a2714628f05bbbf8bd",
+      "surfaceHash": "a1981c43fa32bc03b17abcdeb97d756e34e5d76372da142c64617b71b6c6817f",
+      "jointsHash": "3e5ea3f2de3bc2b370782bbecdeabd9c88d005da9392dd08910f114ad05a16c1"
+    },
+    {
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "bodyHash": "6ad6c0d0de948303cf3704d124b493609ad35d5a4e7e87a2714628f05bbbf8bd",
+      "surfaceHash": "295729230dba3fc504a3275414c2cf834993f07ceda2e838626031129a6a0bfc",
+      "jointsHash": "3e5ea3f2de3bc2b370782bbecdeabd9c88d005da9392dd08910f114ad05a16c1"
+    }
+  ]
+}

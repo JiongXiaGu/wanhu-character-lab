@@ -17,12 +17,13 @@
     "prebuild": "npm run prepare:mixamo",
     "check:mixamo": "tsx scripts/check-mixamo.ts && tsx scripts/check-mixamo-clock.ts && tsx scripts/check-head-calibration.ts",
     "review:mixamo": "tsx scripts/review-mixamo.ts",
-    "check:retired": "tsx scripts/check-fbx-only.ts",
+    "check:retired": "tsx scripts/check-fbx-only.ts && npm run check:fixed",
     "check:wardrobe": "tsx scripts/check-wardrobe.ts",
-    "review:wardrobe": "tsx scripts/review-wardrobe.ts",
+    "review:wardrobe": "tsx scripts/review-wardrobe.ts && tsx scripts/review-fixed-v5.ts",
     "check:tailoring": "tsx scripts/check-tailoring-v2.ts && tsx scripts/check-tailoring-intersections.ts",
     "review:tailoring": "tsx scripts/review-tailoring-v2.ts",
-    "check:intersections": "tsx scripts/check-tailoring-intersections.ts"
+    "check:intersections": "tsx scripts/check-tailoring-intersections.ts",
+    "check:fixed": "tsx scripts/check-fixed-contract.ts"
   },
   "dependencies": {
     "react": "19.1.1",

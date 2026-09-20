@@ -1,65 +1,33 @@
-# AGENTS.md
+# AGENTS · 衣冠工坊 V5
 
-接手读取最新 main，依次阅读 README、Documentation/服装动画适配V2.md、Documentation/玩家角色自定义与服饰分期.md、Documentation/换装工作台使用.md、Documentation/工作交接.md、男性FBX校正.md、Mixamo动画接入.md、项目概览.md、运行时人物生成架构.md、GPU骨骼动画迁移契约.md、服装生成架构.md、GitHubActions截图验收规范.md。
+## 接手
 
-## 当前决定 · 衣冠工坊 V2
+这是 wanhu-character-lab 的 3D 换装与 FBX 试衣项目，不是头像或 UI 原型项目。先核对最新 main、任务分支和 PR，再读取 README、固定基模与换装V5、工作交接、玩家角色自定义与服饰分期、服装生成架构、运行时人物生成架构、换装工作台使用、Mixamo动画接入、男性FBX校正、GPU骨骼动画迁移契约、GitHubActions截图验收规范。
 
-用户确认只靠外部 FBX 动画，淘汰全部手写程序动作对照。**不得恢复旧 Motion、Phase4A Action 或作为失败回退。** 男性已在 6627c2e 合入，女性在 V3.6 接入。现在玩家自定义优先：服饰偏写意，Web 仅为换装/外观制作与试衣，玩法在 Unity。预设是推荐而非身份，不按职业、财富、宫廷或性别锁衣服；先做好可编辑部件，再由同一 Recipe 供城市居民取样。
+## 产品与数据
 
-路径：`Recipe V4 Slots → v3/body/outfit → CharacterData → rig → CharacterViewport`；`Mixamo FBX → 离线源采样 → mixamo/retarget → 目标局部轨道 → mixamo/player`。
+保留两个固定成年男女基模和原 LOD2 单一标准精度。重点是写意服饰、混搭、染色和可靠动画。连续身高／胖瘦、体格模板、多档 LOD 和旧配方兼容已退役；Git 保存历史。
 
-原 segmented / V2 二维挤出路径禁止恢复。外部人物 Mesh/贴图不得替换程序人物，但外部动画是唯一正式动画来源。静态 bind 仅用于检视，不是动画片段。
+Recipe V5 精确包含 version/bodyType/slots/dyes/hairStyle/hairColor。七槽位完整，用户文件经 parseRecipeFile 严格验证；createRecipe 仅供内部构造。只读 V5 保存键。保留农户、卫兵、弓手可编辑资产、跨男女混搭、三色与发色、随机种子、锁定、撤销、保存和导入导出。
 
-## 不得破坏
+正式路径：Recipe → 固定基模／版型／装配 → CharacterData → rig → viewport；FBX → 离线提取 → retarget → 目标局部轨道 → player。patterns.ts 是固定版型数据，不是已经完成的外部服装 Mesh 导入器。
 
-- 连续封闭、四边面主导人体；固定 20 Bone ID / Parent Map，不能随衣服/体型变化。
-- 每顶点最多 2 非零权重，关节双骨，普通区尽量单骨。不得用 DoubleSide 隐藏绕序错误。
-- 服装共用骨架：Rigid 单骨、BodyDerived 继承权重。不要引入衣服独立 Animator。
-- 主体播放不重建 Mesh，不逐帧全身 IK；源载入/体型变化时离线烘焙。Debug CPU 蒙皮不代表生产路径。
-- +X 人物右、+Y 上、+Z 前。导航负责世界位移，保留骨盆姿态内的侧摆和上下运动。
-- 职业仅一次性预设。Recipe version=4（新增 bodyType=male/female，缺省 male），slots=headwear/top/bottom/shoes/back/leftHand/rightHand，height/build/palette；可选 dyes 三色、hairStyle、hairColor，缺省不改变旧配方输出。改 Slot 后 preset=custom，生成器只看 slots。
-- 旧 outfit/hat/equipment 仅入口兼容；farmer+equipment=true 仍迁移到 rightHand=farmer_hoe。动画不修改/重置 DIY。
-- 布料、五指、万人性能不是本轮默认范围。
+20 骨骼语义和父关系固定，每顶点最多两个非零权重；+X 右、+Y 上、+Z 前。男女绑定可以不同，衣服共享该基模骨架，不另建 Animator，也不未经验证共享男女最终矩阵。顶点色仍参与网格缓存。
 
-## 男女模型约束
+## 制作边界
 
-女性通过 proportions.ts 同拓扑形态场同时调整身体/衣物/关节；不能只换发型冒充女性。男性 6627c2e 的12套几何/骨架哈希由 check-body-profiles 固定，不能自动刷新基准。不要为适配女性改写男性数据。
+先收尾 V5，再修固定男女髋臀／裆底／腿根，最后扩充成熟服饰。16 套旧 LOD2 哈希只证明重构无造型回归，不永久冻结人体。修模可改变局部拓扑、体积、双权重和法线；明确升级资源版本并实际审查后更新基线。
 
-刚性帽子/工具以源/目标骨骼锚点变换，不能把非线性体型场逐点套在工具上导致直杆弯曲。旧 auto 发式保留历史遮蔽规则；显式新发髻在帽冠下隐藏，取下恢复。新长裳采用连续裤式分裳衣面，三级服饰LOD保持双权重，没有实时布料、额外服装骨骼或程序摆动。BodyType 切换必须保留 DIY、身高、配色与当前动画相位；旧 V4 输入默认 male，女性直达默认1.66m。
+PR #12 的深蹲失败补面不是 V5 基线。保留用户上传 FBX 与参考模型原样；不以额外遮挡、删腿、改变照明、改变源动作或放宽阈值代替修模。上衣包含领袖腰带，不做无限叠穿；差异很大的服装允许独立拓扑和权重。
 
-目标动画导出必须含 bodyType、profileVersion；女性 calibrationProfile=female-anatomical-v1，男性仍male-anatomical-v2。两性骨骼ID和父关系相同，但不能共享未经验证的最终骨矩阵。
+Web 只做外观与试衣。职业、导航、生产、战斗和场景交互在 Unity。不加入连续体型、缩放编辑器、儿童老人、捏脸、程序动作、实时布料、逐帧碰撞、全身 IK 或额外群体运行时。武器仍是附件展示，精确接触和道具事件未完成。
 
-## 校准与动画
+## 动画与交付
 
-prepare:mixamo扫描目录生成catalog.generated.ts；独立文件清单与全动作review一致。新文件不能静默忽略。读取真实 inverse bind，不拿首帧当参考姿态；处理坐标/单位、T/A pose、Spine1 折叠。
+自动扫描全部 FBX，数量不写死；提取失败明确报错。使用真实 inverse bind，不以首帧代替。保留头部相对真实 bind 的完整旋转差，不把 HeadTop_End 当脸前向或按动作锁定俯仰。换衣／男女切换保持暂停相位，切动画复用网格。
 
-**HeadTop_End 不是面前方向。** 已知源辅助骨段前倾 5.456°。头部直接使用相对真实 bind 的世界旋转差；不可按片段加固定抬头偏移、清零俯仰或扭曲脸部网格掩盖问题。源点头/转头必须保留。头部全四元数误差测试独立于骨段方向测试。
+执行 npm ci、check:retired、check:mesh、build、check:mixamo、check:wardrobe、check:tailoring，并核对五条正式 Actions。只在 runner 启动预览与截图，不部署 Vercel/Visual。
 
-public/mixamo 不提交；predev/prebuild 离线提取，无外部下载/部署/源网格。外部射箭人体与弓弦/箭/业务事件分开，不借用已删除的程序事件相位宣称完成。源缺少的道具、场景、第二人物不得伪称已导入。
+2026-09-20 用户更新：自动检查通过、实际图片审查无新增阻塞后合并 main，再由用户简单视觉复核。视频可选，不是合并门槛。保留 Pilot Flips Switches、Shooting Arrow、Jogging、Snatch、起步／行走／劳动动作及多相位、多视角图片；源帧／中点采样、检测算法和容差不变。
 
-## Unity
-
-迁移 SkeletonDefinition/SkinBinding/目标局部轨道/语义数据，不迁移 Three.js Mixer。缓存至少包含源 SHA、重定向版本、骨架版本、体型；不同身材不能无验证共享最终矩阵。
-
-先单人物 SkinnedMeshRenderer 对照，再 Crowd ClipId/Phase/Speed → Animation Texture/Bone Buffer → 批量渲染。JSON 导出不是 Clip/Avatar/Blob 实现，不默认每居民独立完整 Animator/Transform 层级。
-
-## 开发与验收
-
-连续完成：读文档 → 实现 → check:retired/check:mesh/build/check:mixamo/check:wardrobe/check:tailoring → GitHub Actions → 下载实际审图和连续视频 → 修正重跑 → 合入 main。不要每子步骤要求继续，不承诺回复后后台开发。
-
-FBX 每动作正/侧/背/布线与完整关键相位；男女慢跑/射箭连续视频；男女×4外观×3身材；去帽子头部近景、DIY、快速切换、暂停/末帧、重试和导出。静态绑定不得有隐式呼吸等程序运动。
-
-新动作按源实际接触语义审查，不沿用旧 Walk 固定相位门槛。数值通过不证明无自交，记录限制、SHA和run ID；仅文档提交可引用未变化父代码的已审截图。
-
-临时分支验证后合 main；不强推、不覆盖并发修改。锁依赖 npm ci，文档同步。仅 Actions runner 内 Preview+Playwright+Artifact；下载并实际查看。不部署 Visual/Vercel，保留 vercel.json git.deploymentEnabled=false。
-
-## 衣冠工坊约束
-
-普通入口默认静态试衣；review=1 保留旧 FBX 慢跑默认。不把目录 SVG 示意当作真实模型缩略图。新增衣面/LOD实现放 wardrobe/tailoring.ts，头饰发髻保留 wardrobe/geometry.ts，推荐/随机/导入逻辑放 wardrobe/catalog.ts；不要继续扩展按职业分支的生成器。
-
-固定七槽位，完整上衣含领/袖/腰带。手动选择不受随机锁限制；应用预设不改体型与身材。随机复现依赖输入 Recipe、种子、锁定集与生成器版本。导入非法文件保持原角色。localStorage 单槽不是账号/云存档。
-
-新增服饰需 Wardrobe Review 多视图、素模、体型端点、慢跑/射箭连续视频、跨体型混搭和配方导出重入。正式合并前核对实际截图对应提交，不自动更新男体基线。长摆高抬腿、翻转、贴地限制明确记录，不用 DoubleSide 或改 FBX 掩盖。
-
-## V2门槛
-坐姿拨开关、射箭、慢跑、抓举压力测试为重点。Tailoring V2需闭合拓扑及离线三角贯穿诊断；数字通过不代表视觉通过。LOD仅服饰，不宣称全人物Crowd。实际状态见服装动画适配V2.md。
+记录受测 SHA、run、真实结果、下载与实际查看范围、未查看的视频、已知限制和最终 main SHA。图片抽样不等于所有连续瞬间通过；工程重构通过不等于髋裆修复。仅文档变更可引用未变化的受测代码，代码或测试变更重新验收。正常合并，核对最新 HEAD，避免覆盖并发提交。详细规则以最新截图验收规范为准。

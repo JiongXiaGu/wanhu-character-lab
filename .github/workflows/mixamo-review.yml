@@ -29,7 +29,7 @@ jobs:
       - run: npm run check:retired
       - name: Prepare FBX animation data and build
         run: npm run build 2>&1 | tee mixamo-build-review.log
-      - name: Validate all clips and body proportions
+      - name: Validate all clips and fixed bodies
         run: npm run check:mixamo 2>&1 | tee mixamo-numeric-review.log
       - name: Install browser and Chinese fonts
         run: |

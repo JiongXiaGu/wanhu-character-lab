@@ -3,7 +3,7 @@ import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import * as T from 'three';
 import {makeCharacter} from '../src/character/v3/outfit';
 import {makeActor} from '../src/character/v3/rig';
-import {BODY_TYPES,cleanRecipe,patchSlots,HAIR_STYLE_IDS,type Recipe} from '../src/character/v3/types';
+import {BODY_TYPES,createRecipe,patchSlots,HAIR_STYLE_IDS,type Recipe} from '../src/character/v3/types';
 import {cross,sub,triCount} from '../src/character/v3/cage';
 import {WARDROBE_LOOKS,WARDROBE_VERSION,applyLook,parseRecipeFile,randomizeLook,SLOT_OPTIONS} from '../src/character/wardrobe/catalog';
 import {GARMENT_GEOMETRY_VERSION,BODY_HIDE_VERSION} from '../src/character/wardrobe/geometry';
@@ -11,7 +11,7 @@ import {assertComponentWinding} from './check-components';
 import {MIXAMO_CLIPS} from '../src/character/mixamo/catalog';
 import {retargetMixamo} from '../src/character/mixamo/retarget';
 import type {MixamoMotionData} from '../src/character/mixamo/data';
-const rows:{look:string;bodyType:string;height:number;build:number;triangles:number;vertices:number}[]=[];
+const rows:{look:string;bodyType:string;triangles:number;vertices:number}[]=[];
 let wrapEdgesChecked=0,coveredLegCases=0;
 function inspect(recipe:Recipe){
   const d=makeCharacter(recipe),c=d.surface;
@@ -31,29 +31,29 @@ function inspect(recipe:Recipe){
   assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);
   return d;
 }
-for(const look of WARDROBE_LOOKS)for(const bodyType of BODY_TYPES)for(const [height,build]of[[1.58,0],[1.76,.5],[1.92,1]]){
-  const r=applyLook(cleanRecipe({bodyType,height,build}),look.id),d=inspect(r);
-  assert.equal(r.bodyType,bodyType);assert.equal(r.height,height);assert.equal(r.build,build);
-  rows.push({look:look.id,bodyType,height,build,triangles:triCount(d.surface),vertices:d.surface.vertices.length});
+for(const look of WARDROBE_LOOKS)for(const bodyType of BODY_TYPES){
+  const r=applyLook(createRecipe({bodyType}),look.id),d=inspect(r);
+  assert.equal(r.bodyType,bodyType);
+  rows.push({look:look.id,bodyType,triangles:triCount(d.surface),vertices:d.surface.vertices.length});
 }
 let combinations=0;
-for(const bodyType of BODY_TYPES)for(const top of SLOT_OPTIONS.top)for(const bottom of SLOT_OPTIONS.bottom){inspect(patchSlots(cleanRecipe({bodyType}),{top:top.id,bottom:bottom.id}));combinations++;}
-for(const bodyType of BODY_TYPES)for(const head of SLOT_OPTIONS.headwear)for(const hairStyle of HAIR_STYLE_IDS){inspect(cleanRecipe({...applyLook(cleanRecipe({bodyType}),'town-'+bodyType),slots:{...applyLook(cleanRecipe({bodyType}),'town-'+bodyType).slots,headwear:head.id},hairStyle,hairColor:'#ab9276'}));combinations++;}
+for(const bodyType of BODY_TYPES)for(const top of SLOT_OPTIONS.top)for(const bottom of SLOT_OPTIONS.bottom){inspect(patchSlots(createRecipe({bodyType}),{top:top.id,bottom:bottom.id}));combinations++;}
+for(const bodyType of BODY_TYPES)for(const head of SLOT_OPTIONS.headwear)for(const hairStyle of HAIR_STYLE_IDS){inspect(createRecipe({...applyLook(createRecipe({bodyType}),'town-'+bodyType),slots:{...applyLook(createRecipe({bodyType}),'town-'+bodyType).slots,headwear:head.id},hairStyle,hairColor:'#ab9276'}));combinations++;}
 // 换回裤装必须恢复整条腿的可见面；穿脱不能污染共享源网格。
 for(const bodyType of BODY_TYPES){
- const skirt=applyLook(cleanRecipe({bodyType}),'town-female');makeCharacter(skirt);
+ const skirt=applyLook(createRecipe({bodyType}),'town-female');makeCharacter(skirt);
  const trousers=makeCharacter(patchSlots(skirt,{bottom:'loose_trousers'}));
  for(const region of['thigh','shin'])assert(trousers.surface.faces.filter(f=>f.region===region).length>=trousers.body.faces.filter(f=>f.region===region).length,'脱裙后腿部未恢复');
 }
-const r=applyLook(cleanRecipe({bodyType:'female',height:1.91,build:.8}),'town-female');
+const r=applyLook(createRecipe({bodyType:'female'}),'town-female');
 assert.deepEqual(randomizeLook(r,123),randomizeLook(r,123));assert(new Set(Array.from({length:32},(_,i)=>randomizeLook(r,i).slots.top)).size>=4,'nearby seeds do not explore silhouettes');
-const locked=randomizeLook(r,234,['top','bottom','dyes','hairStyle']);assert.equal(locked.slots.top,r.slots.top);assert.equal(locked.slots.bottom,r.slots.bottom);assert.deepEqual(locked.dyes,r.dyes);assert.equal(locked.hairStyle,r.hairStyle);assert.equal(locked.height,r.height);assert.equal(locked.bodyType,r.bodyType);
-const bads=['null','{}','[]','not json',JSON.stringify({...r,version:9}),JSON.stringify({...r,slots:{...r.slots,top:'unknown'}}),JSON.stringify({...r,height:9}),JSON.stringify({...r,dyes:{primary:'#0'}}),JSON.stringify({...r,hairStyle:'unknown'}),' '.repeat(33000)];for(const bad of bads)assert.throws(()=>parseRecipeFile(bad));
+const locked=randomizeLook(r,234,['top','bottom','dyes','hairStyle']);assert.equal(locked.slots.top,r.slots.top);assert.equal(locked.slots.bottom,r.slots.bottom);assert.deepEqual(locked.dyes,r.dyes);assert.equal(locked.hairStyle,r.hairStyle);assert.equal(locked.bodyType,r.bodyType);
+const bads=['null','{}','[]','not json',JSON.stringify({...r,version:9}),JSON.stringify({...r,slots:{...r.slots,top:'unknown'}}),JSON.stringify({...r,height:1.76}),JSON.stringify({...r,version:4}),JSON.stringify({...r,lod:2}),JSON.stringify({...r,slots:{...r.slots,extra:"none"}}),JSON.stringify({...r,dyes:{primary:'#0'}}),JSON.stringify({...r,hairStyle:'unknown'}),' '.repeat(33000)];for(const bad of bads)assert.throws(()=>parseRecipeFile(bad));
 // 对新增服饰逐个 FBX 采样全渲染顶点的关键时刻，不把有限值当作没有穿模。
 let frames=0,vertexSamples=0;
 for(const def of MIXAMO_CLIPS){const source=JSON.parse(readFileSync(`public/mixamo/${def.id}.json`,'utf8'))as MixamoMotionData;
  for(const look of WARDROBE_LOOKS)for(const bodyType of BODY_TYPES){
-  const recipe=applyLook(cleanRecipe({bodyType}),look.id),d=makeCharacter(recipe),a=makeActor(d),b=retargetMixamo(d,source),saved=JSON.stringify(recipe),geometry=a.mesh.geometry;
+  const recipe=applyLook(createRecipe({bodyType}),look.id),d=makeCharacter(recipe),a=makeActor(d),b=retargetMixamo(d,source),saved=JSON.stringify(recipe),geometry=a.mesh.geometry;
   const action=a.mixer.clipAction(b.clip);action.setLoop(T.LoopOnce,1).play();action.paused=true;action.clampWhenFinished=true;
   for(const phase of[0,.125,.25,.375,.5,.625,.75,.875,1]){
    action.time=source.times.at(-1)!*phase;a.update(0);frames++;assert.equal(a.mesh.geometry,geometry);

@@ -106,13 +106,13 @@ export function retargetMixamo(data: CharacterData, source: MixamoMotionData): R
 /** 渲染器无关的目标局部轨道；不是 Unity AnimationClip/Avatar，也不含业务或弓弦事件。 */
 export function exportTargetMotion(data: CharacterData, source: MixamoMotionData, bake: RetargetBake) {
   return {
-    schema: 'wanhu-target-motion', version: 1, retargetVersion: RETARGET_VERSION,
+    schema: 'wanhu-target-motion', version: 2, retargetVersion: RETARGET_VERSION,
     skeletonVersion: 'wanhu-20-v1',
     calibrationProfile: { id: data.recipe.bodyType === 'female' ? 'female-anatomical-v1' : 'male-anatomical-v2', head: 'source-world-bind-delta; neutral-face-forward-+Z' },
     coordinateSystem: '+X character-right / +Y up / +Z forward; quaternion xyzw',
     source: source.source, clipId: source.id, duration: source.duration, loop: bake.loop, times: source.times,
     rootMotionPolicy: 'remove-linear-planar-trajectory; preserve-local-sway-and-height',
-    proportion: { bodyType: data.recipe.bodyType, profileVersion: BODY_PROFILE_VERSION, height: data.recipe.height, build: data.recipe.build },
+    bodyProfile: { id: data.recipe.bodyType, version: BODY_PROFILE_VERSION },
     bones: data.joints.map((joint, i) => ({ id: i, name: joint.name, parent: joint.parent,
       bindLocalPosition: v(joint.p, 0).sub(joint.parent < 0 ? new T.Vector3() : v(data.joints[joint.parent].p, 0)).toArray(),
       bindLocalRotation: [0, 0, 0, 1], rotations: bake.rotations[i], ...(i === 1 ? { positions: bake.hips } : {}) })),

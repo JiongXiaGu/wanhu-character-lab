@@ -17,7 +17,7 @@ page.on('pageerror',e=>errors.push(e.message));
 page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
 const base=process.env.REVIEW_URL??'http://127.0.0.1:4173';
 async function open(id:string,extra:Record<string,string>={}){
-  const query=new URLSearchParams({review:'1',paused:'1',mixamo:id,outfit:'farmer',equipment:'0',bodyType:activeBodyType,...extra});
+  const query=new URLSearchParams({review:'1',paused:'1',mixamo:id,preset:'farmer',bodyType:activeBodyType,...extra});
   await page.goto(`${base}/?${query}`);await page.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
   assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('[role="alert"]').count(),0);
 }
@@ -47,7 +47,7 @@ try{
     const videoPage=await videoContext.newPage(),video=videoPage.video()!;
     try{
       videoPage.on('pageerror',e=>errors.push(e.message));
-      await videoPage.goto(`${base}/?review=1&paused=1&bodyType=${activeBodyType}&mixamo=${id}&compare=1&view=side&outfit=archer&headwear=none&leftHand=none&headAxes=1`);
+      await videoPage.goto(`${base}/?review=1&paused=1&bodyType=${activeBodyType}&mixamo=${id}&compare=1&view=side&preset=archer&headwear=none&leftHand=none&headAxes=1`);
       await videoPage.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
       await videoPage.getByRole('button',{name:'播放',exact:true}).click();
       if(id==='shooting-arrow')await videoPage.waitForFunction(()=>window.__WANHU_REVIEW__!.getStatus().finished,undefined,{timeout:30000});
@@ -59,14 +59,14 @@ try{
  }
   await open('shooting-arrow',{view:'side',compare:'1'});
   for(const phase of [.4,.5,.6,.7,.8])await shot('shooting-arrow','side-compare',phase);
-  await open('shooting-arrow',{outfit:'archer',headwear:'farmer_straw_hat',leftHand:'none',view:'front'});
+  await open('shooting-arrow',{preset:'archer',headwear:'farmer_straw_hat',leftHand:'none',view:'front'});
   await page.evaluate(()=>window.__WANHU_REVIEW__!.seek(.45));
-  for(const [height,build] of [[1.58,0],[1.92,1]]){
-    await page.getByLabel('身高',{exact:true}).evaluate((element,value)=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(element,String(value));element.dispatchEvent(new Event('input',{bubbles:true}));element.dispatchEvent(new Event('change',{bubbles:true}));},height);
-    await page.getByLabel('体格',{exact:true}).evaluate((element,value)=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(element,String(value));element.dispatchEvent(new Event('input',{bubbles:true}));element.dispatchEvent(new Event('change',{bubbles:true}));},build);
-    await page.waitForFunction(p=>{const d=window.__WANHU_EXPORT_MOTION__?.() as {proportion?:{height:number;build:number}}|undefined;return !!d?.proportion&&d.proportion.height===p[0]&&d.proportion.build===p[1];},[height,build]);
+  for(const bottom of ['work_wrap','robe_skirt']){
+    await page.getByLabel('下装',{exact:true}).selectOption(bottom);
+    await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
     assert.equal(await page.getByLabel('头饰',{exact:true}).inputValue(),'farmer_straw_hat');
-    await shot('shooting-arrow',`diy-${height}`, .45);
+    assert(Math.abs((await page.evaluate(()=>window.__WANHU_REVIEW__!.getStatus().phase))-.45)<1e-6);
+    await shot('shooting-arrow',`diy-${bottom}`, .45);
   }
   const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'导出目标骨架动画 JSON',exact:true}).click()]);
   await download.saveAs(`${directory}/reviewed-target-motion.json`);

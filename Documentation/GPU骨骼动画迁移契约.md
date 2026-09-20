@@ -1,63 +1,31 @@
-# GPU 骨骼动画迁移契约 · 衣冠工坊 V2
+# Unity／GPU迁移契约 · V5
 
-## 当前服饰版本
+## 当前交付不是Unity插件
 
-当前为连续裤式分裳；旧V1双层裙壳和整段隐藏大腿的策略已退役，不能再作为迁移端遮挡规则。几何版本 `wanhu-tailoring-v2-continuous-2`，衣面语义 `wanhu-tailoring-no-duplicate-lining-v2`。
+Web输出固定男女模型数据、Recipe V5、目标动画wanhu-target-motion v2。没有AnimationClip/Avatar导入器、Blob构建、GPU动画纹理、Entities Graphics接入或万人性能结论。迁移数据，不迁移Three.js Mixer。
 
-源人体闭合510tris保持；可见主衣面克隆源拓扑，使用静态腰髋/膝褶窝与双权重改善深屈曲，不同时绘制内腿与外裙两层。裆点由双大腿各半权重驱动；衣面校正发生在标准制作空间，再统一应用体型场。源人体、骨架及FBX不随衣物改写。
+## 必须保存
 
-LOD0/1/2只控制服饰几何细分，使用相同20骨骼、部件ID和动画相位，不写入Recipe。不能宣称完成全人物低模、人群性能、自动屏幕占比切换或动画LOD。细分不能改变连续衣面语义；每级实际动画都需检查。
+SkeletonDefinition：基模ID/bodyProfileVersion、骨骼名/索引/父索引、局部绑定位置/旋转与inverse bind。固定20骨骼，每顶点最多2非零权重。男女绑定位置可不同；衣服使用该基模骨架，不增加独立Animator。单位米，+X右/+Y上/+Z前，Unity端需显式核对坐标与xyzw顺序。
 
-衣服、三色染色、发髻、配方V4继续共用生成器。当前颜色仍烘焙到顶点色，颜色必须参与现有网格缓存键。Unity参数染色与跨颜色共享网格尚需实现。服装不创建独立Animator。
+SkinBinding：逻辑顶点、索引、权重、法线/颜色区域、装配部件；修拓扑时升级资源版本。当前固定几何版本wanhu-fixed-garments-v1。
 
-全部FBX从 `动画参考/` 自动扫描；当前23份，inventory.json包含totalFiles/prepared/clips/failures。提取缺失必须显式失败，不忽略新增资源。
+TargetMotion v2：sourceSHA、clipId、retargetVersion、duration、loop、真实time keys、bodyProfile{id,version}、bones、局部旋转轨道、Hips位置与提取的水平根轨迹。无height/build/proportion参数；不兼容旧导出。局部旋转按父关系累乘，最终蒙皮矩阵=世界姿态矩阵×inverse bind。头部校准不重复应用。
 
-## 状态
+## 位移与时间
 
-当前网页是程序人物+外部FBX局部轨道；旧程序动作已删除。迁移的是SkeletonDefinition、Bind Pose、SkinBinding、局部轨道与未来事件/道具语义，不是Three.js AnimationMixer。Unity正式实现未完成。
+实例Root世界位移交导航；保留骨盆姿态中的上下/侧摆及转向，不一律清零。源键包含完整末帧；循环与单次保持遵守真实片段元数据。暂停seek只改变视觉，不执行未来业务事件。事件不能因剔除或动画降频丢失。
 
-## 固定数据
+## 缓存与渲染
 
-20 Bone ID与Parent Map固定，详见运行时人物生成架构。每顶点最多2非零影响，逻辑 `[BoneA,BoneB,WeightA]`；硬法线/颜色拆点不改变绑定。单位米、+X人物右/+Y上/+Z前。Unity适配器必须显式验证坐标与四元数xyzw，不原样猜坐标。
+目标动画缓存至少包含sourceSHA、clipId、retargetVersion和固定bodyProfile版本。服装变化不改变基模绑定，但仍需验证资产权重与姿态；男女不默认共用最终矩阵。
 
-SkeletonDefinition：Version、BoneSemantic、ParentIndex、BindLocalPosition/Rotation、InverseBindMatrix。身材相同语义不代表绑定位置相同。
+网格缓存包含固定基模、服装几何/版型版本、slots、hairStyle和颜色。当前顶点色烘焙入网格，不能删除颜色键后宣称已共享。未来参数染色需要另行实现。只一个标准精度，无LOD编号缓存。
 
-TargetMotion：源SHA、retargetVersion、skeletonVersion、calibrationProfile、ClipId、Duration、Loop、实际TimeKeys、每骨局部旋转、Hips局部位置、提取根轨迹。局部旋转须按父关系累乘，最终蒙皮=姿态世界骨矩阵×inverse bind，不能把局部四元数直接当世界矩阵。
+未来高矮可在可视实例根部试验等比scale；非等比胖瘦、场景接触不在当前产品契约内。当前未提供scale编辑器。
 
-导出仍为wanhu-target-motion v1，重定向版本wanhu-mixamo-2。头部直接遵循源相对真实绑定的旋转差；HeadTop_End不决定脸向。不要额外套一次校准。events/props目前为空，JSON不是UnityClip/Avatar/Blob。
+先单个SkinnedMeshRenderer与Web同相位对照，再做CPU/Burst/GPU一致性、批量渲染、剔除和性能测试。GPU蒙皮不自动等于批量实例化。包围盒须覆盖动作与附件，不只bind；业务逻辑与可见性独立。
 
-## 位移、时间与事件
+## 未完成内容
 
-Root表示实例世界变换，导航负责世界运动。当前提取起终点水平线性轨迹，保留骨盆侧摆、上下、真实转身。不能清零所有Hips位置；这是原地化策略，不是脚锁。
-
-源时间键包含完整末帧，不假设所有采样等间隔。四元数归一/符号连续并正确slerp。循环仅在首尾误差门槛通过时允许，否则单次末帧保持。
-
-未来业务事件应按(previousTime,currentTime]执行，seek只改变视觉不结算业务，跨帧/循环不漏不重。事件逻辑时钟不得因剔除/LOD降低更新而停止。当前不包含库存/生产/伤害/独立投射物。
-
-## 道具
-
-当前DIY为已有骨骼附件，衣物共享骨架，无独立Animator。外部射箭未制作弓弦/箭/释放与精确握点，不能称人体导出已包含完整射箭。
-
-未来PropClip保存GeometryKey、独立节点局部轨道/离散可见性、Grip/Contact/Release锚点。道具不是人体骨骼，不应塞进每居民20骨纹理。离弦箭交独立世界投射物，不再跟随人物。原Phase4A道具时间不可用于新FBX。
-
-## 缓存
-
-AnimationBakeKey至少：源SHA、ClipId、retargetVersion、SkeletonVersion、BodyProportionKey/height/build。校准升级须使缓存失效；不得无验证跨体型共享最终矩阵。可后续按有限体型分桶，但先验证手足接触。
-
-CharacterMeshKey：TopologyVersion、BodyProportionKey、量化height/build、SlotRecipe、GarmentGeometryVersion、BodyHideVersion、LOD。Web颜色仍写顶点，未经分离不能从几何键排除palette/dyes/hairColor。
-
-单居民目标保存Transform、MeshKey、外观、ClipId/Phase/Speed/Flags，共享只读Clip与Mesh；不默认N个Animator+N套GameObject骨架。
-
-## Unity分阶段
-
-先单人SkinnedMeshRenderer，用相同骨架/蒙皮/源时刻检查骨骼和顶点；再做CPU/Burst参考采样与GPU一致性；最后加入批量实例/剔除/LOD并Profile。
-
-GPU可评估Clip×Frame×Bone的float3x4/half3x4矩阵，或Quaternion+Translation。前者带宽高但直接，后者需重建和父级求解；必须测精度和目标设备开销。批量绘制与GPU蒙皮不是同一回事。
-
-包围盒应覆盖整段动画与工具，不只静态bind；远景可降采样、简化工具、减少骨骼，但要有重映射且事件不漏。默认不加布料或五指。
-
-尚未实现MeshData/Burst、Avatar/Clip导入、Skeleton/Motion/Prop Blob、GPU Buffer/Texture Bake、Crowd Shader、Entities Graphics接入、动画LOD、共享缓存、万人性能。网页测试不能替代这些Unity验收。
-
-## V3.6 身体配置补充
-
-Recipe V4新增bodyType（缺省male）；女性profileVersion=wanhu-body-profiles-v1，与男性共用拓扑和骨骼语义，绑定位置可不同。网格键和目标动画键都必须包含bodyType/profileVersion/height/build。男性12套几何哈希保持6627c2e基线；女性通过独立比例、头脸、低髻实现，不是只换衣服。详细范围及验收矩阵见女性角色接入.md。
+已有弓盾工具只是骨骼附件；精确握点、弓弦、箭离弦、椅子开关接触、库存/生产/伤害仍属于后续Unity玩法或专项。无实时布料、服装额外骨骼、修正形态系统。髋裆美术问题没有在本次数据重构中修复。

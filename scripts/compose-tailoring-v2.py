@@ -11,15 +11,14 @@ def sheet(files,name,cols=3):
         x=(i%cols)*width+(width-im.width)//2;y=(i//cols)*height+30;out.paste(im,(x,y));d.text(((i%cols)*width+8,(i//cols)*height+8),f[:65],fill='white')
     out.save(root/name)
 files=[s['file'] for s in meta['shots']]
-for lod in range(3):
-    chosen=[f for f in files if f'-lod{lod}-pilot-front-0.5' in f]
-    if chosen:sheet(chosen,f'seated-lod{lod}.jpg')
-chosen=[f for f in files if '-lod0-pilot-side-0.5' in f]
+chosen=[f for f in files if '-standard-pilot-front-0.5' in f]
+if chosen:sheet(chosen,'seated-standard.jpg')
+chosen=[f for f in files if '-standard-pilot-side-0.5' in f]
 if chosen:sheet(chosen,'seated-side.jpg')
 for name in ['pilot-switches','shooting-arrow','jogging','snatch']:
     chosen=[f for f in files if name in f and ('sequence-' in f or 'library-' in f)]
     if chosen:sheet(chosen,'motion-'+name+'.jpg',4)
-(root/'SUMMARY.md').write_text('# V2 actual review artifact\n\nTested SHA: '+str(meta.get('testedSha'))+'\n\n'+str(len(files))+' screenshots; '+str(len(meta['videos']))+' continuous videos.\n\nGenerated, not automatically visually approved.\n')
+(root/'SUMMARY.md').write_text('# Fixed wardrobe actual review artifact\n\nTested SHA: '+str(meta.get('testedSha'))+'\n\n'+str(len(files))+' screenshots; '+str(len(meta['videos']))+' continuous videos.\n\nGenerated, not automatically visually approved.\n')
 
 import subprocess
 for video in meta["videos"]:

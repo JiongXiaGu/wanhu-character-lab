@@ -5,7 +5,6 @@ import { mkdir, writeFile, stat } from 'node:fs/promises';
 // 人物矩阵与 FBX 动作矩阵分开：静态绑定不是一个程序动画。
 const BODY_TYPES=['male','female']; let activeBodyType='male';
 const OUTFITS=['body','farmer','guard','archer'];
-const PROPORTIONS=[[1.58,0],[1.76,.5],[1.92,1]];
 const directory='review',records=[],errors=[];let failure='';
 await mkdir(directory,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--use-angle=swiftshader','--enable-webgl']});
@@ -13,7 +12,7 @@ const context=await browser.newContext({viewport:{width:1600,height:1000},device
 page.on('pageerror',error=>errors.push(error.message));page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
 const base=process.env.REVIEW_URL??'http://127.0.0.1:4173';
 async function open(params){
-  await page.goto(`${base}/?${new URLSearchParams({review:'1',paused:'1',equipment:'1',bodyType:activeBodyType,...params})}`);
+  await page.goto(`${base}/?${new URLSearchParams({review:'1',paused:'1',bodyType:activeBodyType,...params})}`);
   await page.waitForFunction(()=>window.__WANHU_REVIEW__?.stats.bones===20);
   if(params.pose!=='bind')await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
   assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('[role="alert"]').count(),0);
@@ -29,21 +28,21 @@ try{
   activeBodyType=bodyType;await page.setViewportSize({width:1600,height:1000});
   await open({});
   assert.equal((await page.evaluate(()=>window.__WANHU_REVIEW__.getStatus())).mixamo.id,'jogging','default must be an FBX');
-  for(const outfit of OUTFITS)for(const [height,build] of PROPORTIONS){
-    await open({pose:'bind',outfit,height:String(height),build:String(build)});
+  for(const outfit of OUTFITS){
+    await open({pose:'bind',preset:outfit});
     assert.equal((await page.evaluate(()=>window.__WANHU_REVIEW__.getStatus())).mixamo,undefined);
     assert(await page.getByRole('button',{name:'播放',exact:true}).isDisabled()||await page.getByRole('button',{name:'暂停',exact:true}).isDisabled());
     for(const [view,label] of [['front','正面'],['side','侧面'],['back','背面']]){
-      await page.getByRole('button',{name:label,exact:true}).click();await shot(`${outfit}-${height}-bind-${view}`);
+      await page.getByRole('button',{name:label,exact:true}).click();await shot(`${outfit}-standard-bind-${view}`);
     }
-    await page.getByRole('button',{name:'结构布线',exact:true}).click();await shot(`${outfit}-${height}-bind-cage`);
+    await page.getByRole('button',{name:'结构布线',exact:true}).click();await shot(`${outfit}-standard-bind-cage`);
   }
   for(const outfit of OUTFITS)for(const mixamo of ['jogging','shooting-arrow']){
-    await open({outfit,mixamo,view:'three',phase:'.6'});
+    await open({preset:outfit,mixamo,view:'three',phase:'.6'});
     await shot(`${outfit}-${mixamo}-three`);
     await page.getByRole('button',{name:'结构布线',exact:true}).click();await shot(`${outfit}-${mixamo}-cage-three`);
   }
-  await open({outfit:'archer',mixamo:'shooting-arrow',phase:'.6',view:'side'});
+  await open({preset:'archer',mixamo:'shooting-arrow',phase:'.6',view:'side'});
   const phase=(await page.evaluate(()=>window.__WANHU_REVIEW__.getStatus())).phase;
   await page.getByLabel('头饰',{exact:true}).selectOption('farmer_straw_hat');
   await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
@@ -55,31 +54,31 @@ try{
   await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
   assert.equal(await page.getByLabel('左手',{exact:true}).inputValue(),'none');await shot('diy-clear-equipment');
   for(const view of ['front','side']){
-    await open({pose:'bind',outfit:'farmer',headwear:'none',view});
+    await open({pose:'bind',preset:'farmer',headwear:'none',view});
     await page.evaluate(()=>window.__WANHU_REVIEW__.focusHead());await shot('head-'+view);
   }
-  await page.setViewportSize({width:412,height:915});await open({pose:'bind',outfit:'farmer'});
+  await page.setViewportSize({width:412,height:915});await open({pose:'bind',preset:'farmer'});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'mobile horizontal overflow');await shot('bind-mobile');
  }
   await page.setViewportSize({width:1600,height:1000});
-  await open({bodyType:'male',mixamo:'shooting-arrow',phase:'.61',outfit:'archer',view:'side'});
+  await open({bodyType:'male',mixamo:'shooting-arrow',phase:'.61',preset:'archer',view:'side'});
   const before=await page.evaluate(()=>window.__WANHU_EXPORT_MOTION__());
   const oldGeometry=await page.evaluate(()=>window.__WANHU_REVIEW__.geometryId());
   await page.getByTestId('body-type-female').click();
-  await page.waitForFunction(()=>window.__WANHU_EXPORT_MOTION__()?.proportion.bodyType==='female');
+  await page.waitForFunction(()=>window.__WANHU_EXPORT_MOTION__()?.bodyProfile.id==='female');
   const after=await page.evaluate(()=>window.__WANHU_EXPORT_MOTION__());
-  assert.equal(after.proportion.height,before.proportion.height);
+  assert.equal(after.bodyProfile.id,"female");
   assert.equal(await page.getByLabel('左手',{exact:true}).inputValue(),'archer_bow');
   assert.equal(await page.getByLabel('背部',{exact:true}).inputValue(),'archer_quiver');
   assert(Math.abs((await page.evaluate(()=>window.__WANHU_REVIEW__.getStatus())).phase-.61)<1e-6);
   assert.notEqual(await page.evaluate(()=>window.__WANHU_REVIEW__.geometryId()),oldGeometry);
   await shot('switch-preserves-diy-phase');
-  assert.equal(records.length,139);assert.deepEqual(errors,[]);
+  assert.equal(records.length,75);assert.deepEqual(errors,[]);
 }catch(error){failure=String(error);throw error;}finally{
   const report={sourceSha:process.env.REVIEW_HEAD_SHA??'local',testedSha:process.env.GITHUB_SHA??'local',passed:!failure&&!errors.length,
-    bodyTypes:2,variants:24,images:records.length,records,errors,failure};
+    bodyTypes:2,variants:8,images:records.length,records,errors,failure};
   await writeFile(`${directory}/report.json`,JSON.stringify(report,null,2));
   await writeFile(`${directory}/index.html`,`<!doctype html><meta charset="utf-8"><title>Male / female model review</title><style>body{font:16px sans-serif;background:#18242a;color:#eee}main{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}figure{margin:0}img{width:100%}</style><h1>Male / female bind / DIY / FBX model review</h1><p>SHA ${report.sourceSha} · Passed ${report.passed}</p><main>${records.map(file=>`<figure><img loading="lazy" src="${file}"><figcaption>${file}</figcaption></figure>`).join('')}</main>`);
   await context.close();await browser.close();
 }
-console.log(`PASS: 24 male/female variants, ${records.length} screenshots, FBX default, static bind and DIY checks.`);
+console.log(`PASS: 8 fixed male/female variants, ${records.length} screenshots, FBX default, static bind and DIY checks.`);

@@ -15,14 +15,13 @@ export type Region =
   | "detail"
   | "equipment";
 
-/** 外观体型，不改变骨骼语义；旧 V4 配方缺省为 male。 */
+/** 两个固定基模；服装只引用基模，不携带连续比例参数。 */
 export type BodyType = "male" | "female";
 export const BODY_TYPES = ["male", "female"] as const;
-export const BODY_PROFILE_VERSION = "wanhu-body-profiles-v1";
-export const defaultHeight = (bodyType: BodyType) => bodyType === "female" ? 1.66 : 1.76;
+export const BODY_PROFILE_VERSION = "wanhu-fixed-bodies-v1";
+export const BODY_HEIGHT: Readonly<Record<BodyType, number>> = { male: 1.76, female: 1.66 };
 
 export type Outfit = "farmer" | "guard" | "archer" | "body";
-export type PresetId = Outfit | "custom";
 
 export type HeadwearId =
   | "none"
@@ -65,30 +64,22 @@ export interface CharacterSlots {
   rightHand: RightHandId;
 }
 
-export const HAIR_STYLE_IDS = ["auto", "topknot", "low_bun", "double_bun"] as const;
+export const HAIR_STYLE_IDS = ["topknot", "low_bun", "double_bun"] as const;
 export type HairStyleId = typeof HAIR_STYLE_IDS[number];
 export interface GarmentDyes { primary: string; secondary: string; accent: string }
 
+/** 仅记录外观；旧版本由文件入口拒绝，不转换、不静默补字段。 */
 export interface Recipe {
-  version: 4;
+  version: 5;
   bodyType: BodyType;
-  preset: PresetId;
   slots: CharacterSlots;
-  height: number;
-  build: number;
-  palette: number;
-  /** 可选扩展：旧 V4 不写入时保持原有几何和颜色。 */
-  dyes?: GarmentDyes;
-  hairStyle?: HairStyleId;
-  hairColor?: string;
+  dyes: GarmentDyes;
+  hairStyle: HairStyleId;
+  hairColor: string;
 }
-
-/** 兼容旧的 ?outfit / hat / equipment 和早期调用。 */
-export type RecipeInput = Partial<Omit<Recipe, "slots">> & {
+/** 只供内部创建/编辑使用，不是用户文件验证器。 */
+export type RecipeInput = Partial<Omit<Recipe, "slots" | "version">> & {
   slots?: Partial<CharacterSlots>;
-  outfit?: Outfit;
-  hat?: boolean;
-  equipment?: boolean;
 };
 
 export interface Vertex {
@@ -213,13 +204,12 @@ export function presetSlots(preset: Outfit): CharacterSlots {
 }
 
 export const DEFAULT_RECIPE: Recipe = {
-  version: 4,
+  version: 5,
   bodyType: "male",
-  preset: "farmer",
   slots: presetSlots("farmer"),
-  height: 1.76,
-  build: 0.5,
-  palette: 0,
+  dyes: { primary: "#547a77", secondary: "#ddd0b5", accent: "#b49566" },
+  hairStyle: "topknot",
+  hairColor: "#282b29",
 };
 
 export const B = {
@@ -257,109 +247,39 @@ function valid<T extends string>(
     : fallback;
 }
 
-export function cleanRecipe(value: RecipeInput): Recipe {
-  // 导入是外部边界，非法对象必须交由导入器拒绝；直接调用仍提供安全默认值。
-  if (!value || typeof value !== "object" || Array.isArray(value)) value = {};
-  const hex = (v: unknown, fallback: string) => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v) ? v.toLowerCase() : fallback;
-  const extension: Pick<Recipe, "dyes" | "hairStyle" | "hairColor"> = {};
-  if (value.dyes && typeof value.dyes === "object") extension.dyes = {
-    primary: hex(value.dyes.primary, "#506e70"),
-    secondary: hex(value.dyes.secondary, "#b8aa8b"),
-    accent: hex(value.dyes.accent, "#dbc99d"),
-  };
-  if (value.hairStyle !== undefined) extension.hairStyle = valid(value.hairStyle, HAIR_STYLE_IDS, "auto");
-  if (value.hairColor !== undefined) extension.hairColor = hex(value.hairColor, "#282b29");
-  const number = (
-    v: number | undefined,
-    fallback: number,
-    lo: number,
-    hi: number,
-  ) =>
-    typeof v === "number" && Number.isFinite(v)
-      ? Math.min(hi, Math.max(lo, v))
-      : fallback;
-
-  const bodyType = valid(value.bodyType, BODY_TYPES, "male");
-  const legacyPreset = valid(value.outfit, PRESET_IDS, "farmer");
-  const requestedPreset =
-    value.preset === "custom"
-      ? "custom"
-      : valid(value.preset, PRESET_IDS, legacyPreset);
-
-  const basePreset: Outfit =
-    requestedPreset === "custom" ? legacyPreset : requestedPreset;
-  const baseSlots = presetSlots(basePreset);
-  const inputSlots = value.slots ?? {};
-
-  const slots: CharacterSlots = {
-    headwear: valid(
-      inputSlots.headwear,
-      HEADWEAR_IDS,
-      baseSlots.headwear,
-    ),
-    top: valid(inputSlots.top, TOP_IDS, baseSlots.top),
-    bottom: valid(inputSlots.bottom, BOTTOM_IDS, baseSlots.bottom),
-    shoes: valid(inputSlots.shoes, SHOES_IDS, baseSlots.shoes),
-    back: valid(inputSlots.back, BACK_IDS, baseSlots.back),
-    leftHand: valid(
-      inputSlots.leftHand,
-      LEFT_HAND_IDS,
-      baseSlots.leftHand,
-    ),
-    rightHand: valid(
-      inputSlots.rightHand,
-      RIGHT_HAND_IDS,
-      baseSlots.rightHand,
-    ),
-  };
-
-  // 旧参数兼容：hat=false 清空头饰；equipment=false 清空装备。
-  if (value.hat === false) slots.headwear = "none";
-
-  // V3 农户的 equipment=true 表示手持锄头。只有没有显式新 Slot 时
-  // 才迁移该旧语义，避免覆盖 V4 DIY 的右手选择。
-  if (
-    value.equipment === true &&
-    legacyPreset === "farmer" &&
-    inputSlots.rightHand === undefined
-  ) {
-    slots.rightHand = "farmer_hoe";
-  }
-
-  if (value.equipment === false) {
-    slots.back = "none";
-    slots.leftHand = "none";
-    slots.rightHand = "none";
-  }
-
+/** 内部构造器：返回独立对象；外部 JSON 必须经 parseRecipeFile 严格验证。 */
+export function createRecipe(value: RecipeInput = {}): Recipe {
+  const base = DEFAULT_RECIPE;
+  const bodyType = valid(value.bodyType, BODY_TYPES, base.bodyType);
+  const input = value.slots ?? {};
+  const hex = (v: unknown, fallback: string) =>
+    typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v) ? v.toLowerCase() : fallback;
   return {
-    version: 4,
+    version: 5,
     bodyType,
-    preset: requestedPreset,
-    slots,
-    height: number(value.height, defaultHeight(bodyType), 1.58, 1.92),
-    build: number(value.build, 0.5, 0, 1),
-    palette: Math.round(number(value.palette, 0, 0, 2)),
-    ...extension,
+    slots: {
+      headwear: valid(input.headwear, HEADWEAR_IDS, base.slots.headwear),
+      top: valid(input.top, TOP_IDS, base.slots.top),
+      bottom: valid(input.bottom, BOTTOM_IDS, base.slots.bottom),
+      shoes: valid(input.shoes, SHOES_IDS, base.slots.shoes),
+      back: valid(input.back, BACK_IDS, base.slots.back),
+      leftHand: valid(input.leftHand, LEFT_HAND_IDS, base.slots.leftHand),
+      rightHand: valid(input.rightHand, RIGHT_HAND_IDS, base.slots.rightHand),
+    },
+    dyes: {
+      primary: hex(value.dyes?.primary, base.dyes.primary),
+      secondary: hex(value.dyes?.secondary, base.dyes.secondary),
+      accent: hex(value.dyes?.accent, base.dyes.accent),
+    },
+    hairStyle: valid(value.hairStyle, HAIR_STYLE_IDS, bodyType === "female" ? "low_bun" : "topknot"),
+    hairColor: hex(value.hairColor, base.hairColor),
   };
 }
 
+/** 推荐只填部件，不写入职业身份。 */
 export function applyPreset(recipe: Recipe, preset: Outfit): Recipe {
-  return {
-    ...recipe,
-    version: 4,
-    preset,
-    slots: presetSlots(preset),
-  };
+  return createRecipe({ ...recipe, slots: presetSlots(preset) });
 }
-
-export function patchSlots(
-  recipe: Recipe,
-  patch: Partial<CharacterSlots>,
-): Recipe {
-  return cleanRecipe({
-    ...recipe,
-    preset: "custom",
-    slots: { ...recipe.slots, ...patch },
-  });
+export function patchSlots(recipe: Recipe, patch: Partial<CharacterSlots>): Recipe {
+  return createRecipe({ ...recipe, slots: { ...recipe.slots, ...patch } });
 }

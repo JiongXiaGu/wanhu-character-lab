@@ -1,4 +1,4 @@
-import { cleanRecipe, type BodyType, type CharacterSlots, type GarmentDyes, type HairStyleId, type Recipe } from '../v3/types';
+import { createRecipe, type BodyType, type CharacterSlots, type GarmentDyes, type HairStyleId, type Recipe } from '../v3/types';
 
 /** 外观推荐不是职业或身份；生成器绝不读取此表决定玩法。 */
 export interface LookDefinition {
@@ -36,13 +36,13 @@ export const SLOT_OPTIONS: { [K in keyof CharacterSlots]: readonly {id:Character
   leftHand:[{id:'none',name:'左手空'},{id:'guard_shield',name:'盾牌'},{id:'archer_bow',name:'短弓'}],
   rightHand:[{id:'none',name:'右手空'},{id:'farmer_hoe',name:'锄头'},{id:'guard_sword',name:'短剑'}],
 };
-export const HAIR_NAMES:Record<HairStyleId,string>={auto:'随体型默认',topknot:'束发高髻',low_bun:'后侧低髻',double_bun:'双髻'};
+export const HAIR_NAMES:Record<HairStyleId,string>={topknot:'束发高髻',low_bun:'后侧低髻',double_bun:'双髻'};
 export const DEFAULT_DYES:GarmentDyes = {primary:'#547a77',secondary:'#ddd0b5',accent:'#b49566'};
-export const WARDROBE_VERSION='wanhu-wardrobe-v1';
+export const WARDROBE_VERSION='wanhu-wardrobe-v5';
 export function applyLook(recipe:Recipe,id:string):Recipe {
   const look=WARDROBE_LOOKS.find(x=>x.id===id);
   if(!look)return recipe;
-  return cleanRecipe({...recipe,preset:'custom',slots:{...look.slots},dyes:{...look.dyes},hairStyle:look.hairStyle});
+  return createRecipe({...recipe,slots:{...look.slots},dyes:{...look.dyes},hairStyle:look.hairStyle});
 }
 export type RandomLock = keyof CharacterSlots | 'dyes' | 'hairStyle';
 /** 同一种子可复现；仅随机外观，不改变身体、配色以外的身份参数。 */
@@ -54,31 +54,35 @@ export function randomizeLook(recipe:Recipe,seed:number,locks:readonly RandomLoc
   next.dyes=dyes(Math.floor(random()*DYE_PALETTES.length));
   next.slots.headwear=(['none','cloth_wrap','scholar_cap','jade_pin'] as const)[Math.floor(random()*4)];
   for(const key of locks){
-    if(key==='dyes')next.dyes=recipe.dyes?{...recipe.dyes}:undefined;
+    if(key==='dyes')next.dyes={...recipe.dyes};
     else if(key==='hairStyle')next.hairStyle=recipe.hairStyle;
     else (next.slots as unknown as Record<string,string>)[key]=recipe.slots[key];
   }
-  return cleanRecipe(next);
+  return createRecipe(next);
 }
-/** 严格的用户文件入口：不把随机 JSON 静默转换成一个有效人物。 */
-export function parseRecipeFile(text:string):Recipe {
-  if(text.length>32768)throw new Error('配方文件过大（最多 32 KB）。');
-  let raw:unknown;try{raw=JSON.parse(text);}catch{throw new Error('不是有效的 JSON 配方。');}
-  if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('配方必须是一个对象。');
-  const r=raw as Record<string,unknown>;
-  if(r.version!==4 || !r.slots || typeof r.slots!=='object'||Array.isArray(r.slots))throw new Error('请选择 Recipe V4 配方文件。');
-  const keys=Object.keys(SLOT_OPTIONS) as (keyof CharacterSlots)[];
-  const s=r.slots as Record<string,unknown>;
-  for(const k of keys)if(!SLOT_OPTIONS[k].some(x=>x.id===s[k]))throw new Error(`无法识别${SLOT_LABELS[k]}部件。`);
-  if(r.bodyType!==undefined&&r.bodyType!=='male'&&r.bodyType!=='female')throw new Error('无法识别居民体型。');
-  for(const [key,lo,hi]of [['height',1.58,1.92],['build',0,1],['palette',0,2]] as const)
-    if(typeof r[key]!=='number'||!Number.isFinite(r[key])||(r[key] as number)<lo||(r[key] as number)>hi)throw new Error(`${key} 参数超出当前支持范围。`);
-  if(!Number.isInteger(r.palette))throw new Error('palette 必须为整数。');
-  if(r.dyes!==undefined){
-    if(!r.dyes||typeof r.dyes!=='object'||Array.isArray(r.dyes))throw new Error('染色数据格式错误。');
-    for(const key of ['primary','secondary','accent'])if(!/^#[0-9a-f]{6}$/i.test(String((r.dyes as Record<string,unknown>)[key])))throw new Error('染色必须为六位十六进制颜色。');
-  }
-  if(r.hairColor!==undefined&&!/^#[0-9a-f]{6}$/i.test(String(r.hairColor)))throw new Error('发色格式错误。');
-  if(r.hairStyle!==undefined&&!Object.keys(HAIR_NAMES).includes(String(r.hairStyle)))throw new Error('无法识别发型。');
-  return cleanRecipe(r as unknown as Recipe);
+/** 严格文件边界：只接受 V5；错误时由 UI 保持当前角色不变。 */
+export function parseRecipeFile(text: string): Recipe {
+  if (new TextEncoder().encode(text).length > 32768) throw new Error('配方文件过大（最多 32 KB）。');
+  let raw: unknown;
+  try { raw = JSON.parse(text); } catch { throw new Error('不是有效的 JSON 配方。'); }
+  const object = (value: unknown, label: string): Record<string, unknown> => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(label+'必须是对象。');
+    return value as Record<string, unknown>;
+  };
+  const exact = (value: Record<string, unknown>, keys: readonly string[], label: string) => {
+    if (Object.keys(value).length !== keys.length || keys.some(k => !Object.hasOwn(value,k)))
+      throw new Error(label+'字段不完整或包含不支持的字段。');
+  };
+  const r = object(raw,'配方');
+  if (r.version !== 5) throw new Error('只支持 Recipe V5；旧版配方不再兼容，请重新搭配并导出。');
+  exact(r,['version','bodyType','slots','dyes','hairStyle','hairColor'],'配方');
+  if (r.bodyType !== 'male' && r.bodyType !== 'female') throw new Error('无法识别固定基模。');
+  const s=object(r.slots,'部件'), keys=Object.keys(SLOT_OPTIONS) as (keyof CharacterSlots)[];
+  exact(s,keys,'部件');
+  for (const k of keys) if (!SLOT_OPTIONS[k].some(x=>x.id===s[k])) throw new Error(`无法识别${SLOT_LABELS[k]}部件。`);
+  const color=(v:unknown)=>typeof v==='string' && /^#[0-9a-f]{6}$/i.test(v);
+  const d=object(r.dyes,'染色'); exact(d,['primary','secondary','accent'],'染色');
+  if (!Object.values(d).every(color) || !color(r.hairColor)) throw new Error('颜色必须为六位十六进制颜色。');
+  if (typeof r.hairStyle!=='string' || !Object.hasOwn(HAIR_NAMES,r.hairStyle)) throw new Error('无法识别发型。');
+  return createRecipe(r as unknown as Recipe);
 }

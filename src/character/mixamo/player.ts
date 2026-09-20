@@ -1,3 +1,4 @@
+import { BODY_HEIGHT } from '../v3/types';
 import * as T from 'three';
 import type { Actor } from '../v3/rig';
 import { SAMPLE_BONE_COUNT, SAMPLE_PARENTS, validateMixamoData, type MixamoMotionData } from './data';
@@ -43,7 +44,7 @@ export function createMixamoPlayer(actor: Actor, source: MixamoMotionData): Mixa
   geometry.setAttribute('position', new T.BufferAttribute(points, 3).setUsage(T.DynamicDrawUsage));
   const material = new T.LineBasicMaterial({ color: '#e4c495' });
   const lines = new T.LineSegments(geometry, material); lines.frustumCulled = false; scene.add(lines);
-  const dotsGeo = new T.SphereGeometry(.017 * actor.data.recipe.height / 1.76, 6, 4), dotsMat = new T.MeshBasicMaterial({ color: '#9cd9dd' });
+  const dotsGeo = new T.SphereGeometry(.017 * BODY_HEIGHT[actor.data.recipe.bodyType] / 1.76, 6, 4), dotsMat = new T.MeshBasicMaterial({ color: '#9cd9dd' });
   const dots = Array.from({ length: 24 }, () => { const dot = new T.Mesh(dotsGeo, dotsMat); scene.add(dot); return dot; });
   const grid = new T.GridHelper(3.2, 16, '#697b7d', '#40585e'); scene.add(grid);
   const sourceDebug=makeHeadAxes(), targetDebug=makeHeadAxes(); scene.add(sourceDebug);
@@ -60,7 +61,7 @@ export function createMixamoPlayer(actor: Actor, source: MixamoMotionData): Mixa
     pa.fromArray(bake.sourcePositions, (next * SAMPLE_BONE_COUNT + index) * 3); target.lerp(pa, alpha);
   }
   function axes(lines:T.LineSegments, origin:T.Vector3, rotation:T.Quaternion) {
-    const attr=lines.geometry.getAttribute('position') as T.BufferAttribute, length=.24*actor.data.recipe.height/1.76;
+    const attr=lines.geometry.getAttribute('position') as T.BufferAttribute, length=.24*BODY_HEIGHT[actor.data.recipe.bodyType]/1.76;
     for(let i=0;i<2;i++){
       attr.setXYZ(i*2,origin.x,origin.y,origin.z);
       end.set(0,i===1?length:0,i===0?length:0).applyQuaternion(rotation).add(origin);
