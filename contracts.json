@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "bodyGeometryVersion": "wanhu-skin-cage-v2",
+  "rows": [
+    {
+      "bodyType": "male",
+      "bodyTriangles": 510,
+      "bodyHash": "d4d4d9c496b7e03207f6cc2f4fbd3c418082ca3d0375262530565afce0ca0f58",
+      "jointsHash": "abebd2da0caea053daf406d52bfec649767c14e8d319f3a9547628d85b5df41e"
+    },
+    {
+      "bodyType": "female",
+      "bodyTriangles": 510,
+      "bodyHash": "83fbdeae79317abb8610c655e140abd553d7d1be48bce60c96980ad9cb27ab54",
+      "jointsHash": "3e5ea3f2de3bc2b370782bbecdeabd9c88d005da9392dd08910f114ad05a16c1"
+    }
+  ],
+  "independentTrousersTriangles": 220,
+  "mutationChecks": 3,
+  "scope": "固定关节制作数据与已知旧代码反例；全FBX姿态贯穿与实际图片另行验证，不等于连续动作全部视觉通过。"
+}
