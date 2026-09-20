@@ -24,6 +24,7 @@ try{
  for(const bodyType of ['male','female'])for(const [height,build] of [['1.58','0'],['1.92','1']]){await open({bodyType,height,build,look:'town-female',mixamo:'pilot-switches',view:'front'});await shot(`endpoint-${bodyType}-${height}`, .5,{bodyType,height,build});}
  // 交互检查：搜索、收藏、筛选空结果、快捷坐姿及LOD时序保持。
  await open({bodyType:'female',look:'town-female',mixamo:'pilot-switches',view:'front'});
+ await page.getByLabel('搜索动画',{exact:true}).fill('劳动');assert.equal(await page.getByTestId('mixamo-snatch').count(),1);
  await page.getByLabel('搜索动画',{exact:true}).fill('Pilot');assert.equal(await page.getByRole('listitem').count(),1);
  await page.getByLabel('收藏 Pilot Flips Switches',{exact:true}).click();await page.getByLabel('搜索动画',{exact:true}).fill('no-such-motion-xyz');assert.equal(await page.getByRole('listitem').count(),0);await page.getByLabel('搜索动画',{exact:true}).fill('');
  await page.evaluate(()=>window.__WANHU_REVIEW__!.seek(.5));const saved=await page.evaluate(()=>JSON.stringify(window.__WANHU_RECIPE__!()));

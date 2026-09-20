@@ -1,7 +1,7 @@
 import {B,rigid,type Cage,type Recipe,type GarmentDyes,type Vec3,type Weight} from '../v3/types';
-import {add,mul,sub,vertex,orient} from '../v3/cage';
+import {add,mul,vertex,orient} from '../v3/cage';
 export type WardrobeLod=0|1|2;
-export const GARMENT_GEOMETRY_VERSION='wanhu-tailoring-v2-continuous-1';
+export const GARMENT_GEOMETRY_VERSION='wanhu-tailoring-v2-continuous-2';
 export const BODY_HIDE_VERSION='wanhu-tailoring-no-duplicate-lining-v2';
 const TOPS=['rough_tunic','cross_jacket','layered_vest','ceremony_robe'];
 const BOTTOMS=['loose_trousers','work_wrap','pleated_skirt','robe_skirt'];
@@ -24,6 +24,35 @@ function refine(c:Cage,lod:WardrobeLod){
  c.faces=faces;
 }
 /**
+ * 服装版型在标准 1.76m 制作空间中留出髋/膝折叠余量，之后统一应用体型场。
+ * 只修改可见衣面，不修改源人体、骨架、FBX，也不进行逐帧碰撞求解。
+ * 裆点跟随双腿；髋环提高、膝过渡拉长、前后褶窝收量，避免深屈曲时折入。
+ */
+function fitJointCreases(c:Cage){
+ const ring=(name:string)=>{const ids=c.anchors[name];if(!ids?.length)throw new Error('缺少衣面接口 '+name);return ids.map(i=>c.vertices[i]);};
+ const crotch=c.vertices.find(v=>v.id==='Crotch');
+ if(!crotch)throw new Error('缺少衣面裆点');
+ crotch.p[1]=.90;crotch.w=[B.RightThigh,B.LeftThigh,.5];
+ for(const v of ring('Hip'))v.p[1]=1.025;
+ for(const side of ['Right','Left'] as const){
+  const sign=side==='Right'?1:-1,thigh=side==='Right'?B.RightThigh:B.LeftThigh;
+  for(const v of ring(side+'Thigh')){
+   v.p[1]=.815;v.w=rigid(thigh);v.p[2]*=.80;
+   if(sign*v.p[0]<.101)v.p[0]=sign*(.101+(sign*v.p[0]-.101)*.45);
+  }
+  for(const v of ring(side+'KneeUpper'))v.p[1]=.615;
+  for(const v of ring(side+'KneeLower'))v.p[1]=.365;
+  for(const v of ring(side+'Knee'))if(v.p[2]<0)v.p[2]=-.018;
+ }
+ for(const name of ['Hip','Waist'])for(const v of ring(name))if(v.p[2]>0)v.p[2]*=name==='Hip'?.5:.7;
+ for(const side of ['Right','Left']){
+  for(const name of ['Thigh','KneeUpper'])for(const v of ring(side+name))if(v.p[2]>0)v.p[2]*=name==='Thigh'?.6:.7;
+  for(const name of ['Thigh','KneeUpper','KneeLower','Calf'])for(const v of ring(side+name))if(v.p[2]<0)v.p[2]*=.5;
+  const sign=side==='Right'?1:-1;
+  for(const v of ring(side+'Thigh'))v.p[0]=sign*Math.min(.17,sign*v.p[0]);
+ }
+}
+/**
  * V2 主路线：完整裤式分裳，表层即衣服，不叠加另一层腿/裙壳。
  * 大色块表达上衣下摆、裙片、内衬；连续共享顶点避免双层交界的破口。
  * 这是允许美术简化后的分裳/阔裤，不冒充带布料模拟的连筒长裙。
@@ -36,8 +65,6 @@ export function tailorSurface(c:Cage,r:Recipe,colors:GarmentDyes,lod:WardrobeLod
   for(const f of c.faces){if(['torso','upperArm'].includes(f.region))f.color=colors.primary;if(r.slots.top!=='rough_tunic'&&f.region==='forearm')f.color=r.slots.top==='layered_vest'?colors.secondary:colors.primary;}
  }
  if(newBottom||newTop){
-  // 裆点只调整服装表层，抬至髋旋转中心附近；源人体和男性哈希不变。
-  const crotch=c.vertices.find(v=>v.id==='Crotch');if(crotch)crotch.p[1]=.874;
   const skirt=['pleated_skirt','robe_skirt'].includes(r.slots.bottom),wrap=r.slots.bottom==='work_wrap';
   for(const side of ['Right','Left']){
    for(const name of ['Thigh','KneeUpper','Knee','KneeLower','Calf']){
@@ -49,6 +76,7 @@ export function tailorSurface(c:Cage,r:Recipe,colors:GarmentDyes,lod:WardrobeLod
     }
    }
   }
+  fitJointCreases(c);
   refine(c,lod);
   const hem=skirt?(r.slots.bottom==='robe_skirt'?.30:.39):wrap?.68:.84;
   const topHem:Record<string,number>={rough_tunic:.88,cross_jacket:.81,layered_vest:.72,ceremony_robe:.60};

@@ -6,7 +6,7 @@ export function AnimationBrowser({value,onSelect}:{value:MixamoSelection;onSelec
  const [search,setSearch]=useState(''),[category,setCategory]=useState('全部'),[onlyFavorites,setOnlyFavorites]=useState(false);
  const [favorites,setFavorites]=useState<string[]>(()=>{try{const a=JSON.parse(localStorage.getItem(KEY)??'[]');return Array.isArray(a)?a.filter((v):v is string=>typeof v==='string'&&MIXAMO_CLIPS.some(c=>c.id===v)):[];}catch{return[];}});
  const categories=['全部',...new Set(MIXAMO_CLIPS.map(c=>c.category))];
- const filtered=useMemo(()=>MIXAMO_CLIPS.filter(c=>(category==='全部'||c.category===category)&&(!onlyFavorites||favorites.includes(c.id))&&`${c.label} ${c.file} ${c.filename} ${c.id}`.toLowerCase().includes(search.trim().toLowerCase())),[search,category,onlyFavorites,favorites]);
+ const filtered=useMemo(()=>MIXAMO_CLIPS.filter(c=>(category==='全部'||c.category===category)&&(!onlyFavorites||favorites.includes(c.id))&&`${c.label} ${c.category} ${c.file} ${c.filename} ${c.id}`.toLowerCase().includes(search.trim().toLowerCase())),[search,category,onlyFavorites,favorites]);
  const index=filtered.findIndex(c=>c.id===value);
  const toggle=(id:string)=>setFavorites(a=>{const next=a.includes(id)?a.filter(v=>v!==id):[...a,id];try{localStorage.setItem(KEY,JSON.stringify(next));}catch{/* 收藏存储不可用不影响播放。 */}return next;});
  return <section className="animation-library" aria-label="FBX动画库">
