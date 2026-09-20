@@ -1,0 +1,93 @@
+name: Apply Fixed Wardrobe Refactor
+on:
+  push:
+    branches: [feat/fixed-wardrobe-contract]
+    paths: [.github/workflows/apply-fixed-refactor.yml]
+permissions:
+  contents: write
+concurrency:
+  group: fixed-wardrobe-refactor-apply
+  cancel-in-progress: false
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/fixed-wardrobe-contract
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Validate source and apply exact reviewed file changes
+        run: |
+          test "$GITHUB_REF" = refs/heads/feat/fixed-wardrobe-contract
+          git merge-base --is-ancestor df4c2392fe44e862d5ce2e2c6dea63d9cb6175b1 HEAD
+          python - <<'PY'
+          from pathlib import Path
+          import json,hashlib
+          root=Path.cwd().resolve()
+          parts=sorted(Path('.github/refactor').glob('part-*.json'))
+          assert len(parts)==7
+          entries=[e for p in parts for e in json.loads(p.read_text())]
+          assert len(entries)==56 and len({e['path'] for e in entries})==56
+          digest=lambda b: hashlib.sha256(b).hexdigest() if b is not None else None
+          pending=[]
+          for e in entries:
+              p=Path(e['path'])
+              assert not p.is_absolute() and '..' not in p.parts and '.git' not in p.parts
+              assert p.resolve().is_relative_to(root) and not p.is_symlink()
+              old=p.read_bytes() if p.exists() else None
+              assert digest(old)==e['before'], 'Source mismatch: '+str(p)
+              if e.get('delete'):
+                  new=None
+              elif 'content' in e:
+                  new=e['content'].encode('utf-8')
+              else:
+                  text=old.decode('utf-8')
+                  end=len(text)
+                  for i,j,t in reversed(e['edits']):
+                      assert 0<=i<=j<=end
+                      text=text[:i]+t+text[j:]
+                      end=i
+                  new=text.encode('utf-8')
+              assert digest(new)==e['after'], 'Target mismatch: '+str(p)
+              pending.append((p,new))
+          for p,new in pending:
+              if new is None: p.unlink()
+              else:
+                  p.parent.mkdir(parents=True,exist_ok=True)
+                  p.write_bytes(new)
+              print('VERIFIED',p)
+          Path('/tmp/fixed-files.json').write_text(json.dumps([{k:e[k] for k in ['path','before','after']} for e in entries],ensure_ascii=False,indent=2))
+          PY
+      - run: npm ci
+      - run: npm run check:retired && npm run check:mesh && npm run build
+      - run: npm run check:mixamo && npm run check:wardrobe && npm run check:tailoring
+      - name: Remove one-time transport and commit actual sources
+        run: |
+          rm -r .github/refactor
+          rm .github/workflows/apply-fixed-refactor.yml
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'refactor!: fixed male/female wardrobe V5, single mesh precision and no legacy recipe compatibility'
+          git push origin HEAD:feat/fixed-wardrobe-contract
+          git rev-parse HEAD > /tmp/fixed-commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fixed-refactor-application
+          path: |
+            /tmp/fixed-files.json
+            /tmp/fixed-commit.txt
+            review/body-profiles.json
+            review-tailoring-v2/numeric.json
+            review-tailoring-v2/intersections.json
+          retention-days: 7
