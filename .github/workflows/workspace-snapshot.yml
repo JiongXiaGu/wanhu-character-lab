@@ -1,0 +1,25 @@
+name: V2 Workspace Snapshot
+on:
+  push:
+    branches: [tmp-wardrobe-v2-20260920]
+    paths: [.github/workflows/workspace-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - name: Package source and locked dependencies
+        run: |
+          git rev-parse HEAD > snapshot-sha.txt
+          tar --exclude=.git --exclude=workspace.tgz -czf /tmp/workspace.tgz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v2-workspace
+          path: /tmp/workspace.tgz
+          retention-days: 2
