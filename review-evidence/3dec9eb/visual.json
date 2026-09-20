@@ -1,0 +1,3101 @@
+{
+  "testedSha": "3dec9eb7b5b40dc22f36a2fcb726aeaaf85dae94",
+  "priority": [
+    "pilot-switches",
+    "shooting-arrow",
+    "jogging"
+  ],
+  "shots": [
+    {
+      "file": "library-assassination.png",
+      "phase": 0.5,
+      "clip": "assassination",
+      "kind": "library"
+    },
+    {
+      "file": "library-capoeira.png",
+      "phase": 0.5,
+      "clip": "capoeira",
+      "kind": "library"
+    },
+    {
+      "file": "library-catwalk.png",
+      "phase": 0.5,
+      "clip": "catwalk",
+      "kind": "library"
+    },
+    {
+      "file": "library-flair.png",
+      "phase": 0.5,
+      "clip": "flair",
+      "kind": "library"
+    },
+    {
+      "file": "library-hip-hop.png",
+      "phase": 0.5,
+      "clip": "hip-hop",
+      "kind": "library"
+    },
+    {
+      "file": "library-jogging.png",
+      "phase": 0.5,
+      "clip": "jogging",
+      "kind": "library"
+    },
+    {
+      "file": "library-pilot-switches.png",
+      "phase": 0.5,
+      "clip": "pilot-switches",
+      "kind": "library"
+    },
+    {
+      "file": "library-punching-bag.png",
+      "phase": 0.5,
+      "clip": "punching-bag",
+      "kind": "library"
+    },
+    {
+      "file": "library-shooting-arrow.png",
+      "phase": 0.5,
+      "clip": "shooting-arrow",
+      "kind": "library"
+    },
+    {
+      "file": "library-swimming.png",
+      "phase": 0.5,
+      "clip": "swimming",
+      "kind": "library"
+    },
+    {
+      "file": "library-zombie-stand-up.png",
+      "phase": 0.5,
+      "clip": "zombie-stand-up",
+      "kind": "library"
+    },
+    {
+      "file": "library-breakdance-freeze-var-2.png",
+      "phase": 0.5,
+      "clip": "breakdance-freeze-var-2",
+      "kind": "library"
+    },
+    {
+      "file": "library-chicken-dance.png",
+      "phase": 0.5,
+      "clip": "chicken-dance",
+      "kind": "library"
+    },
+    {
+      "file": "library-headspin-start.png",
+      "phase": 0.5,
+      "clip": "headspin-start",
+      "kind": "library"
+    },
+    {
+      "file": "library-hip-hop-dancing-1.png",
+      "phase": 0.5,
+      "clip": "hip-hop-dancing-1",
+      "kind": "library"
+    },
+    {
+      "file": "library-hip-hop-dancing-2.png",
+      "phase": 0.5,
+      "clip": "hip-hop-dancing-2",
+      "kind": "library"
+    },
+    {
+      "file": "library-jumping-down.png",
+      "phase": 0.5,
+      "clip": "jumping-down",
+      "kind": "library"
+    },
+    {
+      "file": "library-locking-hip-hop-dance.png",
+      "phase": 0.5,
+      "clip": "locking-hip-hop-dance",
+      "kind": "library"
+    },
+    {
+      "file": "library-northern-soul-spin-combo.png",
+      "phase": 0.5,
+      "clip": "northern-soul-spin-combo",
+      "kind": "library"
+    },
+    {
+      "file": "library-snatch.png",
+      "phase": 0.5,
+      "clip": "snatch",
+      "kind": "library"
+    },
+    {
+      "file": "library-standing-aim-idle-01.png",
+      "phase": 0.5,
+      "clip": "standing-aim-idle-01",
+      "kind": "library"
+    },
+    {
+      "file": "library-start-walking.png",
+      "phase": 0.5,
+      "clip": "start-walking",
+      "kind": "library"
+    },
+    {
+      "file": "library-wave-hip-hop-dance.png",
+      "phase": 0.5,
+      "clip": "wave-hip-hop-dance",
+      "kind": "library"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod0-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod1-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-plain-female-lod2-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod0-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod1-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-town-female-lod2-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "town-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod0-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod1-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-ceremony-female-lod2-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "male",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod0-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod1-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-plain-female-lod2-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "plain-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod0-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod1-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-town-female-lod2-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "town-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod0-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "0",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod1-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "1",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-front-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-front-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-front-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-front-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-front-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "front",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-side-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-side-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-side-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-side-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-side-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "side",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-back-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-back-0.25.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-back-0.5.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-back-0.75.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "female-ceremony-female-lod2-pilot-back-1.png",
+      "phase": 1,
+      "bodyType": "female",
+      "look": "ceremony-female",
+      "lod": "2",
+      "view": "back",
+      "clip": "pilot-switches"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-1.png",
+      "phase": 0.0625,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-2.png",
+      "phase": 0.125,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-3.png",
+      "phase": 0.1875,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-4.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-5.png",
+      "phase": 0.3125,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-6.png",
+      "phase": 0.375,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-7.png",
+      "phase": 0.4375,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-8.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-9.png",
+      "phase": 0.5625,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-10.png",
+      "phase": 0.625,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-11.png",
+      "phase": 0.6875,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-12.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-13.png",
+      "phase": 0.8125,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-14.png",
+      "phase": 0.875,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-15.png",
+      "phase": 0.9375,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-shooting-arrow-sequence-16.png",
+      "phase": 1,
+      "bodyType": "male",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-0.png",
+      "phase": 0,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-1.png",
+      "phase": 0.0625,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-2.png",
+      "phase": 0.125,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-3.png",
+      "phase": 0.1875,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-4.png",
+      "phase": 0.25,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-5.png",
+      "phase": 0.3125,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-6.png",
+      "phase": 0.375,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-7.png",
+      "phase": 0.4375,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-8.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-9.png",
+      "phase": 0.5625,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-10.png",
+      "phase": 0.625,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-11.png",
+      "phase": 0.6875,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-12.png",
+      "phase": 0.75,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-13.png",
+      "phase": 0.8125,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-14.png",
+      "phase": 0.875,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-15.png",
+      "phase": 0.9375,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "male-jogging-sequence-16.png",
+      "phase": 1,
+      "bodyType": "male",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-1.png",
+      "phase": 0.0625,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-2.png",
+      "phase": 0.125,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-3.png",
+      "phase": 0.1875,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-4.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-5.png",
+      "phase": 0.3125,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-6.png",
+      "phase": 0.375,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-7.png",
+      "phase": 0.4375,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-8.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-9.png",
+      "phase": 0.5625,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-10.png",
+      "phase": 0.625,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-11.png",
+      "phase": 0.6875,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-12.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-13.png",
+      "phase": 0.8125,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-14.png",
+      "phase": 0.875,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-15.png",
+      "phase": 0.9375,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-shooting-arrow-sequence-16.png",
+      "phase": 1,
+      "bodyType": "female",
+      "clip": "shooting-arrow",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-0.png",
+      "phase": 0,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-1.png",
+      "phase": 0.0625,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-2.png",
+      "phase": 0.125,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-3.png",
+      "phase": 0.1875,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-4.png",
+      "phase": 0.25,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-5.png",
+      "phase": 0.3125,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-6.png",
+      "phase": 0.375,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-7.png",
+      "phase": 0.4375,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-8.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-9.png",
+      "phase": 0.5625,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-10.png",
+      "phase": 0.625,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-11.png",
+      "phase": 0.6875,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-12.png",
+      "phase": 0.75,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-13.png",
+      "phase": 0.8125,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-14.png",
+      "phase": 0.875,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-15.png",
+      "phase": 0.9375,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "female-jogging-sequence-16.png",
+      "phase": 1,
+      "bodyType": "female",
+      "clip": "jogging",
+      "kind": "sequence"
+    },
+    {
+      "file": "endpoint-male-1.58.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "height": "1.58",
+      "build": "0"
+    },
+    {
+      "file": "endpoint-male-1.92.png",
+      "phase": 0.5,
+      "bodyType": "male",
+      "height": "1.92",
+      "build": "1"
+    },
+    {
+      "file": "endpoint-female-1.58.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "height": "1.58",
+      "build": "0"
+    },
+    {
+      "file": "endpoint-female-1.92.png",
+      "phase": 0.5,
+      "bodyType": "female",
+      "height": "1.92",
+      "build": "1"
+    },
+    {
+      "file": "workbench.png",
+      "kind": "ui"
+    },
+    {
+      "file": "mobile.png",
+      "kind": "ui"
+    }
+  ],
+  "videos": [
+    "male-pilot-switches-continuous.webm",
+    "male-shooting-arrow-continuous.webm",
+    "male-jogging-continuous.webm",
+    "female-pilot-switches-continuous.webm",
+    "female-shooting-arrow-continuous.webm",
+    "female-jogging-continuous.webm"
+  ],
+  "errors": [],
+  "generated": true,
+  "manuallyReviewed": false
+}

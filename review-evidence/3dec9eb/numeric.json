@@ -1,0 +1,548 @@
+{
+  "schema": "wanhu-tailoring-v2",
+  "geometryVersion": "wanhu-tailoring-v2-continuous-1",
+  "testedSha": "3dec9eb7b5b40dc22f36a2fcb726aeaaf85dae94",
+  "inventoryFiles": 23,
+  "staticVariants": 144,
+  "rows": [
+    {
+      "look": "plain-male",
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1231,
+        1159,
+        691
+      ]
+    },
+    {
+      "look": "plain-male",
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1231,
+        1159,
+        691
+      ]
+    },
+    {
+      "look": "plain-male",
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1231,
+        1159,
+        691
+      ]
+    },
+    {
+      "look": "plain-male",
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1233,
+        1161,
+        693
+      ]
+    },
+    {
+      "look": "plain-male",
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1233,
+        1161,
+        693
+      ]
+    },
+    {
+      "look": "plain-male",
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1233,
+        1161,
+        693
+      ]
+    },
+    {
+      "look": "plain-female",
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1235,
+        1163,
+        695
+      ]
+    },
+    {
+      "look": "plain-female",
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1235,
+        1163,
+        695
+      ]
+    },
+    {
+      "look": "plain-female",
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1235,
+        1163,
+        695
+      ]
+    },
+    {
+      "look": "plain-female",
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1237,
+        1165,
+        697
+      ]
+    },
+    {
+      "look": "plain-female",
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1237,
+        1165,
+        697
+      ]
+    },
+    {
+      "look": "plain-female",
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1237,
+        1165,
+        697
+      ]
+    },
+    {
+      "look": "town-male",
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1235,
+        1163,
+        695
+      ]
+    },
+    {
+      "look": "town-male",
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1235,
+        1163,
+        695
+      ]
+    },
+    {
+      "look": "town-male",
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1235,
+        1163,
+        695
+      ]
+    },
+    {
+      "look": "town-male",
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1237,
+        1165,
+        697
+      ]
+    },
+    {
+      "look": "town-male",
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1237,
+        1165,
+        697
+      ]
+    },
+    {
+      "look": "town-male",
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1237,
+        1165,
+        697
+      ]
+    },
+    {
+      "look": "town-female",
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1235,
+        1163,
+        695
+      ]
+    },
+    {
+      "look": "town-female",
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1235,
+        1163,
+        695
+      ]
+    },
+    {
+      "look": "town-female",
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1235,
+        1163,
+        695
+      ]
+    },
+    {
+      "look": "town-female",
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1237,
+        1165,
+        697
+      ]
+    },
+    {
+      "look": "town-female",
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1237,
+        1165,
+        697
+      ]
+    },
+    {
+      "look": "town-female",
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1237,
+        1165,
+        697
+      ]
+    },
+    {
+      "look": "elegant-male",
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1243,
+        1171,
+        703
+      ]
+    },
+    {
+      "look": "elegant-male",
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1243,
+        1171,
+        703
+      ]
+    },
+    {
+      "look": "elegant-male",
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1243,
+        1171,
+        703
+      ]
+    },
+    {
+      "look": "elegant-male",
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1245,
+        1173,
+        705
+      ]
+    },
+    {
+      "look": "elegant-male",
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1245,
+        1173,
+        705
+      ]
+    },
+    {
+      "look": "elegant-male",
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1245,
+        1173,
+        705
+      ]
+    },
+    {
+      "look": "elegant-female",
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1303,
+        1231,
+        763
+      ]
+    },
+    {
+      "look": "elegant-female",
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1303,
+        1231,
+        763
+      ]
+    },
+    {
+      "look": "elegant-female",
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1303,
+        1231,
+        763
+      ]
+    },
+    {
+      "look": "elegant-female",
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1305,
+        1233,
+        765
+      ]
+    },
+    {
+      "look": "elegant-female",
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1305,
+        1233,
+        765
+      ]
+    },
+    {
+      "look": "elegant-female",
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1305,
+        1233,
+        765
+      ]
+    },
+    {
+      "look": "ceremony-male",
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1243,
+        1171,
+        703
+      ]
+    },
+    {
+      "look": "ceremony-male",
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1243,
+        1171,
+        703
+      ]
+    },
+    {
+      "look": "ceremony-male",
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1243,
+        1171,
+        703
+      ]
+    },
+    {
+      "look": "ceremony-male",
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1245,
+        1173,
+        705
+      ]
+    },
+    {
+      "look": "ceremony-male",
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1245,
+        1173,
+        705
+      ]
+    },
+    {
+      "look": "ceremony-male",
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1245,
+        1173,
+        705
+      ]
+    },
+    {
+      "look": "ceremony-female",
+      "bodyType": "male",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1259,
+        1187,
+        719
+      ]
+    },
+    {
+      "look": "ceremony-female",
+      "bodyType": "male",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1259,
+        1187,
+        719
+      ]
+    },
+    {
+      "look": "ceremony-female",
+      "bodyType": "male",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1259,
+        1187,
+        719
+      ]
+    },
+    {
+      "look": "ceremony-female",
+      "bodyType": "female",
+      "height": 1.58,
+      "build": 0,
+      "triangles": [
+        1261,
+        1189,
+        721
+      ]
+    },
+    {
+      "look": "ceremony-female",
+      "bodyType": "female",
+      "height": 1.76,
+      "build": 0.5,
+      "triangles": [
+        1261,
+        1189,
+        721
+      ]
+    },
+    {
+      "look": "ceremony-female",
+      "bodyType": "female",
+      "height": 1.92,
+      "build": 1,
+      "triangles": [
+        1261,
+        1189,
+        721
+      ]
+    }
+  ],
+  "priority": [
+    "pilot-switches",
+    "shooting-arrow",
+    "jogging"
+  ],
+  "frames": 6858,
+  "vertices": 14570964,
+  "failures": [],
+  "passed": true,
+  "visualApproval": false,
+  "note": "Topology, weights, complete time sampling and LOD are checked. These tests do not prove absence of self-intersection. Review actual images and complete timelines separately."
+}
