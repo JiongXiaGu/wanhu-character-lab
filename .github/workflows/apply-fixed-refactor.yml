@@ -43,6 +43,10 @@ jobs:
               assert not p.is_absolute() and '..' not in p.parts and '.git' not in p.parts
               assert p.resolve().is_relative_to(root) and not p.is_symlink()
               old=p.read_bytes() if p.exists() else None
+              if e['path'].startswith('.github/workflows/'):
+                  assert digest(old)==e['after'], 'Connector workflow mismatch: '+str(p)
+                  print('CONNECTOR-VERIFIED',p)
+                  continue
               assert digest(old)==e['before'], 'Source mismatch: '+str(p)
               if e.get('delete'):
                   new=None
@@ -69,10 +73,10 @@ jobs:
       - run: npm ci
       - run: npm run check:retired && npm run check:mesh && npm run build
       - run: npm run check:mixamo && npm run check:wardrobe && npm run check:tailoring
-      - name: Remove one-time transport and commit actual sources
+      - name: Remove transport and commit non-workflow sources
         run: |
           rm -r .github/refactor
-          rm .github/workflows/apply-fixed-refactor.yml
+          git diff --exit-code -- .github/workflows
           git diff --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
