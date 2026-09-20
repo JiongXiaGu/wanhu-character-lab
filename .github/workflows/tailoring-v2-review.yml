@@ -22,14 +22,30 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npm run build
+      - id: build
+        run: npm run build
+      - name: Archive reproducible review workspace
+        run: |
+          git rev-parse HEAD > review-source-sha.txt
+          shopt -s nullglob
+          tar -czf /tmp/wanhu-v2-review-workspace.tar.gz src scripts Documentation public node_modules '动画参考' package.json package-lock.json tsconfig*.json vite.config.* README.md AGENTS.md index.html review-source-sha.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v2-review-workspace-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/wanhu-v2-review-workspace.tar.gz
+          retention-days: 3
       - name: Numeric contracts
+        id: numeric
         run: npm run check:tailoring
-      - run: npx playwright install --with-deps chromium
+      - name: Install review browser
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: npx playwright install --with-deps chromium
       - name: Preview and browser review
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: |
           npm run preview -- --host 127.0.0.1 > /tmp/v2-preview.log 2>&1 &
           for i in $(seq 1 40); do curl -fsS http://127.0.0.1:4173 > /dev/null && break; sleep 1; done
+          curl -fsS http://127.0.0.1:4173 > /dev/null
           if command -v agent-browser >/dev/null; then agent-browser open http://127.0.0.1:4173; agent-browser snapshot -i; agent-browser close; else echo 'agent-browser CLI unavailable; using repository Playwright WebGL verification'; fi
           npm run review:tailoring
       - name: Compose real screenshot sheets
@@ -37,6 +53,7 @@ jobs:
         run: |
           python -m pip install Pillow
           if test -f review-tailoring-v2/visual.json; then python scripts/compose-tailoring-v2.py; fi
+          if test -f /tmp/v2-preview.log; then mkdir -p review-tailoring-v2; cp /tmp/v2-preview.log review-tailoring-v2/preview.log; fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
