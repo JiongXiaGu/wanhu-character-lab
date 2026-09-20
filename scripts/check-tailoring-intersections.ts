@@ -20,13 +20,20 @@ let checkedFrames=0,pairsChecked=0;
 for(const profile of [{height:1.76,build:.5},{height:1.58,build:0},{height:1.92,build:1}])for(const bodyType of ['male','female'] as const)for(const look of ['plain-female','town-female','ceremony-female'])for(const lod of [0,1,2] as WardrobeLod[]){
  const d=makeCharacter(applyLook(cleanRecipe({bodyType,...profile}),look),{lod}),c=d.surface,actor=makeActor(d),indices:number[][]=[];
  for(const f of c.faces)if(['pelvis','thigh','shin'].includes(f.region))for(let i=1;i<f.v.length-1;i++)indices.push([f.v[0],f.v[i],f.v[i+1]]);
- const pairs:number[][]=[];for(let a=0;a<indices.length;a++)for(let b=a+1;b<indices.length;b++)if(!indices[a].some(i=>indices[b].includes(i)))pairs.push([a,b]);
  actor.update(0);actor.mesh.skeleton.update();const bind=skin(c,actor.mesh.skeleton.boneMatrices);assert(Math.max(...bind.map((p,i)=>Math.hypot(...sub(p,c.vertices[i].p))))<1e-5,'独立蒙皮必须还原bind');
  for(const id of ids){const source=JSON.parse(readFileSync(`public/mixamo/${id}.json`,'utf8')),bake=retargetMixamo(d,source);actor.resetBindPose();const action=actor.mixer.clipAction(bake.clip);action.setLoop(T.LoopOnce,1);action.clampWhenFinished=true;action.play();action.paused=true;let piercedFrames=0,maxPairs=0;
   // 全部源采样键 + 相邻键中点，检查播放插值而非只挑选少量定格。
   const times=[...new Set([0,source.duration,...source.times,...source.times.slice(1).map((t:number,i:number)=>(t+source.times[i])/2)])].sort((a:any,b:any)=>a-b) as number[];
   for(const time of times){action.time=time;actor.update(0);actor.mesh.skeleton.update();const points=skin(c,actor.mesh.skeleton.boneMatrices),tris=indices.map(ix=>{const p=ix.map(i=>points[i])as Triangle;return{p,lo:[0,1,2].map(a=>Math.min(...p.map(v=>v[a]))),hi:[0,1,2].map(a=>Math.max(...p.map(v=>v[a])))};});checkedFrames++;let n=0;
-   for(const[a,b]of pairs){const x=tris[a],y=tris[b];if([0,1,2].some(t=>x.hi[t]<y.lo[t]||y.hi[t]<x.lo[t]))continue;pairsChecked++;if(![0,1,2].some(t=>pierces(x.p[t],x.p[(t+1)%3],y.p)||pierces(y.p[t],y.p[(t+1)%3],x.p)))continue;n++;if(failures.length<60)failures.push({bodyType,look,lod,id,...profile,time,phase:time/source.duration,a:indices[a].map(i=>c.vertices[i].id),b:indices[b].map(i=>c.vertices[i].id)});}
+   // 扫描线只剔除包围盒不相交的三角对；不改变贯穿判定或共享顶点排除规则。
+   const order=tris.map((_,i)=>i).sort((a,b)=>tris[a].lo[0]-tris[b].lo[0]);
+   for(let ai=0;ai<order.length;ai++){const a=order[ai],x=tris[a];
+    for(let bi=ai+1;bi<order.length;bi++){const b=order[bi],y=tris[b];if(y.lo[0]>x.hi[0])break;
+     if(x.hi[1]<y.lo[1]||y.hi[1]<x.lo[1]||x.hi[2]<y.lo[2]||y.hi[2]<x.lo[2]||indices[a].some(i=>indices[b].includes(i)))continue;
+     pairsChecked++;if(![0,1,2].some(t=>pierces(x.p[t],x.p[(t+1)%3],y.p)||pierces(y.p[t],y.p[(t+1)%3],x.p)))continue;
+     n++;if(failures.length<60)failures.push({bodyType,look,lod,id,...profile,time,phase:time/source.duration,a:indices[a].map(i=>c.vertices[i].id),b:indices[b].map(i=>c.vertices[i].id)});
+    }
+   }
    if(n)piercedFrames++;maxPairs=Math.max(maxPairs,n);
   }
   rows.push({bodyType,...profile,look,lod,id,samples:times.length,piercedFrames,maxPairs});action.stop();actor.mixer.uncacheClip(bake.clip);
