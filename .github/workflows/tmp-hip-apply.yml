@@ -1,0 +1,56 @@
+name: Apply Standard Hip Integration
+on:
+  push:
+    branches: [tmp-standard-hip-gusset]
+    paths: [.github/workflows/tmp-hip-apply.yml]
+permissions:
+  contents: write
+concurrency:
+  group: apply-standard-hip
+  cancel-in-progress: false
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-standard-hip-gusset
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply explicit source patches
+        run: |
+          set -euo pipefail
+          python .github/scripts/apply-hip-standard.py
+          node --input-type=commonjs -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.scripts['check:seat']='tsx scripts/check-seat.ts';p.scripts['check:tailoring']='npm run check:seat && '+p.scripts['check:tailoring'];fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');"
+      - name: Typecheck and unchanged-body regression
+        run: |
+          npx tsc --noEmit
+          npm run check:mesh
+          npm run check:seat
+      - name: Commit integrated source on work branch only
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = 'tmp-standard-hip-gusset'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src scripts Documentation README.md AGENTS.md package.json .github
+          git commit -m 'feat: standard low mesh with connected hip gusset and local normals'
+          git push origin HEAD:tmp-standard-hip-gusset
+          git rev-parse HEAD
+      - name: Export small diagnostic files
+        if: always()
+        run: |
+          mkdir -p /tmp/hip-integration
+          git diff > /tmp/hip-integration/integration.patch
+          git status --short > /tmp/hip-integration/status.txt
+          if test -f review-tailoring-v2/seat.json; then cp review-tailoring-v2/seat.json /tmp/hip-integration/; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hip-integration-diagnostics
+          path: /tmp/hip-integration
+          retention-days: 5
