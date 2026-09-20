@@ -1,0 +1,35 @@
+name: Deformation analysis snapshot
+on:
+  push:
+    branches: [fix/lowpoly-deformation-cages]
+    paths: [.github/workflows/deformation-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run prepare:mixamo
+      - name: Package tracked source and offline numeric dependencies (no git credentials)
+        run: |
+          mkdir -p /tmp/deformation-snapshot
+          git archive HEAD | tar -x -C /tmp/deformation-snapshot
+          cp -a node_modules /tmp/deformation-snapshot/
+          cp -a public/mixamo /tmp/deformation-snapshot/public/
+          cp src/character/mixamo/catalog.generated.ts /tmp/deformation-snapshot/src/character/mixamo/
+          git rev-parse HEAD > /tmp/deformation-snapshot/SNAPSHOT_SHA.txt
+          tar -czf /tmp/deformation-snapshot.tar.gz -C /tmp/deformation-snapshot .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deformation-offline-inputs
+          path: /tmp/deformation-snapshot.tar.gz
+          retention-days: 1
