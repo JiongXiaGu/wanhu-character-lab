@@ -10,6 +10,22 @@ concurrency:
   group: tailoring-v2-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  isolate-knee-field:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run prepare:mixamo
+      - name: Isolate posterior knee slope and existing skin failures without changing source
+        run: npx tsx scripts/diagnose-knee-field.ts
+      - run: git diff --exit-code
   review:
     defaults:
       run:
