@@ -13,7 +13,7 @@ export function makeBody(): Cage {
     ['Chest',1.3,.202,.113,rigid(B.Chest)],
     ['Shoulder',1.395,.211,.098,rigid(B.Chest)],
     ['NeckBase',1.455,.06,.053,[B.Chest,B.Neck,.35]],
-    ['NeckTop',1.51,.057,.055,[B.Chest,B.Head,.3]],
+    ['NeckTop',1.51,.057,.055,[B.Neck,B.Head,.3]],
     ['Jaw',1.545,.076,.079,rigid(B.Head)],
     ['Cheek',1.63,.098,.092,rigid(B.Head)],
     ['Forehead',1.72,.097,.09,rigid(B.Head)],
