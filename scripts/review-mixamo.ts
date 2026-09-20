@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import { chromium } from 'playwright';
-import { mkdir, writeFile, stat, rename } from 'node:fs/promises';
+import { mkdir, writeFile, stat } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { MIXAMO_CLIPS } from '../src/character/mixamo/catalog';
 
@@ -9,7 +9,7 @@ assert.deepEqual([...REVIEW_IDS].sort(), MIXAMO_CLIPS.map(c=>c.id).sort());
 const BODY_TYPES=['male','female'];let activeBodyType='male';
 const directory='review-mixamo'; await mkdir(directory,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--use-angle=swiftshader','--enable-webgl']});
-const videos:string[]=[]; let failure='';
+const videos:string[]=[],playbackChecks:string[]=[]; let failure='';
 const errors:string[]=[], records:{file:string;bodyType:string;id:string;view:string;phase:number}[]=[];
 const context=await browser.newContext({viewport:{width:1600,height:1000},deviceScaleFactor:1});
 const page=await context.newPage();
@@ -41,10 +41,10 @@ try{
     assert.equal((result as any).bones.length,20);assert.equal((result as any).clipId,id);
     console.log(`REVIEW ${id}: source/target timeline + front/side/back/cage + 20-bone export`);
   }
-  // 实际播放，保留原始视频；不以软件渲染的墙钟时间代替动画时间游标。
+  // 实际播放/结束与循环检查保留，不再录制视频。
   for(const id of ['jogging','shooting-arrow']){
-    const videoContext=await browser.newContext({viewport:{width:1600,height:1000},recordVideo:{dir:directory,size:{width:1600,height:1000}}});
-    const videoPage=await videoContext.newPage(),video=videoPage.video()!;
+    const videoContext=await browser.newContext({viewport:{width:1600,height:1000},});
+    const videoPage=await videoContext.newPage();
     try{
       videoPage.on('pageerror',e=>errors.push(e.message));
       await videoPage.goto(`${base}/?review=1&paused=1&bodyType=${activeBodyType}&mixamo=${id}&compare=1&view=side&preset=archer&headwear=none&leftHand=none&headAxes=1`);
@@ -54,7 +54,7 @@ try{
       else await videoPage.waitForFunction(()=>{const w=window as unknown as {__mixamoCycles?:{last:number;count:number}};const phase=window.__WANHU_REVIEW__!.getStatus().phase;const c=w.__mixamoCycles??={last:phase,count:0};if(phase<c.last-.5)c.count++;c.last=phase;return c.count>=2;},undefined,{timeout:30000,polling:100});
       const status=await videoPage.evaluate(()=>window.__WANHU_REVIEW__!.getStatus());
       if(id==='shooting-arrow'){assert(status.finished);assert.equal(status.phase,1);}else assert(status.phase>=0&&status.phase<1);
-    }finally{await videoContext.close();await rename(await video.path(),`${directory}/${activeBodyType}-${id}-continuous.webm`);videos.push(`${activeBodyType}-${id}-continuous.webm`);}
+    }finally{await videoContext.close();playbackChecks.push(`${activeBodyType}/${id}`);}
   }
  }
   await open('shooting-arrow',{view:'side',compare:'1'});
@@ -97,9 +97,9 @@ try{
   await page.setViewportSize({width:412,height:915});await open('jogging');await shot('jogging','mobile',.25);
   assert.deepEqual(errors,[]);
 }catch(error){failure=String(error);throw error;}finally{
-  const report={sourceSha:process.env.REVIEW_HEAD_SHA??'local',testedSha:process.env.GITHUB_SHA??'local',retargetVersion:'wanhu-mixamo-2',clips:REVIEW_IDS.length,bodyTypes:2,images:records.length,records,errors,failure,passed:!failure&&errors.length===0,continuousVideos:videos};
+  const report={sourceSha:process.env.REVIEW_HEAD_SHA??'local',testedSha:process.env.GITHUB_SHA??'local',retargetVersion:'wanhu-mixamo-2',clips:REVIEW_IDS.length,bodyTypes:2,images:records.length,records,errors,failure,passed:!failure&&errors.length===0,continuousVideos:videos,playbackChecks};
   await writeFile(`${directory}/report.json`,JSON.stringify(report,null,2));
   await writeFile(`${directory}/index.html`,`<!doctype html><meta charset="utf-8"><title>Mixamo review</title><style>body{font:16px sans-serif;background:#18242a;color:#eee}section{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}img,video{width:100%}figure{margin:0}h2{grid-column:1/-1}</style><h1>Mixamo source / target review</h1><p>SHA ${report.sourceSha} · Passed ${report.passed}</p>${REVIEW_IDS.map(id=>`<h2>${id}</h2><section>${records.filter(r=>r.id===id).map(r=>`<figure><img loading="lazy" src="${r.file}"><figcaption>${r.bodyType} · ${r.view} · ${r.phase}</figcaption></figure>`).join('')}</section>`).join('')}<h2>Continuous playback</h2>${report.continuousVideos.map(f=>`<video controls loop src="${f}"></video>`).join('')}`);
   await context.close();await browser.close();
 }
-console.log(`PASS: ${REVIEW_IDS.length} clips; ${records.length} images; four continuous videos; interaction/export/error recovery.`);
+console.log(`PASS: ${REVIEW_IDS.length} clips; ${records.length} images; four record-free playback checks; interaction/export/error recovery.`);

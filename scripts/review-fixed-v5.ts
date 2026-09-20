@@ -221,7 +221,7 @@ try {
   await writeFile(`${dir}/report.json`, JSON.stringify({
     sourceSha: process.env.REVIEW_HEAD_SHA ?? 'local', testedSha: process.env.GITHUB_SHA ?? 'local',
     passed: !failure && errors.length === 0, images: images.length, records: images, checks, errors, failure,
-    visualReview: 'not-performed-by-script; downloaded images and continuous videos require separate review',
+    visualReview: 'not-performed-by-script; downloaded images require separate review; videos are not required',
   }, null, 2));
   await context.close(); await browser.close();
 }

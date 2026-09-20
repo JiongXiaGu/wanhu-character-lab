@@ -47,7 +47,7 @@ jobs:
           npm run review:wardrobe 2>&1 | tee wardrobe-browser-review.log
       - name: Assert complete review evidence
         run: |
-          node --input-type=module -e "import fs from 'node:fs'; import assert from 'node:assert/strict'; const r=JSON.parse(fs.readFileSync('review-wardrobe/report.json','utf8')); assert.equal(r.passed,true); assert.equal(r.images,143); assert.equal(r.continuousVideos.length,4);"
+          node --input-type=module -e "import fs from 'node:fs'; import assert from 'node:assert/strict'; const r=JSON.parse(fs.readFileSync('review-wardrobe/report.json','utf8')); assert.equal(r.passed,true); assert.equal(r.images,143); assert.equal(r.continuousVideos.length,0); assert.equal(r.playbackChecks.length,4);"
       - run: git diff --exit-code
       - uses: actions/upload-artifact@v4
         if: always()

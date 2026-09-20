@@ -1,4 +1,4 @@
-import { garmentColors, NEW_TOPS, NEW_BOTTOMS, styleGarmentSurface, addWardrobeHeadwear, finishHair } from "../wardrobe/geometry";
+import { addWardrobeHeadwear, finishHair } from "../wardrobe/adornments";
 import {
   B,
   rigid,
@@ -10,9 +10,6 @@ import {
   type BackId,
   type LeftHandId,
   type RightHandId,
-  type TopId,
-  type BottomId,
-  type ShoesId,
   type Region,
   type Vec3,
   type Weight,
@@ -29,12 +26,12 @@ import {
   bridge,
   face,
   vertex,
-  cloneCage,
   triCount,
   OCT,
   BOX,
 } from "./cage";
 import { makeBody, makeJoints, shapePoint, shapeRigidPoint } from "./body";
+import { assembleGarments, compactSurface } from "../wardrobe/assembly";
 const SKIN = "#c8956e",
   HAIR = "#282b29",
   INK = "#272b2b";
@@ -203,7 +200,7 @@ function ribbon(
     face(c, normal[2] > 0 ? ids : ids.reverse(), "detail", color);
   }
 }
-function faceDetails(c: Cage, hat: boolean, female = false) {
+function faceDetails(c: Cage, female = false) {
   const head = rigid(B.Head);
   for (const side of [-1, 1]) {
     const x = 0.037 * side;
@@ -315,42 +312,7 @@ function faceDetails(c: Cage, hat: boolean, female = false) {
   bridge(c, lower, middle, "detail", HAIR);
   bridge(c, middle, top, "detail", HAIR);
   face(c, [...top], "detail", HAIR);
-  if (female && !hat) {
-    // 低髻是封闭三环体积，绑在 Head 上，不引入发丝/布料骨骼。
-    const low = ring(c, "FemaleBunLow", [0,1.616,-.111], [1,0,0], [0,0,1], OCT,.027,.027,head);
-    const mid = ring(c, "FemaleBunMid", [0,1.657,-.125], [1,0,0], [0,0,1], OCT,.048,.043,head);
-    const high = ring(c, "FemaleBunHigh", [0,1.696,-.112], [1,0,0], [0,0,1], OCT,.029,.030,head);
-    face(c,[...low].reverse(),"detail",HAIR);
-    bridge(c,low,mid,"detail",HAIR); bridge(c,mid,high,"detail",HAIR);
-    face(c,high,"detail",HAIR);
-    // 横簪与两侧小结均随头部刚性运动，不穿过肩颈。
-    box(c,"FemaleHairPin",[0,1.666,-.164],[.113,.006,.008],head,"#998361");
-  } else if (!female && !hat) {
-    const bun = ring(
-      c,
-      "BunBase",
-      [0, 1.755, -0.025],
-      [1, 0, 0],
-      [0, 0, 1],
-      BOX,
-      0.027,
-      0.027,
-      head,
-    );
-    const cap = ring(
-      c,
-      "BunCap",
-      [0, 1.794, -0.025],
-      [1, 0, 0],
-      [0, 0, 1],
-      BOX,
-      0.02,
-      0.02,
-      head,
-    );
-    bridge(c, bun, cap, "detail", HAIR);
-    face(c, cap, "detail", HAIR);
-  }
+
 }
 function headwear(c: Cage, id: HeadwearId, recipe: Recipe) {
   if (id === "none") return;
@@ -445,51 +407,6 @@ function headwear(c: Cage, id: HeadwearId, recipe: Recipe) {
     skin,
   );
   bridge(c, a, b, "equipment", "#a48760");
-}
-function belt(c: Cage, color: string) {
-  const a = ring(
-    c,
-    "BeltBottom",
-    [0, 1.05, 0],
-    [1, 0, 0],
-    [0, 0, 1],
-    OCT,
-    0.158,
-    0.097,
-    [B.Hips, B.Spine, 0.35],
-  );
-  const b = ring(
-    c,
-    "BeltTop",
-    [0, 1.1, 0],
-    [1, 0, 0],
-    [0, 0, 1],
-    OCT,
-    0.162,
-    0.103,
-    [B.Spine, B.Hips, 0.75],
-  );
-  bridge(c, a, b, "detail", color);
-  box(
-    c,
-    "BeltKnot",
-    [0.08, 1.076, 0.097],
-    [0.035, 0.05, 0.023],
-    [B.Spine, B.Hips, 0.7],
-    color,
-  );
-  patch(
-    c,
-    "SashTail",
-    [
-      [0.07, 0.95, 0.109],
-      [0.105, 0.945, 0.109],
-      [0.097, 1.08, 0.11],
-      [0.067, 1.08, 0.11],
-    ],
-    [B.Hips, B.Spine, 0.6],
-    color,
-  );
 }
 function addSword(c: Cage) {
   const w = rigid(B.RightHand);
@@ -639,90 +556,14 @@ function addRightHand(c: Cage, id: RightHandId) {
   if (id === "guard_sword") addSword(c);
 }
 
-function topColor(top: TopId, cloth: string): string {
-  if (top === "guard_light_armor") return "#566561";
-  if (top === "archer_tunic") return "#756247";
-  if (top === "farmer_tunic" || NEW_TOPS.includes(top)) return cloth;
-  return SKIN;
-}
-
-function bottomColor(bottom: BottomId, secondary?: string): string {
-  if (NEW_BOTTOMS.includes(bottom)) return secondary ?? "#596363";
-  if (bottom === "guard_pants") return "#394247";
-  if (bottom === "archer_pants") return "#4b493d";
-  if (bottom === "work_pants") return "#3c4445";
-  return SKIN;
-}
-
-function shoesColor(shoes: ShoesId): string {
-  if (shoes === "boots") return "#30383a";
-  if (shoes === "cloth_shoes") return "#414441";
-  return SKIN;
-}
-
-function expandClothingLoops(c: Cage, recipe: Recipe) {
-  const hasTop = recipe.slots.top !== "body";
-  const hasBottom = recipe.slots.bottom !== "body";
-  const hasShoes = recipe.slots.shoes !== "body";
-
-  for (const [name, loop] of Object.entries(c.anchors)) {
-    let factor = 1;
-
-    if (
-      hasTop &&
-      ["Hip", "Waist", "Rib", "Chest", "Shoulder"].includes(name)
-    ) {
-      factor = 1.055;
-    }
-    if (hasTop && /Deltoid|ElbowUpper/.test(name)) factor = 1.17;
-    if (hasBottom && /Thigh/.test(name)) factor = 1.12;
-    if (hasBottom && /Knee|Calf/.test(name)) factor = 1.07;
-    if (hasShoes && /Ankle|Instep|Sole/.test(name)) factor = 1.045;
-
-    if (factor === 1) continue;
-
-    const center = mul(
-      loop.reduce((p, i) => add(p, c.vertices[i].p), [0, 0, 0] as Vec3),
-      1 / loop.length,
-    );
-
-    for (const vertexId of loop) {
-      const value = c.vertices[vertexId];
-      value.p = add(center, mul(sub(value.p, center), factor));
-    }
-  }
-}
 export function makeCharacter(input: RecipeInput): CharacterData {
   const recipe = createRecipe(input);
   const body = makeBody();
-  const c = cloneCage(body);
-  const colors = garmentColors(recipe);
-  const [cloth, trim, leather] = [colors.primary, colors.accent, colors.accent];
+  const {surface:c,replacedTriangles,garments} = assembleGarments(body,recipe);
+  const colors = recipe.dyes;
+  const [trim, leather] = [colors.accent, colors.accent];
 
   const hasTop = recipe.slots.top !== "body";
-  const hasBottom = recipe.slots.bottom !== "body";
-  const hasShoes = recipe.slots.shoes !== "body";
-  const dressed = hasTop || hasBottom || hasShoes;
-
-  for (const f of c.faces) {
-    f.color = SKIN;
-
-    if (["torso", "upperArm"].includes(f.region) && hasTop) {
-      f.color = topColor(recipe.slots.top, cloth);
-    } else if (["pelvis", "thigh"].includes(f.region) && hasBottom) {
-      f.color = bottomColor(recipe.slots.bottom,colors.secondary);
-    } else if (f.region === "shin" && hasBottom) {
-      f.color = bottomColor(recipe.slots.bottom,colors.secondary);
-    } else if (f.region === "foot" && hasShoes) {
-      f.color = shoesColor(recipe.slots.shoes);
-    }
-  }
-
-  if (dressed) expandClothingLoops(c, recipe);
-  styleGarmentSurface(c,recipe);
-
-  if (hasTop || hasBottom) belt(c, leather);
-
   if (hasTop) {
     ribbon(
       c,
@@ -786,8 +627,7 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   }
 
   const female = recipe.bodyType === "female";
-  const hidesBun = ["cloth_wrap", "scholar_cap"].includes(recipe.slots.headwear) || (female ? recipe.slots.headwear === "guard_helmet" : recipe.slots.headwear !== "none" && recipe.slots.headwear !== "jade_pin");
-  faceDetails(c, hidesBun, female);
+  faceDetails(c, female);
   finishHair(c,recipe);
   const rigidStart = c.vertices.length;
   headwear(c, recipe.slots.headwear, recipe);
@@ -801,29 +641,13 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   });
   for (const v of body.vertices) v.p = shapePoint(v.p, recipe);
 
-  const coveredRegions = new Set<Region>();
-  if (hasTop) {
-    coveredRegions.add("torso");
-    coveredRegions.add("upperArm");
-    if(NEW_TOPS.includes(recipe.slots.top)&&recipe.slots.top!=="rough_tunic") coveredRegions.add("forearm");
-  }
-  if (hasBottom) {
-    coveredRegions.add("pelvis");
-    coveredRegions.add("thigh");
-    coveredRegions.add("shin");
-  }
-  if (hasShoes) coveredRegions.add("foot");
-
-  const replacedTriangles = body.faces
-    .filter((f) => coveredRegions.has(f.region))
-    .reduce((n, f) => n + f.v.length - 2, 0);
-
   return {
     body,
-    surface: c,
+    surface: compactSurface(c),
     joints,
     recipe,
     replacedTriangles,
     bodyTriangles: triCount(body),
+    garments,
   };
 }

@@ -1,0 +1,69 @@
+name: Modular Garment Review
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: modular-garment-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: candidate
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: candidate
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BASE_SHA }}
+          path: baseline
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: candidate/package-lock.json
+      - run: npm ci
+      - run: |
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+          python -m pip install Pillow
+      - name: Build candidate and reference (read-only camera hook only)
+        run: |
+          npm run build
+          node scripts/instrument-baseline-camera.mjs ../baseline
+          ln -s "$PWD/node_modules" ../baseline/node_modules
+          (cd ../baseline && npm run build)
+      - name: Capture actual before and after in runner
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/modular-after.log 2>&1 &
+          (cd ../baseline && npm run preview -- --host 127.0.0.1 --port 4174) > /tmp/modular-before.log 2>&1 &
+          for port in 4173 4174; do
+            for i in {1..40}; do curl -fsS "http://127.0.0.1:$port/" >/dev/null && break; sleep 1; done
+            curl -fsS "http://127.0.0.1:$port/" >/dev/null
+          done
+          REVIEW_HEAD_SHA="$BASE_SHA" REVIEW_STAGE=before REVIEW_URL=http://127.0.0.1:4174 node scripts/review-modular.mjs
+          REVIEW_HEAD_SHA="$HEAD_SHA" REVIEW_STAGE=after REVIEW_URL=http://127.0.0.1:4173 node scripts/review-modular.mjs
+          python scripts/compose-modular.py
+      - name: Preserve diagnostics
+        if: always()
+        run: |
+          mkdir -p review-modular
+          cp /tmp/modular-*.log review-modular/ 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: modular-garment-review-${{ env.HEAD_SHA }}
+          path: candidate/review-modular/
+          retention-days: 14

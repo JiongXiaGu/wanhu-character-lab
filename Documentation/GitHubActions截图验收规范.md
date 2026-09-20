@@ -4,9 +4,9 @@
 
 用户已调整流程：完成代码和自动检查，实际检查图片后合并 main，再由用户进行简单视觉复核。视频不再是合并前置条件，不要求下载、播放或逐帧分析视频。
 
-只在 Actions runner 内启动 Preview 和 Playwright 生成截图，不部署 Visual/Vercel。现有脚本附带的视频和时间接触表可以保留为可选诊断产物；它们的生成不代表已经人工查看。截图生成成功、下载成功、实际看图分别记录。
+只在 Actions runner 内启动 Preview 和 Playwright 生成截图，不部署 Visual/Vercel。本批删除视频录制，保留真实播放结束/循环自动检查；多相位截图仍保留。截图生成成功、下载成功、实际看图分别记录。
 
-五条正式任务：Build、Character Model Review、Mixamo Retarget Review、Wardrobe Review、Tailoring V2 Review。工作流名称保留，测试契约为固定 V5。
+五条正式任务：Build、Character Model Review、Mixamo Retarget Review、Wardrobe Review、Tailoring V2 Review。工作流名称保留，测试契约为固定 V5；新增 Modular Garment Review 负责服装同相机前后对照与近景。
 
 ## 图片和自动检查
 
@@ -22,10 +22,12 @@
 
 ## 版本和交付
 
-16 份 golden fixture 采自 main 4740a5c 的原 LOD2，只证明 V5 重构没有造型回归，不是永久冻结人体。后续修模明确升级资源版本，实际审图后再更新基线。
+原16份身体/绑定黄金数据保持，文件整理为fixed-body-bind-baseline.json。旧人体衣面surfaceHash明确退役，新几何版本wanhu-modular-garments-v2；不自动刷新旧表面哈希冒充重构不变。
 
-髋裆分叉、髋下暗面、侧面偏薄和膝前硬折仍是下一阶段问题。PR #12 的失败补面不合入；不修改上传 FBX，不删失败动作，不放宽阈值，不用额外遮挡或照明调整代替修模。
+服装主导路线允许按明确覆盖表不绘制内部皮肤，但裤装自身必须连接完整。PR #12失败补面不合入；不修改上传FBX、不删失败动作、不放宽阈值、不临时删可见衣面或改照明掩盖问题。裸模不作为最终穿衣外观。
 
 交付记录包含受测代码 SHA、各 run 的真实状态、下载产物和实际查看图片范围、视频未审（如适用）、已知限制、最终 main SHA。仅文档变化可引用未变化的受测代码和截图，但不能写成新 SHA 生成的图片；运行代码或测试改变则重新执行相应验收。
 
 自动检查通过、图片未发现新的合并阻塞后，按用户授权合并 main，由用户拉取进行简单视觉复核。工程通过不等于髋裆修复或最终美术验收。
+
+新增对照流程：从PR base/推送前main读取旧版本，仅增加只读cameraState观察接口，记录36组相机矩阵/视口/相位一致性；候选另有64张混搭、髋裆近景、无光照/线框和深蹲序列。所有图片来自runner真实运行。人工检查仍须明确逐张原图、接触表抽样和未查看范围。

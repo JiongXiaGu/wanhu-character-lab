@@ -10,7 +10,7 @@ import type { MixamoSelection } from '../character/mixamo/catalog';
 
 export interface PlaybackStatus { phase:number; stage:string; finished:boolean; mixamo?:MixamoStatus; loading?:boolean; loadError?:string }
 export type View = 'free' | 'front' | 'side' | 'back' | 'top' | 'three';
-export type Display = 'beauty' | 'cage' | 'triangles' | 'clay';
+export type Display = 'beauty' | 'cage' | 'triangles' | 'clay' | 'unlit';
 export interface Stats { triangles:number; bodyTriangles:number; vertices:number; gpuVertices:number; bones:number; replaced:number }
 export interface ViewOptions {
   recipe:Recipe; mixamo:MixamoSelection; compareSource:boolean; headAxes:boolean; restart:number;
@@ -26,7 +26,7 @@ interface Runtime {
   resize:()=>void; render:()=>void; grid:T.GridHelper; disposePlayer:()=>void; disposeActor:()=>void;
 }
 declare global { interface Window {
-  __WANHU_REVIEW__?: { seek:(phase:number)=>void; stats:Stats; getStatus:()=>PlaybackStatus; focusHead:()=>void; geometryId:()=>string };
+  __WANHU_REVIEW__?: { seek:(phase:number)=>void; stats:Stats; getStatus:()=>PlaybackStatus; focusHead:()=>void; focusHip:()=>void; cameraState:()=>unknown; geometryId:()=>string };
   __WANHU_CAPTURE__?:()=>void; __WANHU_EXPORT_MOTION__?:()=>unknown;
 } }
 function actorStats(actor:Actor):Stats {
@@ -103,7 +103,14 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     const stats=actorStats(actor);statsRef.current(stats);
     if(new URLSearchParams(location.search).has('review')||import.meta.env.DEV){
       window.__WANHU_REVIEW__={stats,seek(phase){if(rt)seek(rt,phase);},getStatus:()=>rt?playback(rt):{phase:0,stage:'',finished:false},
-        geometryId:()=>rt?.actor.mesh.geometry.uuid??'',focusHead(){if(!rt)return;
+        cameraState:()=>rt?{position:rt.camera.position.toArray(),target:rt.controls.target.toArray(),projection:rt.camera.projectionMatrix.toArray()}:null,
+        geometryId:()=>rt?.actor.mesh.geometry.uuid??'',focusHip(){if(!rt)return;
+          const center=rt.actor.bones[1].getWorldPosition(new T.Vector3()).add(new T.Vector3(0,-.13,0));
+          const direction=rt.camera.position.clone().sub(rt.controls.target).normalize();
+          rt.controls.target.copy(center);rt.camera.position.copy(center).addScaledVector(direction,2);
+          if(rt.camera instanceof T.OrthographicCamera){rt.camera.zoom=2.4;rt.camera.updateProjectionMatrix();}
+          rt.camera.lookAt(center);rt.controls.update();rt.render();
+        },focusHead(){if(!rt)return;
           const center=rt.actor.bones[5].getWorldPosition(new T.Vector3()).add(new T.Vector3(0,.1*BODY_HEIGHT[latest.current.recipe.bodyType]/1.76,0));
           const direction=rt.camera.position.clone().sub(rt.controls.target).normalize();
           rt.controls.target.copy(center);rt.camera.position.copy(center).addScaledVector(direction,2);
@@ -167,7 +174,8 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
   return <div ref={host} className="character-viewport" data-testid="viewport"/>;
 }
 function applyDisplay(r:Runtime,o:ViewOptions){
-  const material=r.actor.mesh.material as T.MeshStandardMaterial;
+  const material=r.actor.beautyMaterial;
+  r.actor.mesh.material=o.display==='unlit'?r.actor.unlitMaterial:material;
   material.wireframe=o.display==='triangles';material.vertexColors=o.display!=='clay';material.color.set(o.display==='clay'?'#c2b49c':'#ffffff');
   material.polygonOffset=o.display==='cage';material.polygonOffsetFactor=1;material.polygonOffsetUnits=1;material.needsUpdate=true;
   r.actor.wire.visible=o.display==='cage';r.actor.skeletonHelper.visible=o.skeleton;r.grid.visible=o.grid;

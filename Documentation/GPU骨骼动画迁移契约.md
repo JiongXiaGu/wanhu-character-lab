@@ -8,7 +8,7 @@ Web输出固定男女模型数据、Recipe V5、目标动画wanhu-target-motion 
 
 SkeletonDefinition：基模ID/bodyProfileVersion、骨骼名/索引/父索引、局部绑定位置/旋转与inverse bind。固定20骨骼，每顶点最多2非零权重。男女绑定位置可不同；衣服使用该基模骨架，不增加独立Animator。单位米，+X右/+Y上/+Z前，Unity端需显式核对坐标与xyzw顺序。
 
-SkinBinding：逻辑顶点、索引、权重、法线/颜色区域、装配部件；修拓扑时升级资源版本。当前固定几何版本wanhu-fixed-garments-v1。
+SkinBinding：逻辑顶点、索引、权重、法线/颜色区域、装配部件；修拓扑时升级资源版本。当前固定几何版本wanhu-modular-garments-v2。
 
 TargetMotion v2：sourceSHA、clipId、retargetVersion、duration、loop、真实time keys、bodyProfile{id,version}、bones、局部旋转轨道、Hips位置与提取的水平根轨迹。无height/build/proportion参数；不兼容旧导出。局部旋转按父关系累乘，最终蒙皮矩阵=世界姿态矩阵×inverse bind。头部校准不重复应用。
 
@@ -28,4 +28,6 @@ TargetMotion v2：sourceSHA、clipId、retargetVersion、duration、loop、真�
 
 ## 未完成内容
 
-已有弓盾工具只是骨骼附件；精确握点、弓弦、箭离弦、椅子开关接触、库存/生产/伤害仍属于后续Unity玩法或专项。无实时布料、服装额外骨骼、修正形态系统。髋裆美术问题没有在本次数据重构中修复。
+已有弓盾工具只是骨骼附件；精确握点、弓弦、箭离弦、椅子开关接触、库存/生产/伤害仍属于后续Unity玩法或专项。无实时布料、服装额外骨骼、修正形态系统。独立衣裤/覆盖装配已实现；裸模髋裆没有专项重建。
+
+模块资产迁移还须保存部件slot/version、覆盖区域、显式开口与色区。当前构造器先在固定制作空间生成，再映射到既有男女基模；不是现成DCC资产导入器。一个Web角色仍共用一套骨架，无新增服装骨骼。
