@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "check:mesh": "tsx scripts/check-v3.ts && tsx scripts/check-body-profiles.ts && tsx scripts/check-garment-assets.ts",
+    "check:mesh": "tsx scripts/check-v3.ts && tsx scripts/check-body-profiles.ts && tsx scripts/check-garment-assets.ts && npm run check:deformation",
     "check:visual": "node scripts/review-v3.mjs",
     "prepare:mixamo": "tsx scripts/prepare-mixamo.ts",
     "predev": "npm run prepare:mixamo",
@@ -23,7 +23,10 @@
     "check:tailoring": "tsx scripts/check-tailoring-v2.ts && tsx scripts/check-tailoring-intersections.ts",
     "review:tailoring": "tsx scripts/review-tailoring-v2.ts",
     "check:intersections": "tsx scripts/check-tailoring-intersections.ts",
-    "check:fixed": "tsx scripts/check-fixed-contract.ts"
+    "check:fixed": "tsx scripts/check-fixed-contract.ts",
+    "check:deformation": "tsx scripts/check-deformation.ts",
+    "review:deformation": "node scripts/review-deformation.mjs",
+    "review:local": "node scripts/review-local.mjs"
   },
   "dependencies": {
     "react": "19.1.1",

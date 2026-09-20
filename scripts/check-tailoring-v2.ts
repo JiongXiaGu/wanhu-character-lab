@@ -4,6 +4,7 @@ import * as T from 'three';
 import {makeCharacter} from '../src/character/v3/outfit';
 import {makeActor} from '../src/character/v3/rig';
 import {createRecipe,BODY_TYPES} from '../src/character/v3/types';
+import {BODY_TRIANGLES} from '../src/character/v3/leg-deformation';
 import {triCount} from '../src/character/v3/cage';
 import {WARDROBE_LOOKS,applyLook} from '../src/character/wardrobe/catalog';
 import {GARMENT_GEOMETRY_VERSION} from '../src/character/wardrobe/assembly';
@@ -19,7 +20,7 @@ const assetChecks=assertModularAssets();
 const rows:any[]=[];const failures:string[]=[];let frames=0,vertices=0;
 for(const look of WARDROBE_LOOKS)for(const bodyType of BODY_TYPES){
  const recipe=applyLook(createRecipe({bodyType}),look.id),base=makeCharacter(recipe),counts:number[]=[];
- {const d=makeCharacter(recipe);assert.deepEqual(d.body,base.body);assert.deepEqual(d.joints,base.joints);assert.deepEqual(d.recipe,base.recipe);assertComponentWinding(d.surface);counts.push(triCount(d.surface));assert.equal(triCount(d.body),510);
+ {const d=makeCharacter(recipe);assert.deepEqual(d.body,base.body);assert.deepEqual(d.joints,base.joints);assert.deepEqual(d.recipe,base.recipe);assertComponentWinding(d.surface);counts.push(triCount(d.surface));assert.equal(triCount(d.body),BODY_TRIANGLES);
   assert(d.garments.length===3);
   assert(d.surface.faces.filter(f=>f.part==='skin').every(f=>!['torso','upperArm','pelvis','thigh','shin','foot'].includes(f.region)),'覆盖表失效');
  }
@@ -35,5 +36,5 @@ for(const id of priority){const source=JSON.parse(readFileSync(`public/mixamo/${
  }
  console.log('TAILORING sampled complete clip '+id);
 }
-const report={schema:'wanhu-modular-tailoring-v2',assetChecks,geometryVersion:GARMENT_GEOMETRY_VERSION,testedSha:process.env.REVIEW_HEAD_SHA??'local',inventoryFiles:inventory.totalFiles,staticVariants:rows.length,rows,priority,frames,vertices,failures,passed:failures.length===0,visualApproval:false,note:'Topology, weights, complete time sampling and fixed-profile geometry are checked. These tests do not prove absence of self-intersection. Review actual multi-phase images separately; videos are optional.'};
+const report={schema:'wanhu-modular-tailoring-v2',assetChecks,geometryVersion:GARMENT_GEOMETRY_VERSION,testedSha:process.env.REVIEW_HEAD_SHA??'local',inventoryFiles:inventory.totalFiles,staticVariants:rows.length,rows,priority,frames,vertices,failures,passed:failures.length===0,visualApproval:false,note:'Topology, weights, complete time sampling and fixed-profile geometry are checked. These tests do not prove absence of self-intersection. Review actual multi-phase images separately; videos are not required.'};
 mkdirSync('review-tailoring-v2',{recursive:true});writeFileSync('review-tailoring-v2/numeric.json',JSON.stringify(report,null,2));assert.equal(failures.length,0);console.log('PASS tailoring V2',JSON.stringify({...report,rows:undefined}));

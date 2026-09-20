@@ -89,6 +89,11 @@ export function makeActor(data: CharacterData): Actor {
       const b = f.v[(i + 1) % f.v.length];
       edges.set(edgeKey(v, b), [v, b]);
     });
+  for (const f of c.faces) {
+    for (let i = 2; i < f.v.length - 1; i++) {
+      edges.set(edgeKey(f.v[0], f.v[i]), [f.v[0], f.v[i]]);
+    }
+  }
   const edgeList = [...edges.values()];
   const wireGeo = new T.BufferGeometry();
   const wp = new Float32Array(edgeList.length * 6);

@@ -15,7 +15,7 @@ assert(pierces([.2,.2,-1],[.2,.2,1],[[0,0,0],[1,0,0],[0,1,0]]));assert(!pierces(
 function skin(c:Cage,m:Float32Array):Vec3[]{return c.vertices.map(v=>{const p:Vec3=[0,0,0];for(const[bone,w]of[[v.w[0],v.w[2]],[v.w[1],1-v.w[2]]]){const k=bone*16;for(let a=0;a<3;a++)p[a]+=w*(m[k+a]*v.p[0]+m[k+4+a]*v.p[1]+m[k+8+a]*v.p[2]+m[k+12+a]);}return p;});}
 const ids=['pilot-switches','shooting-arrow','jogging',...MIXAMO_CLIPS.filter(c=>['snatch','start-walking'].includes(c.id)).map(c=>c.id)],rows:any[]=[],failures:any[]=[];
 let checkedFrames=0,pairsChecked=0;
-for(const bodyType of ['male','female'] as const)for(const bottom of BOTTOM_IDS.filter(id=>id!=='body')){
+for(const bodyType of ['male','female'] as const)for(const bottom of BOTTOM_IDS){
  const look=bottom;
  const d=makeCharacter(createRecipe({bodyType,slots:{top:'rough_tunic',bottom}})),c=d.surface,actor=makeActor(d),indices:number[][]=[];
  for(const f of c.faces)if(['pelvis','thigh','shin'].includes(f.region))for(let i=1;i<f.v.length-1;i++)indices.push([f.v[0],f.v[i],f.v[i+1]]);
@@ -35,8 +35,17 @@ for(const bodyType of ['male','female'] as const)for(const bottom of BOTTOM_IDS.
    }
    if(n)piercedFrames++;maxPairs=Math.max(maxPairs,n);
   }
-  rows.push({bodyType,look,id,samples:times.length,piercedFrames,maxPairs});action.stop();actor.mixer.uncacheClip(bake.clip);
+  const row={bodyType,look,id,samples:times.length,piercedFrames,maxPairs};
+  rows.push(row);
+  // 即使无法下载/解压artifact，也能从日志定位失败动作与实际三角顶点；不改变检测结果。
+  if(piercedFrames){console.error('INTERSECTION_FAILURE',JSON.stringify(row));for(const item of failures.slice(failureStart))console.error('INTERSECTION_VERTICES',JSON.stringify(item));}
+  action.stop();actor.mixer.uncacheClip(bake.clip);
  }
  actor.dispose();console.log('INTERSECTION',bodyType,look);
 }
-const passed=rows.every(r=>r.piercedFrames===0);mkdirSync('review-tailoring-v2',{recursive:true});writeFileSync('review-tailoring-v2/intersections.json',JSON.stringify({testedSha:process.env.REVIEW_HEAD_SHA??'local',sampling:'all source keys plus interval midpoints; two fixed body profiles; same source-key and midpoint sampling / geometric thresholds',checkedFrames,pairsChecked,rows,failures,passed,scope:'离线腰髋/腿部衣面非共面贯穿；排除共享顶点的邻接三角。不涵盖全部共面接触、手臂/道具、任意体型或连续时间碰撞；仍需实际审图。'},null,2));assert(passed,'V2常用动作主衣面自交；查看intersections.json定位，不得以拓扑闭合代替此检查');
+const passed=rows.every(r=>r.piercedFrames===0);
+const report={testedSha:process.env.REVIEW_HEAD_SHA??'local',sampling:'all source keys plus interval midpoints; two fixed body profiles; same source-key and midpoint sampling / geometric thresholds',checkedFrames,pairsChecked,rows,failures,passed,scope:'离线腰髋/腿部衣面非共面贯穿；排除共享顶点的邻接三角。不涵盖全部共面接触、手臂/道具、任意体型或连续时间碰撞；仍需实际审图。'};
+mkdirSync('review-tailoring-v2',{recursive:true});
+writeFileSync('review-tailoring-v2/intersections.json',JSON.stringify(report,null,2));
+console.log('INTERSECTION_SUMMARY',JSON.stringify({passed,checkedFrames,pairsChecked,failedRows:rows.filter(r=>r.piercedFrames>0)}));
+assert(passed,'V2常用动作主衣面自交；查看intersections.json定位，不得以拓扑闭合代替此检查');
