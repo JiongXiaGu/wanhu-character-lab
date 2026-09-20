@@ -1,19 +1,24 @@
-import { mkdirSync, readdirSync, writeFileSync, rmSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { MIXAMO_CLIPS, mixamoFilename } from '../src/character/mixamo/catalog';
-import { extractMixamo } from './lib/mixamo-fbx';
-const directory = resolve('public/mixamo');
-const files = readdirSync('动画参考').filter(name => /\.fbx$/i.test(name)).sort();
-const expected = MIXAMO_CLIPS.map(c => mixamoFilename(c.id)).sort();
-if (JSON.stringify(files) !== JSON.stringify(expected)) throw new Error('动画参考中的 FBX 与 Mixamo 注册表不一致；请同步 catalog.ts 和截图矩阵，不能静默忽略文件。');
-mkdirSync(directory, { recursive: true });
-for (const name of readdirSync(directory)) if (name.endsWith('.json')) rmSync(resolve(directory, name));
-const inventory = [];
-for (const def of MIXAMO_CLIPS) {
-  const data = extractMixamo(def.id), json = JSON.stringify(data);
-  writeFileSync(resolve(directory, `${def.id}.json`), json);
-  inventory.push({ id: def.id, label: def.label, duration: data.duration, frames: data.times.length, bytes: Buffer.byteLength(json), ...data.source });
-  console.log(`MIXAMO ${def.id}: ${data.source.uniqueBones} unique / ${data.source.rawBoneNodes} raw bones; ${data.times.length} frames; ${data.duration.toFixed(3)}s; ${(Buffer.byteLength(json) / 1024).toFixed(0)} KiB`);
+import {mkdirSync,readdirSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {resolve} from 'node:path';
+import {registerMixamo} from './lib/register-mixamo';
+const entries=registerMixamo();
+// 生成目录后才加载提取器；避免读取旧模块快照。
+const {extractMixamo}=await import('./lib/mixamo-fbx');
+const directory=resolve('public/mixamo');mkdirSync(directory,{recursive:true});
+const expected=new Set(entries.map(e=>e.id+'.json'));expected.add('inventory.json');
+for(const name of readdirSync(directory))if(name.endsWith('.json')&&!expected.has(name))rmSync(resolve(directory,name));
+const inventory=[],failures:string[]=[];
+for(const def of entries){
+ try{
+  const sha=createHash('sha256').update(readFileSync(resolve('动画参考',def.filename))).digest('hex');
+  const path=resolve(directory,def.id+'.json');let data;
+  if(existsSync(path)){try{const cached=JSON.parse(readFileSync(path,'utf8'));if(cached.source?.sha256===sha&&cached.source?.extractorVersion==='v2-catalog')data=cached;}catch{/* 损坏缓存重新提取。 */}}
+  if(!data){data=extractMixamo(def.id);data.source.extractorVersion='v2-catalog';writeFileSync(path,JSON.stringify(data));}
+  inventory.push({...def,duration:data.duration,frames:data.times.length,bytes:Buffer.byteLength(JSON.stringify(data)),...data.source});
+  console.log(`MIXAMO ${def.id}: ${data.times.length} frames / ${data.duration.toFixed(3)}s / ${def.filename}`);
+ }catch(error){failures.push(def.filename+': '+String(error));console.error(failures.at(-1));}
 }
-writeFileSync(resolve(directory, 'inventory.json'), JSON.stringify(inventory, null, 2));
-console.log(`Prepared ${inventory.length} Mixamo clips. External meshes and textures are not included.`);
+writeFileSync(resolve(directory,'inventory.json'),JSON.stringify({schema:'wanhu-motion-inventory-v2',totalFiles:entries.length,prepared:inventory.length,clips:inventory,failures},null,2));
+if(failures.length)throw new Error(`${failures.length} FBX 提取失败，详见 inventory.json。未忽略任何文件。`);
+console.log(`Prepared all ${inventory.length} FBX clips; source meshes/textures excluded.`);
