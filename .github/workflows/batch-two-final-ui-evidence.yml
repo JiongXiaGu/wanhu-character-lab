@@ -1,0 +1,58 @@
+name: Batch Two Final UI Evidence
+on:
+  push:
+    branches: [prep/wardrobe-batch-two]
+    paths: [.github/workflows/batch-two-final-ui-evidence.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify final source run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import urllib.request,json,os
+          req=urllib.request.Request('https://api.github.com/repos/JiongXiaGu/wanhu-character-lab/actions/runs/35577387087',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+          with urllib.request.urlopen(req) as r:m=json.load(r)
+          assert m['head_sha']=='7f3d14dae4fa7ad3595116e2e8cb6a2193204425' and m['conclusion']=='success'
+          print('FINAL_SOURCE',m['head_sha'],m['name'],m['run_number'],m['conclusion'])
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JiongXiaGu/wanhu-character-lab
+          run-id: 35577387087
+          name: wardrobe-review
+          path: evidence
+          github-token: ${{ github.token }}
+      - run: python3 -m pip install reportlab Pillow
+      - name: Place three unchanged screenshots on evidence pages
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from reportlab.pdfgen import canvas
+          from reportlab.lib.utils import ImageReader
+          from PIL import Image
+          import hashlib
+          root=Path('evidence');names=['studio-default.png','lightwork-male-front.png','lightwork-female-front.png']
+          c=canvas.Canvas('lightwear-final-ui.pdf',pagesize=(1400,1100))
+          for i,name in enumerate(names,1):
+              files=list(root.rglob(name));assert len(files)==1,(name,files)
+              p=files[0];raw=p.read_bytes();assert raw.startswith(b'\x89PNG\r\n\x1a\n')
+              with Image.open(p) as im:w,h=im.size
+              k=min(1360/w,1020/h);ww,hh=w*k,h*k
+              c.setFont('Helvetica',11);c.drawString(20,1070,'GitHub Actions / Wardrobe #68 / source 7f3d14dae4fa7ad3595116e2e8cb6a2193204425')
+              c.drawString(20,1050,name);c.drawImage(ImageReader(str(p)),(1400-ww)/2,20+(1020-hh)/2,ww,hh);c.showPage()
+              print('PAGE',i,name,w,h,len(raw),hashlib.sha256(raw).hexdigest())
+          c.save()
+          print('ORIGINAL_PNG_PAYLOADS; PDF placement only; no new model rendering')
+          PY
+      - uses: actions/upload-artifact@v7
+        with:
+          path: lightwear-final-ui.pdf
+          archive: false
+          retention-days: 14
