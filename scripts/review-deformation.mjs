@@ -20,7 +20,7 @@ let browser, context, page, failure = '';
 async function capture(bodyType, fit, clip, view, display, phase) {
   const query = new URLSearchParams({
     review: '1', paused: '1', preset: 'body', bodyType, top: 'body',
-    bottom: fit === 'skin' ? 'body' : 'loose_trousers', shoes: 'body',
+    bottom: fit === 'skin' ? 'body' : 'work_pants', shoes: 'body',
     headwear: 'none', back: 'none', leftHand: 'none', rightHand: 'none', view, display,
     ...(clip === 'bind' ? { pose: 'bind' } : { mixamo: clip }),
   });
@@ -29,7 +29,7 @@ async function capture(bodyType, fit, clip, view, display, phase) {
   if (clip !== 'bind') await page.waitForFunction(() => window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
   const recipe = await page.evaluate(() => window.__WANHU_RECIPE__());
   assert.equal(recipe.bodyType, bodyType);
-  assert.equal(recipe.slots.bottom, fit === 'skin' ? 'body' : 'loose_trousers');
+  assert.equal(recipe.slots.bottom, fit === 'skin' ? 'body' : 'work_pants');
   recipe.dyes = { primary: '#d4c4a9', secondary: '#d5d2c5', accent: '#6f7b78' };
   await page.getByLabel('导入配方文件', { exact: true }).setInputFiles({
     name: 'review.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(recipe)),
