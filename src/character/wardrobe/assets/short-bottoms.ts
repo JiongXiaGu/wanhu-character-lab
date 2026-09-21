@@ -48,6 +48,15 @@ export function makeShortBottom(recipe:Recipe):GarmentPiece {
       }else bridge(c,prev,next,'thigh',r===rows.length-1?accent:secondary);
       prev=next;
     }
+    if(!skirt){
+      // 封闭的是裤脚布料断面，不拿实心圆盘堵住腿。内缘保留穿腿口，
+      // 与外环共享制作权重，不附加会在坐姿中互穿的回折衬片。
+      const outer=prev;
+      const inset=outer.map((vi,k)=>{const v=c.vertices[vi];return vertex(c,`Shorts.${name}.CuffInset.${k}`,
+        [side*.101+(v.p[0]-side*.101)*.985,v.p[1],v.p[2]*.985],[...v.w]);});
+      bridge(c,outer,inset,'thigh',accent);
+      prev=inset;
+    }
     openings[name+'Cuff']=prev;
   }
   const [rightRoot,leftRoot]=roots;

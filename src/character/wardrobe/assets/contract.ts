@@ -11,5 +11,5 @@ export interface GarmentPiece {
   /** 仅允许这些实际网格边界；裆底不能开口。 */
   openings:Record<string,number[]>;
 }
-export const GARMENT_GEOMETRY_VERSION='wanhu-modular-garments-v6';
+export const GARMENT_GEOMETRY_VERSION='wanhu-modular-garments-v7';
 export const BODY_HIDE_VERSION='wanhu-authored-coverage-v1';

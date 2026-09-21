@@ -45,10 +45,14 @@ for(const bodyType of BODY_TYPES){
     if(bottom==='body')continue;
     const p=makeTrousers(createRecipe({bodyType,slots:{bottom}}))!;
     if(bottom==='short_trousers'||bottom==='short_skirt'){
-      assert.equal(triCount(p.mesh),bottom==='short_trousers'?144:176);
+      assert.equal(triCount(p.mesh),bottom==='short_trousers'?176:176);
       assert.deepEqual(p.covers,['pelvis','thigh']);
       assert(p.mesh.vertices.every(v=>v.p[1]>=.5),'短装不能暗中恢复长裤管');
       for(const side of ['Right','Left'])assert.equal(p.openings[side+'Cuff'].length,8);
+    }else if(bottom==='true_short_skirt'||bottom==='long_skirt'){
+      assert.deepEqual(Object.keys(p.openings).sort(),['hem','waist']);
+      assert(p.mesh.vertices.every(v=>v.id.startsWith('Skirt.')),'连续裙摆不能拼入裤腿或裆底');
+      assert.equal(p.openings.hem.length,12);
     }else{
       assertKnees(p.mesh,true);
       assert.equal(triCount(p.mesh),bottom==='loose_trousers'?272:bottom==='guard_pants'?304:220);
@@ -62,5 +66,5 @@ const rear=cloneCage(pants);for(const v of rear.vertices)if(v.id.includes('.Knee
 const front=cloneCage(pants);for(const v of front.vertices)if(v.id.includes('.KneeUpper.')&&v.p[2]>0)v.w[2]=.6;assert.throws(()=>assertKnees(front,true));
 const hole=cloneCage(skin);hole.faces.splice(hole.faces.findIndex(f=>f.v.every(i=>hole.vertices[i].id.startsWith('SkinPelvis.'))&&f.region==='pelvis'),1);assert.throws(()=>assertSaddle(hole));
 const wrongSide=cloneCage(skin);wrongSide.vertices.find(v=>v.id==='SkinPelvis.Right.Root.0')!.w[1]=B.LeftThigh;assert.throws(()=>assertSaddle(wrongSide));
-const report={passed:true,bodyGeometryVersion:BODY_GEOMETRY_VERSION,rows,independentTrousersTriangles:{loose_trousers:272,guard_pants:304,short_trousers:144,short_skirt:176,other:220},mutationChecks:5,scope:'Authoring structure and injected regressions only. Actual FBX source-key/midpoint intersections and real screenshots remain separate checks; no automatic visual approval.'};
+const report={passed:true,bodyGeometryVersion:BODY_GEOMETRY_VERSION,rows,independentTrousersTriangles:{loose_trousers:272,guard_pants:304,short_trousers:176,short_skirt:176,other:220},mutationChecks:5,scope:'Authoring structure and injected regressions only. Actual FBX source-key/midpoint intersections and real screenshots remain separate checks; no automatic visual approval.'};
 mkdirSync('review-deformation',{recursive:true});writeFileSync('review-deformation/contracts.json',JSON.stringify(report,null,2));console.log('DEFORMATION CONTRACT',JSON.stringify(report));

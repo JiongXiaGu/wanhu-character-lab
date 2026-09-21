@@ -15,7 +15,7 @@ const rows:any[]=[],mixes:any[]=[],hats:any[]=[];
 const maxX=(c:Cage)=>Math.max(...c.vertices.map(v=>Math.abs(v.p[0])));
 const signature=(c:Cage)=>JSON.stringify({v:c.vertices,f:c.faces.map(f=>({v:f.v,region:f.region}))});
 function assertShort(c:Cage,skirt:boolean){
-  assert.equal(triCount(c),skirt?176:144);
+  assert.equal(triCount(c),skirt?176:176);
   assert(c.vertices.every(v=>v.p[1]>=.5),'短装有膝下裤管');
   assert(c.faces.filter(f=>f.region==='pelvis').length===24,'短装腰臀/四片裆底不可省略');
   for(const side of ['Right','Left']){
