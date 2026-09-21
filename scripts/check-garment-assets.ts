@@ -75,4 +75,4 @@ export function assertModularAssets():number {
   for(const name of ['tops','trousers','footwear'])assert(!/makeBody|cloneCage|fitJointCreases|tailorSurface/.test(readFileSync(`src/character/wardrobe/assets/${name}.ts`,'utf8')),'资产不能复制旧人体衣面');
   return checked;
 }
-if(process.argv[1]?.endsWith('check-garment-assets.ts'))console.log('PASS independent garment assets', {pieces:assertModularAssets(),mutationChecks:4,coverageCombinations:128,geometryVersion:GARMENT_GEOMETRY_VERSION});
+if(process.argv[1]?.endsWith('check-garment-assets.ts'))console.log('PASS independent garment assets', {pieces:assertModularAssets(),mutationChecks:4,coverageCombinations:BODY_TYPES.length*TOP_IDS.length*BOTTOM_IDS.length,geometryVersion:GARMENT_GEOMETRY_VERSION});

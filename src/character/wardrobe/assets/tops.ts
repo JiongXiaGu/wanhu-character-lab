@@ -1,3 +1,5 @@
+import { makeWorkVest } from './work-vest';
+import { makeShortJacket } from './short-jacket';
 import { makeWorkShirt } from './work-shirt';
 import { makeCrossShirt } from './cross-shirt';
 import { makeHalfSleeve } from './half-sleeve';
@@ -12,6 +14,8 @@ export function makeTop(recipe:Recipe):GarmentPiece|undefined {
   if(id==='body')return;
   const pattern=TOP_PATTERNS[id];
   if(!pattern)throw new Error('上衣资产未注册：'+id);
+  if(pattern.asset==='work-vest')return makeWorkVest(recipe);
+  if(pattern.asset==='short-jacket')return makeShortJacket(recipe);
   if(pattern.asset==='work-shirt')return makeWorkShirt(recipe);
   if(pattern.asset==='cross-shirt')return makeCrossShirt(recipe);
   if(pattern.asset==='half-sleeve')return makeHalfSleeve(recipe);

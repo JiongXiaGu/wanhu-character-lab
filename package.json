@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "check:mesh": "tsx scripts/check-v3.ts && tsx scripts/check-body-profiles.ts && tsx scripts/check-garment-assets.ts && npm run check:deformation && npm run check:wardrobe-batch",
+    "check:mesh": "tsx scripts/check-v3.ts && tsx scripts/check-body-profiles.ts && tsx scripts/check-garment-assets.ts && npm run check:deformation && npm run check:wardrobe-batch && npm run check:lightwear",
     "check:visual": "node scripts/review-v3.mjs",
     "prepare:mixamo": "tsx scripts/prepare-mixamo.ts",
     "predev": "npm run prepare:mixamo",
@@ -28,7 +28,9 @@
     "review:deformation": "node scripts/review-deformation.mjs",
     "review:local": "node scripts/review-local.mjs",
     "check:wardrobe-batch": "tsx scripts/check-wardrobe-batch.ts",
-    "review:wardrobe-batch": "node scripts/review-wardrobe-batch.mjs"
+    "review:wardrobe-batch": "node scripts/review-wardrobe-batch.mjs && npm run review:lightwear",
+    "check:lightwear": "tsx scripts/check-lightwear.ts",
+    "review:lightwear": "node scripts/review-lightwear.mjs"
   },
   "dependencies": {
     "react": "19.1.1",
