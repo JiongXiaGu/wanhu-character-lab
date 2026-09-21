@@ -34,7 +34,7 @@ horse入口复用原review:local启动器。正式马匹检查为Character Model
 
 | 资产 | UI名称与结构 | 三角形／逻辑顶点 |
 |---|---|---:|
-| short_trousers | 封口短裤；两圈裤口一起加宽、厚端面收边，保留穿腿口 | 176／100 |
+| short_trousers | 封口短裤；裤脚与腰口直接 Cap 封死，小腿/上身穿过不可见封面 | 164／84 |
 | true_short_skirt | 日常短裙；收腰、连续A字裙摆、固定封底，膝上长度 | 180／97 |
 | long_skirt | 素面长裙；连续裙摆到踝部附近，不拖地、不伪装成宽裤腿 | 252／133 |
 | short_skirt | 分片裙裤·旧短下裳；保留原ID、原几何与原配方意义 | 176／100 |
@@ -59,13 +59,15 @@ npm run dev
 
 右栏“下装”选择封口短裤、日常短裙或素面长裙。男女都能搭配背心、短打短褂、交领常服；推荐不强制改变性别。保留发式、帽饰、发色、种子、锁定、撤销、浏览器保存和严格V5文件导入导出。
 
+当前先在“干活背心＋封口短裤＋布鞋”验证全封闭 Cap：背心领口/双袖窿/腰口、短裤双裤脚/腰口、布鞋双脚踝都直接封面，让对应身体部位穿过 Cap。其余服饰暂不推广，待真实截图确认中远景观感后再决定统一规范。
+
 FBX放入动画参考目录（允许子目录），重启或构建会动态扫描提取。当前23份不是上限；搜索、分类、收藏、逐帧、变速、源骨架对照及暂停换装相位保持不变。
 
 ## 人物数据与职责
 
 Recipe V5 → patterns注册 → 独立服饰网格 → 固定皮肤覆盖 → 一个蒙皮网格 → 当前基模的20骨骼。每顶点最多双权重。patterns只注册；assets拥有专用版型与权重；assembly负责覆盖与装配；adornments负责冠髻。
 
-服装几何为wanhu-modular-garments-v7，皮肤wanhu-skin-cage-v3，绑定wanhu-fixed-bodies-v1。资源v7不改变配方：Recipe仍精确六字段version/bodyType/slots/dyes/hairStyle/hairColor，只读取wanhu.character.wardrobe.v5。旧版本、未知和缺失字段拒绝，不建立兼容fallback。源人体各524三角形，保护签名不刷新。
+服装几何为wanhu-modular-garments-v8，皮肤wanhu-skin-cage-v3，绑定wanhu-fixed-bodies-v1。资源v8不改变配方：Recipe仍精确六字段version/bodyType/slots/dyes/hairStyle/hairColor，只读取wanhu.character.wardrobe.v5。旧版本、未知和缺失字段拒绝，不建立兼容fallback。源人体各524三角形，保护签名不刷新。
 
 ## 人物快速审图与正式回归
 
