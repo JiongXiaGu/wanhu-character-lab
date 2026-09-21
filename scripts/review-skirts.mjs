@@ -8,7 +8,7 @@ assert(/^[a-zA-Z0-9_-]+$/.test(stage));
 const root=`review-wardrobe-batch/skirts-${stage}`,base=process.env.REVIEW_URL??'http://127.0.0.1:4173';
 const bottoms=['short_trousers','true_short_skirt','long_skirt'];
 const mixes=[['work_vest','short_trousers'],['short_work_jacket','short_trousers'],...bottoms.slice(1).flatMap(bottom=>['work_vest','short_work_jacket','cross_jacket'].map(top=>[top,bottom]))];
-const oldMixes=[['work_vest','short_trousers'],['work_vest','short_skirt'],['work_vest','loose_trousers']];
+const oldMixes=[['work_vest','short_trousers'],['work_vest','true_short_skirt'],['work_vest','work_pants']];
 const clips=['pilot-switches','jogging','start-walking','snatch','shooting-arrow'];
 const normal={primary:'#887560',secondary:'#567577',accent:'#d5be8f'},contrast={primary:'#fa1945',secondary:'#12cee7',accent:'#ffda16'};
 const records=[],errors=[],swaps=[];let failure='',browser,context,page;
@@ -20,7 +20,7 @@ async function ready(clip){
   await settle();
 }
 async function open(bodyType,clip,view){
-  const q=new URLSearchParams({review:'1',paused:'1',preset:'body',bodyType,top:'work_vest',bottom:'short_trousers',shoes:'cloth_shoes',headwear:'none',back:'none',leftHand:'none',rightHand:'none',view,...(clip==='bind'?{pose:'bind'}:{mixamo:clip})});
+  const q=new URLSearchParams({review:'1',paused:'1',bodyType,top:'work_vest',bottom:'short_trousers',shoes:'cloth_shoes',headwear:'none',back:'none',leftHand:'none',rightHand:'none',view,...(clip==='bind'?{pose:'bind'}:{mixamo:clip})});
   await page.goto(base+'/?'+q);await ready(clip);
 }
 async function wear(bodyType,top,bottom,clip,dyes=normal){
@@ -69,7 +69,7 @@ try{
     }
     for(const bodyType of ['male','female']){
       await open(bodyType,'bind','front');
-      for(const bottom of ['loose_trousers',...bottoms]){await wear(bodyType,'work_vest',bottom,'bind');await shot({kind:'silhouette',bodyType,top:'work_vest',bottom,clip:'bind',view:'front'});}
+      for(const bottom of ['work_pants',...bottoms]){await wear(bodyType,'work_vest',bottom,'bind');await shot({kind:'silhouette',bodyType,top:'work_vest',bottom,clip:'bind',view:'front'});}
     }
     await open('male','pilot-switches','free');
     await page.getByLabel('动画进度',{exact:true}).evaluate(input=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'0.42');input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));});
