@@ -1,0 +1,449 @@
+{
+  "sourceSha": "563b8c5cd404e176577f11d21e4bcc65a57c1acd",
+  "captureEnvironment": "github-actions",
+  "outputs": [
+    {
+      "file": "lightwear-male-front.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_trousers-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-short_work_jacket-short_trousers-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-short_work_jacket-short_skirt-none-default-bind-front-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-side.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_trousers-none-default-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_skirt-none-default-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-short_work_jacket-short_trousers-none-default-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-short_work_jacket-short_skirt-none-default-bind-side-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-back.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_trousers-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_skirt-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-short_work_jacket-short_trousers-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-short_work_jacket-short_skirt-none-default-bind-back-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-free.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_trousers-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_skirt-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-short_work_jacket-short_trousers-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-short_work_jacket-short_skirt-none-default-bind-free-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-mixed.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-loose_trousers-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-short_work_jacket-guard_pants-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-rough_tunic-short_trousers-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-cross_jacket-short_skirt-none-default-bind-free-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-hats-male-front.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-guard_helmet-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-guard_helmet-low_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-guard_helmet-double_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-cloth_wrap-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-cloth_wrap-low_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-cloth_wrap-double_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-scholar_cap-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-scholar_cap-low_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-scholar_cap-double_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-farmer_straw_hat-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-farmer_straw_hat-low_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-farmer_straw_hat-double_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-archer_headband-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-archer_headband-low_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-archer_headband-double_bun-bind-front-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-hats-male-side.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-guard_helmet-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-guard_helmet-low_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-guard_helmet-double_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-cloth_wrap-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-cloth_wrap-low_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-cloth_wrap-double_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-scholar_cap-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-scholar_cap-low_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-scholar_cap-double_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-farmer_straw_hat-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-farmer_straw_hat-low_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-farmer_straw_hat-double_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-archer_headband-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-archer_headband-low_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-archer_headband-double_bun-bind-side-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-hats-male-back.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-guard_helmet-topknot-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-cloth_wrap-topknot-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-scholar_cap-topknot-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-farmer_straw_hat-topknot-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-archer_headband-topknot-bind-back-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-pilot-switches.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_trousers-none-default-pilot-switches-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_skirt-none-default-pilot-switches-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_trousers-none-default-pilot-switches-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_skirt-none-default-pilot-switches-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_trousers-none-default-pilot-switches-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_skirt-none-default-pilot-switches-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_trousers-none-default-pilot-switches-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_skirt-none-default-pilot-switches-side-0.5.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-snatch.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_trousers-none-default-snatch-front-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_skirt-none-default-snatch-front-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_trousers-none-default-snatch-front-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_skirt-none-default-snatch-front-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_trousers-none-default-snatch-side-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_skirt-none-default-snatch-side-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_trousers-none-default-snatch-side-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_skirt-none-default-snatch-side-0.05.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-jogging.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_trousers-none-default-jogging-front-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_skirt-none-default-jogging-front-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_trousers-none-default-jogging-front-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_skirt-none-default-jogging-front-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_trousers-none-default-jogging-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_skirt-none-default-jogging-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_trousers-none-default-jogging-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_skirt-none-default-jogging-side-0.25.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-shooting-arrow.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_trousers-none-default-shooting-arrow-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_skirt-none-default-shooting-arrow-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_trousers-none-default-shooting-arrow-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_skirt-none-default-shooting-arrow-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_trousers-none-default-shooting-arrow-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_skirt-none-default-shooting-arrow-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_trousers-none-default-shooting-arrow-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_skirt-none-default-shooting-arrow-side-0.5.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-start-walking.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_trousers-none-default-start-walking-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_skirt-none-default-start-walking-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_trousers-none-default-start-walking-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_skirt-none-default-start-walking-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_trousers-none-default-start-walking-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-work_vest-short_skirt-none-default-start-walking-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_trousers-none-default-start-walking-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-male-short_work_jacket-short_skirt-none-default-start-walking-side-0.5.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-pilot-switches-sequence.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/sequence-male-work_vest-short_trousers-none-default-pilot-switches-side-0.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-work_vest-short_trousers-none-default-pilot-switches-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-work_vest-short_trousers-none-default-pilot-switches-side-0.75.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-work_vest-short_trousers-none-default-pilot-switches-side-1.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-short_work_jacket-short_skirt-none-default-pilot-switches-side-0.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-short_work_jacket-short_skirt-none-default-pilot-switches-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-short_work_jacket-short_skirt-none-default-pilot-switches-side-0.75.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-short_work_jacket-short_skirt-none-default-pilot-switches-side-1.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-snatch-sequence.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/sequence-male-work_vest-short_trousers-none-default-snatch-side-0.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-work_vest-short_trousers-none-default-snatch-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-work_vest-short_trousers-none-default-snatch-side-0.75.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-work_vest-short_trousers-none-default-snatch-side-1.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-short_work_jacket-short_skirt-none-default-snatch-side-0.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-short_work_jacket-short_skirt-none-default-snatch-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-short_work_jacket-short_skirt-none-default-snatch-side-0.75.png",
+        "review-wardrobe-batch/lightwear-after/sequence-male-short_work_jacket-short_skirt-none-default-snatch-side-1.png"
+      ]
+    },
+    {
+      "file": "lightwear-male-dyes.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/dye-male-work_vest-short_trousers-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-male-work_vest-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-male-short_work_jacket-short_trousers-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-male-short_work_jacket-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-male-work_vest-short_trousers-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-male-work_vest-short_skirt-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-male-short_work_jacket-short_trousers-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-male-short_work_jacket-short_skirt-none-default-bind-back-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-front.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_trousers-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-short_work_jacket-short_trousers-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-short_work_jacket-short_skirt-none-default-bind-front-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-side.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_trousers-none-default-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_skirt-none-default-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-short_work_jacket-short_trousers-none-default-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-short_work_jacket-short_skirt-none-default-bind-side-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-back.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_trousers-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_skirt-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-short_work_jacket-short_trousers-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-short_work_jacket-short_skirt-none-default-bind-back-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-free.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_trousers-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_skirt-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-short_work_jacket-short_trousers-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-short_work_jacket-short_skirt-none-default-bind-free-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-mixed.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-loose_trousers-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-short_work_jacket-guard_pants-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-rough_tunic-short_trousers-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-cross_jacket-short_skirt-none-default-bind-free-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-hats-female-front.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-guard_helmet-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-guard_helmet-low_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-guard_helmet-double_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-cloth_wrap-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-cloth_wrap-low_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-cloth_wrap-double_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-scholar_cap-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-scholar_cap-low_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-scholar_cap-double_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-farmer_straw_hat-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-farmer_straw_hat-low_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-farmer_straw_hat-double_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-archer_headband-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-archer_headband-low_bun-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-archer_headband-double_bun-bind-front-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-hats-female-side.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-guard_helmet-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-guard_helmet-low_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-guard_helmet-double_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-cloth_wrap-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-cloth_wrap-low_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-cloth_wrap-double_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-scholar_cap-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-scholar_cap-low_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-scholar_cap-double_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-farmer_straw_hat-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-farmer_straw_hat-low_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-farmer_straw_hat-double_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-archer_headband-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-archer_headband-low_bun-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-archer_headband-double_bun-bind-side-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-hats-female-back.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-guard_helmet-topknot-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-cloth_wrap-topknot-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-scholar_cap-topknot-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-farmer_straw_hat-topknot-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-archer_headband-topknot-bind-back-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-pilot-switches.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_trousers-none-default-pilot-switches-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_skirt-none-default-pilot-switches-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_trousers-none-default-pilot-switches-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_skirt-none-default-pilot-switches-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_trousers-none-default-pilot-switches-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_skirt-none-default-pilot-switches-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_trousers-none-default-pilot-switches-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_skirt-none-default-pilot-switches-side-0.5.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-snatch.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_trousers-none-default-snatch-front-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_skirt-none-default-snatch-front-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_trousers-none-default-snatch-front-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_skirt-none-default-snatch-front-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_trousers-none-default-snatch-side-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_skirt-none-default-snatch-side-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_trousers-none-default-snatch-side-0.05.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_skirt-none-default-snatch-side-0.05.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-jogging.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_trousers-none-default-jogging-front-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_skirt-none-default-jogging-front-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_trousers-none-default-jogging-front-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_skirt-none-default-jogging-front-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_trousers-none-default-jogging-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_skirt-none-default-jogging-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_trousers-none-default-jogging-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_skirt-none-default-jogging-side-0.25.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-shooting-arrow.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_trousers-none-default-shooting-arrow-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_skirt-none-default-shooting-arrow-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_trousers-none-default-shooting-arrow-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_skirt-none-default-shooting-arrow-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_trousers-none-default-shooting-arrow-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_skirt-none-default-shooting-arrow-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_trousers-none-default-shooting-arrow-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_skirt-none-default-shooting-arrow-side-0.5.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-start-walking.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_trousers-none-default-start-walking-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_skirt-none-default-start-walking-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_trousers-none-default-start-walking-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_skirt-none-default-start-walking-front-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_trousers-none-default-start-walking-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-work_vest-short_skirt-none-default-start-walking-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_trousers-none-default-start-walking-side-0.5.png",
+        "review-wardrobe-batch/lightwear-after/motion-female-short_work_jacket-short_skirt-none-default-start-walking-side-0.5.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-pilot-switches-sequence.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/sequence-female-work_vest-short_trousers-none-default-pilot-switches-side-0.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-work_vest-short_trousers-none-default-pilot-switches-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-work_vest-short_trousers-none-default-pilot-switches-side-0.75.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-work_vest-short_trousers-none-default-pilot-switches-side-1.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-short_work_jacket-short_skirt-none-default-pilot-switches-side-0.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-short_work_jacket-short_skirt-none-default-pilot-switches-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-short_work_jacket-short_skirt-none-default-pilot-switches-side-0.75.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-short_work_jacket-short_skirt-none-default-pilot-switches-side-1.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-snatch-sequence.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/sequence-female-work_vest-short_trousers-none-default-snatch-side-0.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-work_vest-short_trousers-none-default-snatch-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-work_vest-short_trousers-none-default-snatch-side-0.75.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-work_vest-short_trousers-none-default-snatch-side-1.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-short_work_jacket-short_skirt-none-default-snatch-side-0.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-short_work_jacket-short_skirt-none-default-snatch-side-0.25.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-short_work_jacket-short_skirt-none-default-snatch-side-0.75.png",
+        "review-wardrobe-batch/lightwear-after/sequence-female-short_work_jacket-short_skirt-none-default-snatch-side-1.png"
+      ]
+    },
+    {
+      "file": "lightwear-female-dyes.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/dye-female-work_vest-short_trousers-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-female-work_vest-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-female-short_work_jacket-short_trousers-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-female-short_work_jacket-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-female-work_vest-short_trousers-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-female-work_vest-short_skirt-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-female-short_work_jacket-short_trousers-none-default-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/dye-female-short_work_jacket-short_skirt-none-default-bind-back-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-upper-details.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/detail-male-work_vest-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/detail-male-work_vest-short_skirt-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/detail-male-short_work_jacket-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/detail-male-short_work_jacket-short_skirt-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/detail-female-work_vest-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/detail-female-work_vest-short_skirt-none-default-bind-free-0.png",
+        "review-wardrobe-batch/lightwear-after/detail-female-short_work_jacket-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/detail-female-short_work_jacket-short_skirt-none-default-bind-free-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-shorts-and-skirt.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_trousers-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_trousers-none-default-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/static-male-work_vest-short_skirt-none-default-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_trousers-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_skirt-none-default-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_trousers-none-default-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/static-female-work_vest-short_skirt-none-default-bind-side-0.png"
+      ]
+    },
+    {
+      "file": "lightwear-helmet-before-after.jpg",
+      "sourceFiles": [
+        "review-wardrobe-batch/lightwear-before/hat-male-rough_tunic-loose_trousers-guard_helmet-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-guard_helmet-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-before/hat-male-rough_tunic-loose_trousers-guard_helmet-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-guard_helmet-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-before/hat-male-rough_tunic-loose_trousers-guard_helmet-topknot-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-male-rough_tunic-loose_trousers-guard_helmet-topknot-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-before/hat-female-rough_tunic-loose_trousers-guard_helmet-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-guard_helmet-topknot-bind-front-0.png",
+        "review-wardrobe-batch/lightwear-before/hat-female-rough_tunic-loose_trousers-guard_helmet-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-guard_helmet-topknot-bind-side-0.png",
+        "review-wardrobe-batch/lightwear-before/hat-female-rough_tunic-loose_trousers-guard_helmet-topknot-bind-back-0.png",
+        "review-wardrobe-batch/lightwear-after/hat-female-rough_tunic-loose_trousers-guard_helmet-topknot-bind-back-0.png"
+      ]
+    }
+  ],
+  "hatCameraPairs": 70,
+  "manuallyReviewed": false
+}

@@ -1,0 +1,548 @@
+{
+  "passed": true,
+  "headwearVersion": "wanhu-headwear-clearance-v2",
+  "rows": [
+    {
+      "bodyType": "male",
+      "id": "work_vest",
+      "triangles": 102,
+      "logicalVertices": 66,
+      "covers": [
+        "torso"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "id": "short_work_jacket",
+      "triangles": 174,
+      "logicalVertices": 102,
+      "covers": [
+        "torso"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "id": "short_trousers",
+      "triangles": 144,
+      "logicalVertices": 84,
+      "covers": [
+        "pelvis",
+        "thigh"
+      ]
+    },
+    {
+      "bodyType": "male",
+      "id": "short_skirt",
+      "triangles": 176,
+      "logicalVertices": 100,
+      "covers": [
+        "pelvis",
+        "thigh"
+      ]
+    },
+    {
+      "bodyType": "female",
+      "id": "work_vest",
+      "triangles": 102,
+      "logicalVertices": 66,
+      "covers": [
+        "torso"
+      ]
+    },
+    {
+      "bodyType": "female",
+      "id": "short_work_jacket",
+      "triangles": 174,
+      "logicalVertices": 102,
+      "covers": [
+        "torso"
+      ]
+    },
+    {
+      "bodyType": "female",
+      "id": "short_trousers",
+      "triangles": 144,
+      "logicalVertices": 84,
+      "covers": [
+        "pelvis",
+        "thigh"
+      ]
+    },
+    {
+      "bodyType": "female",
+      "id": "short_skirt",
+      "triangles": 176,
+      "logicalVertices": 100,
+      "covers": [
+        "pelvis",
+        "thigh"
+      ]
+    }
+  ],
+  "mixes": [
+    {
+      "bodyType": "male",
+      "top": "work_vest",
+      "bottom": "short_trousers",
+      "triangles": 791,
+      "logicalVertices": 538
+    },
+    {
+      "bodyType": "male",
+      "top": "work_vest",
+      "bottom": "short_skirt",
+      "triangles": 823,
+      "logicalVertices": 554
+    },
+    {
+      "bodyType": "male",
+      "top": "work_vest",
+      "bottom": "loose_trousers",
+      "triangles": 823,
+      "logicalVertices": 542
+    },
+    {
+      "bodyType": "male",
+      "top": "work_vest",
+      "bottom": "guard_pants",
+      "triangles": 855,
+      "logicalVertices": 558
+    },
+    {
+      "bodyType": "male",
+      "top": "short_work_jacket",
+      "bottom": "short_trousers",
+      "triangles": 863,
+      "logicalVertices": 574
+    },
+    {
+      "bodyType": "male",
+      "top": "short_work_jacket",
+      "bottom": "short_skirt",
+      "triangles": 895,
+      "logicalVertices": 590
+    },
+    {
+      "bodyType": "male",
+      "top": "short_work_jacket",
+      "bottom": "loose_trousers",
+      "triangles": 895,
+      "logicalVertices": 578
+    },
+    {
+      "bodyType": "male",
+      "top": "short_work_jacket",
+      "bottom": "guard_pants",
+      "triangles": 927,
+      "logicalVertices": 594
+    },
+    {
+      "bodyType": "male",
+      "top": "rough_tunic",
+      "bottom": "short_trousers",
+      "triangles": 825,
+      "logicalVertices": 501
+    },
+    {
+      "bodyType": "male",
+      "top": "rough_tunic",
+      "bottom": "short_skirt",
+      "triangles": 857,
+      "logicalVertices": 517
+    },
+    {
+      "bodyType": "male",
+      "top": "rough_tunic",
+      "bottom": "loose_trousers",
+      "triangles": 857,
+      "logicalVertices": 505
+    },
+    {
+      "bodyType": "male",
+      "top": "rough_tunic",
+      "bottom": "guard_pants",
+      "triangles": 889,
+      "logicalVertices": 521
+    },
+    {
+      "bodyType": "male",
+      "top": "cross_jacket",
+      "bottom": "short_trousers",
+      "triangles": 823,
+      "logicalVertices": 500
+    },
+    {
+      "bodyType": "male",
+      "top": "cross_jacket",
+      "bottom": "short_skirt",
+      "triangles": 855,
+      "logicalVertices": 516
+    },
+    {
+      "bodyType": "male",
+      "top": "cross_jacket",
+      "bottom": "loose_trousers",
+      "triangles": 855,
+      "logicalVertices": 504
+    },
+    {
+      "bodyType": "male",
+      "top": "cross_jacket",
+      "bottom": "guard_pants",
+      "triangles": 887,
+      "logicalVertices": 520
+    },
+    {
+      "bodyType": "male",
+      "top": "layered_vest",
+      "bottom": "short_trousers",
+      "triangles": 873,
+      "logicalVertices": 525
+    },
+    {
+      "bodyType": "male",
+      "top": "layered_vest",
+      "bottom": "short_skirt",
+      "triangles": 905,
+      "logicalVertices": 541
+    },
+    {
+      "bodyType": "male",
+      "top": "layered_vest",
+      "bottom": "loose_trousers",
+      "triangles": 905,
+      "logicalVertices": 529
+    },
+    {
+      "bodyType": "male",
+      "top": "layered_vest",
+      "bottom": "guard_pants",
+      "triangles": 937,
+      "logicalVertices": 545
+    },
+    {
+      "bodyType": "female",
+      "top": "work_vest",
+      "bottom": "short_trousers",
+      "triangles": 793,
+      "logicalVertices": 540
+    },
+    {
+      "bodyType": "female",
+      "top": "work_vest",
+      "bottom": "short_skirt",
+      "triangles": 825,
+      "logicalVertices": 556
+    },
+    {
+      "bodyType": "female",
+      "top": "work_vest",
+      "bottom": "loose_trousers",
+      "triangles": 825,
+      "logicalVertices": 544
+    },
+    {
+      "bodyType": "female",
+      "top": "work_vest",
+      "bottom": "guard_pants",
+      "triangles": 857,
+      "logicalVertices": 560
+    },
+    {
+      "bodyType": "female",
+      "top": "short_work_jacket",
+      "bottom": "short_trousers",
+      "triangles": 865,
+      "logicalVertices": 576
+    },
+    {
+      "bodyType": "female",
+      "top": "short_work_jacket",
+      "bottom": "short_skirt",
+      "triangles": 897,
+      "logicalVertices": 592
+    },
+    {
+      "bodyType": "female",
+      "top": "short_work_jacket",
+      "bottom": "loose_trousers",
+      "triangles": 897,
+      "logicalVertices": 580
+    },
+    {
+      "bodyType": "female",
+      "top": "short_work_jacket",
+      "bottom": "guard_pants",
+      "triangles": 929,
+      "logicalVertices": 596
+    },
+    {
+      "bodyType": "female",
+      "top": "rough_tunic",
+      "bottom": "short_trousers",
+      "triangles": 827,
+      "logicalVertices": 503
+    },
+    {
+      "bodyType": "female",
+      "top": "rough_tunic",
+      "bottom": "short_skirt",
+      "triangles": 859,
+      "logicalVertices": 519
+    },
+    {
+      "bodyType": "female",
+      "top": "rough_tunic",
+      "bottom": "loose_trousers",
+      "triangles": 859,
+      "logicalVertices": 507
+    },
+    {
+      "bodyType": "female",
+      "top": "rough_tunic",
+      "bottom": "guard_pants",
+      "triangles": 891,
+      "logicalVertices": 523
+    },
+    {
+      "bodyType": "female",
+      "top": "cross_jacket",
+      "bottom": "short_trousers",
+      "triangles": 825,
+      "logicalVertices": 502
+    },
+    {
+      "bodyType": "female",
+      "top": "cross_jacket",
+      "bottom": "short_skirt",
+      "triangles": 857,
+      "logicalVertices": 518
+    },
+    {
+      "bodyType": "female",
+      "top": "cross_jacket",
+      "bottom": "loose_trousers",
+      "triangles": 857,
+      "logicalVertices": 506
+    },
+    {
+      "bodyType": "female",
+      "top": "cross_jacket",
+      "bottom": "guard_pants",
+      "triangles": 889,
+      "logicalVertices": 522
+    },
+    {
+      "bodyType": "female",
+      "top": "layered_vest",
+      "bottom": "short_trousers",
+      "triangles": 875,
+      "logicalVertices": 527
+    },
+    {
+      "bodyType": "female",
+      "top": "layered_vest",
+      "bottom": "short_skirt",
+      "triangles": 907,
+      "logicalVertices": 543
+    },
+    {
+      "bodyType": "female",
+      "top": "layered_vest",
+      "bottom": "loose_trousers",
+      "triangles": 907,
+      "logicalVertices": 531
+    },
+    {
+      "bodyType": "female",
+      "top": "layered_vest",
+      "bottom": "guard_pants",
+      "triangles": 939,
+      "logicalVertices": 547
+    }
+  ],
+  "hats": [
+    {
+      "bodyType": "male",
+      "hairStyle": "topknot",
+      "id": "guard_helmet",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "topknot",
+      "id": "cloth_wrap",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "topknot",
+      "id": "scholar_cap",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "topknot",
+      "id": "farmer_straw_hat",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "topknot",
+      "id": "archer_headband",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "low_bun",
+      "id": "guard_helmet",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "low_bun",
+      "id": "cloth_wrap",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "low_bun",
+      "id": "scholar_cap",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "low_bun",
+      "id": "farmer_straw_hat",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "low_bun",
+      "id": "archer_headband",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "double_bun",
+      "id": "guard_helmet",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "double_bun",
+      "id": "cloth_wrap",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "double_bun",
+      "id": "scholar_cap",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "double_bun",
+      "id": "farmer_straw_hat",
+      "passed": true
+    },
+    {
+      "bodyType": "male",
+      "hairStyle": "double_bun",
+      "id": "archer_headband",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "topknot",
+      "id": "guard_helmet",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "topknot",
+      "id": "cloth_wrap",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "topknot",
+      "id": "scholar_cap",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "topknot",
+      "id": "farmer_straw_hat",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "topknot",
+      "id": "archer_headband",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "low_bun",
+      "id": "guard_helmet",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "low_bun",
+      "id": "cloth_wrap",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "low_bun",
+      "id": "scholar_cap",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "low_bun",
+      "id": "farmer_straw_hat",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "low_bun",
+      "id": "archer_headband",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "double_bun",
+      "id": "guard_helmet",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "double_bun",
+      "id": "cloth_wrap",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "double_bun",
+      "id": "scholar_cap",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "double_bun",
+      "id": "farmer_straw_hat",
+      "passed": true
+    },
+    {
+      "bodyType": "female",
+      "hairStyle": "double_bun",
+      "id": "archer_headband",
+      "passed": true
+    }
+  ],
+  "mutationChecks": 3,
+  "scope": "绑定空间资产、固定露肤、染色、帽发贯穿与V5契约；动画源帧/中点及真实网页图片另行检查。"
+}
