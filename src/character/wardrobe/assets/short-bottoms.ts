@@ -1,5 +1,5 @@
 import { B, type Cage, type Recipe, type Vec3, type Weight } from '../../v3/types';
-import { ring, bridge, face, orient } from '../../v3/cage';
+import { ring, bridge, face, vertex, orient } from '../../v3/cage';
 import { kneeWeights } from '../../v3/leg-deformation';
 import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from './contract';
 
