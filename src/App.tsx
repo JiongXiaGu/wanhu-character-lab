@@ -2,7 +2,7 @@ import {AnimationBrowser} from './character/mixamo/AnimationBrowser';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { MIXAMO_CLIPS,isMixamoId,mixamoDefinition,type MixamoSelection } from './character/mixamo/catalog';
 import { CharacterViewport, type Stats, type View, type Display, type PlaybackStatus } from './scene/CharacterViewport';
-import { BODY_TYPES, HAIR_STYLE_IDS, PRESET_IDS, applyPreset, createRecipe, patchSlots, type Recipe, type Outfit, type CharacterSlots, type GarmentDyes } from './character/v3/types';
+import { BODY_TYPES, HAIR_STYLE_IDS, createRecipe, patchSlots, type Recipe, type CharacterSlots, type GarmentDyes } from './character/v3/types';
 import { WARDROBE_LOOKS, DYE_PALETTES, SLOT_OPTIONS, SLOT_LABELS, HAIR_NAMES, applyLook, randomizeLook, parseRecipeFile, type RandomLock } from './character/wardrobe/catalog';
 import { LookGlyph } from './character/wardrobe/LookGlyph';
 import { WorkspaceSwitcher } from './ui/WorkspaceSwitcher';
@@ -13,9 +13,8 @@ function initialPhase(){const n=Number(qs.get('phase')??0);return Number.isFinit
 function initialRecipe():Recipe {
   const bodyType=enumQuery('bodyType',BODY_TYPES,'male');
   let r=createRecipe({bodyType});
-  // 仅保留当前明确入口；旧身材/装备/LOD URL 参数不参与解析。
-  if(qs.has('preset'))r=applyPreset(r,enumQuery('preset',PRESET_IDS,'farmer'));
-  else r=applyLook(r,qs.get('look')??'town-'+bodyType);
+  // 仅保留搭配灵感与显式部件入口；旧基础搭配/身材/LOD URL 参数不参与解析。
+  r=applyLook(r,qs.get('look')??'town-'+bodyType);
   const slots:Record<string,string>={};for(const key of Object.keys(SLOT_OPTIONS)){const v=qs.get(key);if(v)slots[key]=v;}
   if(Object.keys(slots).length)r=createRecipe({...r,slots:{...r.slots,...slots}});
   return r;
@@ -56,8 +55,7 @@ export default function App(){
     <div className="workspace">
       <aside className="sidebar look-sidebar">
         <section aria-label="居民体型"><div className="section-title"><h2>你的角色</h2><span>01 / BODY</span></div><div className="display-grid">{BODY_TYPES.map(type=><button key={type} data-testid={'body-type-'+type} aria-pressed={recipe.bodyType===type} className={recipe.bodyType===type?'active':''} onClick={()=>patch({bodyType:type})}>{type==='female'?'女性':'男性'}</button>)}</div><p className="hint">固定男女基模，切换保留装扮和动画相位。</p></section>
-        <section className="look-section"><div className="section-title"><h2>搭配灵感</h2><button className="text-button" aria-pressed={allLooks} onClick={()=>setAllLooks(v=>!v)}>{allLooks?'推荐款式':`全部 ${WARDROBE_LOOKS.length} 款`}</button></div><p className="hint">预设只是起点，每件都可自由替换。</p><div className="look-grid">{WARDROBE_LOOKS.filter(l=>allLooks||l.suggestedBody===recipe.bodyType).map(l=><button key={l.id} data-testid={'look-'+l.id} aria-pressed={currentLook?.id===l.id} className={'look-card '+(currentLook?.id===l.id?'selected':'')} onClick={()=>edit(r=>applyLook(r,l.id))}><span className="look-illustration"><LookGlyph look={l}/><span>{l.family}</span></span><strong>{l.name}</strong><small>{l.description}</small></button>)}</div></section>
-        <details className="classic-presets" open={review}><summary>基础搭配</summary><div className="classic-grid">{([['farmer','农户'],['guard','卫兵'],['archer','弓手'],['body','基础人体']] as [Outfit,string][]).map(([id,label])=><button key={id} onClick={()=>edit(r=>applyPreset(r,id))}>{label}</button>)}</div></details>
+        <section className="look-section"><div className="section-title"><h2>搭配灵感</h2><button className="text-button" aria-pressed={allLooks} onClick={()=>setAllLooks(v=>!v)}>{allLooks?'推荐款式':`全部 ${WARDROBE_LOOKS.length} 款`}</button></div><p className="hint">灵感卡只提供组合参考，每件都可自由替换。</p><div className="look-grid">{WARDROBE_LOOKS.filter(l=>allLooks||l.suggestedBody===recipe.bodyType).map(l=><button key={l.id} data-testid={'look-'+l.id} aria-pressed={currentLook?.id===l.id} className={'look-card '+(currentLook?.id===l.id?'selected':'')} onClick={()=>edit(r=>applyLook(r,l.id))}><span className="look-illustration"><LookGlyph look={l}/><span>{l.family}</span></span><strong>{l.name}</strong><small>{l.description}</small></button>)}</div></section>
         <section className="spaced"><div className="section-title"><h2>探索组合</h2><span>SEED</span></div><div className="seed-row"><input aria-label="搭配种子" type="number" min="0" max="4294967295" value={seed} onChange={e=>setSeed(e.target.value)}/><button className="primary-button" onClick={randomize}>随机搭配</button></div><p className="hint">相同种子可复现；只改搭配，不改男女基模。</p><div className="display-grid"><button onClick={save}>保存装扮</button><button onClick={restore}>恢复装扮</button></div></section>
       </aside>
       <section className="stage" aria-label="人物预览">
