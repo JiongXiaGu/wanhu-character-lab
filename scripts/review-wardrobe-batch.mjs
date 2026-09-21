@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 const stage=process.env.REVIEW_STAGE??'after',root=`review-wardrobe-batch/${stage}`;
 assert(/^[a-zA-Z0-9_-]+$/.test(stage));
 const before=stage==='before',quick=process.argv.includes('--quick'),base=process.env.REVIEW_URL??'http://127.0.0.1:4173';
-const tops=['rough_tunic','cross_jacket','layered_vest'],bottoms=['loose_trousers','guard_pants'];
+const tops=['rough_tunic','cross_jacket','layered_vest'],bottoms=['work_pants','work_wrap'];
 const priority=[['pilot-switches',.5],['snatch',.05],['jogging',.25],['shooting-arrow',.5],['start-walking',.5]];
 const normal={primary:'#547a77',secondary:'#d8c9aa',accent:'#694e3a'},contrast={primary:'#ff2455',secondary:'#16c7ef',accent:'#f5de24'};
 const records=[],errors=[],phaseChanges=[];let failure='',browser,context,page;
@@ -17,7 +17,7 @@ async function ready(clip){
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 }
 async function open(bodyType,top,bottom,clip,view,colors=normal){
-  const q=new URLSearchParams({review:'1',paused:'1',preset:'body',bodyType,top,bottom,shoes:'cloth_shoes',headwear:'none',back:'none',leftHand:'none',rightHand:'none',view,...(clip==='bind'?{pose:'bind'}:{mixamo:clip})});
+  const q=new URLSearchParams({review:'1',paused:'1',bodyType,top,bottom,shoes:'cloth_shoes',headwear:'none',back:'none',leftHand:'none',rightHand:'none',view,...(clip==='bind'?{pose:'bind'}:{mixamo:clip})});
   await page.goto(base+'/?'+q);await ready(clip);
   const recipe=await page.evaluate(()=>window.__WANHU_RECIPE__());recipe.dyes=colors;
   await page.getByLabel('导入配方文件',{exact:true}).setInputFiles({name:'batch-v5.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(recipe))});
@@ -50,20 +50,20 @@ try{
   }
   if(!before&&!quick){
     for(const bodyType of ['male','female'])for(const top of ['cross_jacket','layered_vest'])for(const clip of ['pilot-switches','snatch','jogging','shooting-arrow']){
-      const bottom=top==='cross_jacket'?'loose_trousers':'guard_pants';await open(bodyType,top,bottom,clip,'side');
+      const bottom=top==='cross_jacket'?'work_pants':'work_wrap';await open(bodyType,top,bottom,clip,'side');
       for(const phase of [0,.25,.5,.75,1])await shot({kind:'sequence',bodyType,top,bottom,clip,view:'side'},phase);
     }
     for(const bodyType of ['male','female'])for(const top of tops)for(const view of ['front','free']){
-      await open(bodyType,top,'guard_pants','bind',view);await shot({kind:'detail',bodyType,top,bottom:'guard_pants',clip:'bind',view},0,true);
+      await open(bodyType,top,'work_wrap','bind',view);await shot({kind:'detail',bodyType,top,bottom:'work_wrap',clip:'bind',view},0,true);
     }
-    await open('male','rough_tunic','loose_trousers','pilot-switches','free');
+    await open('male','rough_tunic','work_pants','pilot-switches','free');
     await page.getByLabel('动画进度',{exact:true}).evaluate(input=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'0.42');input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));});
     await page.waitForFunction(()=>Math.abs(window.__WANHU_REVIEW__.getStatus().phase-.42)<1e-6);
     for(const bodyType of ['male','female'])for(const top of tops)for(const bottom of bottoms){
       await page.getByTestId('body-type-'+bodyType).click();await page.getByLabel('上衣',{exact:true}).selectOption(top);await page.getByLabel('下装',{exact:true}).selectOption(bottom);await ready('pilot-switches');
       const r=await page.evaluate(()=>window.__WANHU_RECIPE__()),s=await page.evaluate(()=>window.__WANHU_REVIEW__.getStatus());assert.equal(r.bodyType,bodyType);assert.equal(r.slots.top,top);assert.equal(r.slots.bottom,bottom);assert(Math.abs(s.phase-.42)<1e-6,'换装/男女切换丢失相位');phaseChanges.push({bodyType,top,bottom,phase:s.phase});
     }
-    await open('female','layered_vest','guard_pants','bind','free');await page.screenshot({path:root+'/workbench.png',fullPage:true});
+    await open('female','layered_vest','work_wrap','bind','free');await page.screenshot({path:root+'/workbench.png',fullPage:true});
   }
   assert.equal(records.length,quick?48:before?168:296);assert.equal(phaseChanges.length,!before&&!quick?12:0);assert.deepEqual(errors,[]);
 }catch(error){failure=String(error);throw error;}finally{
