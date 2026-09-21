@@ -50,14 +50,14 @@ for(const bodyType of ['male','female'] as const)for(const bottom of BOTTOM_IDS)
  }
  actor.dispose();console.log('INTERSECTION',bodyType,look);
 }
-// 原下装仍按所有交点阻塞；新增裙装固定端面接口单独计数，Snatch压力观察。
+// 仅 short_trousers 裤脚 Cap×shin 与两条真裙固定端面属于制作接口；其余交点继续阻塞。
 // 源帧/中点、所有三角对、相交算法和容差不变，不跳过端面计算。
 assert(rows.filter(r=>r.scope==='garment-boundary').every(r=>['true_short_skirt','long_skirt'].includes(r.look)&&r.id==='snatch'));
 assert(rows.filter(r=>r.scope==='required').reduce((n,r)=>n+r.samples,0)>=20180);
-assert(rows.filter(r=>!['true_short_skirt','long_skirt'].includes(r.look)).every(r=>r.closureContactFrames===0&&r.blockingFrames===r.piercedFrames));
+assert(rows.filter(r=>!['short_trousers','true_short_skirt','long_skirt'].includes(r.look)).every(r=>r.closureContactFrames===0&&r.blockingFrames===r.piercedFrames));
 const passed=rows.every(r=>r.scope==='garment-boundary'||r.blockingFrames===0);
 const boundaryRows=rows.filter(r=>r.scope==='garment-boundary');
-const report={testedSha:process.env.REVIEW_HEAD_SHA??'local',sampling:'all source keys plus interval midpoints; two fixed body profiles; same source-key and midpoint sampling / geometric thresholds',checkedFrames,pairsChecked,rows,failures,closureContacts,boundaryRows,passed,closureRule:'仅新增裙装 HemCenter 封底扇面与 Hem/HemInset/HemFacing 或皮肤 shin 的制作接口；原始数学交点全部保留，Calf/裙身及旧款无豁免',scope:'离线腰髋/腿部衣面非共面贯穿；排除共享顶点的邻接三角。不涵盖全部共面接触、手臂/道具、任意体型或连续时间碰撞；仍需实际审图。'};
+const report={testedSha:process.env.REVIEW_HEAD_SHA??'local',sampling:'all source keys plus interval midpoints; two fixed body profiles; same source-key and midpoint sampling / geometric thresholds',checkedFrames,pairsChecked,rows,failures,closureContacts,boundaryRows,passed,closureRule:'short_trousers 仅允许 Cuff Cap×皮肤 shin；新增裙装仅允许 HemCenter 与末端裙边或皮肤 shin。原始数学交点全部保留，腰口/Calf/裙身及其他旧款无豁免',scope:'离线腰髋/腿部衣面非共面贯穿；排除共享顶点的邻接三角。不涵盖全部共面接触、手臂/道具、任意体型或连续时间碰撞；仍需实际审图。'};
 mkdirSync('review-tailoring-v2',{recursive:true});
 writeFileSync('review-tailoring-v2/intersections.json',JSON.stringify(report,null,2));
 console.log('INTERSECTION_SUMMARY',JSON.stringify({passed,checkedFrames,pairsChecked,failedRows:rows.filter(r=>r.scope==='required'&&r.blockingFrames>0),boundaryRows}));
