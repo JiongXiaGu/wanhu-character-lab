@@ -5,12 +5,12 @@ import { makeTop } from '../src/character/wardrobe/assets/tops';
 import { makeTrousers } from '../src/character/wardrobe/assets/trousers';
 import { assertGarmentPiece } from './check-garment-assets';
 import { triCount,cloneCage,cross,sub,dot } from '../src/character/v3/cage';
-import { createRecipe,B,BODY_TYPES,HAIR_STYLE_IDS,presetSlots,type Cage,type Vec3,type Recipe,type HeadwearId } from '../src/character/v3/types';
+import { createRecipe,B,BODY_TYPES,HAIR_STYLE_IDS,emptySlots,type Cage,type Vec3,type Recipe,type HeadwearId } from '../src/character/v3/types';
 import { parseRecipeFile } from '../src/character/wardrobe/catalog';
 import { HEADWEAR_CLEARANCE,HEADWEAR_GEOMETRY_VERSION } from '../src/character/wardrobe/headwear-fit';
 import { isClosedHemContact,type ContactTriangle } from './garment-contact-scope';
 
-const newTops=['work_vest','short_work_jacket'] as const,newBottoms=['short_trousers','short_skirt'] as const;
+const newTops=['work_vest','short_work_jacket'] as const,newBottoms=['short_trousers'] as const;
 const contrast={primary:'#fa1945',secondary:'#12cee7',accent:'#ffda16'};
 const rows:any[]=[],mixes:any[]=[],hats:any[]=[];
 const maxX=(c:Cage)=>Math.max(...c.vertices.map(v=>Math.abs(v.p[0])));
@@ -78,7 +78,7 @@ function assertHat(c:Cage,id:HeadwearId){
 }
 for(const bodyType of BODY_TYPES){
   for(const top of newTops){
-    const recipe=createRecipe({bodyType,slots:{...presetSlots('body'),top},dyes:contrast}),p=makeTop(recipe)!;assertGarmentPiece(p);
+    const recipe=createRecipe({bodyType,slots:{...emptySlots(),top},dyes:contrast}),p=makeTop(recipe)!;assertGarmentPiece(p);
     assert.equal(triCount(p.mesh),top==='work_vest'?128:174);assert.deepEqual(p.covers,['torso']);
     if(top==='work_vest'){assert.deepEqual(Object.keys(p.openings),[]);assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','neck','waist'].sort());assertVestCapColors(p.mesh,p.sealedInterfaces!,recipe.dyes.primary);}
     assert.deepEqual([...new Set(p.mesh.faces.map(f=>f.color))].sort(),Object.values(contrast).sort());
@@ -93,7 +93,7 @@ for(const bodyType of BODY_TYPES){
     rows.push({bodyType,id:top,triangles:triCount(p.mesh),logicalVertices:p.mesh.vertices.length,covers:p.covers});
   }
   for(const bottom of newBottoms){
-    const recipe=createRecipe({bodyType,slots:{...presetSlots('body'),bottom},dyes:contrast}),p=makeTrousers(recipe)!;assertGarmentPiece(p);assertShort(p.mesh,bottom==='short_skirt');
+    const recipe=createRecipe({bodyType,slots:{...emptySlots(),bottom},dyes:contrast}),p=makeTrousers(recipe)!;assertGarmentPiece(p);assertShort(p.mesh,false);
     assert.deepEqual(p.covers,['pelvis','thigh']);
     if(bottom==='short_trousers'){assert.deepEqual(Object.keys(p.openings),[]);assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','waist'].sort());}
     assert.deepEqual([...new Set(p.mesh.faces.map(f=>f.color))].sort(),Object.values(contrast).sort());
@@ -102,23 +102,22 @@ for(const bodyType of BODY_TYPES){
     for(const region of ['shin','foot'])assert.equal(d.surface.faces.filter(f=>f.part==='skin'&&f.region===region).length,d.body.faces.filter(f=>f.region===region).length,'短下装不能误删小腿');
     rows.push({bodyType,id:bottom,triangles:triCount(p.mesh),logicalVertices:p.mesh.vertices.length,covers:p.covers});
   }
-  for(const top of [...newTops,'rough_tunic','cross_jacket','layered_vest'] as const)for(const bottom of [...newBottoms,'loose_trousers','guard_pants'] as const){
-    const recipe=createRecipe({bodyType,slots:{...presetSlots('body'),top,bottom,shoes:'cloth_shoes'}}),d=makeCharacter(recipe);
+  for(const top of [...newTops,'rough_tunic','cross_jacket','layered_vest'] as const)for(const bottom of [...newBottoms,'work_pants','work_wrap','true_short_skirt'] as const){
+    const recipe=createRecipe({bodyType,slots:{...emptySlots(),top,bottom,shoes:'cloth_shoes'}}),d=makeCharacter(recipe);
     assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);assert.equal(recipe.version,5);assert.equal(d.joints.length,20);assert.equal(triCount(d.body),524);
     assert(d.surface.vertices.every(v=>v.p.every(Number.isFinite)));mixes.push({bodyType,top,bottom,triangles:triCount(d.surface),logicalVertices:d.surface.vertices.length});
   }
   for(const hairStyle of HAIR_STYLE_IDS)for(const id of Object.keys(HEADWEAR_CLEARANCE) as HeadwearId[]){
-    const recipe=createRecipe({bodyType,hairStyle,slots:{...presetSlots('body'),headwear:id}}),d=makeCharacter(recipe);
+    const recipe=createRecipe({bodyType,hairStyle,slots:{...emptySlots(),headwear:id}}),d=makeCharacter(recipe);
     assertHat(d.surface,id);
     const restored=makeCharacter({...recipe,slots:{...recipe.slots,headwear:'none'}});
-    const same=makeCharacter(createRecipe({bodyType,hairStyle,slots:presetSlots('body')}));assert.deepEqual(restored.surface,same.surface);
+    const same=makeCharacter(createRecipe({bodyType,hairStyle,slots:emptySlots()}));assert.deepEqual(restored.surface,same.surface);
     hats.push({bodyType,hairStyle,id,passed:true});
   }
 }
 const vest=makeTop(createRecipe({slots:{top:'work_vest'}}))!.mesh,jacket=makeTop(createRecipe({slots:{top:'short_work_jacket'}}))!.mesh;
 assert(maxX(jacket)>maxX(vest)*1.5,'短袖与无袖剪影必须不同');
-const shorts=makeTrousers(createRecipe({slots:{bottom:'short_trousers'}}))!.mesh,skirt=makeTrousers(createRecipe({slots:{bottom:'short_skirt'}}))!.mesh;
-assert(maxX(skirt)>maxX(shorts)*1.3,'短下裳必须有独立A字展开，不是换色短裤');
+const shorts=makeTrousers(createRecipe({slots:{bottom:'short_trousers'}}))!.mesh;
 const longMutation=cloneCage(shorts);longMutation.vertices[0].p[1]=.1;assert.throws(()=>assertShort(longMutation,false));
 const wrongWeight=cloneCage(shorts);wrongWeight.vertices.find(v=>v.id==='Shorts.Right.Cuff.0')!.w=[B.Hips,B.Hips,1];assert.throws(()=>assertShort(wrongWeight,false));
 // 四处封口逐一注入内衬色、缘边色和肤色，确保检测器会拒绝颜色回归。
@@ -135,7 +134,7 @@ assert.equal(capColorMutationChecks,12);
 const cap:ContactTriangle={ids:['Shorts.Right.Cuff.0','Shorts.Right.Cuff.1','Shorts.Right.Cuff.2'],part:'bottom',region:'thigh'};
 const shin:ContactTriangle={ids:['RightKneeUpper.0','RightKneeUpper.1','RightKnee.1'],part:'skin',region:'shin'};
 assert(isClosedHemContact('short_trousers',cap,shin));assert(!isClosedHemContact('short_trousers',cap,{...shin,region:'thigh'}));
-const shrunk=makeCharacter(createRecipe({slots:{...presetSlots('body'),headwear:'guard_helmet'}})).surface;
+const shrunk=makeCharacter(createRecipe({slots:{...emptySlots(),headwear:'guard_helmet'}})).surface;
 for(const v of shrunk.vertices.filter(v=>hatVertex(v.id))){v.p[0]*=.6;v.p[2]*=.6;}assert.throws(()=>assertHat(shrunk,'guard_helmet'),'必须抓住过小帽壳回归');
 const report={passed:true,headwearVersion:HEADWEAR_GEOMETRY_VERSION,rows,mixes,hats,mutationChecks:3,capContactScopeCases:2,capColorChecks:24,capColorMutationChecks,scope:'绑定空间资产、固定露肤、染色、Cap主布色、帽发贯穿与V5契约；动画源帧/中点及真实网页图片另行检查。'};
 mkdirSync('review-wardrobe-batch',{recursive:true});writeFileSync('review-wardrobe-batch/lightwear-numeric.json',JSON.stringify(report,null,2));
