@@ -598,31 +598,6 @@ export function makeCharacter(input: RecipeInput): CharacterData {
     );
   }
 
-  if (recipe.slots.top === "guard_light_armor") {
-    for (const yy of [1.16, 1.215, 1.27]) {
-      ribbon(
-        c,
-        `Lamellar${yy}`,
-        [
-          [-0.113, yy],
-          [0.113, yy],
-        ],
-        0.008,
-        "#a6a88c",
-      );
-    }
-    ribbon(
-      c,
-      "ChestTie",
-      [
-        [-0.08, 1.39],
-        [-0.08, 1.15],
-      ],
-      0.012,
-      "#aa8a61",
-    );
-  }
-
   if (recipe.slots.back === "archer_quiver") {
     ribbon(
       c,
