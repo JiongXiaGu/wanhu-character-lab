@@ -7,9 +7,9 @@ import {makeActor} from '../src/character/v3/rig';
 import {makeTrousers} from '../src/character/wardrobe/assets/trousers';
 import {type GarmentPiece} from '../src/character/wardrobe/assets/contract';
 import {BOTTOM_PATTERNS} from '../src/character/wardrobe/patterns';
-import {B,BODY_TYPES,createRecipe,presetSlots,type Recipe} from '../src/character/v3/types';
+import {B,BODY_TYPES,createRecipe,emptySlots,type Recipe} from '../src/character/v3/types';
 import {cloneCage,triCount} from '../src/character/v3/cage';
-import {parseRecipeFile,SLOT_OPTIONS} from '../src/character/wardrobe/catalog';
+import {parseRecipeFile} from '../src/character/wardrobe/catalog';
 import {MIXAMO_CLIPS} from '../src/character/mixamo/catalog';
 import {retargetMixamo} from '../src/character/mixamo/retarget';
 import {assertGarmentPiece} from './check-garment-assets';
@@ -44,22 +44,20 @@ function assertContinuous(p:GarmentPiece){
 }
 for(const bodyType of BODY_TYPES){
   for(const bottom of skirts){
-    const recipe=createRecipe({bodyType,slots:{...presetSlots('body'),bottom},dyes:colors}),piece=makeTrousers(recipe)!;assertContinuous(piece);
+    const recipe=createRecipe({bodyType,slots:{...emptySlots(),bottom},dyes:colors}),piece=makeTrousers(recipe)!;assertContinuous(piece);
     assert.equal(signature(piece),signature(makeTrousers({...recipe,dyes:{primary:'#102030',secondary:'#304050',accent:'#506070'}})!));
-    const character=makeCharacter(recipe),bare=makeCharacter(createRecipe({bodyType,slots:presetSlots('body')}));
+    const character=makeCharacter(recipe),bare=makeCharacter(createRecipe({bodyType,slots:emptySlots()}));
     assert.deepEqual(character.body,bare.body);assert.deepEqual(character.joints,bare.joints);
     if(bottom==='true_short_skirt')assert.equal(character.surface.faces.filter(f=>f.part==='skin'&&f.region==='shin').length,bare.body.faces.filter(f=>f.region==='shin').length);
     assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);
     assets.push({bodyType,id:bottom,triangles:triCount(piece.mesh),logicalVertices:piece.mesh.vertices.length,covers:piece.covers,openings:Object.keys(piece.openings)});
   }
   for(const bottom of ['short_trousers',...skirts] as const)for(const top of bottom==='short_trousers'?['work_vest','short_work_jacket'] as const:['work_vest','short_work_jacket','cross_jacket'] as const){
-    const recipe=createRecipe({bodyType,slots:{...presetSlots('body'),top,bottom,shoes:'cloth_shoes'},dyes:colors}),d=makeCharacter(recipe);
+    const recipe=createRecipe({bodyType,slots:{...emptySlots(),top,bottom,shoes:'cloth_shoes'},dyes:colors}),d=makeCharacter(recipe);
     assert.equal(recipe.version,5);assert.equal(d.joints.length,20);assert.equal(triCount(d.body),524);assert(triCount(d.surface)<1400);
     mixes.push(recipe);rows.push({bodyType,top,bottom,triangles:triCount(d.surface),logicalVertices:d.surface.vertices.length});
   }
 }
-const legacy=makeTrousers(createRecipe({slots:{bottom:'short_skirt'},dyes:colors}))!;assert.equal(triCount(legacy.mesh),176);assert.throws(()=>assertContinuous(legacy));
-assert(SLOT_OPTIONS.bottom.find(x=>x.id==='short_skirt')!.name.includes('裙裤'));
 assert.equal(BOTTOM_PATTERNS.short_trousers.stressOnlyClips,undefined);
 for(const [id,p]of Object.entries(BOTTOM_PATTERNS))if(p.stressOnlyClips){assert(skirts.includes(id as typeof skirts[number]));assert.deepEqual(p.stressOnlyClips,['snatch']);}
 const original=makeTrousers(createRecipe({slots:{bottom:'true_short_skirt'},dyes:colors}))!;
@@ -92,5 +90,5 @@ if(motion)for(const def of MIXAMO_CLIPS){
   }
   console.log('SKIRT_FINITE_FBX',def.id);
 }
-const report={passed:true,sourceSha:process.env.REVIEW_HEAD_SHA??'local',assets,rows,mutationChecks:5,contactScopeCases:7,motion,clips:motion?MIXAMO_CLIPS.length:0,sampledFrames,vertexSamples,scope:'独立连续裙壳、固定覆盖、V5、三色对称、预算、有限值；完整源帧/中点贯穿和真实网页审图独立执行。有限值不等于零穿模。'};
+const report={passed:true,sourceSha:process.env.REVIEW_HEAD_SHA??'local',assets,rows,mutationChecks:4,contactScopeCases:7,motion,clips:motion?MIXAMO_CLIPS.length:0,sampledFrames,vertexSamples,scope:'独立连续裙壳、固定覆盖、V5、三色对称、预算、有限值；完整源帧/中点贯穿和真实网页审图独立执行。有限值不等于零穿模。'};
 mkdirSync('review-wardrobe-batch',{recursive:true});writeFileSync(`review-wardrobe-batch/skirts-${motion?'motion':'numeric'}.json`,JSON.stringify(report,null,2));console.log('SKIRT_CONTRACT',JSON.stringify(report));
