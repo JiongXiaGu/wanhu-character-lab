@@ -1,0 +1,34 @@
+name: Batch Two Bootstrap
+on:
+  push:
+    branches: [prep/wardrobe-batch-two]
+    paths: [.github/workflows/batch-two-bootstrap.yml]
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feebadf7451c53a2637c6cd828ba6d617f15a5ce
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install chromium --only-shell
+      - name: Archive tracked source and disposable local dependencies
+        run: |
+          mkdir -p /tmp/batch-two-bootstrap
+          git rev-parse HEAD > /tmp/batch-two-bootstrap/source-sha.txt
+          git archive --format=tar.gz HEAD > /tmp/batch-two-bootstrap/source.tar.gz
+          tar -czf /tmp/batch-two-bootstrap/dependencies.tar.gz node_modules
+          tar -czf /tmp/batch-two-bootstrap/browser.tar.gz -C "$HOME/.cache" ms-playwright
+      - uses: actions/upload-artifact@v4
+        with:
+          name: batch-two-source-dependencies
+          path: /tmp/batch-two-bootstrap/
+          retention-days: 2
