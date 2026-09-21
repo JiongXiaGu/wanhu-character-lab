@@ -12,6 +12,11 @@ async function open(params:Record<string,string>){await page.goto(`${base}/?${ne
 async function shot(name:string){await page.waitForTimeout(120);await page.screenshot({path:`${dir}/${name}.png`});assert((await stat(`${dir}/${name}.png`)).size>10000);records.push(`${name}.png`);}
 async function recipe(p:Page=page){return p.evaluate(()=>window.__WANHU_RECIPE__!());}
 try{
+ // 每个搭配仍有17张：静态5、男女2、动作2×5；公共交互/小屏7张。
+ // 原8搭配不得因目录扩充而消失，第二批新增2搭配使143增加到177。
+ const lookIds=new Set(WARDROBE_LOOKS.map(look=>look.id));
+ for(const family of ['plain','town','elegant','ceremony'])for(const body of ['male','female'])assert(lookIds.has(`${family}-${body}`),'原搭配被移除');
+ assert.equal(lookIds.size,WARDROBE_LOOKS.length,'搭配ID重复');
  // 普通入口与诊断入口分开验收：试衣默认静态，而不是隐式程序待机。
  await page.goto(base);await page.waitForSelector('canvas');await page.waitForTimeout(300);assert.equal(await page.getByLabel('试衣动画',{exact:true}).inputValue(),'none');await shot('studio-default');
  for(const look of WARDROBE_LOOKS){
@@ -48,7 +53,7 @@ try{
  assert.equal(await page.getByLabel('身高',{exact:true}).count(),0);assert.equal(await page.getByLabel('体格',{exact:true}).count(),0);
  assert.equal(await page.locator('[data-testid^="lod-"]').count(),0);
  await page.getByTestId('body-type-male').click();after=await recipe();assert.deepEqual(after.slots,before.slots);assert.equal(after.bodyType,'male');await shot('cross-body-diy');
- await page.getByRole('button',{name:'全部 8 款',exact:true}).click();await page.getByTestId('look-ceremony-female').click();assert.equal((await recipe()).bodyType,'male','preset silently changed body');await shot('all-looks-unlocked');
+ await page.getByRole('button',{name:`全部 ${WARDROBE_LOOKS.length} 款`,exact:true}).click();await page.getByTestId('look-ceremony-female').click();assert.equal((await recipe()).bodyType,'male','preset silently changed body');await shot('all-looks-unlocked');
  for(const bodyType of ['male','female'])for(const id of ['jogging','shooting-arrow']){
   const vc=await browser.newContext({viewport:{width:1600,height:1000},}),vp=await vc.newPage();
   try{
@@ -58,7 +63,7 @@ try{
   }finally{await vc.close();playbackChecks.push(`${bodyType}/${id}`);}
  }
  for(const bodyType of ['male','female']){await page.setViewportSize({width:412,height:915});await page.goto(`${base}/?bodyType=${bodyType}&look=town-${bodyType}`);await page.waitForSelector('canvas');await page.waitForTimeout(200);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await shot(`mobile-${bodyType}`);}
- assert.equal(records.length,143);assert.equal(playbackChecks.length,4);assert.deepEqual(errors,[]);
+ assert.equal(records.length,WARDROBE_LOOKS.length*17+7);assert.equal(new Set(records).size,records.length,'截图文件名重复');assert.equal(playbackChecks.length,4);assert.deepEqual(errors,[]);
 }catch(e){failure=String(e);throw e;}finally{
  const report={sourceSha:process.env.REVIEW_HEAD_SHA??'local',testedSha:process.env.GITHUB_SHA??'local',passed:!failure&&!errors.length,images:records.length,records,continuousVideos:videos,playbackChecks,errors,failure};
  await writeFile(`${dir}/report.json`,JSON.stringify(report,null,2));await writeFile(`${dir}/index.html`,`<!doctype html><meta charset="utf-8"><title>Wardrobe Review</title><style>body{font:16px sans-serif;background:#f3f0e8;color:#314039}main{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}figure{margin:0}img,video{width:100%}</style><h1>Wardrobe review ${report.sourceSha}</h1><p>Passed ${report.passed} · ${report.failure}</p><main>${records.map(f=>`<figure><img loading="lazy" src="${f}"><figcaption>${f}</figcaption></figure>`).join('')}</main>${videos.map(f=>`<video controls src="${f}"></video>`).join('')}`);await context.close();await browser.close();
