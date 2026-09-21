@@ -9,6 +9,8 @@ jobs:
   numeric:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      REVISION: '2'
     defaults:
       run:
         working-directory: work
@@ -30,6 +32,7 @@ jobs:
       - run: |
           python3 ../task/.batch-two/apply.py
           python3 ../task/.batch-two/refine.py
+          python3 ../task/.batch-two/postflight.py
           cp ../task/.batch-two/check-lightwear.ts scripts/
           cp ../task/.batch-two/review-lightwear.mjs scripts/
           cp ../task/.batch-two/compose-lightwear.py scripts/
