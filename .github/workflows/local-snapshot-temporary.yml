@@ -1,0 +1,31 @@
+name: Temporary local source bundle
+on:
+  push:
+    branches: [feat/closed-hems-true-skirts-20260921]
+    paths: [.github/workflows/local-snapshot-temporary.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - name: Bundle tracked source and dependencies for offline local execution
+        run: |
+          mkdir -p /tmp/local-source
+          git archive HEAD | tar -x -C /tmp/local-source
+          cp -a node_modules /tmp/local-source/node_modules
+          git rev-parse HEAD > /tmp/local-source/SNAPSHOT_SHA.txt
+          tar -czf /tmp/local-source.tar.gz -C /tmp/local-source .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: offline-local-source
+          path: /tmp/local-source.tar.gz
+          retention-days: 1
