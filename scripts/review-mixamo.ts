@@ -64,7 +64,7 @@ try{
   for(const phase of [.4,.5,.6,.7,.8])await shot('shooting-arrow','side-compare',phase);
   await open('shooting-arrow',{preset:'archer',headwear:'farmer_straw_hat',leftHand:'none',view:'front'});
   await page.evaluate(()=>window.__WANHU_REVIEW__!.seek(.45));
-  for(const bottom of ['work_wrap','robe_skirt']){
+  for(const bottom of ['work_wrap','long_skirt']){
     await page.getByLabel('下装',{exact:true}).selectOption(bottom);
     await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
     assert.equal(await page.getByLabel('头饰',{exact:true}).inputValue(),'farmer_straw_hat');
