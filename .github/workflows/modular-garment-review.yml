@@ -11,7 +11,7 @@ concurrency:
 jobs:
   compare:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     env:
       HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -63,7 +63,7 @@ jobs:
           REVIEW_HEAD_SHA="$BASE_SHA" REVIEW_STAGE=before REVIEW_URL=http://127.0.0.1:4174 npm run review:deformation
           REVIEW_HEAD_SHA="$HEAD_SHA" REVIEW_STAGE=after REVIEW_URL=http://127.0.0.1:4173 npm run review:deformation
           python scripts/compose-deformation.py
-      - name: First clothing batch - twelve mixes, dyes, upper-body details and phase sequences
+      - name: Both clothing batches - original mixes plus lightwear and headwear
         run: |
           REVIEW_HEAD_SHA="$HEAD_SHA" npm run check:wardrobe-batch
           REVIEW_HEAD_SHA="$BASE_SHA" REVIEW_STAGE=before REVIEW_URL=http://127.0.0.1:4174 npm run review:wardrobe-batch
@@ -95,4 +95,7 @@ jobs:
             candidate/review-wardrobe-batch/after/report.json
             candidate/review-wardrobe-batch/before/report.json
             candidate/review-wardrobe-batch/after/workbench.png
+            candidate/review-wardrobe-batch/lightwear-after/report.json
+            candidate/review-wardrobe-batch/lightwear-before/report.json
+            candidate/review-wardrobe-batch/lightwear-after/workbench.png
           retention-days: 14
