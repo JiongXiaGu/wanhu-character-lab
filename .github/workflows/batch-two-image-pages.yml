@@ -1,0 +1,44 @@
+name: Batch Two Image Pages
+on:
+  push:
+    branches: [prep/wardrobe-batch-two]
+    paths: [.github/workflows/batch-two-image-pages.yml]
+permissions:
+  contents: write
+jobs:
+  pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview/wardrobe-batch-two-r2
+          persist-credentials: false
+      - run: python3 -m pip install reportlab Pillow pymupdf
+      - name: Preserve original images on separate PDF pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from reportlab.pdfgen import canvas
+          from reportlab.lib.utils import ImageReader
+          from PIL import Image
+          import json,fitz,base64,urllib.request,os
+          root=Path('ReviewEvidence/SecondBatch');meta=json.loads((root/'execution.json').read_text());assert meta['sourceSha']=='563b8c5cd404e176577f11d21e4bcc65a57c1acd'
+          images=sorted(root.glob('*.jpg'))+sorted(root.glob('*.png'))
+          output=root/'lightwear-actions-review.pdf';c=canvas.Canvas(str(output),pagesize=(1200,1000));c.setTitle('Second batch | Original GitHub Actions screenshot evidence')
+          for i,p in enumerate(images,1):
+              with Image.open(p) as im:w,h=im.size
+              scale=min(1160/w,915/h);dw,dh=w*scale,h*scale
+              c.setFont('Helvetica',11);c.drawString(20,980,f'{i}/{len(images)}  GitHub Actions source {meta["sourceSha"]}')
+              c.drawString(20,961,p.name)
+              c.drawImage(ImageReader(str(p)),(1200-dw)/2,20+(915-dh)/2,dw,dh,preserveAspectRatio=True)
+              c.showPage();print('PAGE',i,p.name)
+          c.save();doc=fitz.open(str(output));assert len(doc)==len(images);assert all(len(p.get_images())==1 for p in doc)
+          body={'message':'evidence: 原始Actions截图只读分页，不修改运行代码','branch':'preview/wardrobe-batch-two-r2','content':base64.b64encode(output.read_bytes()).decode()}
+          url='https://api.github.com/repos/JiongXiaGu/wanhu-character-lab/contents/'+output.as_posix()
+          req=urllib.request.Request(url,data=json.dumps(body).encode(),method='PUT',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+          with urllib.request.urlopen(req) as r:result=json.load(r)
+          print('EVIDENCE_PDF_COMMIT',result['commit']['sha'],'PAGES',len(images))
+          PY
