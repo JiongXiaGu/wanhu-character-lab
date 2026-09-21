@@ -24,10 +24,11 @@ export function makeWorkVest(recipe:Recipe):GarmentPiece {
   const sealedInterfaces={...piece.openings};
   // torso 环前襟有多枚共线切点；把扇形根移到后中点，避免 n-gon 默认扇分产生退化三角形。
   const capOrder=(loop:number[])=>[...loop.slice(8),...loop.slice(0,8)];
-  face(piece.mesh,capOrder(sealedInterfaces.waist),'torso',secondary);
-  face(piece.mesh,capOrder(sealedInterfaces.neck),'torso',accent);
-  face(piece.mesh,[...sealedInterfaces.RightCuff],'upperArm',secondary);
-  face(piece.mesh,[...sealedInterfaces.LeftCuff],'upperArm',secondary);
+  // 封口是衣身的延续，统一跟随主布色；不借用内衬、缘边或皮肤颜色。
+  face(piece.mesh,capOrder(sealedInterfaces.waist),'torso',primary);
+  face(piece.mesh,capOrder(sealedInterfaces.neck),'torso',primary);
+  face(piece.mesh,[...sealedInterfaces.RightCuff],'upperArm',primary);
+  face(piece.mesh,[...sealedInterfaces.LeftCuff],'upperArm',primary);
   piece.openings={};
   piece.sealedInterfaces=sealedInterfaces;
   orient(piece.mesh);
