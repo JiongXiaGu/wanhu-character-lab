@@ -17,15 +17,22 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
-      - name: Package tracked source and exact dependencies for this isolated execution environment
+      - name: Package source without binary references and exact dependencies separately
         run: |
-          mkdir -p /tmp/m1-workspace
-          git archive HEAD | tar -x -C /tmp/m1-workspace
-          cp -a node_modules /tmp/m1-workspace/node_modules
-          git rev-parse HEAD > /tmp/m1-workspace/SOURCE_SHA
-          tar -C /tmp/m1-workspace -czf /tmp/m1-workspace.tar.gz .
+          mkdir -p /tmp/m1-source
+          git archive HEAD | tar -x -C /tmp/m1-source
+          find /tmp/m1-source -type f \( -iname '*.fbx' -o -iname '*.blend' -o -iname '*.glb' -o -iname '*.gltf' -o -iname '*.png' -o -iname '*.jpg' -o -iname '*.zip' \) -delete
+          git rev-parse HEAD > /tmp/m1-source/SOURCE_SHA
+          tar -C /tmp/m1-source -czf /tmp/m1-source.tar.gz .
+          tar -czf /tmp/m1-dependencies.tar.gz node_modules
+          ls -lh /tmp/m1-*.tar.gz
       - uses: actions/upload-artifact@v4
         with:
-          name: m1-bootstrap-workspace
-          path: /tmp/m1-workspace.tar.gz
+          name: m1-source-text
+          path: /tmp/m1-source.tar.gz
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m1-exact-dependencies
+          path: /tmp/m1-dependencies.tar.gz
           retention-days: 1
