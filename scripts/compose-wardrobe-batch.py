@@ -11,7 +11,7 @@ font_path=next((p for p in ['/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf','/
 font=ImageFont.truetype(font_path,17) if font_path else ImageFont.load_default()
 small=ImageFont.truetype(font_path,13) if font_path else ImageFont.load_default()
 source_label='GitHub Actions screenshots' if after['captureEnvironment']=='github-actions' else 'Local real browser screenshots'
-label={'rough_tunic':'Work shirt','cross_jacket':'Cross-collar','layered_vest':'Half-sleeve','loose_trousers':'Straight','guard_pants':'Bound'}
+label={'rough_tunic':'Work shirt','cross_jacket':'Cross-collar','layered_vest':'Half-sleeve','work_pants':'Work pants','work_wrap':'Work wrap'}
 def key(r):return tuple(r[k] for k in ['kind','bodyType','top','bottom','clip','view','phase'])
 old={key(r):r for r in before['records']}
 comparisons=0
@@ -49,7 +49,7 @@ for body in ('male','female'):
         sheet(f'{body}-{view}-overview.jpg',f'First batch / {body} / {view}', [('after',r) for r in select('static',bodyType=body,view=view)],6,300,470)
     comparison=[]
     for stage in ('before','after'):
-        for r in select('static',bodyType=body,bottom='loose_trousers',view='front'):
+        for r in select('static',bodyType=body,bottom='work_pants',view='front'):
             comparison.append((stage,old[key(r)] if stage=='before' else r))
     sheet(f'{body}-tops-before-after.jpg',f'Three tops / identical camera and bind phase / {body}',comparison,3,460,520)
     for clip in ('pilot-switches','snatch','jogging','shooting-arrow','start-walking'):
