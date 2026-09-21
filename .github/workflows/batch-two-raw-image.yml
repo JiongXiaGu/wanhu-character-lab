@@ -1,0 +1,35 @@
+name: Batch Two Raw Image
+on:
+  push:
+    branches: [prep/wardrobe-batch-two]
+    paths: [.github/workflows/batch-two-raw-image.yml]
+permissions:
+  contents: read
+jobs:
+  original-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview/wardrobe-batch-two-r2
+          persist-credentials: false
+      - name: Validate provenance and original PNG signature
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,hashlib
+          root=Path('ReviewEvidence/SecondBatch')
+          record=json.loads((root/'execution.json').read_text())
+          assert record['sourceSha']=='563b8c5cd404e176577f11d21e4bcc65a57c1acd'
+          assert record['numericResult']==record['browserResult']=='success'
+          p=root/'static-male-work_vest-short_trousers-none-default-bind-front-0.png'
+          raw=p.read_bytes();assert raw.startswith(b'\x89PNG\r\n\x1a\n')
+          print('UNCHANGED_ACTIONS_SCREENSHOT',p.name,hashlib.sha256(raw).hexdigest(),len(raw))
+          PY
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ReviewEvidence/SecondBatch/static-male-work_vest-short_trousers-none-default-bind-front-0.png
+          archive: false
+          if-no-files-found: error
+          retention-days: 7
