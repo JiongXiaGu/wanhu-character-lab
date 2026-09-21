@@ -1,8 +1,9 @@
 import { type Recipe } from '../../v3/types';
+import { face, orient } from '../../v3/cage';
 import { sewTorso, sewSleeve, finishTop, solidBand, torsoWaist, torsoRib, torsoChest, torsoNeck, type TorsoRow } from './top-seams';
 import type { GarmentPiece } from './contract';
 
-/** 无袖对襟短褂：宽肩带和袖窿本身是边界，没有假装成背心的内层长袖。 */
+/** 无袖对襟短褂：宽肩带保持，领口／双袖窿／腰口在试验款中直接用 Cap 封死。 */
 export function makeWorkVest(recipe:Recipe):GarmentPiece {
   const {primary,secondary,accent}=recipe.dyes;
   const rows:readonly TorsoRow[]=[
@@ -16,9 +17,18 @@ export function makeWorkVest(recipe:Recipe):GarmentPiece {
   // 中央布片与两侧包边共享索引；没有额外悬浮门襟。
   const placket=[primary,accent,secondary,accent,primary,primary];
   const torso=sewTorso(rows,[solidBand(accent),placket,placket,placket,placket]);
-  // 不生成袖筒，仅声明真实袖窿；保留源人体完整肩臂皮肤。
+  // 不生成袖筒；人体手臂继续保留，并直接穿过袖窿 Cap。
   const cuffs={RightCuff:sewSleeve(torso,1,[]),LeftCuff:sewSleeve(torso,-1,[])};
   const piece=finishTop(recipe,torso,cuffs,false);
   piece.covers=['torso'];
+  const sealedInterfaces={...piece.openings};
+  face(piece.mesh,[...sealedInterfaces.waist],'torso',secondary);
+  face(piece.mesh,[...sealedInterfaces.neck],'torso',accent);
+  face(piece.mesh,[...sealedInterfaces.RightCuff],'upperArm',secondary);
+  face(piece.mesh,[...sealedInterfaces.LeftCuff],'upperArm',secondary);
+  piece.openings={};
+  piece.sealedInterfaces=sealedInterfaces;
+  orient(piece.mesh);
+  piece.mesh.anchors={...sealedInterfaces};
   return piece;
 }
