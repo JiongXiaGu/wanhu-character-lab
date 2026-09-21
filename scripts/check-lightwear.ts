@@ -8,6 +8,7 @@ import { triCount,cloneCage,cross,sub,dot } from '../src/character/v3/cage';
 import { createRecipe,B,BODY_TYPES,HAIR_STYLE_IDS,presetSlots,type Cage,type Vec3,type Recipe,type HeadwearId } from '../src/character/v3/types';
 import { parseRecipeFile } from '../src/character/wardrobe/catalog';
 import { HEADWEAR_CLEARANCE,HEADWEAR_GEOMETRY_VERSION } from '../src/character/wardrobe/headwear-fit';
+import { isClosedHemContact,type ContactTriangle } from './garment-contact-scope';
 
 const newTops=['work_vest','short_work_jacket'] as const,newBottoms=['short_trousers','short_skirt'] as const;
 const contrast={primary:'#fa1945',secondary:'#12cee7',accent:'#ffda16'};
@@ -105,8 +106,11 @@ const shorts=makeTrousers(createRecipe({slots:{bottom:'short_trousers'}}))!.mesh
 assert(maxX(skirt)>maxX(shorts)*1.3,'短下裳必须有独立A字展开，不是换色短裤');
 const longMutation=cloneCage(shorts);longMutation.vertices[0].p[1]=.1;assert.throws(()=>assertShort(longMutation,false));
 const wrongWeight=cloneCage(shorts);wrongWeight.vertices.find(v=>v.id==='Shorts.Right.Cuff.0')!.w=[B.Hips,B.Hips,1];assert.throws(()=>assertShort(wrongWeight,false));
+const cap:ContactTriangle={ids:['Shorts.Right.Cuff.0','Shorts.Right.Cuff.1','Shorts.Right.Cuff.2'],part:'bottom',region:'thigh'};
+const shin:ContactTriangle={ids:['RightKneeUpper.0','RightKneeUpper.1','RightKnee.1'],part:'skin',region:'shin'};
+assert(isClosedHemContact('short_trousers',cap,shin));assert(!isClosedHemContact('short_trousers',cap,{...shin,region:'thigh'}));
 const shrunk=makeCharacter(createRecipe({slots:{...presetSlots('body'),headwear:'guard_helmet'}})).surface;
 for(const v of shrunk.vertices.filter(v=>hatVertex(v.id))){v.p[0]*=.6;v.p[2]*=.6;}assert.throws(()=>assertHat(shrunk,'guard_helmet'),'必须抓住过小帽壳回归');
-const report={passed:true,headwearVersion:HEADWEAR_GEOMETRY_VERSION,rows,mixes,hats,mutationChecks:3,scope:'绑定空间资产、固定露肤、染色、帽发贯穿与V5契约；动画源帧/中点及真实网页图片另行检查。'};
+const report={passed:true,headwearVersion:HEADWEAR_GEOMETRY_VERSION,rows,mixes,hats,mutationChecks:3,capContactScopeCases:2,scope:'绑定空间资产、固定露肤、染色、帽发贯穿与V5契约；动画源帧/中点及真实网页图片另行检查。'};
 mkdirSync('review-wardrobe-batch',{recursive:true});writeFileSync('review-wardrobe-batch/lightwear-numeric.json',JSON.stringify(report,null,2));
 console.log('LIGHTWEAR_NUMERIC',JSON.stringify(report));
