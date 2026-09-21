@@ -1,5 +1,5 @@
 import { B, type Cage, type Recipe, type Vec3, type Weight } from '../../v3/types';
-import { bridge, orient, vertex } from '../../v3/cage';
+import { bridge, face, orient, vertex } from '../../v3/cage';
 import { kneeWeights } from '../../v3/leg-deformation';
 import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from './contract';
 
@@ -45,11 +45,14 @@ export function makeContinuousSkirt(recipe:Recipe):GarmentPiece {
     else bridge(c,previous,loop,r<3?'pelvis':long&&y<.489?'shin':'thigh',r===1?secondary:r===rows.length-1?accent:primary);
     previous=loop;
   }
-  // 一圈连续下摆、一个共同穿腿口。闭合斜端面提供明确厚度，
-  // 不用两条宽裤腿伪装裙子，也不在腿穿出的位置加会切腿的实心底盘。
+  // 连续裙摆加厚封边，封底与裙壳共享顶点；不是两条宽裤腿或独立内衬。
   const inset=previous.map((vi,k)=>{const v=c.vertices[vi];return vertex(c,`Skirt.HemInset.${k}`,
     [v.p[0]-.007*Math.sin((k+.5)*Math.PI*2/SEGMENTS),v.p[1]-.008,v.p[2]-.007*Math.cos((k+.5)*Math.PI*2/SEGMENTS)],[...v.w]);});
   bridge(c,previous,inset,long?'shin':'thigh',accent);
-  openings.hem=inset;orient(c);c.anchors={...openings};
+  // 低模固定封底：腿从下缘伸出，端面与腿的预定交界是制作接口。
+  // 端面接触在离线报告单列，不能据此声称整个模型零数学相交。
+  const center=vertex(c,'Skirt.HemCenter',[0,long?.05:.489,long?-.04:0],[B.RightShin,B.LeftShin,.5]);
+  for(let k=0;k<12;k++)face(c,[inset[k],inset[(k+1)%12],center],long?'shin':'thigh',secondary);
+  orient(c);c.anchors={...openings,closedHem:inset};
   return{id,slot:'bottom',version:GARMENT_GEOMETRY_VERSION,mesh:c,covers:long?['pelvis','thigh','shin']:['pelvis','thigh'],openings};
 }

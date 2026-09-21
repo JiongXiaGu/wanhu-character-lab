@@ -15,7 +15,7 @@ const rows:any[]=[],mixes:any[]=[],hats:any[]=[];
 const maxX=(c:Cage)=>Math.max(...c.vertices.map(v=>Math.abs(v.p[0])));
 const signature=(c:Cage)=>JSON.stringify({v:c.vertices,f:c.faces.map(f=>({v:f.v,region:f.region}))});
 function assertShort(c:Cage,skirt:boolean){
-  assert.equal(triCount(c),skirt?176:176);
+  assert.equal(triCount(c),176);
   assert(c.vertices.every(v=>v.p[1]>=.5),'短装有膝下裤管');
   assert(c.faces.filter(f=>f.region==='pelvis').length===24,'短装腰臀/四片裆底不可省略');
   for(const side of ['Right','Left']){
@@ -25,7 +25,9 @@ function assertShort(c:Cage,skirt:boolean){
       assert.equal(v.p[1],skirt?.511:.507);
       const thigh=side==='Right'?B.RightThigh:B.LeftThigh,shin=side==='Right'?B.RightShin:B.LeftShin;
       assert.equal(v.w[0],thigh);assert.equal(v.w[1],shin);
-      const expected=Math.max(0,Math.min(1,.5+(v.p[1]-.489)/(2*(1/22+4*Math.max(0,-v.p[2])))));
+      const originalZ=skirt?v.p[2]:v.p[2]/1.10;
+      const gradient=Math.max(0,Math.min(1,.5+(v.p[1]-.489)/(2*(1/22+4*Math.max(0,-originalZ)))));
+      const expected=skirt?gradient:gradient*.65+.60*.35;
       assert(Math.abs(v.w[2]-expected)<1e-12,'短下摆必须保留静态膝前/膝后梯度');
     }
   }

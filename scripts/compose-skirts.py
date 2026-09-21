@@ -12,7 +12,7 @@ outputs=[]
 
 def sheet(name,records,cols=3):
     if not records:return
-    w,h=430,490
+    w,h=430,350
     out=Image.new('RGB',(w*cols,48+h*math.ceil(len(records)/cols)),'#edf0ed')
     d=ImageDraw.Draw(out);d.text((12,8),f'{stage} / {name} / {r["sourceSha"][:12]}',fill='#243734',font=font)
     d.text((12,29),'Original browser PNGs; contact-sheet scaling only; no visual approval implied',fill='#455954',font=small)
