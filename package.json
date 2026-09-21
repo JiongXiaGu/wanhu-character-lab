@@ -32,7 +32,9 @@
     "check:lightwear": "tsx scripts/check-lightwear.ts",
     "review:lightwear": "node scripts/review-lightwear.mjs",
     "check:skirts": "tsx scripts/check-skirts.ts",
-    "review:skirts": "node scripts/review-skirts.mjs"
+    "review:skirts": "node scripts/review-skirts.mjs",
+    "check:horse": "tsx scripts/check-horse.ts && tsx scripts/check-horse-ground.ts",
+    "review:horse": "node scripts/review-horse.mjs"
   },
   "dependencies": {
     "react": "19.1.1",
