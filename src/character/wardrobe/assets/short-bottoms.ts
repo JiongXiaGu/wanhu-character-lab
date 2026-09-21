@@ -69,7 +69,10 @@ export function makeShortBottom(recipe:Recipe):GarmentPiece {
   const band=perimeter.map((vi,i)=>{const p=c.vertices[vi].p;return vertex(c,`Shorts.WaistFacing.${i}`,[p[0]*.84,1.047,p[2]*.98],[B.Hips,B.Spine,.35]);});
   bridge(c,waist,band,'pelvis',primary);bridge(c,band,perimeter,'pelvis',secondary);
   if(skirt)openings.waist=waist;
-  else{face(c,[...waist],'pelvis',primary);sealedInterfaces.waist=waist;}
+  else{
+    // 腰环两侧各有一段共线顶点；从右外侧点起扇分，避免默认 n-gon 扇形出现退化三角形。
+    face(c,[...waist.slice(2),...waist.slice(0,2)],'pelvis',primary);sealedInterfaces.waist=waist;
+  }
   orient(c);c.anchors={...openings,...sealedInterfaces};
   // short_trousers 的 Cuff/waist 均封底；源 shin 仍保留并直接穿过裤脚 Cap。
   return{id,slot:'bottom',version:GARMENT_GEOMETRY_VERSION,mesh:c,covers:['pelvis','thigh'],openings,...(!skirt?{sealedInterfaces}:{})};
