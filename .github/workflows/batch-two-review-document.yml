@@ -1,0 +1,61 @@
+name: Batch Two Review Document
+on:
+  push:
+    branches: [prep/wardrobe-batch-two]
+    paths: [.github/workflows/batch-two-review-document.yml]
+permissions:
+  contents: read
+jobs:
+  package-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview/wardrobe-batch-two-r2
+          persist-credentials: false
+      - run: python3 -m pip install Pillow python-docx
+      - name: Package unchanged screenshot bytes as OpenXML pages
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          from xml.sax.saxutils import escape
+          import shutil, json, zipfile
+          from docx import Document
+          source=Path('ReviewEvidence/SecondBatch')
+          record=json.loads((source/'execution.json').read_text())
+          assert record['sourceSha']=='563b8c5cd404e176577f11d21e4bcc65a57c1acd'
+          assert record['numericResult']==record['browserResult']=='success'
+          images=sorted(source.glob('*.jpg'))+sorted(source.glob('*.png'))
+          assert len(images)>10
+          root=Path('review-docx');(root/'word/media').mkdir(parents=True);(root/'word/_rels').mkdir();(root/'_rels').mkdir()
+          rels=[];body=[]
+          for i,p in enumerate(images,1):
+              with Image.open(p) as im:w,h=im.size
+              scale=min(9300000/w,5600000/h);cx=int(w*scale);cy=int(h*scale)
+              name=f'image{i}{p.suffix.lower()}';shutil.copyfile(p,root/'word/media'/name)
+              rels.append(f'<Relationship Id="rId{i}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/{name}"/>')
+              title=escape(f'{i}/{len(images)} | GitHub Actions | source {record["sourceSha"][:12]} | {p.name}')
+              body.append(f'<w:p><w:pPr><w:spacing w:after="120"/></w:pPr><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>{title}</w:t></w:r></w:p>')
+              body.append(f'''<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="{cx}" cy="{cy}"/><wp:docPr id="{i}" name="{escape(p.name)}"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="{i}" name="{name}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId{i}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="{cx}" cy="{cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>''')
+              if i<len(images):body.append('<w:p><w:r><w:br w:type="page"/></w:r></w:p>')
+          body.append('<w:sectPr><w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/><w:pgMar w:top="720" w:right="720" w:bottom="720" w:left="720" w:header="0" w:footer="0" w:gutter="0"/></w:sectPr>')
+          header='''<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>'''
+          (root/'word/document.xml').write_text(header+''.join(body)+'</w:body></w:document>')
+          (root/'word/_rels/document.xml.rels').write_text('<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+''.join(rels)+'</Relationships>')
+          (root/'_rels/.rels').write_text('<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdDocument" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>')
+          (root/'[Content_Types].xml').write_text('<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>')
+          with zipfile.ZipFile('/tmp/lightwear-review.docx','w',zipfile.ZIP_DEFLATED) as z:
+              for p in root.rglob('*'):
+                  if p.is_file():z.write(p,p.relative_to(root).as_posix())
+          doc=Document('/tmp/lightwear-review.docx');assert len(doc.inline_shapes)==len(images)
+          print('EVIDENCE_DOCUMENT',len(images),'original image payloads; no screenshot pixel changes')
+          for i,p in enumerate(images,1):print('PAGE',i,p.name)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lightwear-review-openxml
+          path: review-docx/
+          include-hidden-files: true
+          retention-days: 7
