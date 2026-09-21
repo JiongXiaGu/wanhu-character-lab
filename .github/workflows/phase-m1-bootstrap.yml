@@ -1,14 +1,23 @@
-name: M1 Temporary Bootstrap
+name: M1 Temporary Candidate Review
 on:
   push:
     branches: [feat/phase-m1-horse-lab-20260921]
-    paths: [.github/workflows/phase-m1-bootstrap.yml]
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'package.json'
+      - '.github/workflows/phase-m1-bootstrap.yml'
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: horse-m1-candidate
+  cancel-in-progress: true
 jobs:
-  source:
+  horse-candidate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    env:
+      REVIEW_HEAD_SHA: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -17,22 +26,44 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
-      - name: Package source without binary references and exact dependencies separately
+      - run: npm run build
+      - run: npx tsx scripts/check-horse.ts
+      - name: Install real browser
         run: |
-          mkdir -p /tmp/m1-source
-          git archive HEAD | tar -x -C /tmp/m1-source
-          find /tmp/m1-source -type f \( -iname '*.fbx' -o -iname '*.blend' -o -iname '*.glb' -o -iname '*.gltf' -o -iname '*.png' -o -iname '*.jpg' -o -iname '*.zip' \) -delete
-          git rev-parse HEAD > /tmp/m1-source/SOURCE_SHA
-          tar -C /tmp/m1-source -czf /tmp/m1-source.tar.gz .
-          tar -czf /tmp/m1-dependencies.tar.gz node_modules
-          ls -lh /tmp/m1-*.tar.gz
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Capture candidate browser evidence
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > horse-preview.log 2>&1 &
+          ready=0
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          test "$ready" = 1
+          node scripts/review-horse.mjs
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: m1-source-text
-          path: /tmp/m1-source.tar.gz
-          retention-days: 1
-      - uses: actions/upload-artifact@v4
-        with:
-          name: m1-exact-dependencies
-          path: /tmp/m1-dependencies.tar.gz
-          retention-days: 1
+          name: horse-m1-candidate
+          path: |
+            review/horse/
+            horse-preview.log
+          retention-days: 7
+      - name: Mirror exact browser images to isolated evidence branch for visual inspection
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test -d review/horse || exit 0
+          mkdir -p /tmp/horse-evidence
+          cp -a review/horse/. /tmp/horse-evidence/
+          printf '%s\n' "$REVIEW_HEAD_SHA" > /tmp/horse-evidence/SOURCE_SHA
+          cd /tmp/horse-evidence
+          git init -b review/horse-m1-evidence
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "evidence: M1 real browser $REVIEW_HEAD_SHA"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin HEAD:refs/heads/review/horse-m1-evidence
