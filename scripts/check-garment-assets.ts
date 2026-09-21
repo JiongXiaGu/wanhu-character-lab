@@ -27,11 +27,20 @@ export function assertGarmentPiece(piece:GarmentPiece):void {
     for(let i=0;i<f.v.length;i++){used.add(f.v[i]);const k=edge(f.v[i],f.v[(i+1)%f.v.length]);counts.set(k,(counts.get(k)??0)+1);}
   }
   assert.equal(used.size,c.vertices.length,'服装不能保留未使用顶点');
-  const expected=new Set<string>();
-  for(const loop of Object.values(piece.openings)){
+  const expected=new Set<string>(),declared=new Set<string>();
+  const validateLoop=(loop:number[],sealed:boolean)=>{
     assert(loop.length>=3&&new Set(loop).size===loop.length);
-    for(let i=0;i<loop.length;i++){const k=edge(loop[i],loop[(i+1)%loop.length]);assert(!expected.has(k),'接口不能重复声明');expected.add(k);}
-  }
+    for(let i=0;i<loop.length;i++){
+      const k=edge(loop[i],loop[(i+1)%loop.length]);assert(!declared.has(k),'接口不能重复声明');declared.add(k);
+      if(!sealed)expected.add(k);
+    }
+    if(sealed){
+      assert(c.faces.some(f=>f.v.length===loop.length&&f.v.every(i=>loop.includes(i))),'sealedInterfaces 缺少直接 Cap 面');
+      for(let i=0;i<loop.length;i++)assert.equal(counts.get(edge(loop[i],loop[(i+1)%loop.length])),2,'Cap 接口仍然暴露 boundary edge');
+    }
+  };
+  for(const loop of Object.values(piece.openings))validateLoop(loop,false);
+  for(const loop of Object.values(piece.sealedInterfaces??{}))validateLoop(loop,true);
   assert([...counts.values()].every(n=>n===1||n===2),'非流形/重叠面');
   assert.deepEqual([...counts].filter(([,n])=>n===1).map(([k])=>k).sort(),[...expected].sort(),'未声明破洞或失效接口');
   assertComponentWinding(c);
@@ -71,8 +80,13 @@ export function assertModularAssets():number {
   const duplicate=copy();duplicate.mesh.faces.push(structuredClone(duplicate.mesh.faces[0]));assert.throws(()=>assertGarmentPiece(duplicate));
   const badWeight=copy();badWeight.mesh.vertices[0].w[0]=20;assert.throws(()=>assertGarmentPiece(badWeight));
   const badPort=copy();badPort.openings.waist=badPort.openings.waist.slice(1);assert.throws(()=>assertGarmentPiece(badPort));
+  const vest=makeTop(createRecipe({slots:{top:'work_vest'}}))!;
+  assert.deepEqual(Object.keys(vest.openings),[]);assert.deepEqual(Object.keys(vest.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','neck','waist'].sort());assert.equal(triCount(vest.mesh),128);
+  const missingCap:GarmentPiece={...vest,mesh:cloneCage(vest.mesh),openings:structuredClone(vest.openings),sealedInterfaces:structuredClone(vest.sealedInterfaces)};
+  const waist=missingCap.sealedInterfaces!.waist,capIndex=missingCap.mesh.faces.findIndex(f=>f.v.length===waist.length&&f.v.every(i=>waist.includes(i)));assert(capIndex>=0);missingCap.mesh.faces.splice(capIndex,1);assert.throws(()=>assertGarmentPiece(missingCap),'封闭接口缺失 Cap 必须失败');
+  const cloth=makeFootwear(createRecipe({slots:{shoes:'cloth_shoes'}}))!;assert.equal(triCount(cloth.mesh),64);assert.deepEqual(Object.keys(cloth.openings),[]);assert.deepEqual(Object.keys(cloth.sealedInterfaces??{}).sort(),['LeftAnkle','RightAnkle']);
   assert(!existsSync('src/character/wardrobe/tailoring.ts'),'退役人体衣面生成器仍存在');
   for(const name of ['tops','trousers','footwear'])assert(!/makeBody|cloneCage|fitJointCreases|tailorSurface/.test(readFileSync(`src/character/wardrobe/assets/${name}.ts`,'utf8')),'资产不能复制旧人体衣面');
   return checked;
 }
-if(process.argv[1]?.endsWith('check-garment-assets.ts'))console.log('PASS independent garment assets', {pieces:assertModularAssets(),mutationChecks:4,coverageCombinations:BODY_TYPES.length*TOP_IDS.length*BOTTOM_IDS.length,geometryVersion:GARMENT_GEOMETRY_VERSION});
+if(process.argv[1]?.endsWith('check-garment-assets.ts'))console.log('PASS independent garment assets', {pieces:assertModularAssets(),mutationChecks:5,coverageCombinations:BODY_TYPES.length*TOP_IDS.length*BOTTOM_IDS.length,geometryVersion:GARMENT_GEOMETRY_VERSION});
