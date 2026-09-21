@@ -1,0 +1,22 @@
+name: Batch Two PDF Export
+on:
+  push:
+    branches: [prep/wardrobe-batch-two]
+    paths: [.github/workflows/batch-two-pdf-export.yml]
+permissions:
+  contents: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview/wardrobe-batch-two-r2
+          persist-credentials: false
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ReviewEvidence/SecondBatch/lightwear-actions-review.pdf
+          archive: false
+          if-no-files-found: error
+          retention-days: 7
