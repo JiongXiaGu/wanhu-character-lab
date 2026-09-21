@@ -8,7 +8,7 @@ Web输出固定男女模型数据、Recipe V5、目标动画wanhu-target-motion 
 
 SkeletonDefinition：基模ID/bodyProfileVersion、骨骼名/索引/父索引、局部绑定位置/旋转与inverse bind。固定20骨骼，每顶点最多2非零权重。男女绑定位置可不同；衣服使用该基模骨架，不增加独立Animator。单位米，+X右/+Y上/+Z前，Unity端需显式核对坐标与xyzw顺序。
 
-SkinBinding：逻辑顶点、索引、权重、法线/颜色区域、装配部件；修拓扑时升级资源版本。当前固定几何版本wanhu-modular-garments-v5。
+SkinBinding：逻辑顶点、索引、权重、法线/颜色区域、装配部件；修拓扑时升级资源版本。当前固定几何版本wanhu-modular-garments-v6。
 
 TargetMotion v2：sourceSHA、clipId、retargetVersion、duration、loop、真实time keys、bodyProfile{id,version}、bones、局部旋转轨道、Hips位置与提取的水平根轨迹。无height/build/proportion参数；不兼容旧导出。局部旋转按父关系累乘，最终蒙皮矩阵=世界姿态矩阵×inverse bind。头部校准不重复应用。
 

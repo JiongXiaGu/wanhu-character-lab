@@ -1,3 +1,4 @@
+import { applyHeadwearClearance } from "../wardrobe/headwear-fit";
 import { addWardrobeHeadwear, finishHair } from "../wardrobe/adornments";
 import {
   B,
@@ -315,6 +316,11 @@ function faceDetails(c: Cage, female = false) {
 
 }
 function headwear(c: Cage, id: HeadwearId, recipe: Recipe) {
+  const first=c.vertices.length;
+  buildHeadwear(c,id,recipe);
+  applyHeadwearClearance(c,first,id);
+}
+function buildHeadwear(c: Cage, id: HeadwearId, recipe: Recipe) {
   if (id === "none") return;
   if (addWardrobeHeadwear(c,id,recipe)) return;
 
@@ -406,7 +412,11 @@ function headwear(c: Cage, id: HeadwearId, recipe: Recipe) {
     0.098,
     skin,
   );
-  bridge(c, a, b, "equipment", "#a48760");
+  // 额前束带后侧开放，避免闭环横穿低髻；所有发型使用同一制作结构。
+  for(const i of [6,7,0,1]){
+    const j=(i+1)%8;
+    face(c,[a[i],a[j],b[j],b[i]],"equipment","#a48760");
+  }
 }
 function addSword(c: Cage) {
   const w = rigid(B.RightHand);
