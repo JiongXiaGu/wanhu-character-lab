@@ -17,6 +17,7 @@ export function assembleGarments(body:Cage,recipe:Recipe){
     c.vertices.push(...piece.mesh.vertices);
     c.faces.push(...piece.mesh.faces.map(f=>({...f,v:f.v.map(i=>i+offset),part:piece.slot})));
     for(const [name,loop]of Object.entries(piece.openings))c.anchors[piece.slot+'.'+name]=loop.map(i=>i+offset);
+    for(const [name,loop]of Object.entries(piece.sealedInterfaces??{}))c.anchors[piece.slot+'.'+name]=loop.map(i=>i+offset);
   }
   const replacedTriangles=body.faces.filter(f=>covered.has(f.region)).reduce((n,f)=>n+f.v.length-2,0);
   const garments=pieces.map(p=>({id:p.id,slot:p.slot,version:p.version,triangles:triCount(p.mesh),covers:[...p.covers],openings:Object.keys(p.openings)}));
