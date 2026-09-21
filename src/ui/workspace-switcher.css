@@ -1,0 +1,95 @@
+.workspace-switcher{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  z-index:18;
+  display:flex;
+  gap:3px;
+  padding:3px;
+  border:1px solid #d4dbd0;
+  border-radius:8px;
+  background:rgba(246,248,241,.84);
+  box-shadow:0 4px 18px rgba(74,96,79,.08);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.workspace-switcher__item{
+  height:36px;
+  min-width:118px;
+  padding:0 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border-radius:6px;
+  color:#718078;
+  text-decoration:none;
+  white-space:nowrap;
+  font-size:11px;
+  font-weight:550;
+  letter-spacing:.03em;
+  transition:background-color .15s ease,color .15s ease,border-color .15s ease,box-shadow .15s ease;
+}
+.workspace-switcher__item svg{
+  width:15px;
+  height:15px;
+  flex:none;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.35;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.workspace-switcher__item:hover{
+  color:#456356;
+  background:#edf1e8;
+}
+.workspace-switcher__item[aria-current=page]{
+  color:#f5f3e9;
+  background:#4a6a5e;
+  box-shadow:0 1px 2px rgba(47,75,63,.18);
+}
+.workspace-switcher__item:focus-visible{
+  outline:2px solid #4c7b71;
+  outline-offset:3px;
+}
+.horse-lab .workspace-switcher{
+  border-color:rgba(207,197,171,.18);
+  background:rgba(31,49,52,.88);
+  box-shadow:0 4px 18px rgba(0,0,0,.16);
+}
+.horse-lab .workspace-switcher__item{
+  color:#aeb9b5;
+}
+.horse-lab .workspace-switcher__item:hover{
+  color:#e2d4b7;
+  background:#304246;
+}
+.horse-lab .workspace-switcher__item[aria-current=page]{
+  color:#fff2d7;
+  background:#625941;
+  box-shadow:0 1px 2px rgba(0,0,0,.22);
+}
+.horse-lab .workspace-switcher__item:focus-visible{
+  outline-color:#c9aa77;
+}
+@media(max-width:1200px){
+  .workspace-switcher__item{min-width:102px;padding:0 11px}
+}
+@media(max-width:850px){
+  .workspace-switcher__item{min-width:92px;padding:0 9px;font-size:10px}
+}
+@media(max-width:650px){
+  .wardrobe-studio .workspace-switcher,
+  .horse-topbar .workspace-switcher{
+    position:static;
+    transform:none;
+    order:3;
+    width:100%;
+    margin:0;
+  }
+  .workspace-switcher__item{flex:1;min-width:0;height:34px}
+  .wardrobe-studio .header-right{order:4}
+  .horse-topbar .horse-phase-tag{order:4}
+}

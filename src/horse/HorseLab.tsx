@@ -3,6 +3,7 @@ import { HORSE_CLIPS, HORSE_FPS, horseClipDefinition, isHorseClip } from './anim
 import { HorseViewport } from './HorseViewport';
 import type { HorsePlayback } from './player';
 import type { HorseClipId, HorseDisplay, HorseStats, HorseView } from './types';
+import { WorkspaceSwitcher } from '../ui/WorkspaceSwitcher';
 import './horse.css';
 
 const query = new URLSearchParams(location.search);
@@ -26,8 +27,8 @@ export default function HorseLab() {
   const active = clip === 'bind' ? null : horseClipDefinition(clip);
   return <main className="horse-lab">
     <header className="horse-topbar">
-      <a href="./" className="horse-back-link">← 衣冠工坊</a>
       <div><p>WANHU / ANIMAL STUDY</p><h1>马匹实验 <span>Horse Lab</span></h1></div>
+      <WorkspaceSwitcher active="animal"/>
       <span className="horse-phase-tag">PHASE M1 · 马本体</span>
     </header>
     <div className="horse-workspace">

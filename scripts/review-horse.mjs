@@ -47,6 +47,9 @@ async function sheet(name, selected, columns = 3) {
 try {
   await page.goto(base + '/?lab=horse&review=1&pose=bind&paused=1', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => Boolean(window.__HORSE_REVIEW__?.stats.triangles));
+  await page.getByTestId('workspace-character').waitFor();
+  assert.equal(await page.getByTestId('workspace-animal').getAttribute('aria-current'), 'page', '动物工坊入口未标记当前工作区');
+  assert.equal(await page.getByTestId('workspace-character').getAttribute('href'), './', '人物工坊返回入口错误');
   const geometryId = await page.evaluate(() => window.__HORSE_REVIEW__.geometryId());
   report.stats = await page.evaluate(() => window.__HORSE_REVIEW__.stats);
   for (const angle of views) { await view(angle); await capture('static-' + angle, { clip: 'bind', view: angle, phase: 0 }); }
@@ -97,6 +100,7 @@ try {
   await page.getByRole('checkbox', { name: '马骨架', exact: true }).uncheck();
   await select('Horse_Idle'); await seek(.25); await view('three');
   await page.screenshot({ path: path.join(output, 'horse-workbench.png'), fullPage: true });
+  await page.locator('.horse-topbar').screenshot({ path: path.join(output, 'workspace-switcher-animal.png') });
   await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(100);
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), '手机宽度横向溢出');
   await page.screenshot({ path: path.join(output, 'horse-mobile.png'), fullPage: true });
@@ -106,8 +110,11 @@ try {
   await page.waitForFunction(() => Boolean(window.__WANHU_REVIEW__?.stats.triangles));
   assert.equal(await page.evaluate(() => window.__WANHU_REVIEW__.stats.bones), 20);
   assert.equal(await page.evaluate(() => window.__WANHU_RECIPE__().version), 5);
-  await page.getByRole('link', { name: '马匹实验 ↗', exact: true }).waitFor();
-  interactions.push({ checks: ['390px页面无横溢出', '原人物20骨骼', '原Recipe V5', '马入口独立'], passed: true });
+  await page.getByTestId('workspace-animal').waitFor();
+  assert.equal(await page.getByTestId('workspace-character').getAttribute('aria-current'), 'page', '人物工坊入口未标记当前工作区');
+  assert.equal(await page.getByTestId('workspace-animal').getAttribute('href'), '?lab=horse', '动物工坊入口地址错误');
+  await page.locator('.topbar').screenshot({ path: path.join(output, 'workspace-switcher-character.png') });
+  interactions.push({ checks: ['390px页面无横溢出', '原人物20骨骼', '原Recipe V5', '顶部人物/动物工作区切换'], passed: true });
   assert.equal(errors.length, 0, errors.join('\n')); report.passed = true;
 } catch (error) {
   errors.push(String(error)); await page.screenshot({ path: path.join(output, 'horse-failure.png'), fullPage: true }).catch(() => {});
