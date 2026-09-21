@@ -26,9 +26,11 @@ npm run review:local -- --horse运行完整104张视口图＋工作台／小屏�
 
 ## 人物生产基线
 
-9上衣／11下装／10推荐。第一批三上衣与两长裤、第二批背心／短褂及帽发安全留量保留。short_trousers176三角形、true_short_skirt180、long_skirt252，旧short_skirt176不变。命名采用B：旧short_skirt明确是分片裙裤，新真短裙用true_short_skirt，不在旧ID下偷换造型。
+9上衣／11下装／10推荐。第一批三上衣与两长裤、第二批背心／短褂及帽发安全留量保留。short_trousers164三角形／84逻辑点、true_short_skirt180、long_skirt252，旧short_skirt176不变。命名采用B：旧short_skirt明确是分片裙裤，新真短裙用true_short_skirt，不在旧ID下偷换造型。
 
-两条真裙是连续12段裙壳和12片固定扇面封底，不是裤腿、复杂内衬或布料。服装wanhu-modular-garments-v7；皮肤wanhu-skin-cage-v3、绑定wanhu-fixed-bodies-v1保持。资源v7不是Recipe升级。新短裙与短裤只遮pelvis/thigh，长裙再遮shin；背心／短褂只遮torso，裸露手臂和小腿不能整块删除。
+两条真裙是连续12段裙壳和12片固定扇面封底，不是裤腿、复杂内衬或布料。服装wanhu-modular-garments-v8；皮肤wanhu-skin-cage-v3、绑定wanhu-fixed-bodies-v1保持。资源v7不是Recipe升级。新短裙与短裤只遮pelvis/thigh，长裙再遮shin；背心／短褂只遮torso，裸露手臂和小腿不能整块删除。
+
+Cap试验当前只覆盖work_vest（128三角形）、short_trousers（164）和cloth_shoes（64）：领口／袖窿／腰口／裤脚／脚踝直接用现有接口环封面，身体允许穿过不可见Cap。其余服饰仍保持原开口，不得在用户完成视觉验收前批量推广。
 
 普通站立、行走、起步、轻跑和坐姿是日常裙装用途；Snatch深蹲举重与极端大开腿、高踢、翻滚属于低运动服饰边界，不以“不支持一字马”阻塞资产。短裤没有动作豁免。
 

@@ -13,7 +13,7 @@ export function makeShortBottom(recipe:Recipe):GarmentPiece {
   const skirt=id==='short_skirt', c:Cage={vertices:[],faces:[],anchors:{}};
   const {primary,secondary,accent}=recipe.dyes;
   const profile:[number,number][]=[[-.45,.9],[.5,.9],[1,0],[.5,-.9],[-.45,-.9],[-.88,-.52],[-1,0],[-.88,.52]];
-  const roots:number[][]=[],openings:Record<string,number[]>={};
+  const roots:number[][]=[],openings:Record<string,number[]>={},sealedInterfaces:Record<string,number[]>={};
   for(const side of [1,-1]){
     const name=side===1?'Right':'Left',thigh=side===1?B.RightThigh:B.LeftThigh,shin=side===1?B.RightShin:B.LeftShin;
     const directed=side===1?profile:profile.map(([x,z])=>[-x,-z] as [number,number]);
@@ -55,15 +55,11 @@ export function makeShortBottom(recipe:Recipe):GarmentPiece {
       prev=next;
     }
     if(!skirt){
-      // 封闭的是裤脚布料断面，不拿实心圆盘堵住腿。内缘保留穿腿口，
-      // 与外环共享制作权重，不附加会在坐姿中互穿的回折衬片。
-      const outer=prev;
-      const inset=outer.map((vi,k)=>{const v=c.vertices[vi];return vertex(c,`Shorts.${name}.CuffInset.${k}`,
-        [side*.101+(v.p[0]-side*.101)/1.1,v.p[1]-.003,v.p[2]/1.1],[...v.w]);});
-      bridge(c,outer,inset,'thigh',accent);
-      prev=inset;
-    }
-    openings[name+'Cuff']=prev;
+      // 试验款不再制作内缩裤脚断面，直接用现有 Cuff 八边环封底。
+      // 小腿允许穿过该不可见 Cap；正常镜头只需要避免看到裤筒背面或背景。
+      face(c,[...prev],'thigh',accent);
+      sealedInterfaces[name+'Cuff']=prev;
+    }else openings[name+'Cuff']=prev;
   }
   const [rightRoot,leftRoot]=roots;
   const r=[rightRoot[4],rightRoot[5],rightRoot[6],rightRoot[7],rightRoot[0]],l=[leftRoot[0],leftRoot[7],leftRoot[6],leftRoot[5],leftRoot[4]];
@@ -72,7 +68,12 @@ export function makeShortBottom(recipe:Recipe):GarmentPiece {
   const waist=perimeter.map((vi,i)=>{const p=c.vertices[vi].p;return vertex(c,`Shorts.Waist.${i}`,[p[0]*.79,1.075,p[2]*.97],[B.Hips,B.Spine,.35]);});
   const band=perimeter.map((vi,i)=>{const p=c.vertices[vi].p;return vertex(c,`Shorts.WaistFacing.${i}`,[p[0]*.84,1.047,p[2]*.98],[B.Hips,B.Spine,.35]);});
   bridge(c,waist,band,'pelvis',primary);bridge(c,band,perimeter,'pelvis',secondary);
-  openings.waist=waist;orient(c);c.anchors={...openings};
-  // 源皮肤 shin 从 KneeUpper=.529 开始；.507/.511 的短下摆与之有固定遮挡重叠。
-  return{id,slot:'bottom',version:GARMENT_GEOMETRY_VERSION,mesh:c,covers:['pelvis','thigh'],openings};
+  if(skirt)openings.waist=waist;
+  else{
+    // 腰环两侧各有一段共线顶点；从右外侧点起扇分，避免默认 n-gon 扇形出现退化三角形。
+    face(c,[...waist.slice(2),...waist.slice(0,2)],'pelvis',primary);sealedInterfaces.waist=waist;
+  }
+  orient(c);c.anchors={...openings,...sealedInterfaces};
+  // short_trousers 的 Cuff/waist 均封底；源 shin 仍保留并直接穿过裤脚 Cap。
+  return{id,slot:'bottom',version:GARMENT_GEOMETRY_VERSION,mesh:c,covers:['pelvis','thigh'],openings,...(!skirt?{sealedInterfaces}:{})};
 }
