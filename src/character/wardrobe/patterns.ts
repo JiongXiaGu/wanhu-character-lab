@@ -5,8 +5,8 @@ export type TopPattern = { id:string; hem:number } & (
   { asset:'work-shirt'|'cross-shirt'|'half-sleeve'|'work-vest'|'short-jacket' } |
   { asset:'classic'; sleeve:'short'|'long'; width:number; cuff:number }
 );
-export type BottomPattern = { id:string; hem:number } & (
-  { asset:'straight-cloth'|'bound-action'|'short-trousers'|'short-skirt' } |
+export type BottomPattern = { id:string; hem:number; stressOnlyClips?:readonly string[] } & (
+  { asset:'straight-cloth'|'bound-action'|'short-trousers'|'short-skirt'|'continuous-short-skirt'|'continuous-long-skirt' } |
   { asset:'classic'; thigh:number; knee:number; calf:number; trim:boolean }
 );
 export const TOP_PATTERNS:Record<Exclude<TopId,'body'>,TopPattern>={
@@ -21,8 +21,10 @@ export const TOP_PATTERNS:Record<Exclude<TopId,'body'>,TopPattern>={
   ceremony_robe:{id:'ceremony-jacket-v2',asset:'classic',sleeve:'long',width:1.045,cuff:1.16,hem:1.035},
 };
 export const BOTTOM_PATTERNS:Record<Exclude<BottomId,'body'>,BottomPattern>={
-  short_trousers:{id:'knee-work-shorts-v1',asset:'short-trousers',hem:.507},
+  short_trousers:{id:'closed-cuff-shorts-v2',asset:'short-trousers',hem:.504},
   short_skirt:{id:'short-split-wrap-v1',asset:'short-skirt',hem:.511},
+  true_short_skirt:{id:'continuous-short-skirt-v1',asset:'continuous-short-skirt',hem:.505,stressOnlyClips:['snatch']},
+  long_skirt:{id:'plain-long-skirt-v1',asset:'continuous-long-skirt',hem:.092,stressOnlyClips:['snatch']},
   work_pants:{id:'work-straight-v2',asset:'classic',thigh:1,knee:1,calf:1,hem:.095,trim:false},
   guard_pants:{id:'bound-action-v3',asset:'bound-action',hem:.095},
   archer_pants:{id:'archer-bound-v2',asset:'classic',thigh:.99,knee:.98,calf:.94,hem:.095,trim:false},
@@ -31,4 +33,4 @@ export const BOTTOM_PATTERNS:Record<Exclude<BottomId,'body'>,BottomPattern>={
   pleated_skirt:{id:'pleated-trousers-v2',asset:'classic',thigh:1.06,knee:1.16,calf:1.22,hem:.095,trim:true},
   robe_skirt:{id:'ceremony-trousers-v2',asset:'classic',thigh:1.06,knee:1.2,calf:1.24,hem:.095,trim:true},
 };
-export const PATTERN_VERSION='wanhu-authored-patterns-v4';
+export const PATTERN_VERSION='wanhu-authored-patterns-v5';

@@ -99,3 +99,65 @@ jobs:
             candidate/review-wardrobe-batch/lightwear-before/report.json
             candidate/review-wardrobe-batch/lightwear-after/workbench.png
           retention-days: 14
+
+  skirts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: candidate
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.HEAD_SHA }}
+          path: candidate
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BASE_SHA }}
+          path: baseline
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: candidate/package-lock.json
+      - run: npm ci
+      - name: Install actual browser and contact-sheet dependencies
+        run: |
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+          python -m pip install Pillow
+      - name: Build exact candidate and read-only baseline
+        run: |
+          test "$(git rev-parse HEAD)" = "$HEAD_SHA"
+          npm run build
+          node scripts/instrument-baseline-camera.mjs ../baseline
+          ln -s "$PWD/node_modules" ../baseline/node_modules
+          (cd ../baseline && npm run build)
+      - name: Verify continuous skirt numeric contracts
+        run: REVIEW_HEAD_SHA="$HEAD_SHA" npm run check:skirts
+      - name: Run local review entry in runner (not a local-machine claim)
+        run: REVIEW_HEAD_SHA="$HEAD_SHA" npm run review:local -- --skirts
+      - name: Preserve all 52 baseline and 412 candidate frames
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/skirts-after.log 2>&1 &
+          (cd ../baseline && npm run preview -- --host 127.0.0.1 --port 4174) > /tmp/skirts-before.log 2>&1 &
+          for port in 4173 4174; do
+            for i in {1..40}; do curl -fsS "http://127.0.0.1:$port/" >/dev/null && break; sleep 1; done
+            curl -fsS "http://127.0.0.1:$port/" >/dev/null
+          done
+          REVIEW_HEAD_SHA="$BASE_SHA" REVIEW_STAGE=before REVIEW_URL=http://127.0.0.1:4174 npm run review:skirts
+          REVIEW_HEAD_SHA="$HEAD_SHA" REVIEW_STAGE=after REVIEW_URL=http://127.0.0.1:4173 npm run review:skirts
+      - name: Confirm read-only review
+        run: git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: continuous-skirts-keyframes
+          path: candidate/review-wardrobe-batch/skirts-*
+          retention-days: 14

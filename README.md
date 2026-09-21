@@ -1,20 +1,27 @@
 # 万户 · 衣冠工坊 V5
 
-《万户天工》3D玩家／居民换装与FBX试衣Web Demo。两个固定成年男女基模、一档标准低模精度；重点是服饰轮廓、混搭、染色与动画，玩法留在Unity。
+《万户天工》3D玩家／居民换装与FBX试衣Web Demo。两个固定成年男女基模、一档标准低模精度，重点是服饰轮廓、混搭、三色染色与动画；玩法留在Unity。
 
-## 当前：第二批轻便服饰与头饰修正
+## 当前：短裤封边、真短裙与素面长裙
 
-新增干活背心 `work_vest`、短打短褂 `short_work_jacket`、及膝短裤 `short_trousers`、短下裳·分片裙裤 `short_skirt`。前两件真正保留裸露上臂，后两件保留原小腿皮肤；不把新款做成同一长袖／长裤换色。短下裳是随两腿分开运动的A字裙裤式简化，不是连续软布短裙。
+下装形成长裤／短裤／短裙／长裙四种基础轮廓。没有重做人腿、骨盆、绑定或头发，没有新增装备槽、服装骨骼、实时布料或专用Animator。
 
-轻盔、包巾、方冠、草帽和额前束带采用固定安全留量；允许帽型偏大，避免帽壳被头发贯穿。保留既有戴包覆帽隐藏额外发髻、取帽恢复同一发型的规则；没有按发型压发或新增隐藏适配表。簪饰不作为帽壳放大。
+| 资产 | UI名称与结构 | 三角形／逻辑顶点 |
+|---|---|---:|
+| short_trousers | 封口短裤；两圈裤口一起加宽、厚端面收边，保留穿腿口 | 176／100 |
+| true_short_skirt | 日常短裙；收腰、连续A字裙摆、固定封底，膝上长度 | 180／97 |
+| long_skirt | 素面长裙；连续裙摆到踝部附近，不拖地、不伪装成宽裤腿 | 252／133 |
+| short_skirt | 分片裙裤·旧短下裳；保留原ID、原几何与原配方意义 | 176／100 |
 
-四件新资产分别为102／174／144／176三角形。男女基础皮肤仍各524三角形；背心＋短裤＋布鞋＋默认发髻、不带装备的完整角色为男791／女793三角形。数字指三角形，不是逻辑或渲染顶点。完整制作、覆盖和预算见[轻便服饰与头饰安全留量](Documentation/轻便服饰与头饰安全留量.md)，正式运行与实际看图范围见[工作交接](Documentation/工作交接.md)和[PR #17](https://github.com/JiongXiaGu/wanhu-character-lab/pull/17)。
+命名采用方案B：旧short_skirt不改义，新真短裙使用true_short_skirt。现为9上衣／11下装，原10套推荐保留；不是新增一批相似裤子。三色仍为primary／secondary／accent。数量是三角形和逻辑顶点，不是硬边拆点后的渲染顶点。
 
-原7上衣／7下装保留，现为9上衣／9下装；原8套推荐保留，加夏日劳作／轻装围裳共10套。第一批劳作短衣、交领常服、半臂配内衬、直筒布裤与束脚行动裤保持原制作与计数，详见[第一批记录](Documentation/服饰第一批制作与验收.md)。PR #15、#16均已完成；失败PR #12不是制作基础。
+短裙／长裙是低运动日常服饰，普通站立、行走、起步、轻跑、坐姿属于验收范围；Snatch深蹲举重、极端高抬腿、大开腿和翻滚属于压力观察，不承诺零穿模。固定裙底与腿出口会产生制作接口的数学接触，检查单独保留原始交点，不能把通过写成所有网格零相交。详见[短裤封边与连续裙装](Documentation/短裤封边与连续裙装.md)。
+
+前两批上衣、长裤、帽饰及原农户／卫兵／弓手继续保留；头饰没有本轮改动。历史制作记录见[第一批](Documentation/服饰第一批制作与验收.md)、[第二批](Documentation/轻便服饰与头饰安全留量.md)，本轮版本和验收证据见[工作交接](Documentation/工作交接.md)。
 
 ## 拉取与运行
 
-Node.js >=22.12；也可双击 `Start-Local.cmd`。已有工作区执行：
+Node.js >=22.12；也可双击Start-Local.cmd。已有工作区：
 
 ```sh
 git fetch origin
@@ -24,39 +31,31 @@ npm ci
 npm run dev
 ```
 
-打开终端输出的本机地址。左栏选成年男女和推荐搭配，右栏选择服饰、发式、头饰及三色；推荐不会强制改变性别。保留农户／卫兵／弓手、跨男女混搭、发色、种子、锁定、撤销、浏览器保存和严格Recipe文件导入导出。
+打开终端输出地址，右栏“下装”选择封口短裤、日常短裙或素面长裙。男女都能搭配背心、短打短褂、交领常服；推荐不强制改变性别。保留发式、帽饰、发色、种子、锁定、撤销、浏览器保存和严格V5文件导入导出。
 
-FBX放入 `动画参考/`（允许子目录），重启或构建会自动扫描提取。当前23份不是上限，用户上传FBX与参考模型不修改。动作面板保留搜索／分类／收藏、上下一条、暂停逐帧、变速与源骨架对照；换装保持暂停相位。
+FBX放入动画参考目录（允许子目录），重启或构建会动态扫描提取。当前23份不是上限；搜索、分类、收藏、逐帧、变速、源骨架对照及暂停换装相位保持不变。
 
-## 当前架构与数据边界
+## 数据与职责
 
-Recipe V5 → 固定基模／资产注册 → 独立衣裤鞋 → 固定皮肤覆盖 → 一个装配后蒙皮网格 → 同一套骨架。`patterns.ts`负责注册，`assets/`负责款式网格与静态权重，`assembly.ts`负责覆盖和装配，`adornments.ts`负责冠髻，`headwear-fit.ts`负责一次性帽壳制作留量。
+Recipe V5 → patterns注册 → 独立服饰网格 → 固定皮肤覆盖 → 一个蒙皮网格 → 当前基模的20骨骼。每顶点最多双权重。patterns只注册；assets拥有专用版型与权重；assembly负责覆盖与装配；adornments负责冠髻。
 
-服装几何为 `wanhu-modular-garments-v6`，皮肤为 `wanhu-skin-cage-v3`，绑定为 `wanhu-fixed-bodies-v1`。资源v6不等于Recipe V6：配方仍精确六字段 `version/bodyType/slots/dyes/hairStyle/hairColor`，只读取 `wanhu.character.wardrobe.v5`。旧版本、缺字段和未知字段明确拒绝，不做兼容迁移。
+服装几何为wanhu-modular-garments-v7，皮肤wanhu-skin-cage-v3，绑定wanhu-fixed-bodies-v1。资源v7不改变配方：Recipe仍精确六字段version/bodyType/slots/dyes/hairStyle/hairColor，只读取wanhu.character.wardrobe.v5。旧版本、未知和缺失字段拒绝，不建立兼容fallback。源人体各524三角形，保护签名不刷新。
 
-20骨骼语义、每顶点最多双权重、固定男女映射保持。上衣包含自身领袖、门襟、腰带，不新增内衬槽位。没有源人体衣面复制、动作相关删面、实时布料、逐帧碰撞、全身IK或独立服装Animator。
-
-## 本地快速审图
-
-一次安装浏览器后，可按任务选择入口：
+## 快速审图与正式回归
 
 ```sh
 npx playwright install chromium
 npm run review:local
 npm run review:local -- --wardrobe
 npm run review:local -- --lightwear
+npm run review:local -- --skirts
+npm run review:local -- --skirts --full
 ```
 
-各入口加 `--full` 开启完整矩阵。默认入口保留32／156张人体与裤装形变检查；`--wardrobe`聚焦第一批，`--lightwear`聚焦露肤短装、帽发关系、新旧混搭与动作。输出图必须实际打开，不把脚本成功当作美术签署。执行环境失败如实报告；静态源码几何重建只能作为明确标注的辅助图，不能冒充网页／FBX。
+原三个入口不删减。裙装快速入口160张视口＋工作台，完整入口412张＋工作台；16次真实UI换装检查暂停相位。图片生成不等于实际查看。当前执行环境的本机浏览器曾被策略拦截，本轮使用runner执行同一review:local入口并实际下载审图，不冒充本地网页成功。
 
-本批容器及本地图像打开曾持续超时，最终通过只读PDF证据页实际查看Actions截图。PDF只是放置原截图，不是另一种模型渲染或生成图片。
+保留check:retired、check:mesh、build、check:mixamo、check:wardrobe、check:tailoring；新增check:skirts。原六条正式Actions不减少，裙装并行job加入Modular Garment Review，原两批和人体矩阵完整保留。新增52张基线、412张候选及36对同相机短裤对照。源帧／中点贯穿为24,216样本，原20,180样本和阈值不删改，新增固定封底接口与裙装极端动作单列诊断。
 
-## 自动检查与交付边界
+低模膝肘折面、裙底暗面与极端动作穿插仍有边界；不承诺实时布料表现或所有连续时刻零穿模。尚无通用外部服装导入器、连续身材、多档LOD、儿童老人、Unity正式运行时或GPU Crowd。不部署Vercel／Visual。
 
-保留 `check:retired`、`check:mesh`、`build`、`check:mixamo`、`check:wardrobe`、`check:tailoring`；`check:mesh`包含第一批与第二批资产契约。六条正式Actions保留：Build、Character Model Review、Mixamo Retarget Review、Wardrobe Review、Tailoring V2 Review、Modular Garment Review。第二批矩阵追加到Modular，不替换旧矩阵；衣柜10套推荐的证据为177张，原143张及旧搭配ID下限保留，另有固定V5交互检查。
-
-短装使下装源帧／中点贯穿检查扩展至20,180个样本；检测算法、容差、压力动作与原采样不缩减。源人体、绑定保护签名、上传FBX和参考模型没有为新衣服修改。仅文档收尾不改变受测运行代码。
-
-仍有膝肘硬折、裆底暗面、坐姿裤口尖折和裙裤分片感；有限图片抽查不是所有连续时刻零穿插保证。没有儿童老人、连续身材、多档LOD、完整长袍大裙摆、通用外部Mesh导入器、Unity正式运行时或GPU Crowd。不部署Vercel／Visual。
-
-文档：[V5契约](Documentation/固定基模与换装V5.md) · [衣柜使用](Documentation/换装工作台使用.md) · [服装架构](Documentation/服装生成架构.md) · [动画](Documentation/Mixamo动画接入.md) · [Unity迁移](Documentation/GPU骨骼动画迁移契约.md)。
+文档：[V5契约](Documentation/固定基模与换装V5.md) · [服装架构](Documentation/服装生成架构.md) · [动画](Documentation/Mixamo动画接入.md) · [Unity迁移](Documentation/GPU骨骼动画迁移契约.md)。

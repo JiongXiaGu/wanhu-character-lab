@@ -42,11 +42,26 @@ export function makeShortBottom(recipe:Recipe):GarmentPiece {
       const [innerWidth,innerDepth]=inner[r];
       for(const k of [0,4,5,6,7])c.vertices[next[k]].p=[side*(.101+profile[k][0]*innerWidth),y,side*profile[k][1]*innerDepth];
       if(r>0)for(const vi of next)c.vertices[vi].w=kneeWeights(c.vertices[vi].p,thigh,shin);
+      // 两圈裤口一起加宽，不做单独外翻片；原梯度向整圈基准收敛35%。
+      // 保留深蹲膝后让位，降低坐姿尖翘；全部是制作期静态权重。
+      if(!skirt&&r>0)for(const vi of next){const v=c.vertices[vi];
+        v.p[0]=side*.101+(v.p[0]-side*.101)*1.1;v.p[2]*=1.1;
+        v.w[2]=v.w[2]*.65+(r===rows.length-1?.60:.80)*.35;
+      }
       if(skirt&&r<rows.length-1){
         // 褶面色区在自身衣片上；不叠放会与腿互相穿插的装饰薄片。
         for(let k=0;k<8;k++)face(c,[prev[k],prev[(k+1)%8],next[(k+1)%8],next[k]],'thigh',[0,3].includes(k)?primary:secondary);
       }else bridge(c,prev,next,'thigh',r===rows.length-1?accent:secondary);
       prev=next;
+    }
+    if(!skirt){
+      // 封闭的是裤脚布料断面，不拿实心圆盘堵住腿。内缘保留穿腿口，
+      // 与外环共享制作权重，不附加会在坐姿中互穿的回折衬片。
+      const outer=prev;
+      const inset=outer.map((vi,k)=>{const v=c.vertices[vi];return vertex(c,`Shorts.${name}.CuffInset.${k}`,
+        [side*.101+(v.p[0]-side*.101)/1.1,v.p[1]-.003,v.p[2]/1.1],[...v.w]);});
+      bridge(c,outer,inset,'thigh',accent);
+      prev=inset;
     }
     openings[name+'Cuff']=prev;
   }
