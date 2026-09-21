@@ -1,0 +1,53 @@
+name: Batch Two Delivery Images
+on:
+  push:
+    branches: [prep/wardrobe-batch-two]
+    paths: [.github/workflows/batch-two-delivery-images.yml]
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview/wardrobe-batch-two-r2
+          persist-credentials: false
+      - name: Verify original screenshot source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path('ReviewEvidence/SecondBatch');m=json.loads((root/'execution.json').read_text())
+          assert m['sourceSha']=='563b8c5cd404e176577f11d21e4bcc65a57c1acd'
+          assert m['numericResult']==m['browserResult']=='success'
+          for n in ['lightwear-helmet-before-after.jpg','lightwear-male-front.jpg','lightwear-female-free.jpg','lightwear-upper-details.jpg','lightwear-shorts-and-skirt.jpg']:
+              raw=(root/n).read_bytes();assert raw[:2]==b'\xff\xd8';print(n,len(raw),hashlib.sha256(raw).hexdigest())
+          print('Only copies original image bytes. No source, camera, geometry or image content change.')
+          PY
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ReviewEvidence/SecondBatch/lightwear-helmet-before-after.jpg
+          archive: false
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ReviewEvidence/SecondBatch/lightwear-male-front.jpg
+          archive: false
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ReviewEvidence/SecondBatch/lightwear-female-free.jpg
+          archive: false
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ReviewEvidence/SecondBatch/lightwear-upper-details.jpg
+          archive: false
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ReviewEvidence/SecondBatch/lightwear-shorts-and-skirt.jpg
+          archive: false
+          retention-days: 14
