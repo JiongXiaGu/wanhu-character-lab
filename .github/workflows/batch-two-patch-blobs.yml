@@ -1,0 +1,43 @@
+name: Batch Two Patch Blobs
+on:
+  push:
+    branches: [prep/wardrobe-batch-two]
+    paths: [.github/workflows/batch-two-patch-blobs.yml]
+permissions:
+  contents: write
+jobs:
+  blobs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 2b02b09dcc65ee687942b96473a1b50d11ec39c0
+          persist-credentials: false
+      - name: Reproduce exact successful build patch and store blobs only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,urllib.request,json,os
+          def replace(path,old,new):
+              p=Path(path);text=p.read_text();assert text.count(old)==1,(path,old);p.write_text(text.replace(old,new))
+          replace('src/App.tsx',"'全部 8 款'",'`全部 ${WARDROBE_LOOKS.length} 款`')
+          replace('scripts/review-wardrobe.ts',"name:'全部 8 款'",'name:`全部 ${WARDROBE_LOOKS.length} 款`')
+          replace('scripts/review-wardrobe.ts','try{\n // 普通入口',"try{\n // 每个搭配仍有17张：静态5、男女2、动作2×5；公共交互/小屏7张。\n // 原8搭配不得因目录扩充而消失，第二批新增2搭配使143增加到177。\n const lookIds=new Set(WARDROBE_LOOKS.map(look=>look.id));\n for(const family of ['plain','town','elegant','ceremony'])for(const body of ['male','female'])assert(lookIds.has(`${family}-${body}`),'原搭配被移除');\n assert.equal(lookIds.size,WARDROBE_LOOKS.length,'搭配ID重复');\n // 普通入口")
+          replace('scripts/review-wardrobe.ts','assert.equal(records.length,143);',"assert.equal(records.length,WARDROBE_LOOKS.length*17+7);assert.equal(new Set(records).size,records.length,'截图文件名重复');")
+          path='.github/workflows/wardrobe-review.yml'
+          replace(path,'node --input-type=module -e "import fs', 'npx tsx -e "import {WARDROBE_LOOKS} from \'./src/character/wardrobe/catalog\'; import fs')
+          replace(path,'assert.equal(r.images,143);',"assert.equal(r.images,WARDROBE_LOOKS.length*17+7); assert(r.images>=143); assert.equal(new Set(r.records).size,r.images);")
+          subprocess.check_call(['git','diff','--check'])
+          files=['src/App.tsx','scripts/review-wardrobe.ts','.github/workflows/wardrobe-review.yml']
+          assert sorted(files)==sorted(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          print('BASE_TREE',subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip())
+          for path in files:
+              data=json.dumps({'content':Path(path).read_text(),'encoding':'utf-8'}).encode()
+              req=urllib.request.Request('https://api.github.com/repos/JiongXiaGu/wanhu-character-lab/git/blobs',data=data,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+              with urllib.request.urlopen(req) as response:blob=json.load(response)
+              print('BLOB',path,blob['sha'])
+          print('NO_TREE_COMMIT_OR_REF_MUTATION; previous build35576702437 passed before tree-write permission rejection')
+          PY
