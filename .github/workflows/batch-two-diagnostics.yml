@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      REVISION: '2'
+      REVISION: '3'
     defaults:
       run:
         working-directory: work
@@ -39,8 +39,8 @@ jobs:
           npm ci
       - name: Static lightwear and all original mesh contracts
         run: npm run check:mesh
-      - name: Full source-key and midpoint lower-body intersections
+      - name: Authored hem probes with full original detector and all source keys and midpoints
         if: always()
         run: |
           npm run prepare:mixamo
-          npm run check:intersections
+          python3 ../task/.batch-two/fit-probe.py
