@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdirSync,writeFileSync,readFileSync } from 'node:fs';
 import { makeCharacter } from '../src/character/v3/outfit';
-import { createRecipe,BODY_TYPES,BODY_PROFILE_VERSION,BODY_HEIGHT,presetSlots } from '../src/character/v3/types';
+import { createRecipe,BODY_TYPES,BODY_PROFILE_VERSION,BODY_HEIGHT,emptySlots } from '../src/character/v3/types';
 import { BODY_GEOMETRY_VERSION,BODY_TRIANGLES } from '../src/character/v3/leg-deformation';
 import { WARDROBE_LOOKS,applyLook } from '../src/character/wardrobe/catalog';
 import { GARMENT_GEOMETRY_VERSION } from '../src/character/wardrobe/assembly';
@@ -20,7 +20,7 @@ for(const row of fixture.rows)for(const look of WARDROBE_LOOKS){
   assert(data.garments.every(g=>g.version===GARMENT_GEOMETRY_VERSION));comparisons++;
 }
 for(const bodyType of BODY_TYPES){
-  const bare=makeCharacter(createRecipe({bodyType,slots:presetSlots('body')}));
+  const bare=makeCharacter(createRecipe({bodyType,slots:emptySlots()}));
   const dressed=makeCharacter(applyLook(createRecipe({bodyType}),'ceremony-female'));
   assert.deepEqual(bare.joints,dressed.joints);assert.deepEqual(bare.body,dressed.body);
   assert.equal(triCount(bare.body),BODY_TRIANGLES);assert.equal(bare.joints.length,20);
