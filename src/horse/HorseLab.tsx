@@ -33,8 +33,8 @@ export default function HorseLab() {
     </header>
     <div className="horse-workspace">
       <section className="horse-stage" aria-label="马匹预览">
-        <div className="horse-stage-title"><div><p>CHESTNUT / LOW-POLY STUDY</p><h2>栗色马</h2></div><span>{active?.label ?? '静态绑定姿态'}</span></div>
-        <nav className="horse-cameras" aria-label="马匹相机">
+        <div className="horse-stage-title"><div><p>CHESTNUT / LOW-POLY STUDY</p><h2>栗色马</h2><span className="horse-stage-motion">{active?.label ?? '静态绑定姿态'}</span></div></div>
+        <nav className="horse-cameras" data-testid="horse-cameras" aria-label="马匹相机">
           {views.map(([id, label]) => <button key={id} data-testid={'horse-view-' + id} aria-pressed={view === id} onClick={() => { setView(id); setViewRevision(n => n + 1); }}>{label}</button>)}
           <button data-testid="horse-projection" onClick={() => setOrthographic(value => !value)}>{orthographic ? '正交' : '透视'}</button>
         </nav>
@@ -47,7 +47,7 @@ export default function HorseLab() {
             <button data-testid="horse-replay" disabled={!active} onClick={replay}>重播</button>
             <button data-testid="horse-previous" disabled={!active} onClick={() => seek(playback.phase - 1 / (HORSE_FPS * (playback.duration || 1)))}>上一帧</button>
             <button data-testid="horse-next" disabled={!active} onClick={() => seek(playback.phase + 1 / (HORSE_FPS * (playback.duration || 1)))}>下一帧</button>
-            <label className="horse-loop"><input type="checkbox" checked={loop} onChange={event => setLoop(event.target.checked)} aria-label="马动画循环" />循环</label>
+            <label className="horse-loop"><input type="checkbox" checked={loop} onChange={event => setLoop(event.target.checked)} aria-label="马动画循环播放" />循环播放</label>
             <label className="horse-speed">速度<select aria-label="马动画速度" value={speed} onChange={event => setSpeed(Number(event.target.value))}>{[.25, .5, 1, 1.5, 2].map(value => <option key={value} value={value}>{value}×</option>)}</select></label>
           </div>
           <label className="horse-timeline"><span>相位</span><input aria-label="马动画相位" type="range" min="0" max="1" step=".001" disabled={!active} value={playback.phase} onChange={event => seek(Number(event.target.value))} /><output>{(playback.phase * 100).toFixed(1)}%</output></label>
