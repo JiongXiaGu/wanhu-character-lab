@@ -1,0 +1,136 @@
+name: Batch Two Candidate
+on:
+  push:
+    branches: [prep/wardrobe-batch-two]
+    paths: [.github/workflows/batch-two-candidate.yml]
+permissions:
+  contents: write
+concurrency:
+  group: batch-two-candidate
+  cancel-in-progress: false
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: work
+    env:
+      BASE_SHA: feebadf7451c53a2637c6cd828ba6d617f15a5ce
+      REVISION: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: task
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: feebadf7451c53a2637c6cd828ba6d617f15a5ce
+          path: work
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: work/package-lock.json
+      - name: Author exact candidate source without utility files
+        id: author
+        run: |
+          python3 ../task/.batch-two/apply.py
+          python3 ../task/.batch-two/refine.py
+          cp ../task/.batch-two/check-lightwear.ts scripts/
+          cp ../task/.batch-two/review-lightwear.mjs scripts/
+          cp ../task/.batch-two/compose-lightwear.py scripts/
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src scripts Documentation README.md AGENTS.md package.json
+          git diff --cached --stat
+          git commit -m "feat: 第二批轻便服饰和头饰安全留量（候选 ${REVISION}）"
+          SHA=$(git rev-parse HEAD)
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "REVIEW_HEAD_SHA=$SHA" >> "$GITHUB_ENV"
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Build candidate and unchanged baseline
+        id: build
+        run: |
+          npm run build
+          mkdir ../baseline
+          git archive "$BASE_SHA" | tar -x -C ../baseline
+          ln -s ../work/node_modules ../baseline/node_modules
+          (cd ../baseline && npm run build)
+      - name: Preserve all numerical suites including source keys and midpoints
+        id: numeric
+        run: |
+          mkdir -p /tmp/lightwear-logs
+          set +e
+          status=0
+          for check in check:retired check:mesh check:mixamo check:wardrobe check:tailoring; do
+            npm run "$check" 2>&1 | tee "/tmp/lightwear-logs/${check/:/-}.log"
+            result=${PIPESTATUS[0]}
+            echo "SUITE_RESULT $check $result"
+            if [ "$result" -ne 0 ]; then status=1; fi
+          done
+          exit "$status"
+      - name: Capture real browser headwear comparison and lightwear matrix
+        id: browser
+        if: always() && steps.build.outcome == 'success'
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 --strictPort > /tmp/lightwear-vite.log 2>&1 &
+          first=$!
+          (cd ../baseline && npm run preview -- --host 127.0.0.1 --port 4174 --strictPort) > /tmp/lightwear-base-vite.log 2>&1 &
+          second=$!
+          trap 'kill "$first" "$second" 2>/dev/null || true' EXIT
+          for i in $(seq 1 60); do curl -fsS http://127.0.0.1:4173/ >/dev/null && curl -fsS http://127.0.0.1:4174/ >/dev/null && break; sleep 1; done
+          REVIEW_STAGE=before REVIEW_URL=http://127.0.0.1:4174 REVIEW_HEAD_SHA="$BASE_SHA" npm run review:lightwear
+          REVIEW_STAGE=after REVIEW_URL=http://127.0.0.1:4173 npm run review:lightwear
+      - name: Publish isolated candidate and image-only review branch
+        if: always() && steps.author.outcome == 'success'
+        env:
+          NUMERIC_RESULT: ${{ steps.numeric.outcome }}
+          BROWSER_RESULT: ${{ steps.browser.outcome }}
+        run: |
+          git diff --exit-code
+          branch="candidate/wardrobe-batch-two-r${GITHUB_RUN_NUMBER}"
+          git push origin "${REVIEW_HEAD_SHA}:refs/heads/$branch"
+          echo "CANDIDATE_BRANCH=$branch"
+          echo "CANDIDATE_SHA=$REVIEW_HEAD_SHA"
+          echo "NUMERIC_RESULT=$NUMERIC_RESULT BROWSER_RESULT=$BROWSER_RESULT"
+          mkdir -p ReviewEvidence/SecondBatch
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,shutil,os
+          root=Path('review-wardrobe-batch'); out=Path('ReviewEvidence/SecondBatch')
+          for pattern in ['lightwear-*.jpg','lightwear-*.json']:
+              for p in root.glob(pattern):shutil.copy2(p,out/p.name)
+          report=root/'lightwear-after/report.json'
+          if report.exists():
+              data=json.loads(report.read_text());shutil.copy2(report,out/'browser-report.json')
+              wanted=[('static','male','work_vest','short_trousers','bind','front'),('static','female','short_work_jacket','short_skirt','bind','free'),('motion','male','work_vest','short_trousers','pilot-switches','front'),('motion','female','short_work_jacket','short_skirt','snatch','side'),('motion','male','short_work_jacket','short_skirt','jogging','front'),('motion','female','work_vest','short_trousers','shooting-arrow','side'),('detail','male','work_vest','short_skirt','bind','free'),('hat','male','rough_tunic','loose_trousers','bind','side')]
+              for item in wanted:
+                  found=next((r for r in data['records'] if tuple(r[k] for k in ['kind','bodyType','top','bottom','clip','view'])==item),None)
+                  if found:shutil.copy2(report.parent/found['file'],out/found['file'])
+          (out/'execution.json').write_text(json.dumps({'sourceSha':os.environ['REVIEW_HEAD_SHA'],'numericResult':os.environ['NUMERIC_RESULT'],'browserResult':os.environ['BROWSER_RESULT'],'manuallyReviewed':False},indent=2))
+          PY
+          git add ReviewEvidence
+          git commit -m 'chore: second-batch browser evidence only; do not merge this preview commit'
+          preview="preview/wardrobe-batch-two-r${GITHUB_RUN_NUMBER}"
+          git push origin "HEAD:refs/heads/$preview"
+          echo "PREVIEW_BRANCH=$preview"
+          echo "PREVIEW_SHA=$(git rev-parse HEAD)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lightwear-candidate-keyframes-${{ github.run_number }}
+          path: |
+            work/ReviewEvidence/SecondBatch/
+            /tmp/lightwear-logs/
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lightwear-candidate-raw-${{ github.run_number }}
+          path: |
+            work/review-wardrobe-batch/lightwear-before/
+            work/review-wardrobe-batch/lightwear-after/
+            work/review-tailoring-v2/
+          retention-days: 7
