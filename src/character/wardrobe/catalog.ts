@@ -29,8 +29,8 @@ export const WARDROBE_LOOKS: readonly LookDefinition[] = [
 export const SLOT_LABELS:Record<keyof CharacterSlots,string>={headwear:'头饰',top:'上衣',bottom:'下装',shoes:'鞋',back:'背部',leftHand:'左手',rightHand:'右手'};
 export const SLOT_OPTIONS: { [K in keyof CharacterSlots]: readonly {id:CharacterSlots[K];name:string}[] } = {
   headwear:[{id:'none',name:'无头饰'},{id:'cloth_wrap',name:'素布包巾'},{id:'scholar_cap',name:'方冠'},{id:'jade_pin',name:'玉色簪饰'},{id:'farmer_straw_hat',name:'草帽'},{id:'guard_helmet',name:'轻盔'},{id:'archer_headband',name:'头巾'}],
-  top:[{id:'rough_tunic',name:'粗布短衣'},{id:'cross_jacket',name:'交领袄衫'},{id:'layered_vest',name:'半臂叠衣'},{id:'ceremony_robe',name:'滚边礼衣'},{id:'farmer_tunic',name:'农户短衣'},{id:'guard_light_armor',name:'轻甲'},{id:'archer_tunic',name:'弓手短衣'},{id:'body',name:'无上衣'}],
-  bottom:[{id:'loose_trousers',name:'直筒布裤'},{id:'work_wrap',name:'劳作束脚裤'},{id:'pleated_skirt',name:'褶纹分裳'},{id:'robe_skirt',name:'礼仪阔裤'},{id:'work_pants',name:'劳动直裤'},{id:'guard_pants',name:'卫兵裤'},{id:'archer_pants',name:'弓手裤'},{id:'body',name:'无下装'}],
+  top:[{id:'rough_tunic',name:'劳作短衣'},{id:'cross_jacket',name:'交领常服'},{id:'layered_vest',name:'半臂配内衬'},{id:'ceremony_robe',name:'滚边礼衣'},{id:'farmer_tunic',name:'农户短衣'},{id:'guard_light_armor',name:'轻甲'},{id:'archer_tunic',name:'弓手短衣'},{id:'body',name:'无上衣'}],
+  bottom:[{id:'loose_trousers',name:'直筒布裤'},{id:'work_wrap',name:'劳作束脚裤'},{id:'pleated_skirt',name:'褶纹分裳'},{id:'robe_skirt',name:'礼仪阔裤'},{id:'work_pants',name:'劳动直裤'},{id:'guard_pants',name:'束脚行动裤'},{id:'archer_pants',name:'弓手裤'},{id:'body',name:'无下装'}],
   shoes:[{id:'cloth_shoes',name:'布鞋'},{id:'boots',name:'短靴'},{id:'body',name:'无鞋'}],
   back:[{id:'none',name:'无背部装备'},{id:'archer_quiver',name:'箭袋'}],
   leftHand:[{id:'none',name:'左手空'},{id:'guard_shield',name:'盾牌'},{id:'archer_bow',name:'短弓'}],

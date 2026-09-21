@@ -10,6 +10,7 @@ for (const file of ['node_modules/tsx/dist/cli.mjs', 'node_modules/vite/bin/vite
   if (!existsSync(file)) throw new Error('请先在项目根目录执行 npm ci，并执行 npx playwright install chromium');
 }
 const full = process.argv.includes('--full');
+const wardrobe = process.argv.includes('--wardrobe');
 const children = new Set();
 function launch(args, env = process.env) {
   const child = spawn(process.execPath, args, { cwd: process.cwd(), env, stdio: 'inherit' });
@@ -55,10 +56,10 @@ try {
     await delay(300);
   }
   if (!ready) throw new Error('本地 Vite 启动超时');
-  await run(['scripts/review-deformation.mjs', ...(full ? [] : ['--quick'])], {
+  await run([wardrobe ? 'scripts/review-wardrobe-batch.mjs' : 'scripts/review-deformation.mjs', ...(full ? [] : ['--quick'])], {
     ...process.env, REVIEW_URL: url, REVIEW_STAGE: 'local',
   });
-  console.log(`本地实机截图已写入 review-deformation/local/（${full ? '完整156张' : '快速32张'}）。请实际看图；此命令不代替完整自动回归。`);
+  console.log(`本地实机截图已写入 ${wardrobe ? 'review-wardrobe-batch' : 'review-deformation'}/local/。请实际看图；此命令不代替完整自动回归。`);
 } finally {
   await stopChildren();
 }

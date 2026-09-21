@@ -26,7 +26,7 @@ interface Runtime {
   resize:()=>void; render:()=>void; grid:T.GridHelper; disposePlayer:()=>void; disposeActor:()=>void;
 }
 declare global { interface Window {
-  __WANHU_REVIEW__?: { seek:(phase:number)=>void; stats:Stats; getStatus:()=>PlaybackStatus; focusHead:()=>void; focusHip:()=>void; cameraState:()=>unknown; geometryId:()=>string };
+  __WANHU_REVIEW__?: { seek:(phase:number)=>void; stats:Stats; getStatus:()=>PlaybackStatus; focusHead:()=>void; focusHip:()=>void; focusTorso:()=>void; cameraState:()=>unknown; geometryId:()=>string };
   __WANHU_CAPTURE__?:()=>void; __WANHU_EXPORT_MOTION__?:()=>unknown;
 } }
 function actorStats(actor:Actor):Stats {
@@ -109,6 +109,12 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
           const direction=rt.camera.position.clone().sub(rt.controls.target).normalize();
           rt.controls.target.copy(center);rt.camera.position.copy(center).addScaledVector(direction,2);
           if(rt.camera instanceof T.OrthographicCamera){rt.camera.zoom=2.4;rt.camera.updateProjectionMatrix();}
+          rt.camera.lookAt(center);rt.controls.update();rt.render();
+        },focusTorso(){if(!rt)return;
+          const center=rt.actor.bones[3].getWorldPosition(new T.Vector3()).add(new T.Vector3(0,.01,0));
+          const direction=rt.camera.position.clone().sub(rt.controls.target).normalize();
+          rt.controls.target.copy(center);rt.camera.position.copy(center).addScaledVector(direction,2);
+          if(rt.camera instanceof T.OrthographicCamera){rt.camera.zoom=2.2;rt.camera.updateProjectionMatrix();}
           rt.camera.lookAt(center);rt.controls.update();rt.render();
         },focusHead(){if(!rt)return;
           const center=rt.actor.bones[5].getWorldPosition(new T.Vector3()).add(new T.Vector3(0,.1*BODY_HEIGHT[latest.current.recipe.bodyType]/1.76,0));
