@@ -24,7 +24,7 @@ export interface MixamoStatus {
 }
 export interface MixamoPlayer {
   id: MixamoId; sourceScene: T.Scene; targetDebug: T.LineSegments; bake: RetargetBake;
-  update: (delta: number) => void; seek: (phase: number) => void; replay: () => void;
+  update: (delta: number) => void; seek: (phase: number) => void; replay: () => void; setLoop: (value: boolean) => void;
   setHeadAxes: (visible: boolean) => void;
   status: () => MixamoStatus; export: () => ReturnType<typeof exportTargetMotion>; dispose: () => void;
 }
@@ -92,8 +92,9 @@ export function createMixamoPlayer(actor: Actor, source: MixamoMotionData): Mixa
     update(delta) { clock.advance(delta); sync(); },
     seek(phase) { clock.seek(phase); sync(); },
     replay() { clock.replay(); sync(); },
+    setLoop(value) { clock.setLoop(value); sync(); },
     setHeadAxes(visible){sourceDebug.visible=visible;targetDebug.visible=visible;sync();},
-    status() { return { id: source.id, ready: true, duration: source.duration, loop: bake.loop, seamDegrees: bake.seamDegrees, sourceHash: source.source.sha256,
+    status() { return { id: source.id, ready: true, duration: source.duration, loop: clock.loop, seamDegrees: bake.seamDegrees, sourceHash: source.source.sha256,
       phase: clock.phase, stage: `Mixamo · ${def.label}`, finished: clock.finished }; },
     export() { return exportTargetMotion(actor.data, source, bake); },
     dispose() {

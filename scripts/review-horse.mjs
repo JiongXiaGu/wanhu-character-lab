@@ -50,6 +50,13 @@ try {
   await page.getByTestId('workspace-character').waitFor();
   assert.equal(await page.getByTestId('workspace-animal').getAttribute('aria-current'), 'page', '动物工坊入口未标记当前工作区');
   assert.equal(await page.getByTestId('workspace-character').getAttribute('href'), './', '人物工坊返回入口错误');
+  assert(await page.getByRole('checkbox', { name: '马动画循环播放', exact: true }).isChecked(), '马动画默认应循环播放');
+  const horseCamera = await page.evaluate(() => {
+    const bar = document.querySelector('[data-testid="horse-cameras"]')?.getBoundingClientRect();
+    const stage = document.querySelector('.horse-stage')?.getBoundingClientRect();
+    return bar && stage ? { right: stage.right - bar.right, top: bar.top - stage.top } : null;
+  });
+  assert(horseCamera && horseCamera.right < 45 && horseCamera.top < 55, '马匹相机工具条未放在预览区右上角');
   const geometryId = await page.evaluate(() => window.__HORSE_REVIEW__.geometryId());
   report.stats = await page.evaluate(() => window.__HORSE_REVIEW__.stats);
   for (const angle of views) { await view(angle); await capture('static-' + angle, { clip: 'bind', view: angle, phase: 0 }); }
@@ -83,10 +90,10 @@ try {
     interactions.push({ clip: id, checks: ['网格复用', '下一帧', '上一帧', '暂停换相机保相位', '真实播放推进'], passed: true });
   }
   await select('Horse_Run');
-  await page.getByRole('checkbox', { name: '马动画循环', exact: true }).uncheck(); await seek(.98);
+  await page.getByRole('checkbox', { name: '马动画循环播放', exact: true }).uncheck(); await seek(.98);
   await page.getByTestId('horse-play').click(); await page.waitForTimeout(500);
   assert((await page.evaluate(() => window.__HORSE_REVIEW__.getStatus())).finished, '单次动画没有结束保持');
-  await page.getByRole('checkbox', { name: '马动画循环', exact: true }).check(); await seek(.98);
+  await page.getByRole('checkbox', { name: '马动画循环播放', exact: true }).check(); await seek(.98);
   await page.getByTestId('horse-play').click(); await page.waitForTimeout(300); await pause();
   assert((await page.evaluate(() => window.__HORSE_REVIEW__.getStatus())).phase < .9, '循环没有跨越末帧');
   await page.getByRole('combobox', { name: '马动画速度', exact: true }).selectOption('0.5'); await seek(.1);
@@ -113,6 +120,13 @@ try {
   await page.getByTestId('workspace-animal').waitFor();
   assert.equal(await page.getByTestId('workspace-character').getAttribute('aria-current'), 'page', '人物工坊入口未标记当前工作区');
   assert.equal(await page.getByTestId('workspace-animal').getAttribute('href'), '?lab=horse', '动物工坊入口地址错误');
+  assert(await page.getByRole('checkbox', { name: '人物动画循环播放', exact: true }).isChecked(), '人物动画默认应循环播放');
+  const characterCamera = await page.evaluate(() => {
+    const bar = document.querySelector('[data-testid="character-cameras"]')?.getBoundingClientRect();
+    const stage = document.querySelector('.stage')?.getBoundingClientRect();
+    return bar && stage ? { right: stage.right - bar.right, top: bar.top - stage.top } : null;
+  });
+  assert(characterCamera && characterCamera.right < 45 && characterCamera.top < 55, '人物相机工具条未放在预览区右上角');
   await page.locator('.topbar').screenshot({ path: path.join(output, 'workspace-switcher-character.png') });
   interactions.push({ checks: ['390px页面无横溢出', '原人物20骨骼', '原Recipe V5', '顶部人物/动物工作区切换'], passed: true });
   assert.equal(errors.length, 0, errors.join('\n')); report.passed = true;

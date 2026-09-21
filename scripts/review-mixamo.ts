@@ -19,6 +19,7 @@ const base=process.env.REVIEW_URL??'http://127.0.0.1:4173';
 async function open(id:string,extra:Record<string,string>={}){
   const query=new URLSearchParams({review:'1',paused:'1',mixamo:id,preset:'farmer',bodyType:activeBodyType,...extra});
   await page.goto(`${base}/?${query}`);await page.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
+  assert(await page.getByRole('checkbox',{name:'人物动画循环播放',exact:true}).isChecked(),'人物动画默认应循环播放');
   assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('[role="alert"]').count(),0);
 }
 async function shot(id:string,view:string,phase:number){
@@ -49,6 +50,8 @@ try{
       videoPage.on('pageerror',e=>errors.push(e.message));
       await videoPage.goto(`${base}/?review=1&paused=1&bodyType=${activeBodyType}&mixamo=${id}&compare=1&view=side&preset=archer&headwear=none&leftHand=none&headAxes=1`);
       await videoPage.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
+      assert(await videoPage.getByRole('checkbox',{name:'人物动画循环播放',exact:true}).isChecked(),'人物动画默认循环未启用');
+      if(id==='shooting-arrow')await videoPage.getByRole('checkbox',{name:'人物动画循环播放',exact:true}).uncheck();
       await videoPage.getByRole('button',{name:'播放',exact:true}).click();
       if(id==='shooting-arrow')await videoPage.waitForFunction(()=>window.__WANHU_REVIEW__!.getStatus().finished,undefined,{timeout:30000});
       else await videoPage.waitForFunction(()=>{const w=window as unknown as {__mixamoCycles?:{last:number;count:number}};const phase=window.__WANHU_REVIEW__!.getStatus().phase;const c=w.__mixamoCycles??={last:phase,count:0};if(phase<c.last-.5)c.count++;c.last=phase;return c.count>=2;},undefined,{timeout:30000,polling:100});

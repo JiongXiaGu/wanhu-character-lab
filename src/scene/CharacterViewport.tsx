@@ -14,7 +14,7 @@ export type Display = 'beauty' | 'cage' | 'triangles' | 'clay' | 'unlit';
 export interface Stats { triangles:number; bodyTriangles:number; vertices:number; gpuVertices:number; bones:number; replaced:number }
 export interface ViewOptions {
   recipe:Recipe; mixamo:MixamoSelection; compareSource:boolean; headAxes:boolean; restart:number;
-  playing:boolean; speed:number; phase:number; view:View; viewRevision:number;
+  playing:boolean; speed:number; phase:number; loop:boolean; view:View; viewRevision:number;
   orthographic:boolean; display:Display; skeleton:boolean; grid:boolean;
 }
 interface Props { options:ViewOptions; onStats:(v:Stats)=>void; onPlayback:(v:PlaybackStatus)=>void; onError:(message:string)=>void }
@@ -168,13 +168,14 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
         const generation=r.generation,actor=r.actor;
         loadMixamo(options.mixamo).then(source=>{
           if(runtime.current!==r||r.generation!==generation)return;
-          r.mixamo=createMixamoPlayer(actor,source);r.scene.add(r.mixamo.targetDebug);r.loading=false;
+          r.mixamo=createMixamoPlayer(actor,source);r.mixamo.setLoop(latest.current.loop);r.scene.add(r.mixamo.targetDebug);r.loading=false;
           r.mixamo.seek(r.desiredPhase);applyDisplay(r,latest.current);if(!keepCamera)applyCamera(r,latest.current);r.resize();playbackRef.current(playback(r));
         }).catch(error=>{if(runtime.current!==r||r.generation!==generation)return;r.loading=false;r.loadError=String(error);playbackRef.current(playback(r));});
       }
     }catch(error){errorRef.current(String(error));}
   },[options.recipe,options.mixamo,options.restart]);
   useEffect(()=>{const r=runtime.current;if(r&&!options.playing)seek(r,options.phase);},[options.phase]);
+  useEffect(()=>{const r=runtime.current;if(r?.mixamo){r.mixamo.setLoop(options.loop);playbackRef.current(playback(r));}},[options.loop]);
   useEffect(()=>{const r=runtime.current;if(r){applyCamera(r,options);r.resize();}},[options.view,options.viewRevision,options.orthographic,options.mixamo,options.compareSource]);
   useEffect(()=>{const r=runtime.current;if(r)applyDisplay(r,options);},[options.display,options.skeleton,options.grid,options.headAxes]);
   return <div ref={host} className="character-viewport" data-testid="viewport"/>;
