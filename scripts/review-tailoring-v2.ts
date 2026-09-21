@@ -32,7 +32,7 @@ try{
  assert.equal(await page.getByLabel('身高',{exact:true}).count(),0);
  assert.equal(await page.getByLabel('体格',{exact:true}).count(),0);
  assert.equal(await page.locator('[data-testid^="lod-"]').count(),0);
- for(const bottom of ['loose_trousers','robe_skirt']){
+ for(const bottom of ['work_pants','long_skirt']){
    await page.getByLabel('下装',{exact:true}).selectOption(bottom);
    await page.waitForFunction(()=>!!window.__WANHU_REVIEW__!.getStatus().mixamo?.ready);
    assert(Math.abs((await page.evaluate(()=>window.__WANHU_REVIEW__!.getStatus().phase))-.5)<1e-5);
