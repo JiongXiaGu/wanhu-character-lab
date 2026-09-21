@@ -27,7 +27,7 @@ jobs:
           node-version: 22
       - run: npm ci
       - run: npm run build
-      - run: npx tsx scripts/check-horse.ts
+      - run: npm run check:horse
       - name: Install real browser
         run: |
           npx playwright install --with-deps chromium

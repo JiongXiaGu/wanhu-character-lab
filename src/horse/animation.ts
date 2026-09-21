@@ -2,7 +2,7 @@ import { AnimationClip, Euler, Quaternion, QuaternionKeyframeTrack, VectorKeyfra
 import { HORSE_JOINTS, localBind } from './rig';
 import { HORSE_CLIP_IDS, type HorseClipId, type Point3 } from './types';
 
-export const HORSE_ANIMATION_VERSION = 'wanhu-horse-motion-m1-v1';
+export const HORSE_ANIMATION_VERSION = 'wanhu-horse-motion-m1-v2';
 export const HORSE_FPS = 30;
 export const HORSE_CLIPS: ReadonlyArray<{ id: HorseClipId; label: string; duration: number; description: string }> = [
   { id: 'Horse_Idle', label: '停驻 · Idle', duration: 3.6, description: '轻呼吸、头颈变化和小幅甩尾。' },
@@ -59,7 +59,9 @@ export function authorHorsePose(id: HorseClipId, phase: number): HorseAuthoredPo
     const pelvisPitch = run ? .035 * Math.sin(angle - .7) : .007 * Math.sin(2 * angle);
     const spinePitch = run ? -.014 * Math.sin(angle - .7) : -.004 * Math.sin(2 * angle);
     const chestPitch = run ? .010 * Math.sin(angle + .4) : .004 * Math.sin(2 * angle + .3);
-    pelvisOffset[1] = run ? .004 + .048 * Math.sin(angle - .8) : -.017 + .008 * Math.cos(2 * angle);
+    // 审图后校准作者层高度曲线，消除首稿约4cm的入地；不读取蹄位置、不执行贴地求解。
+    pelvisOffset[1] = run ? .017 + .048 * Math.sin(angle - .8)
+      : .0113 - .0099 * Math.cos(2 * angle) - .0012 * Math.sin(2 * angle);
     put('Pelvis', pelvisPitch); put('Spine', spinePitch); put('Chest', chestPitch);
     put('Neck', run ? .10 + .10 * Math.sin(angle - .4) : .025 * Math.sin(2 * angle - .4));
     put('NeckUpper', run ? -.045 * Math.sin(angle - .4) : -.012 * Math.sin(2 * angle - .4));

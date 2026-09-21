@@ -7,7 +7,8 @@ export const HORSE_JOINTS: readonly HorseJoint[] = [
   { name: 'Pelvis', parent: 0, bindWorld: [0, 1.23, -.55] },
   { name: 'Spine', parent: 1, bindWorld: [0, 1.30, -.12] },
   { name: 'Chest', parent: 2, bindWorld: [0, 1.34, .48] },
-  { name: 'Neck', parent: 3, bindWorld: [0, 1.40, .62] },
+  // 颈根支点放在肩胸内部；保持原绑定网格和上颈位置，低头时能接近草地而非悬空。
+  { name: 'Neck', parent: 3, bindWorld: [0, 1.30, .62] },
   { name: 'NeckUpper', parent: 4, bindWorld: [0, 1.73, .87] },
   { name: 'Head', parent: 5, bindWorld: [0, 1.97, 1.05] },
   { name: 'FrontLeftUpper', parent: 3, bindWorld: [-.235, 1.19, .55] },
@@ -29,7 +30,7 @@ export const HORSE_JOINTS: readonly HorseJoint[] = [
   { name: 'Tail', parent: 1, bindWorld: [0, 1.42, -.96] },
   { name: 'TailEnd', parent: 23, bindWorld: [0, .97, -1.13] },
 ];
-export const HORSE_RIG_VERSION = 'wanhu-horse-rig-m1-v1';
+export const HORSE_RIG_VERSION = 'wanhu-horse-rig-m1-v2';
 export function horseBone(name: string): number {
   const index = HORSE_JOINTS.findIndex(j => j.name === name);
   if (index < 0) throw new Error(`未知马骨骼：${name}`);
