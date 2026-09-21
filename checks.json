@@ -1,0 +1,495 @@
+{
+  "passed": true,
+  "sourceSHA": "252ab43b6962408d6be039e411b2ea2c24dad6ac",
+  "stats": {
+    "triangles": 1524,
+    "logicalVertices": 806,
+    "gpuVertices": 4572,
+    "bones": 25
+  },
+  "meshVersion": "wanhu-horse-mesh-m1-v1",
+  "rigVersion": "wanhu-horse-rig-m1-v2",
+  "motionVersion": "wanhu-horse-motion-m1-v2",
+  "inverseBindMaximumError": 2.482534153247273e-16,
+  "sampledPoses": 964,
+  "sampledLogicalVertices": 776984,
+  "parts": {
+    "Body": {
+      "triangles": 192,
+      "signedVolume": 0.5757887302714738
+    },
+    "Neck": {
+      "triangles": 120,
+      "signedVolume": 0.09853393016737474
+    },
+    "Head": {
+      "triangles": 120,
+      "signedVolume": 0.03756937189108812
+    },
+    "FrontLeftLeg": {
+      "triangles": 144,
+      "signedVolume": 0.025602548386737534
+    },
+    "FrontLeftHoof": {
+      "triangles": 48,
+      "signedVolume": 0.003895616222276576
+    },
+    "BackLeftLeg": {
+      "triangles": 144,
+      "signedVolume": 0.03873249748947236
+    },
+    "BackLeftHoof": {
+      "triangles": 48,
+      "signedVolume": 0.0038956162222765745
+    },
+    "FrontRightLeg": {
+      "triangles": 144,
+      "signedVolume": 0.025602548386737523
+    },
+    "FrontRightHoof": {
+      "triangles": 48,
+      "signedVolume": 0.0038956162222765736
+    },
+    "BackRightLeg": {
+      "triangles": 144,
+      "signedVolume": 0.0387324974894723
+    },
+    "BackRightHoof": {
+      "triangles": 48,
+      "signedVolume": 0.003895616222276571
+    },
+    "Mane": {
+      "triangles": 72,
+      "signedVolume": 0.006038395008588347
+    },
+    "Forelock": {
+      "triangles": 36,
+      "signedVolume": 0.0010224631034420441
+    },
+    "LeftEar": {
+      "triangles": 36,
+      "signedVolume": 0.000522030445739838
+    },
+    "LeftEye": {
+      "triangles": 8,
+      "signedVolume": 0.00002099999999999948
+    },
+    "LeftEyeGlint": {
+      "triangles": 8,
+      "signedVolume": 1.3999999999989193e-7
+    },
+    "LeftNostril": {
+      "triangles": 8,
+      "signedVolume": 0.000011162666666664689
+    },
+    "RightEar": {
+      "triangles": 36,
+      "signedVolume": 0.0005231166969061162
+    },
+    "RightEye": {
+      "triangles": 8,
+      "signedVolume": 0.00002099999999999948
+    },
+    "RightEyeGlint": {
+      "triangles": 8,
+      "signedVolume": 1.3999999999989363e-7
+    },
+    "RightNostril": {
+      "triangles": 8,
+      "signedVolume": 0.000011162666666664689
+    },
+    "Tail": {
+      "triangles": 96,
+      "signedVolume": 0.015553240887958043
+    }
+  },
+  "skeleton": [
+    {
+      "name": "Root",
+      "parent": -1,
+      "bindWorld": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Pelvis",
+      "parent": 0,
+      "bindWorld": [
+        0,
+        1.23,
+        -0.55
+      ]
+    },
+    {
+      "name": "Spine",
+      "parent": 1,
+      "bindWorld": [
+        0,
+        1.3,
+        -0.12
+      ]
+    },
+    {
+      "name": "Chest",
+      "parent": 2,
+      "bindWorld": [
+        0,
+        1.34,
+        0.48
+      ]
+    },
+    {
+      "name": "Neck",
+      "parent": 3,
+      "bindWorld": [
+        0,
+        1.3,
+        0.62
+      ]
+    },
+    {
+      "name": "NeckUpper",
+      "parent": 4,
+      "bindWorld": [
+        0,
+        1.73,
+        0.87
+      ]
+    },
+    {
+      "name": "Head",
+      "parent": 5,
+      "bindWorld": [
+        0,
+        1.97,
+        1.05
+      ]
+    },
+    {
+      "name": "FrontLeftUpper",
+      "parent": 3,
+      "bindWorld": [
+        -0.235,
+        1.19,
+        0.55
+      ]
+    },
+    {
+      "name": "FrontLeftMiddle",
+      "parent": 7,
+      "bindWorld": [
+        -0.235,
+        0.73,
+        0.6
+      ]
+    },
+    {
+      "name": "FrontLeftLower",
+      "parent": 8,
+      "bindWorld": [
+        -0.235,
+        0.235,
+        0.59
+      ]
+    },
+    {
+      "name": "FrontLeftHoof",
+      "parent": 9,
+      "bindWorld": [
+        -0.235,
+        0.11,
+        0.65
+      ]
+    },
+    {
+      "name": "FrontRightUpper",
+      "parent": 3,
+      "bindWorld": [
+        0.235,
+        1.19,
+        0.55
+      ]
+    },
+    {
+      "name": "FrontRightMiddle",
+      "parent": 11,
+      "bindWorld": [
+        0.235,
+        0.73,
+        0.6
+      ]
+    },
+    {
+      "name": "FrontRightLower",
+      "parent": 12,
+      "bindWorld": [
+        0.235,
+        0.235,
+        0.59
+      ]
+    },
+    {
+      "name": "FrontRightHoof",
+      "parent": 13,
+      "bindWorld": [
+        0.235,
+        0.11,
+        0.65
+      ]
+    },
+    {
+      "name": "BackLeftUpper",
+      "parent": 1,
+      "bindWorld": [
+        -0.245,
+        1.22,
+        -0.63
+      ]
+    },
+    {
+      "name": "BackLeftMiddle",
+      "parent": 15,
+      "bindWorld": [
+        -0.245,
+        0.9,
+        -0.42
+      ]
+    },
+    {
+      "name": "BackLeftLower",
+      "parent": 16,
+      "bindWorld": [
+        -0.245,
+        0.47,
+        -0.77
+      ]
+    },
+    {
+      "name": "BackLeftHoof",
+      "parent": 17,
+      "bindWorld": [
+        -0.245,
+        0.11,
+        -0.7
+      ]
+    },
+    {
+      "name": "BackRightUpper",
+      "parent": 1,
+      "bindWorld": [
+        0.245,
+        1.22,
+        -0.63
+      ]
+    },
+    {
+      "name": "BackRightMiddle",
+      "parent": 19,
+      "bindWorld": [
+        0.245,
+        0.9,
+        -0.42
+      ]
+    },
+    {
+      "name": "BackRightLower",
+      "parent": 20,
+      "bindWorld": [
+        0.245,
+        0.47,
+        -0.77
+      ]
+    },
+    {
+      "name": "BackRightHoof",
+      "parent": 21,
+      "bindWorld": [
+        0.245,
+        0.11,
+        -0.7
+      ]
+    },
+    {
+      "name": "Tail",
+      "parent": 1,
+      "bindWorld": [
+        0,
+        1.42,
+        -0.96
+      ]
+    },
+    {
+      "name": "TailEnd",
+      "parent": 23,
+      "bindWorld": [
+        0,
+        0.97,
+        -1.13
+      ]
+    }
+  ],
+  "clips": {
+    "Horse_Idle": {
+      "duration": 3.6,
+      "tracks": 25,
+      "samples": 241,
+      "seamMaxMeters": 0,
+      "bounds": {
+        "min": [
+          -0.39,
+          0.003399972572266499,
+          -1.2661039397362415
+        ],
+        "max": [
+          0.39,
+          2.3066993719877864,
+          1.6162170519811045
+        ]
+      },
+      "backVerticalRange": 0.008000016197968307,
+      "minimumHoofY": 0.003399972572266499,
+      "minimumHeadY": 1.5080557597687236,
+      "hoofRanges": {
+        "FrontLeftHoof": [
+          0.0039006579353807608,
+          0.1675884504454178
+        ],
+        "BackLeftHoof": [
+          0.003399972572266499,
+          0.16913042444831405
+        ],
+        "FrontRightHoof": [
+          0.0039006579353807608,
+          0.1675884504454178
+        ],
+        "BackRightHoof": [
+          0.003399972572266499,
+          0.16913042444831405
+        ]
+      }
+    },
+    "Horse_Walk": {
+      "duration": 1.2,
+      "tracks": 25,
+      "samples": 241,
+      "seamMaxMeters": 9.693017947212883e-8,
+      "bounds": {
+        "min": [
+          -0.39,
+          0.0006424610519256135,
+          -1.3099958039613477
+        ],
+        "max": [
+          0.39,
+          2.3306818913641756,
+          1.62088705652495
+        ]
+      },
+      "backVerticalRange": 0.021440485814684607,
+      "minimumHoofY": 0.0006424610519256135,
+      "minimumHeadY": 1.5125457720299258,
+      "hoofRanges": {
+        "FrontLeftHoof": [
+          0.012422836613437613,
+          0.41637001279607533
+        ],
+        "BackLeftHoof": [
+          0.0006424610519256135,
+          0.44149318884596234
+        ],
+        "FrontRightHoof": [
+          0.012422836591623243,
+          0.41637001342806695
+        ],
+        "BackRightHoof": [
+          0.0006424611825090049,
+          0.44149318640851587
+        ]
+      }
+    },
+    "Horse_Run": {
+      "duration": 0.8,
+      "tracks": 25,
+      "samples": 241,
+      "seamMaxMeters": 4.413367991807897e-8,
+      "bounds": {
+        "min": [
+          -0.39,
+          0.00016177608803610855,
+          -1.4525780383939983
+        ],
+        "max": [
+          0.39,
+          2.3071953901868207,
+          1.690914762301674
+        ]
+      },
+      "backVerticalRange": 0.06600547301118831,
+      "minimumHoofY": 0.00016177608803610855,
+      "minimumHeadY": 1.3896323057962263,
+      "hoofRanges": {
+        "FrontLeftHoof": [
+          0.010089946155135046,
+          0.8588828396473317
+        ],
+        "BackLeftHoof": [
+          0.034047718728116294,
+          0.7342657740982041
+        ],
+        "FrontRightHoof": [
+          0.025457850484951278,
+          0.8387190857542284
+        ],
+        "BackRightHoof": [
+          0.00016177608803610855,
+          0.7828789458670481
+        ]
+      }
+    },
+    "Horse_Eat": {
+      "duration": 6,
+      "tracks": 25,
+      "samples": 241,
+      "seamMaxMeters": 0,
+      "bounds": {
+        "min": [
+          -0.39,
+          -0.004599924440627554,
+          -1.247675318332795
+        ],
+        "max": [
+          0.39,
+          2.3011611547159383,
+          1.8807859448829407
+        ]
+      },
+      "backVerticalRange": 0.011999964714050293,
+      "minimumHoofY": -0.004599924440627554,
+      "minimumHeadY": 0.04272424966100019,
+      "hoofRanges": {
+        "FrontLeftHoof": [
+          -0.0018580998961570255,
+          0.165130475951502
+        ],
+        "BackLeftHoof": [
+          -0.004599924440627554,
+          0.165130475951502
+        ],
+        "FrontRightHoof": [
+          -0.0018580998961570255,
+          0.165130475951502
+        ],
+        "BackRightHoof": [
+          -0.004599924440627554,
+          0.165130475951502
+        ]
+      }
+    }
+  },
+  "boundaries": [
+    "闭合壳在颈根、腿根和鬃尾处有固定制作重叠；本检查不是全网格零相交证明。",
+    "最低蹄和头高度是诊断数据；蹄步态与穿插仍需实际浏览器多相位看图。"
+  ]
+}

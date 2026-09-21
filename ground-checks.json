@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "sourceSHA": "252ab43b6962408d6be039e411b2ea2c24dad6ac",
+  "rigVersion": "wanhu-horse-rig-m1-v2",
+  "motionVersion": "wanhu-horse-motion-m1-v2",
+  "faultInjectionCases": 5,
+  "limitsMeters": {
+    "minimumHoofY": -0.012,
+    "minimumHeadY": 0,
+    "grazingHeadY": [
+      0.01,
+      0.12
+    ]
+  },
+  "clips": {
+    "Horse_Idle": {
+      "minimumHoofY": 0.003399972572266499,
+      "minimumHeadY": 1.5080557597687236
+    },
+    "Horse_Walk": {
+      "minimumHoofY": 0.0006424610519256135,
+      "minimumHeadY": 1.5125457720299258
+    },
+    "Horse_Run": {
+      "minimumHoofY": 0.00016177608803610855,
+      "minimumHeadY": 1.3896323057962263
+    },
+    "Horse_Eat": {
+      "minimumHoofY": -0.004599924440627554,
+      "minimumHeadY": 0.04272424966100019
+    }
+  },
+  "limitations": [
+    "仅对平面实验场和241相位样本负责，不是实时贴地或连续零滑步证明。",
+    "不能用高度检查代替腿间穿插、颈根折面或美术轮廓的人工审图。"
+  ]
+}

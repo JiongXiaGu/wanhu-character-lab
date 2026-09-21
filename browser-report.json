@@ -1,0 +1,4873 @@
+{
+  "sourceSHA": "252ab43b6962408d6be039e411b2ea2c24dad6ac",
+  "screenshots": [
+    {
+      "file": "static-front.png",
+      "clip": "bind",
+      "view": "front",
+      "phase": 0,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "static-left.png",
+      "clip": "bind",
+      "view": "left",
+      "phase": 0,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "static-right.png",
+      "clip": "bind",
+      "view": "right",
+      "phase": 0,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "static-back.png",
+      "clip": "bind",
+      "view": "back",
+      "phase": 0,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          7.347880794884119e-16,
+          1.31,
+          -5.85
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "static-three.png",
+      "clip": "bind",
+      "view": "three",
+      "phase": 0,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "static-rear-three.png",
+      "clip": "bind",
+      "view": "rear-three",
+      "phase": 0,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -4.6,
+          3.2299999999999986,
+          -5.05
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-front-000.png",
+      "clip": "Horse_Idle",
+      "view": "front",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0,
+        "time": 0,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-front-125.png",
+      "clip": "Horse_Idle",
+      "view": "front",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.125,
+        "time": 0.45,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-front-250.png",
+      "clip": "Horse_Idle",
+      "view": "front",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.25,
+        "time": 0.9,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-front-375.png",
+      "clip": "Horse_Idle",
+      "view": "front",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.375,
+        "time": 1.35,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-front-500.png",
+      "clip": "Horse_Idle",
+      "view": "front",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.5,
+        "time": 1.8,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-front-625.png",
+      "clip": "Horse_Idle",
+      "view": "front",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.625,
+        "time": 2.25,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-front-750.png",
+      "clip": "Horse_Idle",
+      "view": "front",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.75,
+        "time": 2.7,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-front-875.png",
+      "clip": "Horse_Idle",
+      "view": "front",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.875,
+        "time": 3.15,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-left-000.png",
+      "clip": "Horse_Idle",
+      "view": "left",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0,
+        "time": 0,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-left-125.png",
+      "clip": "Horse_Idle",
+      "view": "left",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.125,
+        "time": 0.45,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-left-250.png",
+      "clip": "Horse_Idle",
+      "view": "left",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.25,
+        "time": 0.9,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-left-375.png",
+      "clip": "Horse_Idle",
+      "view": "left",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.375,
+        "time": 1.35,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-left-500.png",
+      "clip": "Horse_Idle",
+      "view": "left",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.5,
+        "time": 1.8,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-left-625.png",
+      "clip": "Horse_Idle",
+      "view": "left",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.625,
+        "time": 2.25,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-left-750.png",
+      "clip": "Horse_Idle",
+      "view": "left",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.75,
+        "time": 2.7,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-left-875.png",
+      "clip": "Horse_Idle",
+      "view": "left",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.875,
+        "time": 3.15,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-three-000.png",
+      "clip": "Horse_Idle",
+      "view": "three",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0,
+        "time": 0,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-three-125.png",
+      "clip": "Horse_Idle",
+      "view": "three",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.125,
+        "time": 0.45,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-three-250.png",
+      "clip": "Horse_Idle",
+      "view": "three",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.25,
+        "time": 0.9,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-three-375.png",
+      "clip": "Horse_Idle",
+      "view": "three",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.375,
+        "time": 1.35,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-three-500.png",
+      "clip": "Horse_Idle",
+      "view": "three",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.5,
+        "time": 1.8,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-three-625.png",
+      "clip": "Horse_Idle",
+      "view": "three",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.625,
+        "time": 2.25,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-three-750.png",
+      "clip": "Horse_Idle",
+      "view": "three",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.75,
+        "time": 2.7,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "idle-three-875.png",
+      "clip": "Horse_Idle",
+      "view": "three",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Idle",
+        "phase": 0.875,
+        "time": 3.15,
+        "duration": 3.6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-front-000.png",
+      "clip": "Horse_Walk",
+      "view": "front",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0,
+        "time": 0,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-front-125.png",
+      "clip": "Horse_Walk",
+      "view": "front",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.125,
+        "time": 0.15,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-front-250.png",
+      "clip": "Horse_Walk",
+      "view": "front",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.25,
+        "time": 0.3,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-front-375.png",
+      "clip": "Horse_Walk",
+      "view": "front",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.375,
+        "time": 0.44999999999999996,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-front-500.png",
+      "clip": "Horse_Walk",
+      "view": "front",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.5,
+        "time": 0.6,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-front-625.png",
+      "clip": "Horse_Walk",
+      "view": "front",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.625,
+        "time": 0.75,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-front-750.png",
+      "clip": "Horse_Walk",
+      "view": "front",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.75,
+        "time": 0.8999999999999999,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-front-875.png",
+      "clip": "Horse_Walk",
+      "view": "front",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.8750000000000001,
+        "time": 1.05,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-left-000.png",
+      "clip": "Horse_Walk",
+      "view": "left",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0,
+        "time": 0,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-left-125.png",
+      "clip": "Horse_Walk",
+      "view": "left",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.125,
+        "time": 0.15,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-left-250.png",
+      "clip": "Horse_Walk",
+      "view": "left",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.25,
+        "time": 0.3,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-left-375.png",
+      "clip": "Horse_Walk",
+      "view": "left",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.375,
+        "time": 0.44999999999999996,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-left-500.png",
+      "clip": "Horse_Walk",
+      "view": "left",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.5,
+        "time": 0.6,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-left-625.png",
+      "clip": "Horse_Walk",
+      "view": "left",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.625,
+        "time": 0.75,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-left-750.png",
+      "clip": "Horse_Walk",
+      "view": "left",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.75,
+        "time": 0.8999999999999999,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-left-875.png",
+      "clip": "Horse_Walk",
+      "view": "left",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.8750000000000001,
+        "time": 1.05,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-three-000.png",
+      "clip": "Horse_Walk",
+      "view": "three",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0,
+        "time": 0,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-three-125.png",
+      "clip": "Horse_Walk",
+      "view": "three",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.125,
+        "time": 0.15,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-three-250.png",
+      "clip": "Horse_Walk",
+      "view": "three",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.25,
+        "time": 0.3,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-three-375.png",
+      "clip": "Horse_Walk",
+      "view": "three",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.375,
+        "time": 0.44999999999999996,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-three-500.png",
+      "clip": "Horse_Walk",
+      "view": "three",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.5,
+        "time": 0.6,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-three-625.png",
+      "clip": "Horse_Walk",
+      "view": "three",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.625,
+        "time": 0.75,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-three-750.png",
+      "clip": "Horse_Walk",
+      "view": "three",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.75,
+        "time": 0.8999999999999999,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "walk-three-875.png",
+      "clip": "Horse_Walk",
+      "view": "three",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Walk",
+        "phase": 0.8750000000000001,
+        "time": 1.05,
+        "duration": 1.2,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-front-000.png",
+      "clip": "Horse_Run",
+      "view": "front",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0,
+        "time": 0,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-front-125.png",
+      "clip": "Horse_Run",
+      "view": "front",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.125,
+        "time": 0.1,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-front-250.png",
+      "clip": "Horse_Run",
+      "view": "front",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.25,
+        "time": 0.2,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-front-375.png",
+      "clip": "Horse_Run",
+      "view": "front",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.37500000000000006,
+        "time": 0.30000000000000004,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-front-500.png",
+      "clip": "Horse_Run",
+      "view": "front",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.5,
+        "time": 0.4,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-front-625.png",
+      "clip": "Horse_Run",
+      "view": "front",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.625,
+        "time": 0.5,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-front-750.png",
+      "clip": "Horse_Run",
+      "view": "front",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.7500000000000001,
+        "time": 0.6000000000000001,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-front-875.png",
+      "clip": "Horse_Run",
+      "view": "front",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.875,
+        "time": 0.7000000000000001,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-left-000.png",
+      "clip": "Horse_Run",
+      "view": "left",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0,
+        "time": 0,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-left-125.png",
+      "clip": "Horse_Run",
+      "view": "left",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.125,
+        "time": 0.1,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-left-250.png",
+      "clip": "Horse_Run",
+      "view": "left",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.25,
+        "time": 0.2,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-left-375.png",
+      "clip": "Horse_Run",
+      "view": "left",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.37500000000000006,
+        "time": 0.30000000000000004,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-left-500.png",
+      "clip": "Horse_Run",
+      "view": "left",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.5,
+        "time": 0.4,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-left-625.png",
+      "clip": "Horse_Run",
+      "view": "left",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.625,
+        "time": 0.5,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-left-750.png",
+      "clip": "Horse_Run",
+      "view": "left",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.7500000000000001,
+        "time": 0.6000000000000001,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-left-875.png",
+      "clip": "Horse_Run",
+      "view": "left",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.875,
+        "time": 0.7000000000000001,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-three-000.png",
+      "clip": "Horse_Run",
+      "view": "three",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0,
+        "time": 0,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-three-125.png",
+      "clip": "Horse_Run",
+      "view": "three",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.125,
+        "time": 0.1,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-three-250.png",
+      "clip": "Horse_Run",
+      "view": "three",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.25,
+        "time": 0.2,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-three-375.png",
+      "clip": "Horse_Run",
+      "view": "three",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.37500000000000006,
+        "time": 0.30000000000000004,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-three-500.png",
+      "clip": "Horse_Run",
+      "view": "three",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.5,
+        "time": 0.4,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-three-625.png",
+      "clip": "Horse_Run",
+      "view": "three",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.625,
+        "time": 0.5,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-three-750.png",
+      "clip": "Horse_Run",
+      "view": "three",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.7500000000000001,
+        "time": 0.6000000000000001,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "run-three-875.png",
+      "clip": "Horse_Run",
+      "view": "three",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Run",
+        "phase": 0.875,
+        "time": 0.7000000000000001,
+        "duration": 0.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-front-000.png",
+      "clip": "Horse_Eat",
+      "view": "front",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0,
+        "time": 0,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-front-125.png",
+      "clip": "Horse_Eat",
+      "view": "front",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.125,
+        "time": 0.75,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-front-250.png",
+      "clip": "Horse_Eat",
+      "view": "front",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.25,
+        "time": 1.5,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-front-375.png",
+      "clip": "Horse_Eat",
+      "view": "front",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.375,
+        "time": 2.25,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-front-500.png",
+      "clip": "Horse_Eat",
+      "view": "front",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.5,
+        "time": 3,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-front-625.png",
+      "clip": "Horse_Eat",
+      "view": "front",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.625,
+        "time": 3.75,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-front-750.png",
+      "clip": "Horse_Eat",
+      "view": "front",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.75,
+        "time": 4.5,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-front-875.png",
+      "clip": "Horse_Eat",
+      "view": "front",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.875,
+        "time": 5.25,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.31,
+          6.15
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-left-000.png",
+      "clip": "Horse_Eat",
+      "view": "left",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0,
+        "time": 0,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-left-125.png",
+      "clip": "Horse_Eat",
+      "view": "left",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.125,
+        "time": 0.75,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-left-250.png",
+      "clip": "Horse_Eat",
+      "view": "left",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.25,
+        "time": 1.5,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-left-375.png",
+      "clip": "Horse_Eat",
+      "view": "left",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.375,
+        "time": 2.25,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-left-500.png",
+      "clip": "Horse_Eat",
+      "view": "left",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.5,
+        "time": 3,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-left-625.png",
+      "clip": "Horse_Eat",
+      "view": "left",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.625,
+        "time": 3.75,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-left-750.png",
+      "clip": "Horse_Eat",
+      "view": "left",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.75,
+        "time": 4.5,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-left-875.png",
+      "clip": "Horse_Eat",
+      "view": "left",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.875,
+        "time": 5.25,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.31,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-three-000.png",
+      "clip": "Horse_Eat",
+      "view": "three",
+      "phase": 0,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0,
+        "time": 0,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-three-125.png",
+      "clip": "Horse_Eat",
+      "view": "three",
+      "phase": 0.125,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.125,
+        "time": 0.75,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-three-250.png",
+      "clip": "Horse_Eat",
+      "view": "three",
+      "phase": 0.25,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.25,
+        "time": 1.5,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-three-375.png",
+      "clip": "Horse_Eat",
+      "view": "three",
+      "phase": 0.375,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.375,
+        "time": 2.25,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-three-500.png",
+      "clip": "Horse_Eat",
+      "view": "three",
+      "phase": 0.5,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.5,
+        "time": 3,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-three-625.png",
+      "clip": "Horse_Eat",
+      "view": "three",
+      "phase": 0.625,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.625,
+        "time": 3.75,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-three-750.png",
+      "clip": "Horse_Eat",
+      "view": "three",
+      "phase": 0.75,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.75,
+        "time": 4.5,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "eat-three-875.png",
+      "clip": "Horse_Eat",
+      "view": "three",
+      "phase": 0.875,
+      "status": {
+        "clip": "Horse_Eat",
+        "phase": 0.875,
+        "time": 5.25,
+        "duration": 6,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "static-clay-three.png",
+      "clip": "bind",
+      "view": "three",
+      "display": "clay",
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    },
+    {
+      "file": "static-skeleton-three.png",
+      "clip": "bind",
+      "view": "three",
+      "skeleton": true,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.2299999999999986,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.1299999999999997,
+          0.15
+        ],
+        "projection": [
+          0.4279279279279279,
+          0,
+          0,
+          0,
+          0,
+          0.6756756756756757,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "finite": true
+    }
+  ],
+  "interactions": [
+    {
+      "clip": "Horse_Idle",
+      "checks": [
+        "网格复用",
+        "下一帧",
+        "上一帧",
+        "暂停换相机保相位",
+        "真实播放推进"
+      ],
+      "passed": true
+    },
+    {
+      "clip": "Horse_Walk",
+      "checks": [
+        "网格复用",
+        "下一帧",
+        "上一帧",
+        "暂停换相机保相位",
+        "真实播放推进"
+      ],
+      "passed": true
+    },
+    {
+      "clip": "Horse_Run",
+      "checks": [
+        "网格复用",
+        "下一帧",
+        "上一帧",
+        "暂停换相机保相位",
+        "真实播放推进"
+      ],
+      "passed": true
+    },
+    {
+      "clip": "Horse_Eat",
+      "checks": [
+        "网格复用",
+        "下一帧",
+        "上一帧",
+        "暂停换相机保相位",
+        "真实播放推进"
+      ],
+      "passed": true
+    },
+    {
+      "checks": [
+        "单次结束保持",
+        "末帧循环",
+        "变速播放"
+      ],
+      "passed": true
+    },
+    {
+      "checks": [
+        "390px页面无横溢出",
+        "原人物20骨骼",
+        "原Recipe V5",
+        "马入口独立"
+      ],
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "passed": true,
+  "stats": {
+    "triangles": 1524,
+    "logicalVertices": 806,
+    "gpuVertices": 4572,
+    "bones": 25
+  },
+  "imageSHA256": {
+    "eat-front-000.png": "b39991f8776cf68ab3d648d5d45dc663feeccace6efed91780e04707b2adad9e",
+    "eat-front-125.png": "fe8254a10c097bc9c769f82f0619e06a6eccca555ae92fc5e9933db905a965cb",
+    "eat-front-250.png": "20ac6c5b0b19eef412a9007ef9db7334775e4ae7a2af75f21351edc22438fca3",
+    "eat-front-375.png": "85d660620f0b35c93029f54a9ebb4d00f19f85324d8b125ce090c09177c5ba52",
+    "eat-front-500.png": "e2c1663c5f1a28e34bfd02e83694eac149b252bda2bd29c04e4b4ceb14689335",
+    "eat-front-625.png": "a27ede97484bc4284d911b212487d5964d3c396f6ba419786d4c21c244b26eee",
+    "eat-front-750.png": "e57dd1e4a0876fc83fd2ed6efcc9e297e6a60ba99de28289348e5e12ab7052ea",
+    "eat-front-875.png": "7968953a6964b12a85a93da6b5ac86a37f97f3603b6db96ba63e62b017bc64c6",
+    "eat-left-000.png": "7e15095e517a240fb20f34470fb4cf22608d691a6e17974a167dd7e3f28953b6",
+    "eat-left-125.png": "ee7a65049577660e0c5f10497047a0fc5d5b31b11054ac963ee07df1ae9d904e",
+    "eat-left-250.png": "5f7e1b9924e585c6ad20a1020e6a884b42d0dbd6a989709af5dcd32bbda7291e",
+    "eat-left-375.png": "771217d3361315ad6f4a18b4a3e1335433c982cfb53e0cd2680b3eb3a369c0a6",
+    "eat-left-500.png": "8bed5b26c7271b82229ee178b5ba45d3808026727dac7c288ae6112e8358aca0",
+    "eat-left-625.png": "9938df1cfad9a7c3d3e81a1f19f79615138dc6555ba0fd698620cef5100fd244",
+    "eat-left-750.png": "74f22aa0a057c8a92c97055aaf084930438c0becfdb201666c3d0b16394457ff",
+    "eat-left-875.png": "dfa3866b1abe31c1c03d8d79a79ec6f018eed5e229f714a4d1337c09cce387a2",
+    "eat-three-000.png": "a51ea4909ef471303b7c2342f4056595daeacb750666c67fdc5d30ea3489d739",
+    "eat-three-125.png": "f04609224412ba2b67a59deccc88f7451e582259ec04787744670859107e287e",
+    "eat-three-250.png": "f4b8602698d8c9faf807bceb36195de07a54d8e6441155d124542dfce1bdce98",
+    "eat-three-375.png": "3c1f8241e0d583048bbabb21f70aacc311f3d8ea36a9064b7228fd6bcec5e3fb",
+    "eat-three-500.png": "e3a02593e977325b9076af9398888ec2ba08cae4e756240d3a6ef173498d0247",
+    "eat-three-625.png": "4288201a62d7e8421c979212571e5b9458a9945e158c16f2d9b34d294d5179e5",
+    "eat-three-750.png": "d4159d902bec69fc06bf0c60f12ecfa241fcdef230e932911684359352ffa087",
+    "eat-three-875.png": "54ac54c9ca6651ecb994865653a79425a822d93809bb208bd0aaf69c92a56286",
+    "horse-eat-a.jpg": "193cd4a329bca15dd1f9218e67893a693223f2ac8f0d145e38a757e42bb146d1",
+    "horse-eat-b.jpg": "6d8ef086a1237368281c15af6706ed9d071a4459127d1642ea9ede591268384f",
+    "horse-idle-a.jpg": "f1e031a10d92662619e7ad56e4787d77268ac739a8dbff12f2bd06ef153383d4",
+    "horse-idle-b.jpg": "186c666f43eb3651cffab6fa82dc6e3e776504d5d4fb69be322a52ffcc22f427",
+    "horse-mobile.png": "09aa1622e981177d2b3a9def04b48d87588ca5d6b915460b293060d79b6ce082",
+    "horse-run-a.jpg": "14af9190b9cf438f1c810364ab80bdfaabda35fff30e201b387c13983e08dad2",
+    "horse-run-b.jpg": "f853461ced0bef5ff8d5f25e4d07c916b2db607895c47904136e8d4849da711d",
+    "horse-static-overview.jpg": "125bb440b7ceb47af512e4de22e4aa035e76f549bad5553bd40c931b26eb5aa9",
+    "horse-walk-a.jpg": "f02dd1863902d97ff55b565a3fe234b2007e277f2cb22c6aca5f8caefc797bb1",
+    "horse-walk-b.jpg": "05e8e9d51379cfd615cf0a36f6277127270535d136c222395ab59433d7b8c184",
+    "horse-workbench.png": "877d5440511c4adcf884b50e72f44fb66c97ee2abc5d3641c1fbb7a5a02e2276",
+    "idle-front-000.png": "d8b3ac20c6bd791511b175c045d30370f205aeb2874fcd62adff139b56cfc6e7",
+    "idle-front-125.png": "fd028de2c6326315347f1ed318ebca43890f35bc6451baf18ad3638283d64b2f",
+    "idle-front-250.png": "dc208c031eae93d69ebbf16569e6dcb96ec2676f52bb8e2073e45f560d04fc9d",
+    "idle-front-375.png": "63936cd337091ffb305e013635296d6a486fe6e8274d331b75bb88d0b5911e33",
+    "idle-front-500.png": "246931bcdbdceb331383f83de29132a6954fa52ed091070b0c89f86174947eb7",
+    "idle-front-625.png": "3d7ceb41934331cd24ce5238ecf6827a7a16722df61a0b109159c302cfa171ad",
+    "idle-front-750.png": "492fc72db5183d43e2244645c16f2a7bdd6d03250931687e21c85ce2eb969467",
+    "idle-front-875.png": "d27f70e090737bcb01a9dbf6a4340ace7fbe28598c555fc95f8c1fc2838b37a4",
+    "idle-left-000.png": "99b233ac48741f1c6b5e20f55c4b984dcb77cc542a7e71eb0610ccaf5d0120ea",
+    "idle-left-125.png": "23cc5e76dd6f5f2babab06f438ae51efc3321937566c5c38bdea385e8d8f36e1",
+    "idle-left-250.png": "208739886bba3ef5e813619be0e8491bad894a31da6f4bed5e095bdaf19c3962",
+    "idle-left-375.png": "e32368eb69bbf2adc4fb352c6f8567bd034e8428af638357c0359b4d77e38d62",
+    "idle-left-500.png": "c4c72e6f53829bed1ef7742def0863611cda26c956ef85325bcd861c56621e84",
+    "idle-left-625.png": "c13cd081b278ff7f8944fb953773a3347437e7ec761b367cc51e7986c1e5e3f9",
+    "idle-left-750.png": "504816ecfcb32949821ac2d492ba238aa338e1704c3320628b90d0fcab728bc9",
+    "idle-left-875.png": "d3f37db0cd9c6119214d92de34ac3586cbbfd27cb066f2446dfc75a75d3cd77e",
+    "idle-three-000.png": "242566d4308f95173f3d8b47250c28df67e68b8aa05204801aa436782b95188f",
+    "idle-three-125.png": "76b5c872e8b8a0a373bf3b86b46b75eb0931252a06dcb724c390d66b35cac843",
+    "idle-three-250.png": "50d4a40ee97f6ef44fca27b91f34968babb32cd771c4796cbac30668c499bc6e",
+    "idle-three-375.png": "dba1ffec512782b6381bbce6481c23ee55779aa6aacdc787115066cb89d83abf",
+    "idle-three-500.png": "a5e8beabef58277f6eab704d189fa3408e098bcf7ab823a7f1a287e3f9505d8d",
+    "idle-three-625.png": "40255f28cd3ef88732083b4bb46e14f3564511a1233007fe23c34aaae83108e0",
+    "idle-three-750.png": "b3a290525fdf734ed07a8e2f412eb7555f5b2b1acc1de61aa763e171b2551c7f",
+    "idle-three-875.png": "98ff26e23a0e35c19e92d2855a02789164a86558de1f2d8009d4766bd463c49e",
+    "run-front-000.png": "130733180f557cb87d55c5bff9d5d1a5650cbb8b7fddada7b545e605b13b3da2",
+    "run-front-125.png": "ad9ad9a0171b4634e2ff8c0a66e6ab1376192ca40cdcdd2ba2981826c0a11b87",
+    "run-front-250.png": "3f0adaaf11d7ab27fe92433f522aaf30c490adf25d75e80090f62345a6356e38",
+    "run-front-375.png": "de821d4b75e99d0c071abac98bbf14959100dd40dab9cb13a60c8342d78ccba1",
+    "run-front-500.png": "7c2bab521043e348b7ea8913ee2e1a7bf5c56fe566fda2a6072648af7075f3fb",
+    "run-front-625.png": "19b60c2f6fa6052ff8a2533ed7b09b9624c60f4a5b6dfc7166890d5cf8ab9c4d",
+    "run-front-750.png": "99e13635ee3e66f4ac11e96e779e7858e4f67df67bdae13829d224615ca39754",
+    "run-front-875.png": "d24ec702b32039c959b405b38cc8473ae8f786306598ccb05843fcbb36337d7f",
+    "run-left-000.png": "f1b136423d9d781f8930cfd315d07b273ccb10ec325180159b86d2660152f4f0",
+    "run-left-125.png": "9bcb54564bb84858494b34615869a89b62cf2fcb7be840e12daf8c7290d59316",
+    "run-left-250.png": "82b6016802e0b8dcec1403ce790fd6ccfba5a30201bbc981e7e6bc94588fb3ff",
+    "run-left-375.png": "5668e11677ec7083cd396402b1f24c16b8a1de0c0515e892489819bda48a0f5e",
+    "run-left-500.png": "e43cb1f60b7c6c36e91475012575f78bf3e89671cf16274389d47f0c7dc86552",
+    "run-left-625.png": "4ad0b0c731ca6c00fe1ce2c1c2c355e601195ec821feb27f3729fc7ed7b66e4d",
+    "run-left-750.png": "113f9fd077f0bbd748e1478d0b7379758f18fa08a98b1c4de0a3c5738656ce12",
+    "run-left-875.png": "6a98e7fee8be130171880ee0cb38b8e5c435b2c78633c55035462b6b4f0e7e47",
+    "run-three-000.png": "7ad5daa1db439d7ea86e971ee80d33a556cf2fb83e763b7a5618105415e406c1",
+    "run-three-125.png": "487b1b5df41d805920fd4458a06c00139ef7780880eab5c952b948c10151ad0c",
+    "run-three-250.png": "64d3ca802642e404a178e90e34374a36c55a5d302ac4fd74098cc9992f40fd84",
+    "run-three-375.png": "8a6ab2ef0ae294e576bdb8799ef798ea45eb82a178abf188dd9d1b1144181a56",
+    "run-three-500.png": "b10d0ab9b18cf97192c19f806bbaad0bbdb608368c9e672856c071be4a05ac33",
+    "run-three-625.png": "511753cf896e71c9c3951b6f12e42329ebc0f0b1879f1ca49c9fe22faa7f1065",
+    "run-three-750.png": "03ace9e06f959c357248e1b5304dcdb4e6dee0eda33361fe44b6c4b816383daa",
+    "run-three-875.png": "8db06e1e47eebc626e6cd789ca90113ff13c0567e7391b98e1c2d154c6f3b856",
+    "static-back.png": "b2659da27a27099cf09b227ab2359efd7c2a6149d7f34eeba29f59ddcb4577f2",
+    "static-clay-three.png": "30560583a7714ad0551c63e51a8c90af087fe1a41a75e1e1295e42fc5fa15c53",
+    "static-front.png": "7116cd86ff6a140fe37459c00b7702dc9a64a4f1ab5f96dc362fb1c7120591cb",
+    "static-left.png": "d66f5a6dae4aa1eefe55244841396930e3a0f09e38e1d52a3d792e504c3929bd",
+    "static-rear-three.png": "e2b2bdc1709e3372e2ebfef4ba375d35cc671eb579f1f3c5f8a78c4b89faefa1",
+    "static-right.png": "2c41b7aff621e3ebe3cb0b3f8f7004dbbe62fc76c1f3f0f2e4dec0a8db18e899",
+    "static-skeleton-three.png": "5384cfead8be91c4b9f4162dd95dad3b16edb9fb7c3860ecca9caa93c1870681",
+    "static-three.png": "14cb6d27c16fcaf015d94063433d07f311e06f4c634a1125241d811c07da9bfd",
+    "walk-front-000.png": "7e4b1db89fe610a7732f4a7c91752c097edd957cf083e9b8dc83b24b35692dff",
+    "walk-front-125.png": "a856641181132cdf95146ce645491b6e7e95b8beab0c58f2ed1ac44d3de75ad2",
+    "walk-front-250.png": "5b3f6e87128d058049228c4b82460962a4d0312cd6155819dd5074403a90ddf3",
+    "walk-front-375.png": "32d84baf2d0606108e2aadc1da6c2d1754ffb6cf5b221ed6dae95aa79622181b",
+    "walk-front-500.png": "b06891c62413fb8bb315731033b4897070adad5eae445a91b750e28a89687f36",
+    "walk-front-625.png": "28cbd67dceed32a03d56f02d949ec59c311ee7b67ee1ffc5a26e277c42f99938",
+    "walk-front-750.png": "7d1add99eef6b5123ae89135b738c4c73037847f09b32d2cf0fa7f392b65e042",
+    "walk-front-875.png": "d60d7c70f124895996803b6034954f9a33f33116f165d898138fa7b6486e0fc8",
+    "walk-left-000.png": "159895f42f52c18784f989ea323a15b1315e585fb3d8c0e117483eae5f3dcbb9",
+    "walk-left-125.png": "182bb2220addfeba7bad359f942b714c0d9cea6d5e043884e07d866c2897219d",
+    "walk-left-250.png": "e2bcef02963e9b892445a56f048ecd4771d8dabf6db78f721abda5e05f0e5981",
+    "walk-left-375.png": "6e357ca0b94e56c20313efe47be1219bcb513ada910822fe64b179d74951c0a4",
+    "walk-left-500.png": "9dcd69cfc33e1052f5fce7f32b9466a480cf2eb58ab869c3e5ade426da4395f6",
+    "walk-left-625.png": "93a7f1c80324dba8dbeda4cc8c517abac107db80c14a2443031f0b5e9a0cd7ad",
+    "walk-left-750.png": "bfca8a90c7456fe729543e786789550954083a3c879844394d9644bfd7082571",
+    "walk-left-875.png": "64eb56bb2af443eb6f81558884edc0009dccbae6c45986595fdc22013a7765de",
+    "walk-three-000.png": "18a9f647728d7513d8da6ebad844163b2e97f3009af4a3c0cd1853a7ca96d38f",
+    "walk-three-125.png": "6851732201eb2c01aeb4900c5ec77453bb17975dc627252c23474bd6ef5e4d91",
+    "walk-three-250.png": "86bb108809b5522e99e96d46dff7d3cd9235340c2fa347bc8cb2b7e5974e92e4",
+    "walk-three-375.png": "2f2f6df16d14e0f98349c509f09a959b6d42afe66b63812b4c60f5258be22ea0",
+    "walk-three-500.png": "1e2a12e2b056a7a9a4d15a1cbe03bd975647123afbf5641c634f784704a9a6bf",
+    "walk-three-625.png": "97c683fddddfc423be12877fec3f5ed3dae054ab3f246a1bb008a91c4986ba22",
+    "walk-three-750.png": "9b2578edbc84eb7dc62da41252275affa4c022463c4bbe331c1a160c7715ffab",
+    "walk-three-875.png": "a4017a49d55a6e999f1ae53b9224887d1247a43b1a30cbbe7c4fc6569576e83a"
+  }
+}
