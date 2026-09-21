@@ -45,7 +45,7 @@ try{
  // 保留真实播放完成/循环检查，但不录制视频。
  for(const bodyType of ['male','female'])for(const id of ['pilot-switches','shooting-arrow','jogging','snatch']){
   const ctx=await browser.newContext({viewport:{width:1440,height:1000},});const p=await ctx.newPage();
-  try{p.on('pageerror',e=>errors.push(e.message));await p.goto(base+'/?'+new URLSearchParams({review:'1',paused:'1',bodyType,mixamo:id,look:'ceremony-female',view:'side',headwear:'none'}));await p.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);await p.getByRole('button',{name:'播放',exact:true}).click();
+  try{p.on('pageerror',e=>errors.push(e.message));await p.goto(base+'/?'+new URLSearchParams({review:'1',paused:'1',bodyType,mixamo:id,look:'ceremony-female',view:'side',headwear:'none'}));await p.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);assert(await p.getByRole('checkbox',{name:'人物动画循环播放',exact:true}).isChecked(),'人物动画默认循环未启用');if(id!=='jogging')await p.getByRole('checkbox',{name:'人物动画循环播放',exact:true}).uncheck();await p.getByRole('button',{name:'播放',exact:true}).click();
    if(id==='jogging')await p.waitForFunction(()=>{const w=window as any;const phase=w.__WANHU_REVIEW__.getStatus().phase;if(w.__lastPhase!==undefined&&phase<w.__lastPhase-.5)w.__loops=(w.__loops??0)+1;w.__lastPhase=phase;return w.__loops>=2;},undefined,{timeout:90000,polling:100});
    else await p.waitForFunction(()=>window.__WANHU_REVIEW__!.getStatus().finished,undefined,{timeout:120000});
   }finally{await ctx.close();playbackChecks.push(`${bodyType}/${id}`);}
