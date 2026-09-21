@@ -1,3 +1,4 @@
+import { makeShortBottom } from './short-bottoms';
 import { straightClothRows, boundActionRows, type LegRow } from './authored-legs';
 import { B, type Cage, type Recipe, type Weight } from '../../v3/types';
 import { ring, bridge, vertex, face, orient } from '../../v3/cage';
@@ -9,6 +10,7 @@ import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from './contract';
 export function makeTrousers(recipe:Recipe):GarmentPiece|undefined {
   const id=recipe.slots.bottom;if(id==='body')return;
   const pattern=BOTTOM_PATTERNS[id];if(!pattern)throw new Error('下装资产未注册：'+id);
+  if(pattern.asset==='short-trousers'||pattern.asset==='short-skirt')return makeShortBottom(recipe);
   const authored=pattern.asset!=='classic';
   const c:Cage={vertices:[],faces:[],anchors:{}},{primary,secondary}=recipe.dyes;
   const profile:[number,number][]=[[-.45,.9],[.5,.9],[1,0],[.5,-.9],[-.45,-.9],[-.88,-.52],[-1,0],[-.88,.52]];

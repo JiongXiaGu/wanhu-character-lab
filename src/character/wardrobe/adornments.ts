@@ -24,7 +24,7 @@ export function addWardrobeHeadwear(target:Cage,id:HeadwearId,recipe:Recipe):boo
     const formal=id==='scholar_cap',color=formal?'#303d42':tone(primary,.78);
     const a=ring(c,'WardrobeCapBase',[0,1.711,-.006],[1,0,0],[0,0,1],OCT,.112,.108,w);
     const b=ring(c,'WardrobeCapTop',[0,formal?1.874:1.786,-.012],[1,0,0],[0,0,1],OCT,formal?.069:.097,formal?.086:.088,w);
-    bridge(c,a,b,'equipment',color);face(c,[...a].reverse(),'equipment',color);face(c,b,'equipment',tone(color,1.07));
+    bridge(c,a,b,'equipment',color);face(c,b,'equipment',tone(color,1.07));
     if(formal){
       solidBox(c,'CapTablet',[0,1.761,.109],[.032,.042,.007],accent);
       solidBox(c,'CapWings',[0,1.739,-.086],[.286,.018,.041],color);

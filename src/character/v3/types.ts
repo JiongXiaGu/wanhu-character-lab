@@ -39,7 +39,9 @@ export type TopId =
   | "rough_tunic"
   | "cross_jacket"
   | "layered_vest"
-  | "ceremony_robe";
+  | "ceremony_robe"
+  | "work_vest"
+  | "short_work_jacket";
 export type BottomId =
   | "body"
   | "work_pants"
@@ -48,7 +50,9 @@ export type BottomId =
   | "loose_trousers"
   | "work_wrap"
   | "pleated_skirt"
-  | "robe_skirt";
+  | "robe_skirt"
+  | "short_trousers"
+  | "short_skirt";
 export type ShoesId = "body" | "cloth_shoes" | "boots";
 export type BackId = "none" | "archer_quiver";
 export type LeftHandId = "none" | "guard_shield" | "archer_bow";
@@ -129,6 +133,7 @@ export const TOP_IDS = [
   "guard_light_armor",
   "archer_tunic",
   "rough_tunic", "cross_jacket", "layered_vest", "ceremony_robe",
+  "work_vest", "short_work_jacket",
 ] as const satisfies readonly TopId[];
 
 export const BOTTOM_IDS = [
@@ -137,6 +142,7 @@ export const BOTTOM_IDS = [
   "guard_pants",
   "archer_pants",
   "loose_trousers", "work_wrap", "pleated_skirt", "robe_skirt",
+  "short_trousers", "short_skirt",
 ] as const satisfies readonly BottomId[];
 
 export const SHOES_IDS = [

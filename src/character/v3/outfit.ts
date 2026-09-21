@@ -1,3 +1,4 @@
+import { applyHeadwearClearance } from "../wardrobe/headwear-fit";
 import { addWardrobeHeadwear, finishHair } from "../wardrobe/adornments";
 import {
   B,
@@ -315,6 +316,11 @@ function faceDetails(c: Cage, female = false) {
 
 }
 function headwear(c: Cage, id: HeadwearId, recipe: Recipe) {
+  const first=c.vertices.length;
+  buildHeadwear(c,id,recipe);
+  applyHeadwearClearance(c,first,id);
+}
+function buildHeadwear(c: Cage, id: HeadwearId, recipe: Recipe) {
   if (id === "none") return;
   if (addWardrobeHeadwear(c,id,recipe)) return;
 
