@@ -15,6 +15,16 @@ const contrast={primary:'#fa1945',secondary:'#12cee7',accent:'#ffda16'};
 const rows:any[]=[],mixes:any[]=[],hats:any[]=[];
 const maxX=(c:Cage)=>Math.max(...c.vertices.map(v=>Math.abs(v.p[0])));
 const signature=(c:Cage)=>JSON.stringify({v:c.vertices,f:c.faces.map(f=>({v:f.v,region:f.region}))});
+/** 背心四个封口必须跟随主布色；独立资产和最终装配都执行同一断言。 */
+function assertVestCapColors(c:Cage,interfaces:Record<string,number[]>,primary:string){
+  assert.deepEqual(Object.keys(interfaces).sort(),['LeftCuff','RightCuff','neck','waist']);
+  for(const [name,loop] of Object.entries(interfaces)){
+    assert(Array.isArray(loop)&&loop.length>=3,`${name} 缺少封口锚点`);
+    const caps=c.faces.filter(f=>f.v.length===loop.length&&f.v.every(i=>loop.includes(i)));
+    assert.equal(caps.length,1,`${name} 必须恰好有一个直接 Cap 面`);
+    assert.equal(caps[0].color,primary,`${name} Cap 必须使用衣身主布色，不能使用内衬、缘边或肤色`);
+  }
+}
 function assertShort(c:Cage,skirt:boolean){
   assert.equal(triCount(c),skirt?176:164);
   assert(c.vertices.every(v=>v.p[1]>=.5),'短装有膝下裤管');
@@ -70,10 +80,15 @@ for(const bodyType of BODY_TYPES){
   for(const top of newTops){
     const recipe=createRecipe({bodyType,slots:{...presetSlots('body'),top},dyes:contrast}),p=makeTop(recipe)!;assertGarmentPiece(p);
     assert.equal(triCount(p.mesh),top==='work_vest'?128:174);assert.deepEqual(p.covers,['torso']);
-    if(top==='work_vest'){assert.deepEqual(Object.keys(p.openings),[]);assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','neck','waist'].sort());}
+    if(top==='work_vest'){assert.deepEqual(Object.keys(p.openings),[]);assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','neck','waist'].sort());assertVestCapColors(p.mesh,p.sealedInterfaces!,recipe.dyes.primary);}
     assert.deepEqual([...new Set(p.mesh.faces.map(f=>f.color))].sort(),Object.values(contrast).sort());
     const changed=makeTop({...recipe,dyes:{primary:'#203040',secondary:'#405060',accent:'#607080'}})!;assert.equal(signature(p.mesh),signature(changed.mesh));
+    if(top==='work_vest')assertVestCapColors(changed.mesh,changed.sealedInterfaces!,'#203040');
     const d=makeCharacter(recipe);
+    if(top==='work_vest'){
+      const assembled=Object.fromEntries(Object.keys(p.sealedInterfaces!).map(name=>[name,d.surface.anchors['top.'+name]]));
+      assertVestCapColors(d.surface,assembled,recipe.dyes.primary);
+    }
     for(const region of ['upperArm','forearm','hand'])assert.equal(d.surface.faces.filter(f=>f.part==='skin'&&f.region===region).length,d.body.faces.filter(f=>f.region===region).length,'短衣不能误删裸露手臂');
     rows.push({bodyType,id:top,triangles:triCount(p.mesh),logicalVertices:p.mesh.vertices.length,covers:p.covers});
   }
@@ -106,11 +121,22 @@ const shorts=makeTrousers(createRecipe({slots:{bottom:'short_trousers'}}))!.mesh
 assert(maxX(skirt)>maxX(shorts)*1.3,'短下裳必须有独立A字展开，不是换色短裤');
 const longMutation=cloneCage(shorts);longMutation.vertices[0].p[1]=.1;assert.throws(()=>assertShort(longMutation,false));
 const wrongWeight=cloneCage(shorts);wrongWeight.vertices.find(v=>v.id==='Shorts.Right.Cuff.0')!.w=[B.Hips,B.Hips,1];assert.throws(()=>assertShort(wrongWeight,false));
+// 四处封口逐一注入内衬色、缘边色和肤色，确保检测器会拒绝颜色回归。
+const colorSource=makeTop(createRecipe({slots:{top:'work_vest'},dyes:contrast}))!;
+let capColorMutationChecks=0;
+for(const loop of Object.values(colorSource.sealedInterfaces!))for(const color of [contrast.secondary,contrast.accent,'#c8956e']){
+  const wrongColor=cloneCage(colorSource.mesh);
+  const capFace=wrongColor.faces.find(f=>f.v.length===loop.length&&f.v.every(i=>loop.includes(i)));assert(capFace);
+  capFace.color=color;
+  assert.throws(()=>assertVestCapColors(wrongColor,colorSource.sealedInterfaces!,contrast.primary),'封口使用错误色区必须失败');
+  capColorMutationChecks++;
+}
+assert.equal(capColorMutationChecks,12);
 const cap:ContactTriangle={ids:['Shorts.Right.Cuff.0','Shorts.Right.Cuff.1','Shorts.Right.Cuff.2'],part:'bottom',region:'thigh'};
 const shin:ContactTriangle={ids:['RightKneeUpper.0','RightKneeUpper.1','RightKnee.1'],part:'skin',region:'shin'};
 assert(isClosedHemContact('short_trousers',cap,shin));assert(!isClosedHemContact('short_trousers',cap,{...shin,region:'thigh'}));
 const shrunk=makeCharacter(createRecipe({slots:{...presetSlots('body'),headwear:'guard_helmet'}})).surface;
 for(const v of shrunk.vertices.filter(v=>hatVertex(v.id))){v.p[0]*=.6;v.p[2]*=.6;}assert.throws(()=>assertHat(shrunk,'guard_helmet'),'必须抓住过小帽壳回归');
-const report={passed:true,headwearVersion:HEADWEAR_GEOMETRY_VERSION,rows,mixes,hats,mutationChecks:3,capContactScopeCases:2,scope:'绑定空间资产、固定露肤、染色、帽发贯穿与V5契约；动画源帧/中点及真实网页图片另行检查。'};
+const report={passed:true,headwearVersion:HEADWEAR_GEOMETRY_VERSION,rows,mixes,hats,mutationChecks:3,capContactScopeCases:2,capColorChecks:24,capColorMutationChecks,scope:'绑定空间资产、固定露肤、染色、Cap主布色、帽发贯穿与V5契约；动画源帧/中点及真实网页图片另行检查。'};
 mkdirSync('review-wardrobe-batch',{recursive:true});writeFileSync('review-wardrobe-batch/lightwear-numeric.json',JSON.stringify(report,null,2));
 console.log('LIGHTWEAR_NUMERIC',JSON.stringify(report));

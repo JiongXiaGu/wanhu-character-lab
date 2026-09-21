@@ -18,6 +18,16 @@ Cap直接复用现有接口环，不增加中心点，不做内衬、布料厚�
 
 work_vest仍只covers torso，必须保留原上臂、前臂和手；short_trousers仍只covers pelvis/thigh，必须保留shin；cloth_shoes只covers foot。视觉封闭不能通过扩大covers把应该露出的身体直接删掉。
 
+## 背心封口配色
+
+work_vest的领口、双袖窿和腰口Cap统一使用recipe.dyes.primary，与衣身主布属于同一个色区。此前领口使用accent、袖窿和腰口使用secondary，浅色方案下会把封口表现为额外领边／内衬，甚至看起来像露肤；此处分离于几何裂缝处理。
+
+封口不单独染成肤色，不追加任意内衬色，也不人为压暗。玩家修改主布色时四个Cap一起变化；原门襟、装饰缘边和真实裸露的脖子／手臂维持原色区。光照和面法线造成的自然明暗不通过换材质、改灯光或删皮肤掩盖。
+
+这次颜色修正只改变work_vest的四个Cap面颜色，不改变其128个三角形、66个逻辑点、接口、权重或朝向。short_trousers、cloth_shoes及其他服饰不因背心配色修正改动；几何版本仍为v8，Recipe仍为V5。
+
+check:lightwear对男女各执行四处封口的原配色、改色和最终装配检查，共24项颜色断言；另逐封口注入secondary、accent和肤色共12个反例，保证错误色区会被拒绝。保留原拓扑、固定露肤、染色不改几何及帽发检查。自动通过不能替代用户对本次封口颜色的视觉审查。
+
 ## 数据契约
 
 GarmentPiece继续用openings表示真实boundary edge；新增sealedInterfaces表示已封面的接口锚点。sealedInterfaces的每条环边必须恰好被两个面使用，并且必须存在一个直接复用该环顶点的Cap面。assembly同时保留两类锚点，但不做运行时求交或自动修补。
