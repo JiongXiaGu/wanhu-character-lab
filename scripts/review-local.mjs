@@ -13,7 +13,8 @@ const full = process.argv.includes('--full');
 const wardrobe = process.argv.includes('--wardrobe');
 const lightwear = process.argv.includes('--lightwear');
 const skirts=process.argv.includes('--skirts');
-if([wardrobe,lightwear,skirts].filter(Boolean).length>1)throw new Error('请选择 --wardrobe、--lightwear 或 --skirts 中的一个');
+const horse=process.argv.includes('--horse');
+if([wardrobe,lightwear,skirts,horse].filter(Boolean).length>1)throw new Error('请选择 --wardrobe、--lightwear、--skirts 或 --horse 中的一个');
 const children = new Set();
 function launch(args, env = process.env) {
   const child = spawn(process.execPath, args, { cwd: process.cwd(), env, stdio: 'inherit' });
@@ -59,10 +60,10 @@ try {
     await delay(300);
   }
   if (!ready) throw new Error('本地 Vite 启动超时');
-  await run([skirts ? 'scripts/review-skirts.mjs' : lightwear ? 'scripts/review-lightwear.mjs' : wardrobe ? 'scripts/review-wardrobe-batch.mjs' : 'scripts/review-deformation.mjs', ...(full ? [] : ['--quick'])], {
+  await run([horse ? 'scripts/review-horse.mjs' : skirts ? 'scripts/review-skirts.mjs' : lightwear ? 'scripts/review-lightwear.mjs' : wardrobe ? 'scripts/review-wardrobe-batch.mjs' : 'scripts/review-deformation.mjs', ...(full ? [] : ['--quick'])], {
     ...process.env, REVIEW_URL: url, REVIEW_STAGE: 'local',
   });
-  console.log(`本地实机截图已写入 ${skirts ? 'review-wardrobe-batch/skirts-local' : lightwear ? 'review-wardrobe-batch/lightwear-local' : (wardrobe ? 'review-wardrobe-batch/local' : 'review-deformation/local')}/。请实际看图；此命令不代替完整自动回归。`);
+  console.log(`本地实机截图已写入 ${horse ? 'review/horse' : skirts ? 'review-wardrobe-batch/skirts-local' : lightwear ? 'review-wardrobe-batch/lightwear-local' : (wardrobe ? 'review-wardrobe-batch/local' : 'review-deformation/local')}/。请实际看图；此命令不代替完整自动回归。`);
 } finally {
   await stopChildren();
 }

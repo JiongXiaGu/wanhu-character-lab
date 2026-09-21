@@ -1,5 +1,6 @@
 import { BODY_HEIGHT } from '../v3/types';
 import * as T from 'three';
+import { createClipClock } from '../../animation/clip-clock';
 import type { Actor } from '../v3/rig';
 import { SAMPLE_BONE_COUNT, SAMPLE_PARENTS, validateMixamoData, type MixamoMotionData } from './data';
 import { mixamoDefinition, type MixamoId } from './catalog';
@@ -53,7 +54,8 @@ export function createMixamoPlayer(actor: Actor, source: MixamoMotionData): Mixa
   // 只有这一个 FBX 时间游标；定位/暂停/末帧不会启动旧程序动作。
   action.reset().setLoop(T.LoopOnce, 1).setEffectiveWeight(1).play(); action.clampWhenFinished = true; action.paused = true;
   actor.mesh.boundingSphere = bake.bounds.getBoundingSphere(new T.Sphere());
-  let time = 0, disposed = false;
+  const clock = createClipClock(source.duration, bake.loop);
+  let disposed = false;
   const pa = new T.Vector3(), pb = new T.Vector3(), end = new T.Vector3();
   const qa = new T.Quaternion(), qb = new T.Quaternion();
   function samplePoint(index: number, frame: number, next: number, alpha: number, target: T.Vector3) {
@@ -71,6 +73,7 @@ export function createMixamoPlayer(actor: Actor, source: MixamoMotionData): Mixa
   }
   function sync() {
     if (disposed) return;
+    const time = clock.time;
     action.enabled = true; action.time = time; actor.update(0);
     let frame = Math.min(source.times.length - 2, Math.floor(time * source.fps));
     while (frame > 0 && source.times[frame] > time) frame--;
@@ -86,17 +89,12 @@ export function createMixamoPlayer(actor: Actor, source: MixamoMotionData): Mixa
   }
   const player: MixamoPlayer = {
     id: source.id, sourceScene: scene, targetDebug, bake,
-    update(delta) {
-      if (!Number.isFinite(delta) || delta <= 0) { sync(); return; }
-      const next = time + delta;
-      time = bake.loop ? next % source.duration : next >= source.duration - 1e-6 ? source.duration : next;
-      sync();
-    },
-    seek(phase) { time = T.MathUtils.clamp(Number.isFinite(phase) ? phase : 0, 0, 1) * source.duration; sync(); },
-    replay() { time = 0; sync(); },
+    update(delta) { clock.advance(delta); sync(); },
+    seek(phase) { clock.seek(phase); sync(); },
+    replay() { clock.replay(); sync(); },
     setHeadAxes(visible){sourceDebug.visible=visible;targetDebug.visible=visible;sync();},
     status() { return { id: source.id, ready: true, duration: source.duration, loop: bake.loop, seamDegrees: bake.seamDegrees, sourceHash: source.source.sha256,
-      phase: time / source.duration, stage: `Mixamo · ${def.label}`, finished: !bake.loop && time >= source.duration }; },
+      phase: clock.phase, stage: `Mixamo · ${def.label}`, finished: clock.finished }; },
     export() { return exportTargetMotion(actor.data, source, bake); },
     dispose() {
       disposed = true; action.stop(); actor.mixer.uncacheClip(bake.clip);

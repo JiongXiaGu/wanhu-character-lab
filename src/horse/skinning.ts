@@ -33,7 +33,8 @@ export function createHorseActor() {
   // 单个实验资产不以静态包围盒剔除动画；Unity迁移需使用烘焙的动作并集边界。
   mesh.frustumCulled = false;
   const helper = new T.SkeletonHelper(rig.bones[0]); helper.visible = false;
-  helper.material.depthTest = false; helper.renderOrder = 10;
+  const helperMaterials = Array.isArray(helper.material) ? helper.material : [helper.material];
+  helperMaterials.forEach(value => { value.depthTest = false; }); helper.renderOrder = 10;
   const mixer = new T.AnimationMixer(mesh);
   const stats: HorseStats = { triangles: data.triangles.length, logicalVertices: data.vertices.length,
     gpuVertices: geometry.getAttribute('position').count, bones: rig.bones.length };
@@ -41,7 +42,7 @@ export function createHorseActor() {
     sync() { mixer.update(0); mesh.updateMatrixWorld(true); rig.skeleton.update(); helper.updateMatrixWorld(true); },
     dispose() {
       mixer.stopAllAction(); mixer.uncacheRoot(mesh); geometry.dispose(); material.dispose();
-      helper.geometry.dispose(); helper.material.dispose(); rig.skeleton.dispose();
+      helper.geometry.dispose(); helperMaterials.forEach(value => value.dispose()); rig.skeleton.dispose();
       helper.removeFromParent(); mesh.removeFromParent();
     },
   };
