@@ -1,0 +1,66 @@
+name: Batch Two Finalize
+on:
+  push:
+    branches: [prep/wardrobe-batch-two]
+    paths: [.github/workflows/batch-two-finalize.yml]
+permissions:
+  contents: write
+jobs:
+  exact-patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: candidate/wardrobe-batch-two-r2
+          persist-credentials: false
+      - name: Correct counts without deleting any screenshot or motion
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()=='2b02b09dcc65ee687942b96473a1b50d11ec39c0'
+          def replace(path,old,new):
+              p=Path(path);text=p.read_text();assert text.count(old)==1,(path,old);p.write_text(text.replace(old,new))
+          replace('src/App.tsx',"'全部 8 款'",'`全部 ${WARDROBE_LOOKS.length} 款`')
+          replace('scripts/review-wardrobe.ts',"name:'全部 8 款'",'name:`全部 ${WARDROBE_LOOKS.length} 款`')
+          replace('scripts/review-wardrobe.ts','try{\n // 普通入口',"try{\n // 每个搭配仍有17张：静态5、男女2、动作2×5；公共交互/小屏7张。\n // 原8搭配不得因目录扩充而消失，第二批新增2搭配使143增加到177。\n const lookIds=new Set(WARDROBE_LOOKS.map(look=>look.id));\n for(const family of ['plain','town','elegant','ceremony'])for(const body of ['male','female'])assert(lookIds.has(`${family}-${body}`),'原搭配被移除');\n assert.equal(lookIds.size,WARDROBE_LOOKS.length,'搭配ID重复');\n // 普通入口")
+          replace('scripts/review-wardrobe.ts','assert.equal(records.length,143);',"assert.equal(records.length,WARDROBE_LOOKS.length*17+7);assert.equal(new Set(records).size,records.length,'截图文件名重复');")
+          path='.github/workflows/wardrobe-review.yml'
+          replace(path,'node --input-type=module -e "import fs', 'npx tsx -e "import {WARDROBE_LOOKS} from \'./src/character/wardrobe/catalog\'; import fs')
+          replace(path,'assert.equal(r.images,143);',"assert.equal(r.images,WARDROBE_LOOKS.length*17+7); assert(r.images>=143); assert.equal(new Set(r.records).size,r.images);")
+          subprocess.check_call(['git','diff','--check'])
+          subprocess.check_call(['git','diff','--stat'])
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check:retired
+      - name: Store only the three reviewed files as Git objects, without changing any ref
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import urllib.request,json,os,subprocess
+          from pathlib import Path
+          repo='JiongXiaGu/wanhu-character-lab'
+          def api(path,body=None):
+              request=urllib.request.Request('https://api.github.com/repos/'+repo+path,data=None if body is None else json.dumps(body).encode(),headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'})
+              with urllib.request.urlopen(request) as response:return json.load(response)
+          base=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          assert api('/git/ref/heads/candidate/wardrobe-batch-two-r2')['object']['sha']==base,'分支并行推进，停止发布'
+          files=['src/App.tsx','scripts/review-wardrobe.ts','.github/workflows/wardrobe-review.yml']
+          changed=subprocess.check_output(['git','diff','--name-only'],text=True).splitlines();assert sorted(files)==sorted(changed),changed
+          entries=[]
+          for path in files:
+              blob=api('/git/blobs',{'content':Path(path).read_text(),'encoding':'utf-8'})
+              entries.append({'path':path,'mode':'100644','type':'blob','sha':blob['sha']})
+          tree=api('/git/trees',{'base_tree':api('/git/commits/'+base)['tree']['sha'],'tree':entries})
+          commit=api('/git/commits',{'message':'fix: 衣柜搭配扩充后动态计数并保留原143张证据下限','tree':tree['sha'],'parents':[base]})
+          print('VERIFIED_PATCH_COMMIT',commit['sha'])
+          print('PARENT',base,'TREE',tree['sha'])
+          print('NO_REF_CHANGED; connector must fast-forward exact PR17 head explicitly')
+          PY
