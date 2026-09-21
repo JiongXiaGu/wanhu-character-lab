@@ -11,7 +11,7 @@ concurrency:
 jobs:
   compare:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 55
     env:
       HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -69,6 +69,11 @@ jobs:
           REVIEW_HEAD_SHA="$BASE_SHA" REVIEW_STAGE=before REVIEW_URL=http://127.0.0.1:4174 npm run review:wardrobe-batch
           REVIEW_HEAD_SHA="$HEAD_SHA" REVIEW_STAGE=after REVIEW_URL=http://127.0.0.1:4173 npm run review:wardrobe-batch
           python scripts/compose-wardrobe-batch.py
+      - name: Second clothing batch - hat clearance, exposed limbs and short garments
+        run: |
+          REVIEW_HEAD_SHA="$HEAD_SHA" npm run check:lightwear
+          REVIEW_HEAD_SHA="$BASE_SHA" REVIEW_STAGE=before REVIEW_URL=http://127.0.0.1:4174 npm run review:lightwear
+          REVIEW_HEAD_SHA="$HEAD_SHA" REVIEW_STAGE=after REVIEW_URL=http://127.0.0.1:4173 npm run review:lightwear
       - name: Verify source remains unchanged by review
         run: git diff --exit-code
       - name: Preserve diagnostics
@@ -95,4 +100,15 @@ jobs:
             candidate/review-wardrobe-batch/after/report.json
             candidate/review-wardrobe-batch/before/report.json
             candidate/review-wardrobe-batch/after/workbench.png
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lightwear-keyframes
+          path: |
+            candidate/review-wardrobe-batch/lightwear-*.jpg
+            candidate/review-wardrobe-batch/lightwear-*.json
+            candidate/review-wardrobe-batch/lightwear-before/report.json
+            candidate/review-wardrobe-batch/lightwear-after/report.json
+            candidate/review-wardrobe-batch/lightwear-after/workbench.png
           retention-days: 14
