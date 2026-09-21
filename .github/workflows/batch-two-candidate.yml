@@ -17,7 +17,7 @@ jobs:
         working-directory: work
     env:
       BASE_SHA: feebadf7451c53a2637c6cd828ba6d617f15a5ce
-      REVISION: '1'
+      REVISION: '2'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,6 +37,7 @@ jobs:
         run: |
           python3 ../task/.batch-two/apply.py
           python3 ../task/.batch-two/refine.py
+          python3 ../task/.batch-two/postflight.py
           cp ../task/.batch-two/check-lightwear.ts scripts/
           cp ../task/.batch-two/review-lightwear.mjs scripts/
           cp ../task/.batch-two/compose-lightwear.py scripts/
@@ -48,8 +49,11 @@ jobs:
           SHA=$(git rev-parse HEAD)
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
           echo "REVIEW_HEAD_SHA=$SHA" >> "$GITHUB_ENV"
+          git push origin "${SHA}:refs/heads/candidate/wardrobe-batch-two-r${GITHUB_RUN_NUMBER}"
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: |
+          npx playwright install --with-deps chromium
+          python3 -m pip install Pillow
       - name: Build candidate and unchanged baseline
         id: build
         run: |
@@ -90,9 +94,6 @@ jobs:
           BROWSER_RESULT: ${{ steps.browser.outcome }}
         run: |
           git diff --exit-code
-          branch="candidate/wardrobe-batch-two-r${GITHUB_RUN_NUMBER}"
-          git push origin "${REVIEW_HEAD_SHA}:refs/heads/$branch"
-          echo "CANDIDATE_BRANCH=$branch"
           echo "CANDIDATE_SHA=$REVIEW_HEAD_SHA"
           echo "NUMERIC_RESULT=$NUMERIC_RESULT BROWSER_RESULT=$BROWSER_RESULT"
           mkdir -p ReviewEvidence/SecondBatch
@@ -113,9 +114,7 @@ jobs:
           PY
           git add ReviewEvidence
           git commit -m 'chore: second-batch browser evidence only; do not merge this preview commit'
-          preview="preview/wardrobe-batch-two-r${GITHUB_RUN_NUMBER}"
-          git push origin "HEAD:refs/heads/$preview"
-          echo "PREVIEW_BRANCH=$preview"
+          git push origin "HEAD:refs/heads/preview/wardrobe-batch-two-r${GITHUB_RUN_NUMBER}"
           echo "PREVIEW_SHA=$(git rev-parse HEAD)"
       - uses: actions/upload-artifact@v4
         if: always()
