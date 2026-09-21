@@ -26,7 +26,7 @@ npm run review:local -- --horse运行完整104张视口图＋工作台／小屏�
 
 ## 人物生产基线
 
-9上衣／11下装／10推荐。第一批三上衣与两长裤、第二批背心／短褂及帽发安全留量保留。short_trousers164三角形／84逻辑点、true_short_skirt180、long_skirt252，旧short_skirt176不变。命名采用B：旧short_skirt明确是分片裙裤，新真短裙用true_short_skirt，不在旧ID下偷换造型。
+当前正式衣柜为7上衣／5下装／1鞋款，另保留body作为内部裸模哨兵；10张“搭配灵感”继续存在，但“基础搭配”整组已删除。上衣保留work_vest、short_work_jacket、rough_tunic、cross_jacket、layered_vest、ceremony_robe、farmer_tunic；下装保留short_trousers、true_short_skirt、long_skirt、work_pants、work_wrap；鞋只保留cloth_shoes。已退役guard_light_armor、archer_tunic、loose_trousers、guard_pants、archer_pants、pleated_skirt、robe_skirt、short_skirt、boots，不得恢复为隐藏选项或兼容fallback。
 
 两条真裙是连续12段裙壳和12片固定扇面封底，不是裤腿、复杂内衬或布料。服装wanhu-modular-garments-v8；皮肤wanhu-skin-cage-v3、绑定wanhu-fixed-bodies-v1保持。资源v7不是Recipe升级。新短裙与短裤只遮pelvis/thigh，长裙再遮shin；背心／短褂只遮torso，裸露手臂和小腿不能整块删除。
 
@@ -40,7 +40,7 @@ Cap试验当前只覆盖work_vest（128三角形）、short_trousers（164）和
 
 允许按明确covers不绘制内部皮肤，不按动画临时删面、不改光照或源动作伪造通过。差异大的服饰允许专用拓扑，上衣含自身领袖腰带，不无限叠穿槽。
 
-原相交算法、容差、源键／中点、压力动作和20,180严格旧样本保留，现24,216。新增真裙固定封底与腿出口可能数学相交：garment-contact-scope只在离线计算后分类新增裙子的HemCenter与末端Hem/HemInset/HemFacing或皮肤shin。原始交点和接口／其他交点分列，不能宣称全部交点为0。Calf、裙身、腰臀、大腿、上衣、全部旧下装不得被接口豁免。原有普通动作非接口穿插仍阻塞，仅新增两裙Snatch作为压力观察。7个分类正反例保留，不把规则泛化为所有裙装豁免。
+原相交算法、容差、全部源键／中点与压力动作保持；样本数量随当前保留下装目录计算，不再把已删除资产计入固定总数。连续裙固定封底与腿出口可能数学相交：garment-contact-scope只在离线计算后分类裙子的HemCenter与末端Hem/HemInset/HemFacing或皮肤shin。原始交点和接口／其他交点分列，不能宣称全部交点为0。Calf、裙身、腰臀、大腿、上衣及其他保留下装不得被接口豁免；普通动作非接口穿插继续阻塞，两条连续裙的Snatch仅作为压力观察。
 
 自动扫描全部FBX不固定数量，失败明确报错。真实inverse bind，不用首帧代替；保留头部相对bind完整旋转差，不把HeadTop_End当脸前向或锁俯仰。换装／男女切换保持暂停相位，切动画复用网格。
 
