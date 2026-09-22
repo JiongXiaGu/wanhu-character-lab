@@ -33,3 +33,62 @@ jobs:
         run: npm run check:core
       - name: TypeScript and production build
         run: npm run build
+  camel_visual:
+    if: github.event_name == 'pull_request' && github.head_ref == 'task/camel-torso-20260922' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      CAMEL_BEFORE_DIR: /tmp/wanhu-camel-before
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.REVIEW_HEAD_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: |
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Prepare exact previous model in an isolated worktree
+        run: |
+          git worktree add --detach "$CAMEL_BEFORE_DIR" ea315d5e5ee125895089988804d50fff3a138ab3
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$CAMEL_BEFORE_DIR/node_modules"
+      - name: Capture requested before/after modeling evidence
+        run: node scripts/review-camel-torso.mjs
+      - name: Source must remain unchanged
+        run: git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: camel-torso-visual-${{ env.REVIEW_HEAD_SHA }}
+          path: review/camel-torso/
+          retention-days: 14
+      - name: Publish review-only image branch (never merged into main)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          const repo = process.env.GITHUB_REPOSITORY, sha = process.env.REVIEW_HEAD_SHA;
+          if (repo !== 'JiongXiaGu/wanhu-character-lab' || !/^[0-9a-f]{40}$/.test(sha)) throw new Error('unexpected review target');
+          async function api(endpoint, body) {
+            const res = await fetch(`https://api.github.com/repos/${repo}/${endpoint}`, { method: 'POST', headers: { Authorization: `Bearer ${process.env.GH_TOKEN}`, 'Content-Type': 'application/json', Accept: 'application/vnd.github+json' }, body: JSON.stringify(body) });
+            if (!res.ok) throw new Error(`review publish failed: ${endpoint} ${res.status}`);
+            return res.json();
+          }
+          const paths = ['before-after.png', 'after-body-three.png', 'after-body-front.png', 'after-body-rear.png', 'after-rider-simple.png', 'after-rider-travel.png', 'after-rider-run.png', 'after-body-eat.png', 'browser-report.json'];
+          const entries = [];
+          for (const name of paths) { const bytes = await fs.readFile(`review/camel-torso/${name}`); const blob = await api('git/blobs', { content: bytes.toString('base64'), encoding: 'base64' }); entries.push({ path: name, mode: '100644', type: 'blob', sha: blob.sha }); }
+          const tree = await api('git/trees', { tree: entries });
+          const commit = await api('git/commits', { message: `Review-only camel torso evidence for ${sha}; not runtime source`, tree: tree.sha, parents: [] });
+          const branch = `review/camel-torso-${sha.slice(0, 8)}-${process.env.GITHUB_RUN_ATTEMPT}`;
+          await api('git/refs', { ref: `refs/heads/${branch}`, sha: commit.sha });
+          console.log(JSON.stringify({ evidenceCommit: commit.sha, branch, sourceSHA: sha, images: paths }));
+          NODE
