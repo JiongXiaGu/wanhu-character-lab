@@ -37,7 +37,7 @@ export default function RidingLab() {
   const seek = (next: number) => { if (!rideable) return; setPlaying(false); setPhase(validPhase(next)); setSeekRevision(value => value + 1); };
   const replay = () => { if (!rideable) return; setPhase(0); setSeekRevision(value => value + 1); setPlaying(clip !== 'pose'); };
   return <main className="horse-lab riding-lab">
-    <header className="horse-topbar"><div><p>WANHU / RIDING STUDY</p><h1>骑乘试衣 <span>Riding Lab</span></h1></div><WorkspaceSwitcher active="animal"/><span className="horse-phase-tag">PHASE M4 · 多坐骑</span></header>
+    <header className="horse-topbar"><div><p>WANHU / RIDING STUDY</p><h1>骑乘试衣 <span>Riding Lab</span></h1></div><WorkspaceSwitcher active="animal"/><span className="horse-phase-tag">PHASE M5 · 多坐骑</span></header>
     <div className="horse-workspace">
       <section className="horse-stage" aria-label="骑乘预览">
         <div className="horse-stage-title"><p>MOUNT / SADDLE / RIDER</p><h2 data-testid="riding-stage-name">{definition.name}{rideable ? ' · 骑乘' : ''}</h2><span className="horse-stage-motion">{saddleDefinition(saddleId).name} · {rideable ? `${recipe.bodyType === 'female' ? '女性' : '男性'}骑手 · ${active?.label ?? '静态骑姿'}` : '骑乘已暂停'}</span></div>
@@ -61,7 +61,7 @@ export default function RidingLab() {
           <label><input type="checkbox" aria-label="骑手骨架" checked={riderSkeleton} onChange={e => setRiderSkeleton(e.target.checked)}/>骑手骨架</label><label><input type="checkbox" aria-label="坐骑骨架" checked={horseSkeleton} onChange={e => setHorseSkeleton(e.target.checked)}/>坐骑骨架</label>
           <label><input type="checkbox" aria-label="骑乘挂点" checked={seat} onChange={e => setSeat(e.target.checked)}/>骑乘挂点</label><label><input type="checkbox" aria-label="骑乘参考网格" checked={grid} onChange={e => setGrid(e.target.checked)}/>参考网格</label><label><input type="checkbox" aria-label="显示缰绳" checked={reins} onChange={e => setReins(e.target.checked)}/>显示缰绳</label>
         </div></section>
-        <section className="horse-boundary"><p className="horse-eyebrow">当前范围</p><p>同一人物可骑栗色马或灰驴。种类切换会适配鞍具、跨坐宽度和缰绳；衣物与人物绑定保持。</p><p>只有静态、停驻、步行和奔跑；进食在坐骑本体页查看。没有上下坐骑、导航、地形IK或玩家移动。</p></section>
+        <section className="horse-boundary"><p className="horse-eyebrow">当前范围</p><p>同一人物可骑栗色马、灰驴或双峰骆驼。种类切换会适配鞍具、跨坐宽度和缰绳；衣物与人物绑定保持。</p><p>只有静态、停驻、步行和奔跑；进食在坐骑本体页查看。没有上下坐骑、导航、地形IK或玩家移动。</p></section>
       </aside>
     </div>
   </main>;

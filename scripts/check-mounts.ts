@@ -10,6 +10,7 @@ import { MOUNT_MOTIONS, type MountId } from '../src/mounts/types';
 import { createMountPlayer } from '../src/mounts/player';
 import { createRidingPlayer, type RidingPlayer } from '../src/riding/riding-player';
 import { RIDING_CLIP_IDS, ridingDefinition } from '../src/riding/types';
+import { checkCamel } from './mount-camel-checks';
 import { DONKEY_JOINTS } from '../src/donkey/rig';
 import { near, skinnedPoints, validateMountMesh, validateReins, validateSaddleShells } from './mount-check-helpers';
 
@@ -35,7 +36,7 @@ function ridingPose(player: RidingPlayer, collision: boolean) {
   validateReins(player, collision);
 }
 try {
-  assert.deepEqual(MOUNTS.map(d => d.id), ['horse_chestnut', 'donkey_gray']); assert.throws(() => mountDefinition('camel' as MountId)); faults++;
+  assert.deepEqual(MOUNTS.map(d => d.id), ['horse_chestnut', 'donkey_gray', 'camel_bactrian']); assert.throws(() => mountDefinition('camel' as MountId)); faults++;
   const d = mountDefinition('donkey_gray'), actor = d.createActor(); assert.equal(actor.bones.length, 27); assert.equal(DONKEY_JOINTS.at(-1)?.name, 'RightEar');
   report.mesh = { ...actor.stats, shells: validateMountMesh(actor), version: actor.data.version };
   const vertex = actor.data.vertices[0], weight = [...vertex.weight]; vertex.weight[2] = Number.NaN; assert.throws(() => validateMountMesh(actor)); vertex.weight = weight as [number, number, number]; faults++;
@@ -95,6 +96,7 @@ try {
     let released = 0; riding.rider.mesh.geometry.addEventListener('dispose', () => released++); riding.dispose(); riding.dispose(); assert.equal(released, 1);
   }
   assert.equal(bodyPoses, 964); assert.equal(ridingPoses, 2892); assert.equal(wardrobeCases, 70);
+  report.camel = checkCamel();
   Object.assign(report, { result: 'passed', ground, bodyPoses, ridingPoses, wardrobeCases, swaps, faults, boundary: 'Closed shells, bind/skin, ground, sparse body/rein intersections and lifecycle; no visual or full garment-contact approval.' });
   writeFileSync(join(output, 'mounts-checks.json'), JSON.stringify(report, null, 2)); console.log(JSON.stringify(report, null, 2));
 } catch (error) {

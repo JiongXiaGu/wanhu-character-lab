@@ -5,6 +5,10 @@ import { buildDonkeyMesh } from '../donkey/geometry';
 import { DONKEY_JOINTS } from '../donkey/rig';
 import { authorDonkeyPose, bakeDonkeyClips, DONKEY_MOTIONS } from '../donkey/animation';
 import { DONKEY_REIN_PROFILE, DONKEY_RIDER_FIT, DONKEY_SADDLE_PROFILE } from '../donkey/saddles';
+import { buildCamelMesh } from '../camel/geometry';
+import { CAMEL_JOINTS } from '../camel/rig';
+import { authorCamelPose, bakeCamelClips, CAMEL_MOTIONS } from '../camel/animation';
+import { CAMEL_REIN_PROFILE, CAMEL_RIDER_FIT, CAMEL_SADDLE_PROFILE } from '../camel/saddles';
 import { HORSE_REIN_PROFILE, HORSE_RIDER_FIT, HORSE_SADDLE_PROFILE } from './horse-profile';
 import { makeMountActor } from './skinning';
 import { MOUNT_IDS, MOUNT_MOTIONS, type MountDefinition, type MountId, type MountMotion, type MountMotionDefinition, type MountSelection } from './types';
@@ -23,6 +27,11 @@ export const MOUNTS: readonly MountDefinition[] = [
     backPitch(id, p) { const pose = authorDonkeyPose(id, p); return pose.rotations[1][0] + pose.rotations[2][0]; },
     frame: { bodyY: 1.04, ridingY: 1.18, bodyHalf: 1.34, ridingHalf: 1.53 },
   },
+  { id: 'camel_bactrian', name: '双峰骆驼', description: '双峰、弯曲长颈、长腿与宽脚垫；两峰间驼鞍和独立同侧步态。', createActor: () => makeMountActor(buildCamelMesh(), CAMEL_JOINTS, 'WanhuCamel'),
+    bakeClips: bakeCamelClips, motions: CAMEL_MOTIONS, saddle: CAMEL_SADDLE_PROFILE, reins: CAMEL_REIN_PROFILE, riderFit: CAMEL_RIDER_FIT,
+    backPitch(id, p) { const pose = authorCamelPose(id, p); return pose.rotations[1][0] + pose.rotations[2][0]; },
+    frame: { bodyY: 1.32, ridingY: 1.60, bodyHalf: 1.75, ridingHalf: 1.98 },
+  },
 ];
 export function isMountId(value: unknown): value is MountId { return typeof value === 'string' && MOUNT_IDS.includes(value as MountId); }
 export function mountDefinition(id: MountId): MountDefinition { const definition = MOUNTS.find(value => value.id === id); if (!definition) throw new Error(`未知坐骑：${String(id)}`); return definition; }
@@ -30,5 +39,5 @@ export function initialMount(query: URLSearchParams): MountId { const id = query
 /** 历史马本体URL的片段名只在入口归一化；播放器始终使用语义，不给驴播放Horse轨道。 */
 export function initialMountMotion(value: string | null): MountSelection {
   if (value === 'bind') return 'bind';
-  const semantic = value?.replace(/^(Horse|Donkey)_/, '').toLowerCase(); return MOUNT_MOTIONS.includes(semantic as MountMotion) ? semantic as MountMotion : 'idle';
+  const semantic = value?.replace(/^(Horse|Donkey|Camel)_/, '').toLowerCase(); return MOUNT_MOTIONS.includes(semantic as MountMotion) ? semantic as MountMotion : 'idle';
 }

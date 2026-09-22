@@ -5,8 +5,8 @@ import { mountDefinition } from '../mounts/catalog';
 import { MOUNT_FPS, type MountId } from '../mounts/types';
 import { RIDING_CLIP_IDS, ridingDefinition, type RidingSelection } from './types';
 
-export const RIDER_POSE_VERSION = 'wanhu-rider-pose-m4-v1';
-/** 只在创建轨道时校准；马的M3参数不改，灰驴使用自己的跨坐宽度和时长。 */
+export const RIDER_POSE_VERSION = 'wanhu-rider-pose-m5-v1';
+/** 只在创建轨道时校准；马/驴原参数不改，骆驼有独立跨坐及持缰方向；时长来自当前坐骑。 */
 export function authorRiderPose(data: CharacterData, id: RidingSelection, phase: number, mountId: MountId = 'horse_chestnut'): Quaternion[] {
   const definition = mountDefinition(mountId), rotations = data.joints.map(() => new Quaternion());
   const p = ((phase % 1) + 1) % 1, a = 2 * Math.PI * p, moving = id !== 'pose', run = id === 'Rider_Run', walk = id === 'Rider_Walk';
@@ -27,7 +27,9 @@ export function authorRiderPose(data: CharacterData, id: RidingSelection, phase:
     rotations[thigh].copy(thighWorld); rotations[shin].copy(thighWorld).invert().multiply(shinWorld).normalize();
     rotations[foot].copy(shinWorld).invert().multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), side * .08)).normalize();
     const upper = right ? B.RightUpperArm : B.LeftUpperArm, lower = right ? B.RightForearm : B.LeftForearm, hand = right ? B.RightHand : B.LeftHand;
-    const upperWorld = aim(upper, lower, new Vector3(side * .08, -.91, .41 + .006 * wave)), lowerWorld = aim(lower, hand, new Vector3(-side * .22, .20, .95));
+    const arm = fit.upperArmDirection ?? [.08, -.91, .41], forearm = fit.forearmDirection ?? [-.22, .20, .95];
+    const upperWorld = aim(upper, lower, new Vector3(side * arm[0], arm[1], arm[2] + .006 * wave));
+    const lowerWorld = aim(lower, hand, new Vector3(side * forearm[0], forearm[1], forearm[2]));
     rotations[upper].copy(upperWorld); rotations[lower].copy(upperWorld).invert().multiply(lowerWorld).normalize();
     const restHand = new Vector3(...shapePoint([side * .546, .832, .025], data.recipe)).sub(new Vector3(...data.joints[hand].p)).normalize();
     const handWorld = new Quaternion().setFromUnitVectors(restHand, new Vector3(-side * .10, -.86, .50).normalize());
