@@ -9,6 +9,10 @@ import { buildCamelMesh } from '../camel/geometry';
 import { CAMEL_JOINTS } from '../camel/rig';
 import { authorCamelPose, bakeCamelClips, CAMEL_MOTIONS } from '../camel/animation';
 import { CAMEL_REIN_PROFILE, CAMEL_RIDER_FIT, CAMEL_SADDLE_PROFILE } from '../camel/saddles';
+import { buildCattleMesh } from '../cattle/geometry';
+import { CATTLE_JOINTS } from '../cattle/rig';
+import { authorCattlePose, bakeCattleClips, CATTLE_MOTIONS } from '../cattle/animation';
+import { CATTLE_REIN_PROFILE, CATTLE_RIDER_FIT, CATTLE_SADDLE_PROFILE } from '../cattle/saddles';
 import { HORSE_REIN_PROFILE, HORSE_RIDER_FIT, HORSE_SADDLE_PROFILE } from './horse-profile';
 import { makeMountActor } from './skinning';
 import { MOUNT_IDS, MOUNT_MOTIONS, type MountDefinition, type MountId, type MountMotion, type MountMotionDefinition, type MountSelection } from './types';
@@ -32,6 +36,11 @@ export const MOUNTS: readonly MountDefinition[] = [
     backPitch(id, p) { const pose = authorCamelPose(id, p); return pose.rotations[1][0] + pose.rotations[2][0]; },
     frame: { bodyY: 1.32, ridingY: 1.60, bodyHalf: 1.75, ridingHalf: 1.98 },
   },
+  { id: 'cattle_yellow', name: '黄牛', description: '厚实桶身、短粗颈、宽鼻镜、弯牛角与分趾蹄；中国古代农耕背景的独立可骑乘黄牛。', createActor: () => makeMountActor(buildCattleMesh(), CATTLE_JOINTS, 'WanhuCattle'),
+    bakeClips: bakeCattleClips, motions: CATTLE_MOTIONS, saddle: CATTLE_SADDLE_PROFILE, reins: CATTLE_REIN_PROFILE, riderFit: CATTLE_RIDER_FIT,
+    backPitch(id, p) { const pose = authorCattlePose(id, p); return pose.rotations[1][0] + pose.rotations[2][0]; },
+    frame: { bodyY: 1.02, ridingY: 1.24, bodyHalf: 1.42, ridingHalf: 1.58 },
+  },
 ];
 export function isMountId(value: unknown): value is MountId { return typeof value === 'string' && MOUNT_IDS.includes(value as MountId); }
 export function mountDefinition(id: MountId): MountDefinition { const definition = MOUNTS.find(value => value.id === id); if (!definition) throw new Error(`未知坐骑：${String(id)}`); return definition; }
@@ -39,5 +48,5 @@ export function initialMount(query: URLSearchParams): MountId { const id = query
 /** 历史马本体URL的片段名只在入口归一化；播放器始终使用语义，不给驴播放Horse轨道。 */
 export function initialMountMotion(value: string | null): MountSelection {
   if (value === 'bind') return 'bind';
-  const semantic = value?.replace(/^(Horse|Donkey|Camel)_/, '').toLowerCase(); return MOUNT_MOTIONS.includes(semantic as MountMotion) ? semantic as MountMotion : 'idle';
+  const semantic = value?.replace(/^(Horse|Donkey|Camel|Cattle)_/, '').toLowerCase(); return MOUNT_MOTIONS.includes(semantic as MountMotion) ? semantic as MountMotion : 'idle';
 }
