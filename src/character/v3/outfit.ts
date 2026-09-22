@@ -386,37 +386,13 @@ function buildHeadwear(c: Cage, id: HeadwearId, recipe: Recipe) {
       skin,
     );
     bridge(c, low, high, "equipment", "#66716c");
+    // 轻盔帽底直接封面，颜色跟随盔身；头部/头发允许穿过不可见底盖。
+    face(c, [...low].reverse(), "equipment", "#66716c");
     face(c, high, "equipment", "#778078");
     return;
   }
 
-  const a = ring(
-    c,
-    "HeadbandA",
-    [0, 1.695, 0],
-    [1, 0, 0],
-    [0, 0, 1],
-    OCT,
-    0.103,
-    0.099,
-    skin,
-  );
-  const b = ring(
-    c,
-    "HeadbandB",
-    [0, 1.712, 0],
-    [1, 0, 0],
-    [0, 0, 1],
-    OCT,
-    0.101,
-    0.098,
-    skin,
-  );
-  // 额前束带后侧开放，避免闭环横穿低髻；所有发型使用同一制作结构。
-  for(const i of [6,7,0,1]){
-    const j=(i+1)%8;
-    face(c,[a[i],a[j],b[j],b[i]],"equipment","#a48760");
-  }
+  throw new Error("未实现头饰几何："+id);
 }
 function addSword(c: Cage) {
   const w = rigid(B.RightHand);

@@ -5,9 +5,9 @@ import { makeTop } from '../src/character/wardrobe/assets/tops';
 import { makeTrousers } from '../src/character/wardrobe/assets/trousers';
 import { assertGarmentPiece } from './check-garment-assets';
 import { triCount,cloneCage,cross,sub,dot } from '../src/character/v3/cage';
-import { createRecipe,B,BODY_TYPES,HAIR_STYLE_IDS,emptySlots,type Cage,type Vec3,type Recipe,type HeadwearId } from '../src/character/v3/types';
+import { createRecipe,B,BODY_TYPES,HAIR_STYLE_IDS,HEADWEAR_IDS,emptySlots,type Cage,type Vec3,type Recipe,type HeadwearId } from '../src/character/v3/types';
 import { parseRecipeFile } from '../src/character/wardrobe/catalog';
-import { HEADWEAR_CLEARANCE,HEADWEAR_GEOMETRY_VERSION } from '../src/character/wardrobe/headwear-fit';
+import { HEADWEAR_GEOMETRY_VERSION } from '../src/character/wardrobe/headwear-fit';
 import { isClosedHemContact,type ContactTriangle } from './garment-contact-scope';
 
 const newTops=['work_vest','short_work_jacket'] as const,newBottoms=['short_trousers'] as const;
@@ -52,30 +52,66 @@ function pierces(a:Vec3,b:Vec3,p:Vec3[]){
 function triangles(c:Cage,accept:(id:string)=>boolean){
   return c.faces.filter(f=>f.v.every(i=>accept(c.vertices[i].id))).flatMap(f=>f.v.slice(1,-1).map((_,k)=>[f.v[0],f.v[k+1],f.v[k+2]]));
 }
-const hatVertex=(id:string)=>/^(Helmet|WardrobeCap|CapTablet|CapWings|WrapKnot|Straw|Headband)/.test(id);
+const hatVertex=(id:string)=>/^(Helmet|WardrobeCap|CapTablet|CapWings|WrapKnot|Straw|Headband|JadePin|JadeFinial)/.test(id);
+const headwearTriangles:Record<Exclude<HeadwearId,'none'>,number>={
+  farmer_straw_hat:24,guard_helmet:28,archer_headband:36,cloth_wrap:40,scholar_cap:52,jade_pin:24,
+};
+const baseCapPrefix=(id:HeadwearId)=>id==='guard_helmet'?'HelmetBrim':id==='cloth_wrap'||id==='scholar_cap'?'WardrobeCapBase':undefined;
+const isBaseCapTriangle=(c:Cage,id:HeadwearId,tri:number[])=>{
+  const prefix=baseCapPrefix(id);return !!prefix&&tri.every(i=>c.vertices[i].id.startsWith(prefix+'.'));
+};
+function assertHeadwearClosed(c:Cage,id:Exclude<HeadwearId,'none'>){
+  const head=new Set(c.vertices.map((v,i)=>hatVertex(v.id)?i:-1).filter(i=>i>=0)),faces=c.faces.filter(f=>f.v.every(i=>head.has(i)));
+  assert(head.size>0&&faces.length>0,id+' 缺少头饰几何');
+  const counts=new Map<string,number>(),used=new Set<number>();
+  for(const f of faces){
+    assert.equal(f.region,'equipment',id+' 头饰面必须属于 equipment');
+    for(let k=1;k<f.v.length-1;k++)assert(Math.hypot(...cross(sub(c.vertices[f.v[k]].p,c.vertices[f.v[0]].p),sub(c.vertices[f.v[k+1]].p,c.vertices[f.v[0]].p)))>1e-10,id+' 存在退化帽面');
+    for(let i=0;i<f.v.length;i++){
+      const a=f.v[i],b=f.v[(i+1)%f.v.length],key=a<b?a+':'+b:b+':'+a;
+      used.add(a);counts.set(key,(counts.get(key)??0)+1);
+    }
+  }
+  assert.equal(used.size,head.size,id+' 存在未使用头饰顶点');
+  assert([...counts.values()].every(n=>n===2),id+' 必须零开放边且无非流形边');
+  for(const i of head)assert.deepEqual(c.vertices[i].w,[B.Head,B.Head,1],id+' 必须保持Head刚性权重');
+  const tris=faces.reduce((n,f)=>n+f.v.length-2,0);assert.equal(tris,headwearTriangles[id],id+' 头饰面数契约变化');
+  const prefix=baseCapPrefix(id);
+  if(prefix){
+    const base=faces.filter(f=>f.v.every(i=>c.vertices[i].id.startsWith(prefix+'.')));assert.equal(base.length,1,id+' 帽底必须恰好一个Cap');
+    const side=faces.find(f=>f.v.some(i=>c.vertices[i].id.startsWith(prefix+'.'))&&!f.v.every(i=>c.vertices[i].id.startsWith(prefix+'.')));assert(side);
+    assert.equal(base[0].color,side.color,id+' 帽底必须使用帽身颜色');
+  }
+  if(id==='archer_headband')assert.equal(new Set(faces.map(f=>f.color)).size,1,'额带封闭薄实体必须保持同一布色');
+  return {triangles:tris,boundaryEdges:[...counts.values()].filter(n=>n===1).length};
+}
 const hairVertex=(id:string)=>/^(Hairline|HairCrown|HairVolume|CustomHair)/.test(id);
-function assertHat(c:Cage,id:HeadwearId){
+function assertHat(c:Cage,id:Exclude<HeadwearId,'none'|'jade_pin'>){
   const hs=triangles(c,hatVertex),hair=triangles(c,hairVertex);assert(hs.length>0&&hair.length>0);
   for(const v of c.vertices.filter(v=>hatVertex(v.id)||hairVertex(v.id)))assert.deepEqual(v.w,[B.Head,B.Head,1]);
-  const failures:any[]=[];
+  const failures:any[]=[];let capHairContacts=0;
   for(const a of hs)for(const b of hair){
     const x=a.map(i=>c.vertices[i].p),y=b.map(i=>c.vertices[i].p);
-    if([0,1,2].some(t=>pierces(x[t],x[(t+1)%3],y)||pierces(y[t],y[(t+1)%3],x)))failures.push({hat:a.map(i=>c.vertices[i].id),hair:b.map(i=>c.vertices[i].id)});
+    if(![0,1,2].some(t=>pierces(x[t],x[(t+1)%3],y)||pierces(y[t],y[(t+1)%3],x)))continue;
+    if(isBaseCapTriangle(c,id,a)){capHairContacts++;continue;}
+    failures.push({hat:a.map(i=>c.vertices[i].id),hair:b.map(i=>c.vertices[i].id)});
   }
-  assert.equal(failures.length,0,`${id} 与头发有静态贯穿：${JSON.stringify(failures.slice(0,4))}`);
+  assert.equal(failures.length,0,id+' 与头发有非帽底静态贯穿：'+JSON.stringify(failures.slice(0,4)));
   if(['guard_helmet','cloth_wrap','scholar_cap'].includes(id)){
     const prefix=id==='guard_helmet'?'Helmet':'WardrobeCap';
-    const shell=c.faces.filter(f=>f.v.every(i=>c.vertices[i].id.startsWith(prefix)));
+    const shell=c.faces.filter(f=>f.v.every(i=>c.vertices[i].id.startsWith(prefix))&&!isBaseCapTriangle(c,id,f.v));
     const h=c.vertices.filter(v=>/^(HairVolume|HairCrown)/.test(v.id));
     const center:Vec3=[0,h.reduce((s,v)=>s+v.p[1],0)/h.length,0];
     for(const f of shell){
       const [a,b,d]=f.v.slice(0,3).map(i=>c.vertices[i].p),normal=cross(sub(b,a),sub(d,a)),len=Math.hypot(...normal);
-      // 外壳没有封死的帽底；用内部中心选择朝外法线，避免绕序假设。
+      // 侧壳和帽顶继续要求包住主头发；只有指定帽底Cap允许头部/头发穿过。
       const sign=dot(normal,sub(center,a))>0?-1:1;
-      for(const v of h)assert(sign*dot(normal,sub(v.p,a))/len<-.001,`${id} 帽壳没有包住 ${v.id}`);
+      for(const v of h)assert(sign*dot(normal,sub(v.p,a))/len<-.001,id+' 帽壳没有包住 '+v.id);
     }
   }
+  return capHairContacts;
 }
+
 for(const bodyType of BODY_TYPES){
   for(const top of newTops){
     const recipe=createRecipe({bodyType,slots:{...emptySlots(),top},dyes:contrast}),p=makeTop(recipe)!;assertGarmentPiece(p);
@@ -107,12 +143,13 @@ for(const bodyType of BODY_TYPES){
     assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);assert.equal(recipe.version,5);assert.equal(d.joints.length,20);assert.equal(triCount(d.body),524);
     assert(d.surface.vertices.every(v=>v.p.every(Number.isFinite)));mixes.push({bodyType,top,bottom,triangles:triCount(d.surface),logicalVertices:d.surface.vertices.length});
   }
-  for(const hairStyle of HAIR_STYLE_IDS)for(const id of Object.keys(HEADWEAR_CLEARANCE) as HeadwearId[]){
+  for(const hairStyle of HAIR_STYLE_IDS)for(const id of HEADWEAR_IDS.filter((x):x is Exclude<HeadwearId,'none'>=>x!=='none')){
     const recipe=createRecipe({bodyType,hairStyle,slots:{...emptySlots(),headwear:id}}),d=makeCharacter(recipe);
-    assertHat(d.surface,id);
+    const topology=assertHeadwearClosed(d.surface,id);
+    const capHairContacts=id==='jade_pin'?0:assertHat(d.surface,id);
     const restored=makeCharacter({...recipe,slots:{...recipe.slots,headwear:'none'}});
     const same=makeCharacter(createRecipe({bodyType,hairStyle,slots:emptySlots()}));assert.deepEqual(restored.surface,same.surface);
-    hats.push({bodyType,hairStyle,id,passed:true});
+    hats.push({bodyType,hairStyle,id,passed:true,...topology,capHairContacts});
   }
 }
 const vest=makeTop(createRecipe({slots:{top:'work_vest'}}))!.mesh,jacket=makeTop(createRecipe({slots:{top:'short_work_jacket'}}))!.mesh;
@@ -136,6 +173,17 @@ const shin:ContactTriangle={ids:['RightKneeUpper.0','RightKneeUpper.1','RightKne
 assert(isClosedHemContact('short_trousers',cap,shin));assert(!isClosedHemContact('short_trousers',cap,{...shin,region:'thigh'}));
 const shrunk=makeCharacter(createRecipe({slots:{...emptySlots(),headwear:'guard_helmet'}})).surface;
 for(const v of shrunk.vertices.filter(v=>hatVertex(v.id))){v.p[0]*=.6;v.p[2]*=.6;}assert.throws(()=>assertHat(shrunk,'guard_helmet'),'必须抓住过小帽壳回归');
-const report={passed:true,headwearVersion:HEADWEAR_GEOMETRY_VERSION,rows,mixes,hats,mutationChecks:3,capContactScopeCases:2,capColorChecks:24,capColorMutationChecks,scope:'绑定空间资产、固定露肤、染色、Cap主布色、帽发贯穿与V5契约；动画源帧/中点及真实网页图片另行检查。'};
+let headwearHoleMutations=0,headwearCapColorMutations=0;
+for(const id of HEADWEAR_IDS.filter((x):x is Exclude<HeadwearId,'none'>=>x!=='none')){
+  const source=makeCharacter(createRecipe({slots:{...emptySlots(),headwear:id}})).surface,broken=cloneCage(source);
+  const fi=broken.faces.findIndex(f=>f.v.every(i=>hatVertex(broken.vertices[i].id)));assert(fi>=0);broken.faces.splice(fi,1);
+  assert.throws(()=>assertHeadwearClosed(broken,id),id+' 删除任意头饰面后必须失败');headwearHoleMutations++;
+}
+for(const id of ['guard_helmet','cloth_wrap','scholar_cap'] as const){
+  const source=makeCharacter(createRecipe({slots:{...emptySlots(),headwear:id}})).surface,wrong=cloneCage(source),prefix=baseCapPrefix(id)!;
+  const base=wrong.faces.find(f=>f.v.every(i=>wrong.vertices[i].id.startsWith(prefix+'.')));assert(base);base.color='#c8956e';
+  assert.throws(()=>assertHeadwearClosed(wrong,id),id+' 帽底使用肤色必须失败');headwearCapColorMutations++;
+}
+const report={passed:true,headwearVersion:HEADWEAR_GEOMETRY_VERSION,rows,mixes,hats,mutationChecks:3,capContactScopeCases:2,capColorChecks:24,capColorMutationChecks,headwearTopologyChecks:hats.length,headwearHoleMutations,headwearCapColorMutations,scope:'绑定空间资产、固定露肤、染色、服装Cap主布色、头饰零开放边/同色帽底、窄范围帽底×头发制作接触与V5契约；动画源帧/中点及真实网页图片另行检查。'};
 mkdirSync('review-wardrobe-batch',{recursive:true});writeFileSync('review-wardrobe-batch/lightwear-numeric.json',JSON.stringify(report,null,2));
 console.log('LIGHTWEAR_NUMERIC',JSON.stringify(report));
