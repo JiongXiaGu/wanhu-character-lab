@@ -4,7 +4,7 @@ import { makeTop } from '../src/character/wardrobe/assets/tops';
 import { makeTrousers } from '../src/character/wardrobe/assets/trousers';
 import { makeFootwear } from '../src/character/wardrobe/assets/footwear';
 import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from '../src/character/wardrobe/assets/contract';
-import { createRecipe, TOP_IDS, BOTTOM_IDS, BODY_TYPES, presetSlots } from '../src/character/v3/types';
+import { createRecipe, TOP_IDS, BOTTOM_IDS, BODY_TYPES, emptySlots } from '../src/character/v3/types';
 import { cloneCage, triCount, cross, sub } from '../src/character/v3/cage';
 import { makeCharacter } from '../src/character/v3/outfit';
 import { assertComponentWinding } from './check-components';
@@ -51,7 +51,7 @@ export function assertModularAssets():number {
   for(const bodyType of BODY_TYPES){
     for(const top of TOP_IDS){const p=makeTop(createRecipe({bodyType,slots:{top}}));if(p){assertGarmentPiece(p);checked++;}}
     for(const bottom of BOTTOM_IDS){const p=makeTrousers(createRecipe({bodyType,slots:{bottom}}));if(p){assertGarmentPiece(p);checked++;}}
-    for(const shoes of ['cloth_shoes','boots'] as const){assertGarmentPiece(makeFootwear(createRecipe({bodyType,slots:{shoes}}))!);checked++;}
+    assertGarmentPiece(makeFootwear(createRecipe({bodyType,slots:{shoes:'cloth_shoes'}}))!);checked++;
     for(const top of TOP_IDS)for(const bottom of BOTTOM_IDS){
       const r=createRecipe({bodyType,slots:{top,bottom}}),d=makeCharacter(r);
       const covers=new Set(d.garments.flatMap(p=>p.covers));
@@ -63,18 +63,18 @@ export function assertModularAssets():number {
       assert(d.surface.faces.some(f=>f.part==='skin'&&f.region==='hand'));
       for(const g of d.garments)assert(d.surface.faces.some(f=>f.part===g.slot));
     }
-    const bare=makeCharacter(createRecipe({bodyType,slots:presetSlots('body')}));
+    const bare=makeCharacter(createRecipe({bodyType,slots:emptySlots()}));
     assert.equal(bare.replacedTriangles,0);assert.equal(bare.garments.length,0);
     assert.equal(bare.surface.faces.filter(f=>f.part==='skin').length,bare.body.faces.length);
-    const recipe=createRecipe({bodyType,slots:{top:'rough_tunic',bottom:'loose_trousers'}});
+    const recipe=createRecipe({bodyType,slots:{top:'rough_tunic',bottom:'work_pants'}});
     const signature=(slot:'top'|'bottom',r:typeof recipe)=>{
       const c=makeCharacter(r).surface;
       return c.faces.filter(f=>f.part===slot).map(f=>({color:f.color,vertices:f.v.map(i=>c.vertices[i])}));
     };
     assert.deepEqual(signature('bottom',recipe),signature('bottom',{...recipe,slots:{...recipe.slots,top:'cross_jacket'}}),'换上衣重做了裤装');
-    assert.deepEqual(signature('top',recipe),signature('top',{...recipe,slots:{...recipe.slots,bottom:'robe_skirt'}}),'换下装改变了上衣');
+    assert.deepEqual(signature('top',recipe),signature('top',{...recipe,slots:{...recipe.slots,bottom:'long_skirt'}}),'换下装改变了上衣');
   }
-  const pants=makeTrousers(createRecipe({slots:{bottom:'loose_trousers'}}))!;
+  const pants=makeTrousers(createRecipe({slots:{bottom:'work_pants'}}))!;
   const copy=():GarmentPiece=>({...pants,mesh:cloneCage(pants.mesh),openings:structuredClone(pants.openings)});
   const hole=copy();hole.mesh.faces.splice(hole.mesh.faces.findIndex(f=>f.region==='pelvis'),1);assert.throws(()=>assertGarmentPiece(hole),'检测器必须抓住裆底破洞');
   const duplicate=copy();duplicate.mesh.faces.push(structuredClone(duplicate.mesh.faces[0]));assert.throws(()=>assertGarmentPiece(duplicate));

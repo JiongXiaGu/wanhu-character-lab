@@ -6,8 +6,8 @@ import { execFileSync } from 'node:child_process';
 const stage=process.env.REVIEW_STAGE??'after',before=stage==='before',quick=process.argv.includes('--quick');
 assert(/^[a-zA-Z0-9_-]+$/.test(stage));
 const root=`review-wardrobe-batch/lightwear-${stage}`,base=process.env.REVIEW_URL??'http://127.0.0.1:4173';
-const newMixes=[['work_vest','short_trousers'],['work_vest','short_skirt'],['short_work_jacket','short_trousers'],['short_work_jacket','short_skirt']];
-const mixes=[...newMixes,['work_vest','loose_trousers'],['short_work_jacket','guard_pants'],['rough_tunic','short_trousers'],['cross_jacket','short_skirt']];
+const newMixes=[['work_vest','short_trousers'],['work_vest','true_short_skirt'],['short_work_jacket','short_trousers'],['short_work_jacket','true_short_skirt']];
+const mixes=[...newMixes,['work_vest','work_pants'],['short_work_jacket','work_wrap'],['rough_tunic','short_trousers'],['cross_jacket','true_short_skirt']];
 const headwear=['guard_helmet','cloth_wrap','scholar_cap','farmer_straw_hat','archer_headband'];
 const priority=[['pilot-switches',.5],['snatch',.05],['jogging',.25],['shooting-arrow',.5],['start-walking',.5]];
 const normal={primary:'#887560',secondary:'#567577',accent:'#d5be8f'},contrast={primary:'#fa1945',secondary:'#12cee7',accent:'#ffda16'};
@@ -20,7 +20,7 @@ async function ready(clip){
   await settle();
 }
 async function open(bodyType,clip,view){
-  const q=new URLSearchParams({review:'1',paused:'1',preset:'body',bodyType,top:'rough_tunic',bottom:'loose_trousers',shoes:'cloth_shoes',headwear:'none',back:'none',leftHand:'none',rightHand:'none',view,...(clip==='bind'?{pose:'bind'}:{mixamo:clip})});
+  const q=new URLSearchParams({review:'1',paused:'1',bodyType,top:'rough_tunic',bottom:'work_pants',shoes:'cloth_shoes',headwear:'none',back:'none',leftHand:'none',rightHand:'none',view,...(clip==='bind'?{pose:'bind'}:{mixamo:clip})});
   await page.goto(base+'/?'+q);await ready(clip);
 }
 async function wear(bodyType,top,bottom,clip,colors=normal,hat='none',hair='topknot'){
@@ -49,8 +49,8 @@ try{
   for(const bodyType of ['male','female'])for(const view of ['front','side','back']){
     await open(bodyType,'bind',view);await page.evaluate(()=>window.__WANHU_REVIEW__.focusHead());
     for(const hat of headwear)for(const hair of view==='back'?['topknot']:['topknot','low_bun','double_bun']){
-      await wear(bodyType,'rough_tunic','loose_trousers','bind',normal,hat,hair);
-      await shot({kind:'hat',bodyType,top:'rough_tunic',bottom:'loose_trousers',headwear:hat,hairStyle:hair,clip:'bind',view});
+      await wear(bodyType,'rough_tunic','work_pants','bind',normal,hat,hair);
+      await shot({kind:'hat',bodyType,top:'rough_tunic',bottom:'work_pants',headwear:hat,hairStyle:hair,clip:'bind',view});
     }
   }
   if(!before&&!quick){
@@ -70,8 +70,8 @@ try{
       for(const [top,bottom]of newMixes){await wear(bodyType,top,bottom,'bind',contrast);await shot({kind:'dye',bodyType,top,bottom,clip:'bind',view});}
     }
     for(const bodyType of ['male','female'])for(const top of ['work_vest','short_work_jacket'])for(const view of ['front','free']){
-      await open(bodyType,'bind',view);await wear(bodyType,top,'short_skirt','bind');await page.evaluate(()=>window.__WANHU_REVIEW__.focusTorso());
-      await shot({kind:'detail',bodyType,top,bottom:'short_skirt',clip:'bind',view});
+      await open(bodyType,'bind',view);await wear(bodyType,top,'true_short_skirt','bind');await page.evaluate(()=>window.__WANHU_REVIEW__.focusTorso());
+      await shot({kind:'detail',bodyType,top,bottom:'true_short_skirt',clip:'bind',view});
     }
     await open('male','pilot-switches','free');
     await page.getByLabel('动画进度',{exact:true}).evaluate(input=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'0.42');input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));});
@@ -81,7 +81,7 @@ try{
       const r=await page.evaluate(()=>window.__WANHU_RECIPE__()),s=await page.evaluate(()=>window.__WANHU_REVIEW__.getStatus());
       assert.equal(r.slots.top,top);assert.equal(r.slots.bottom,bottom);assert.equal(r.bodyType,bodyType);assert(Math.abs(s.phase-.42)<1e-6);swaps.push({bodyType,top,bottom,phase:s.phase});
     }
-    await open('female','bind','free');await wear('female','short_work_jacket','short_skirt','bind');await page.screenshot({path:root+'/workbench.png',fullPage:true});
+    await open('female','bind','free');await wear('female','short_work_jacket','true_short_skirt','bind');await page.screenshot({path:root+'/workbench.png',fullPage:true});
   }
   assert.equal(records.length,before?70:quick?134:270);assert.equal(swaps.length,!before&&!quick?8:0);assert.deepEqual(errors,[]);
 }catch(error){failure=String(error);throw error;}finally{

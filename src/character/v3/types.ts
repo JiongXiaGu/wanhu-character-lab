@@ -21,7 +21,6 @@ export const BODY_TYPES = ["male", "female"] as const;
 export const BODY_PROFILE_VERSION = "wanhu-fixed-bodies-v1";
 export const BODY_HEIGHT: Readonly<Record<BodyType, number>> = { male: 1.76, female: 1.66 };
 
-export type Outfit = "farmer" | "guard" | "archer" | "body";
 
 export type HeadwearId =
   | "none"
@@ -34,8 +33,6 @@ export type HeadwearId =
 export type TopId =
   | "body"
   | "farmer_tunic"
-  | "guard_light_armor"
-  | "archer_tunic"
   | "rough_tunic"
   | "cross_jacket"
   | "layered_vest"
@@ -45,17 +42,11 @@ export type TopId =
 export type BottomId =
   | "body"
   | "work_pants"
-  | "guard_pants"
-  | "archer_pants"
-  | "loose_trousers"
   | "work_wrap"
-  | "pleated_skirt"
-  | "robe_skirt"
   | "short_trousers"
-  | "short_skirt"
   | "true_short_skirt"
   | "long_skirt";
-export type ShoesId = "body" | "cloth_shoes" | "boots";
+export type ShoesId = "body" | "cloth_shoes";
 export type BackId = "none" | "archer_quiver";
 export type LeftHandId = "none" | "guard_shield" | "archer_bow";
 export type RightHandId = "none" | "farmer_hoe" | "guard_sword";
@@ -119,8 +110,6 @@ export interface CharacterData {
   garments: { id: string; slot: "top" | "bottom" | "shoes"; version: string; triangles: number; covers: Region[]; openings: string[] }[];
 }
 
-export const PRESET_IDS = ["farmer", "guard", "archer", "body"] as const;
-
 export const HEADWEAR_IDS = [
   "none",
   "farmer_straw_hat",
@@ -132,25 +121,18 @@ export const HEADWEAR_IDS = [
 export const TOP_IDS = [
   "body",
   "farmer_tunic",
-  "guard_light_armor",
-  "archer_tunic",
   "rough_tunic", "cross_jacket", "layered_vest", "ceremony_robe",
   "work_vest", "short_work_jacket",
 ] as const satisfies readonly TopId[];
 
 export const BOTTOM_IDS = [
   "body",
-  "work_pants",
-  "guard_pants",
-  "archer_pants",
-  "loose_trousers", "work_wrap", "pleated_skirt", "robe_skirt",
-  "short_trousers", "short_skirt", "true_short_skirt", "long_skirt",
+  "work_pants", "work_wrap", "short_trousers", "true_short_skirt", "long_skirt",
 ] as const satisfies readonly BottomId[];
 
 export const SHOES_IDS = [
   "body",
   "cloth_shoes",
-  "boots",
 ] as const satisfies readonly ShoesId[];
 
 export const BACK_IDS = [
@@ -170,53 +152,16 @@ export const RIGHT_HAND_IDS = [
   "guard_sword",
 ] as const satisfies readonly RightHandId[];
 
-const PRESET_SLOTS: Record<Outfit, CharacterSlots> = {
-  farmer: {
-    headwear: "farmer_straw_hat",
-    top: "farmer_tunic",
-    bottom: "work_pants",
-    shoes: "cloth_shoes",
-    back: "none",
-    leftHand: "none",
-    rightHand: "none",
-  },
-  guard: {
-    headwear: "guard_helmet",
-    top: "guard_light_armor",
-    bottom: "guard_pants",
-    shoes: "boots",
-    back: "none",
-    leftHand: "guard_shield",
-    rightHand: "guard_sword",
-  },
-  archer: {
-    headwear: "archer_headband",
-    top: "archer_tunic",
-    bottom: "archer_pants",
-    shoes: "boots",
-    back: "archer_quiver",
-    leftHand: "archer_bow",
-    rightHand: "none",
-  },
-  body: {
-    headwear: "none",
-    top: "body",
-    bottom: "body",
-    shoes: "body",
-    back: "none",
-    leftHand: "none",
-    rightHand: "none",
-  },
+export const EMPTY_SLOTS: CharacterSlots = {
+  headwear: "none", top: "body", bottom: "body", shoes: "body",
+  back: "none", leftHand: "none", rightHand: "none",
 };
-
-export function presetSlots(preset: Outfit): CharacterSlots {
-  return { ...PRESET_SLOTS[preset] };
-}
+export function emptySlots(): CharacterSlots { return { ...EMPTY_SLOTS }; }
 
 export const DEFAULT_RECIPE: Recipe = {
   version: 5,
   bodyType: "male",
-  slots: presetSlots("farmer"),
+  slots: { headwear: "none", top: "rough_tunic", bottom: "work_pants", shoes: "cloth_shoes", back: "none", leftHand: "none", rightHand: "none" },
   dyes: { primary: "#547a77", secondary: "#ddd0b5", accent: "#b49566" },
   hairStyle: "topknot",
   hairColor: "#282b29",
@@ -286,10 +231,6 @@ export function createRecipe(value: RecipeInput = {}): Recipe {
   };
 }
 
-/** 推荐只填部件，不写入职业身份。 */
-export function applyPreset(recipe: Recipe, preset: Outfit): Recipe {
-  return createRecipe({ ...recipe, slots: presetSlots(preset) });
-}
 export function patchSlots(recipe: Recipe, patch: Partial<CharacterSlots>): Recipe {
   return createRecipe({ ...recipe, slots: { ...recipe.slots, ...patch } });
 }

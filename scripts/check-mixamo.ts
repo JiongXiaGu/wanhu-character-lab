@@ -7,7 +7,7 @@ import { retargetMixamo, exportTargetMotion } from '../src/character/mixamo/reta
 import { createMixamoPlayer } from '../src/character/mixamo/player';
 import { makeCharacter } from '../src/character/v3/outfit';
 import { makeActor } from '../src/character/v3/rig';
-import { DEFAULT_RECIPE, BODY_TYPES, applyPreset, patchSlots } from '../src/character/v3/types';
+import { DEFAULT_RECIPE, BODY_TYPES, patchSlots } from '../src/character/v3/types';
 let frames = 0, worstDirection = 0;
 for (const def of MIXAMO_CLIPS) {
   const source = JSON.parse(readFileSync(`public/mixamo/${def.id}.json`, 'utf8')) as MixamoMotionData;
@@ -15,7 +15,7 @@ for (const def of MIXAMO_CLIPS) {
   assert.equal(source.source.uniqueBones, 65); assert.equal(source.source.rawBoneNodes, 130);
   for (const bodyType of BODY_TYPES)
   {
-    const recipe = patchSlots(applyPreset({ ...DEFAULT_RECIPE, bodyType }, 'archer'), { headwear: 'farmer_straw_hat', leftHand: 'none' });
+    const recipe = patchSlots({ ...DEFAULT_RECIPE, bodyType, slots:{headwear:'archer_headband',top:'short_work_jacket',bottom:'work_wrap',shoes:'cloth_shoes',back:'archer_quiver',leftHand:'archer_bow',rightHand:'none'} }, { headwear: 'farmer_straw_hat', leftHand: 'none' });
     const saved = JSON.stringify(recipe), data = makeCharacter(recipe), actor = makeActor(data), geometry = actor.mesh.geometry;
     const bake = retargetMixamo(data, source);
     assert.equal(JSON.stringify(recipe), saved); assert.equal(actor.bones.length, 20);

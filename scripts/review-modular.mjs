@@ -33,20 +33,20 @@ async function shot(file,phase,meta={},close=false){
 try{
   for(const bodyType of ['male','female'])for(const fit of ['pants','short'])for(const clip of ['bind','pilot-switches','snatch'])for(const view of ['front','side','back']){
     const top=fit==='pants'?'body':'rough_tunic';
-    await open(bodyType,top,'loose_trousers',clip,view);
+    await open(bodyType,top,'work_pants',clip,view);
     await shot(`${bodyType}-${fit}-${clip}-${view}`,clip==='bind'?0:clip==='snatch'?.05:.5,{bodyType,fit,clip,view,kind:'comparison'});
   }
   if(stage==='after'){
-    for(const bodyType of ['male','female'])for(const top of ['rough_tunic','cross_jacket'])for(const bottom of ['loose_trousers','pleated_skirt']){
+    for(const bodyType of ['male','female'])for(const top of ['rough_tunic','cross_jacket'])for(const bottom of ['work_pants','long_skirt']){
       await open(bodyType,top,bottom,'pilot-switches','three',false);
       await shot(`mix-${bodyType}-${top}-${bottom}`,.5,{bodyType,top,bottom,clip:'pilot-switches',kind:'mix'});
     }
     for(const bodyType of ['male','female'])for(const clip of ['pilot-switches','snatch'])for(const view of ['front','side','back'])for(const display of ['beauty','unlit','cage']){
-      await open(bodyType,'body','loose_trousers',clip,view,true,display);
+      await open(bodyType,'body','work_pants',clip,view,true,display);
       await shot(`hip-${bodyType}-${clip}-${view}-${display}`,clip==='snatch'?.05:.5,{bodyType,clip,view,display,kind:'hip'},true);
     }
     for(const bodyType of ['male','female'])for(const view of ['front','back']){
-      await open(bodyType,'rough_tunic','robe_skirt','snatch',view);
+      await open(bodyType,'rough_tunic','long_skirt','snatch',view);
       for(const phase of [0,.25,.5,.75,1])await shot(`squat-${bodyType}-${view}-${phase}`,phase,{bodyType,clip:'snatch',view,kind:'sequence'});
     }
   }

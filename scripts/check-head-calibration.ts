@@ -6,7 +6,7 @@ import { RETARGET_VERSION, type MixamoMotionData } from '../src/character/mixamo
 import { calibration, retargetMixamo, exportTargetMotion } from '../src/character/mixamo/retarget';
 import { makeActor } from '../src/character/v3/rig';
 import { makeCharacter } from '../src/character/v3/outfit';
-import { DEFAULT_RECIPE, BODY_TYPES, applyPreset } from '../src/character/v3/types';
+import { DEFAULT_RECIPE, BODY_TYPES, emptySlots } from '../src/character/v3/types';
 
 const degrees=180/Math.PI, records:unknown[]=[];
 let frames=0,worstHeadError=0;
@@ -20,7 +20,7 @@ for(const def of MIXAMO_CLIPS){
   let minPitch=Infinity,maxPitch=-Infinity;
   for(const bodyType of BODY_TYPES)
   {
-    const data=makeCharacter(applyPreset({...DEFAULT_RECIPE,bodyType},'body'));
+    const data=makeCharacter({...DEFAULT_RECIPE,bodyType,slots:emptySlots()});
     const saved=JSON.stringify(data),actor=makeActor(data),bake=retargetMixamo(data,source);
     assert(calibration(data.joints,source)[5].angleTo(new T.Quaternion())<1e-10);
     const action=actor.mixer.clipAction(bake.clip).setLoop(T.LoopOnce,1).play();action.paused=true;action.clampWhenFinished=true;

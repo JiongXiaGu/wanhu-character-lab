@@ -23,7 +23,7 @@ function inspect(recipe:Recipe){
   const base=makeCharacter({...recipe,slots:{headwear:'none',top:'body',bottom:'body',shoes:'body',back:'none',leftHand:'none',rightHand:'none'}});
   assert.deepEqual(d.body,base.body,'garment changed source body');assert.deepEqual(d.joints,base.joints,'garment changed skeleton');
   // 独立裤装必须保留腰臀和两条裤腿，身体覆盖不能代替衣服连接。
-  if(['pleated_skirt','robe_skirt'].includes(recipe.slots.bottom)){
+  if(recipe.slots.bottom==='long_skirt'){
    for(const region of ['pelvis','thigh','shin'])assert(c.faces.some(f=>f.region===region),'裤装可见腿部缺失');
    assert(!c.vertices.some(v=>/^Garment(Top|Bottom)/.test(v.id)),'旧重叠裙壳未移除');
    const counts=new Map<string,number>();for(const f of c.faces.filter(f=>['pelvis','thigh','shin','torso','foot'].includes(f.region)))for(let i=0;i<f.v.length;i++){const a=f.v[i],b=f.v[(i+1)%f.v.length],k=a<b?a+':'+b:b+':'+a;counts.set(k,(counts.get(k)??0)+1);}
@@ -43,7 +43,7 @@ for(const bodyType of BODY_TYPES)for(const head of SLOT_OPTIONS.headwear)for(con
 // 换回裤装必须恢复整条腿的可见面；穿脱不能污染共享源网格。
 for(const bodyType of BODY_TYPES){
  const skirt=applyLook(createRecipe({bodyType}),'town-female');makeCharacter(skirt);
- const trousers=makeCharacter(patchSlots(skirt,{bottom:'loose_trousers'}));
+ const trousers=makeCharacter(patchSlots(skirt,{bottom:'work_pants'}));
  for(const region of['thigh','shin'])assert(trousers.surface.faces.filter(f=>f.region===region).length>=trousers.body.faces.filter(f=>f.region===region).length,'脱裙后腿部未恢复');
 }
 const r=applyLook(createRecipe({bodyType:'female'}),'town-female');

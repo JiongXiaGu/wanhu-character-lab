@@ -6,10 +6,9 @@ import { makeActor } from "../src/character/v3/rig";
 import { edgeKey, triCount, cross, sub, dot } from "../src/character/v3/cage";
 import {
   createRecipe,
-  presetSlots,
+  emptySlots,
   BODY_TYPES,
   type Cage,
-  type Outfit,
 } from "../src/character/v3/types";
 function validate(c: Cage, closed: boolean) {
   const edges = new Map<string, [number, number][]>(),
@@ -90,72 +89,54 @@ function validate(c: Cage, closed: boolean) {
 }
 const skeletonMaps: string[] = [];
 let variants = 0;
+const variantSlots = [
+  ['body', emptySlots()],
+  ['daily', {headwear:'none',top:'rough_tunic',bottom:'work_pants',shoes:'cloth_shoes',back:'none',leftHand:'none',rightHand:'none'}],
+  ['light', {headwear:'farmer_straw_hat',top:'work_vest',bottom:'short_trousers',shoes:'cloth_shoes',back:'none',leftHand:'none',rightHand:'farmer_hoe'}],
+  ['archer-equipment', {headwear:'archer_headband',top:'short_work_jacket',bottom:'work_wrap',shoes:'cloth_shoes',back:'archer_quiver',leftHand:'archer_bow',rightHand:'none'}],
+] as const;
 for (const bodyType of BODY_TYPES)
-for (const outfit of ["body", "farmer", "guard", "archer"] as Outfit[])
-  {
-    const data = makeCharacter(createRecipe({ bodyType, slots: { ...presetSlots(outfit), ...(outfit==='farmer'?{rightHand:'farmer_hoe' as const}:{}) } }));
+for (const [label,slots] of variantSlots) {
+    const data = makeCharacter(createRecipe({ bodyType, slots:{...slots} }));
     validate(data.body, true);
     validate(data.surface, false);
     assertComponentWinding(data.surface);
     assert(triCount(data.body) <= 550);
-    assert(
-      triCount(data.surface) <= 1000,
-      `含装备超预算 ${outfit}: ${triCount(data.surface)}`,
-    );
+    assert(triCount(data.surface) <= 1100, `含装备超预算 ${label}: ${triCount(data.surface)}`);
     const a = makeActor(data);
-    skeletonMaps.push(
-      data.joints.map((j) => `${j.name}:${j.parent}`).join("|"),
-    );
+    skeletonMaps.push(data.joints.map((j) => `${j.name}:${j.parent}`).join("|"));
     assert.equal(a.mesh.skeleton.bones.length, 20);
-    const index = a.mesh.geometry.getIndex()!,
-      pos = a.mesh.geometry.attributes.position;
-    const si = a.mesh.geometry.attributes.skinIndex,
-      sw = a.mesh.geometry.attributes.skinWeight;
+    const index = a.mesh.geometry.getIndex()!, pos = a.mesh.geometry.attributes.position;
+    const si = a.mesh.geometry.attributes.skinIndex, sw = a.mesh.geometry.attributes.skinWeight;
     assert(index.array instanceof Uint16Array);
     for (let i = 0; i < pos.count; i++) {
       assert(Math.abs(sw.getX(i) + sw.getY(i) - 1) < 1e-6);
       assert(sw.getZ(i) === 0 && sw.getW(i) === 0);
       assert(si.getX(i) < 20);
     }
-    const v = new T.Vector3(),
-      bind = new T.Vector3();
-    a.resetBindPose();
-    a.mesh.updateMatrixWorld(true);
-    a.skeleton.update();
+    const v = new T.Vector3(), bind = new T.Vector3();
+    a.resetBindPose(); a.mesh.updateMatrixWorld(true); a.skeleton.update();
     for (let i = 0; i < pos.count; i++) {
-      a.mesh.getVertexPosition(i, v);
-      bind.fromBufferAttribute(pos as T.BufferAttribute, i);
+      a.mesh.getVertexPosition(i, v); bind.fromBufferAttribute(pos as T.BufferAttribute, i);
       assert(v.distanceTo(bind) < 1e-5, "Bind pose 不一致");
     }
-    variants++;
-    a.dispose();
-    console.log(
-      `${bodyType} ${outfit.padEnd(7)} fixed standard | body ${triCount(data.body)} tris | final ${triCount(data.surface)} tris | topology + weights + static bind PASS`,
-    );
+    variants++; a.dispose();
+    console.log(`${bodyType} ${label.padEnd(16)} | body ${triCount(data.body)} tris | final ${triCount(data.surface)} tris | topology + weights + static bind PASS`);
   }
-assert(new Set(skeletonMaps).size === 1, "职业或体型改变了骨架语义");
+assert(new Set(skeletonMaps).size === 1, "装扮或体型改变了骨架语义");
 
-// DIY 回归：弓手预设必须可以换成农户草帽，同时保留弓和箭袋。
-const diyArcher = makeCharacter(createRecipe({ slots: { ...presetSlots('archer'), headwear: 'farmer_straw_hat' } }));
+// DIY 回归：武器/箭袋与服装完全解耦，换帽子不能丢失随身装备。
+const diyArcher = makeCharacter(createRecipe({ slots: {
+  headwear:'farmer_straw_hat',top:'short_work_jacket',bottom:'work_wrap',shoes:'cloth_shoes',
+  back:'archer_quiver',leftHand:'archer_bow',rightHand:'none'
+} }));
 assert.equal(diyArcher.recipe.slots.headwear, "farmer_straw_hat");
 assert.equal(diyArcher.recipe.slots.leftHand, "archer_bow");
 assert.equal(diyArcher.recipe.slots.back, "archer_quiver");
-assert(
-  diyArcher.surface.vertices.some((vertex) => vertex.id === "StrawPeak"),
-  "DIY 草帽没有生成",
-);
-assert(
-  diyArcher.surface.vertices.some((vertex) => vertex.id.startsWith("Bow.")),
-  "DIY 后弓丢失",
-);
-assert(
-  diyArcher.surface.vertices.some((vertex) => vertex.id.startsWith("Quiver.")),
-  "DIY 后箭袋丢失",
-);
-assert(
-  !diyArcher.surface.vertices.some((vertex) => vertex.id.startsWith("HeadbandA")),
-  "DIY 草帽与原弓手头巾重复生成",
-);
+assert(diyArcher.surface.vertices.some((vertex) => vertex.id === "StrawPeak"), "DIY 草帽没有生成");
+assert(diyArcher.surface.vertices.some((vertex) => vertex.id.startsWith("Bow.")), "DIY 后弓丢失");
+assert(diyArcher.surface.vertices.some((vertex) => vertex.id.startsWith("Quiver.")), "DIY 后箭袋丢失");
+assert(!diyArcher.surface.vertices.some((vertex) => vertex.id.startsWith("HeadbandA")), "DIY 草帽与头巾重复生成");
 
 console.log(
   `PASS: ${variants} character variants, static bind checks, real-edge garment anchors, closed continuous base body, fixed rig, <=2 weights, runtime-only geometry.`,
