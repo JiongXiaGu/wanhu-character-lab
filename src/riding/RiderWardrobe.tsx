@@ -28,7 +28,7 @@ export function RiderWardrobe({ recipe, setRecipe }: Props) {
   const slots = (keys: (keyof CharacterSlots)[]) => <div className="riding-slots">{keys.map(key => <label key={key}><span>{SLOT_LABELS[key]}</span>
     <select data-testid={'riding-slot-' + key} aria-label={'骑手' + SLOT_LABELS[key]} value={recipe.slots[key]} onChange={event => patchSlot(key, event.target.value)}>{SLOT_OPTIONS[key].map(option => <option key={option.id} value={option.id}>{option.name}</option>)}</select>
   </label>)}</div>;
-  return <section><p className="horse-eyebrow">01 / RIDER</p><h2>骑手与装扮</h2>
+  return <section><p className="horse-eyebrow">02 / RIDER</p><h2>骑手与装扮</h2>
     <div className="horse-display-options">{BODY_TYPES.map(type => <button key={type} data-testid={'riding-body-' + type} aria-pressed={recipe.bodyType === type} onClick={() => setRecipe(current => createRecipe({ ...current, bodyType: type }))}>{type === 'female' ? '女性' : '男性'}</button>)}</div>
     <div className="riding-recipe-actions"><button data-testid="riding-default" onClick={() => { setRecipe(createRecipe({ bodyType: recipe.bodyType })); setNotice('已恢复默认裤装；没有改动人物工坊存档。'); setImportError(''); }}>默认搭配</button><button data-testid="riding-restore" onClick={restore}>读取保存装扮</button><button onClick={() => fileRef.current?.click()}>导入V5配方</button></div>
     <input hidden ref={fileRef} type="file" accept=".json,application/json" aria-label="导入骑手配方" onChange={event => void importRecipe(event.target.files?.[0])}/>
@@ -43,6 +43,6 @@ export function RiderWardrobe({ recipe, setRecipe }: Props) {
       <select aria-label="骑手搭配灵感" value="" onChange={event => { const id = event.target.value; if (id) setRecipe(current => applyLook(current, id)); }}><option value="">应用搭配灵感…</option>{WARDROBE_LOOKS.map(look => <option key={look.id} value={look.id}>{look.name}</option>)}</select>
     </details>
     {skirt && <p className="riding-warning" data-testid="riding-skirt-warning">连续封底裙暂列骑乘试验装扮：跨坐可能与马背、马腹穿插。不会自动换裤子、拆裙或删除封底。</p>}
-    {equipped && <p className="riding-warning">手持物保留原装扮；当前未制作握缰、骑射或工具使用动画。</p>}
+    {equipped && <p className="riding-warning">手持物保持原装扮，可能与持缰姿态冲突；未制作持械握缰、骑射或工具使用动作。</p>}
   </section>;
 }

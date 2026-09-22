@@ -3,11 +3,12 @@ import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { Recipe } from '../character/v3/types';
 import type { HorseDisplay, HorseView } from '../horse/types';
+import type { SaddleId } from '../horse/saddles/catalog';
 import { createRidingPlayer, type RidingPlayer } from './riding-player';
 import type { RidingPlayback, RidingSelection, RidingStats } from './types';
 
 export interface RidingViewOptions {
-  recipe: Recipe; clip: RidingSelection; playing: boolean; speed: number; phase: number; seekRevision: number;
+  recipe: Recipe; saddleId: SaddleId; reins: boolean; clip: RidingSelection; playing: boolean; speed: number; phase: number; seekRevision: number;
   loop: boolean; view: HorseView; viewRevision: number; orthographic: boolean; display: HorseDisplay;
   riderSkeleton: boolean; horseSkeleton: boolean; seat: boolean; grid: boolean;
 }
@@ -19,7 +20,7 @@ interface Runtime {
 }
 export interface RidingReview {
   seek: (phase: number) => void; getStatus: () => RidingPlayback; stats: () => RidingStats;
-  geometryIds: () => { horse: string; rider: string }; recipe: () => Recipe;
+  geometryIds: () => { horse: string; rider: string }; recipe: () => Recipe; saddleState: () => unknown;
   matricesFinite: () => boolean; cameraState: () => unknown; jointPositions: () => unknown;
 }
 declare global { interface Window { __RIDING_REVIEW__?: RidingReview } }
@@ -30,8 +31,7 @@ const DIRECTIONS: Record<HorseView, [number, number, number]> = {
 function applyCamera(rt: Runtime, options: RidingViewOptions) {
   const next = options.orthographic ? rt.ortho : rt.perspective;
   if (next !== rt.camera) {
-    rt.controls.dispose(); rt.camera = next;
-    rt.controls = new OrbitControls(next, rt.renderer.domElement); rt.controls.enableDamping = true;
+    rt.controls.dispose(); rt.camera = next; rt.controls = new OrbitControls(next, rt.renderer.domElement); rt.controls.enableDamping = true;
     rt.controls.minDistance = 2.8; rt.controls.maxDistance = 14; rt.controls.minZoom = .5; rt.controls.maxZoom = 4;
   }
   rt.camera.zoom = 1; rt.controls.target.set(0, 1.38, .12);
@@ -43,11 +43,11 @@ function applyDisplay(rt: Runtime, options: RidingViewOptions) {
     material.vertexColors = options.display !== 'clay'; material.color.set(options.display === 'clay' ? '#c2b49c' : '#ffffff');
     material.wireframe = options.display === 'wire'; material.needsUpdate = true;
   }
-  rt.player.horse.helper.visible = options.horseSkeleton; rt.player.rider.skeletonHelper.visible = options.riderSkeleton;
-  rt.seatHelper.visible = options.seat; rt.grid.visible = options.grid;
-  rt.player.update(0); rt.render();
+  rt.player.tack.setDisplay(options.display); rt.player.reins.setDisplay(options.display); rt.player.reins.setEnabled(options.reins);
+  rt.player.horse.helper.visible = options.horseSkeleton; rt.player.rider.skeletonHelper.visible = options.riderSkeleton && rt.player.canRide;
+  rt.seatHelper.visible = options.seat && rt.player.canRide; rt.grid.visible = options.grid; rt.player.update(0); rt.render();
 }
-/** 骑乘拥有一个场景与一个帧循环；人物和马的独立Viewport不嵌套在这里。 */
+/** 一个场景、一个帧循环；换马鞍只替换马具，不重建马和骑手。 */
 export function RidingViewport({ options, onStats, onPlayback, onError }: Props) {
   const host = useRef<HTMLDivElement>(null), runtime = useRef<Runtime | null>(null), latest = useRef(options);
   const report = useRef(onPlayback), stats = useRef(onStats), error = useRef(onError);
@@ -71,9 +71,8 @@ export function RidingViewport({ options, onStats, onPlayback, onError }: Props)
     floor.rotation.x = -Math.PI / 2; floor.position.y = -.003; floor.receiveShadow = true; scene.add(floor);
     const grid = new T.GridHelper(5, 20, '#697b7d', '#40585e'); grid.position.y = .002; scene.add(grid);
     const seatHelper = new T.AxesHelper(.22); player.seat.add(seatHelper);
-    // SkeletonHelper已输出世界变换，不再放到RiderSeat下重复应用父变换。
     scene.add(player.horse.mesh, player.horse.helper, player.rider.skeletonHelper);
-    player.select(latest.current.clip); player.setLoop(latest.current.loop); player.seek(latest.current.phase);
+    player.select(latest.current.clip); player.setLoop(latest.current.loop); player.seek(latest.current.phase); player.setSaddle(latest.current.saddleId);
     const perspective = new T.PerspectiveCamera(34, 1, .01, 50), ortho = new T.OrthographicCamera(-2, 2, 2, -2, .01, 50);
     const controls = new OrbitControls(ortho, renderer.domElement); controls.enableDamping = true;
     controls.minZoom = .5; controls.maxZoom = 4; controls.minDistance = 2.8; controls.maxDistance = 14;
@@ -83,31 +82,28 @@ export function RidingViewport({ options, onStats, onPlayback, onError }: Props)
         renderer.setSize(width, height, false); perspective.aspect = aspect; perspective.updateProjectionMatrix();
         const half = Math.max(1.62, 1.90 / aspect);
         ortho.left = -half * aspect; ortho.right = half * aspect; ortho.top = half; ortho.bottom = -half; ortho.updateProjectionMatrix();
-      },
-      render() { renderer.render(scene, rt.camera); },
+      }, render() { renderer.render(scene, rt.camera); },
     };
     runtime.current = rt; applyCamera(rt, latest.current); applyDisplay(rt, latest.current); stats.current(player.stats()); report.current(player.status());
-    if (import.meta.env.DEV || new URLSearchParams(location.search).has('review')) {
-      window.__RIDING_REVIEW__ = {
-        seek(phase) { player.seek(phase); rt.render(); report.current(player.status()); },
-        getStatus: () => player.status(), stats: () => player.stats(), recipe: () => player.rider.data.recipe,
-        geometryIds: () => ({ horse: player.horse.mesh.geometry.uuid, rider: player.rider.mesh.geometry.uuid }),
-        matricesFinite: () => [...player.horse.bones, ...player.rider.bones, player.seat].every(bone => bone.matrixWorld.elements.every(Number.isFinite))
-          && [player.horse.skeleton, player.rider.skeleton].every(skeleton => Array.from(skeleton.boneMatrices).every(Number.isFinite)),
-        cameraState: () => ({ position: rt.camera.position.toArray(), target: rt.controls.target.toArray(), projection: rt.camera.projectionMatrix.toArray() }),
-        jointPositions: () => ({ seat: player.seat.getWorldPosition(new T.Vector3()).toArray(),
-          horse: Object.fromEntries(player.horse.bones.map(bone => [bone.name, bone.getWorldPosition(new T.Vector3()).toArray()])),
-          rider: Object.fromEntries(player.rider.bones.map(bone => [bone.name, bone.getWorldPosition(new T.Vector3()).toArray()])) }),
-      };
-    }
+    if (import.meta.env.DEV || new URLSearchParams(location.search).has('review')) window.__RIDING_REVIEW__ = {
+      seek(phase) { player.seek(phase); rt.render(); report.current(player.status()); }, getStatus: () => player.status(), stats: () => player.stats(), recipe: () => player.rider.data.recipe,
+      geometryIds: () => ({ horse: player.horse.mesh.geometry.uuid, rider: player.rider.mesh.geometry.uuid }),
+      saddleState: () => ({ ...player.tack.stats(), canRide: player.canRide, riderVisible: player.rider.mesh.visible, riderSkeletonVisible: player.rider.skeletonHelper.visible,
+        reinsVisible: player.reins.mesh.visible, reinGeometry: player.reins.mesh.geometry.uuid, seat: player.seat.position.toArray(),
+        reinPositions: Array.from(player.reins.mesh.geometry.getAttribute('position').array), points: player.reins.points.map(side => side.map(point => point.toArray())) }),
+      matricesFinite: () => [...player.horse.bones, ...player.rider.bones, player.seat].every(bone => bone.matrixWorld.elements.every(Number.isFinite))
+        && [player.horse.skeleton, player.rider.skeleton].every(skeleton => Array.from(skeleton.boneMatrices).every(Number.isFinite)),
+      cameraState: () => ({ position: rt.camera.position.toArray(), target: rt.controls.target.toArray(), projection: rt.camera.projectionMatrix.toArray() }),
+      jointPositions: () => ({ seat: player.seat.getWorldPosition(new T.Vector3()).toArray(), horse: Object.fromEntries(player.horse.bones.map(bone => [bone.name, bone.getWorldPosition(new T.Vector3()).toArray()])),
+        rider: Object.fromEntries(player.rider.bones.map(bone => [bone.name, bone.getWorldPosition(new T.Vector3()).toArray()])) }),
+    };
     const observer = new ResizeObserver(() => { rt.resize(); rt.render(); }); observer.observe(element);
     let frame = 0, previous = performance.now(), lastReport = 0, stopped = false;
     const animate = (now: number) => {
       if (stopped) return;
       const delta = Math.min(.05, Math.max(0, (now - previous) / 1000)); previous = now;
       player.update(latest.current.playing ? delta * latest.current.speed : 0); rt.controls.update(); rt.render();
-      if (now - lastReport > 80) { report.current(player.status()); lastReport = now; }
-      frame = requestAnimationFrame(animate);
+      if (now - lastReport > 80) { report.current(player.status()); lastReport = now; } frame = requestAnimationFrame(animate);
     };
     frame = requestAnimationFrame(animate);
     const lost = (event: Event) => { event.preventDefault(); error.current('WebGL上下文丢失，请刷新后重试。'); };
@@ -116,28 +112,21 @@ export function RidingViewport({ options, onStats, onPlayback, onError }: Props)
       stopped = true; cancelAnimationFrame(frame); observer.disconnect(); rt.controls.dispose(); player.dispose();
       floor.geometry.dispose(); floor.material.dispose(); grid.geometry.dispose(); seatHelper.geometry.dispose();
       for (const helper of [grid, seatHelper]) for (const material of Array.isArray(helper.material) ? helper.material : [helper.material]) material.dispose();
-      key.shadow.map?.dispose(); renderer.domElement.removeEventListener('webglcontextlost', lost); renderer.dispose(); renderer.domElement.remove();
-      runtime.current = null; delete window.__RIDING_REVIEW__;
+      key.shadow.map?.dispose(); renderer.domElement.removeEventListener('webglcontextlost', lost); renderer.dispose(); renderer.domElement.remove(); runtime.current = null; delete window.__RIDING_REVIEW__;
     };
   }, []);
-  useEffect(() => {
-    const rt = runtime.current; if (!rt) return;
-    try {
-      if (rt.player.setRecipe(options.recipe)) {
-        rt.scene.add(rt.player.rider.skeletonHelper); applyDisplay(rt, options); stats.current(rt.player.stats());
-        report.current(rt.player.status()); rt.render();
-      }
-    } catch (reason) { error.current(`骑手换装失败：${String(reason)}`); }
+  useEffect(() => { const rt = runtime.current; if (!rt) return;
+    try { if (rt.player.setRecipe(options.recipe)) { rt.scene.add(rt.player.rider.skeletonHelper); applyDisplay(rt, options); stats.current(rt.player.stats()); report.current(rt.player.status()); rt.render(); } }
+    catch (reason) { error.current(`骑手换装失败：${String(reason)}`); }
   }, [options.recipe]);
-  useEffect(() => {
-    const rt = runtime.current; if (!rt) return;
-    rt.player.select(options.clip); rt.player.seek(options.phase); report.current(rt.player.status()); rt.render();
-  }, [options.clip]);
-  useEffect(() => {
-    const rt = runtime.current; if (rt) { rt.player.seek(options.phase); report.current(rt.player.status()); rt.render(); }
-  }, [options.phase, options.seekRevision]);
+  useEffect(() => { const rt = runtime.current; if (!rt) return;
+    try { rt.player.setSaddle(options.saddleId); applyDisplay(rt, options); report.current(rt.player.status()); rt.render(); }
+    catch (reason) { error.current(`马鞍切换失败：${String(reason)}`); }
+  }, [options.saddleId]);
+  useEffect(() => { const rt = runtime.current; if (rt) { rt.player.select(options.clip); rt.player.seek(options.phase); report.current(rt.player.status()); rt.render(); } }, [options.clip]);
+  useEffect(() => { const rt = runtime.current; if (rt) { rt.player.seek(options.phase); report.current(rt.player.status()); rt.render(); } }, [options.phase, options.seekRevision]);
   useEffect(() => { const rt = runtime.current; if (rt) { rt.player.setLoop(options.loop); report.current(rt.player.status()); } }, [options.loop]);
   useEffect(() => { const rt = runtime.current; if (rt) applyCamera(rt, options); }, [options.view, options.viewRevision, options.orthographic]);
-  useEffect(() => { const rt = runtime.current; if (rt) applyDisplay(rt, options); }, [options.display, options.riderSkeleton, options.horseSkeleton, options.seat, options.grid]);
+  useEffect(() => { const rt = runtime.current; if (rt) applyDisplay(rt, options); }, [options.display, options.riderSkeleton, options.horseSkeleton, options.seat, options.grid, options.reins]);
   return <div className="horse-viewport riding-viewport" data-testid="riding-viewport" ref={host} />;
 }
