@@ -6,7 +6,7 @@ permissions:
   contents: write
 concurrency:
   group: m8-development
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -23,21 +23,16 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Materialize independent author assets once
+      - name: Integrate concurrent M7 once and record exact source
         shell: bash
         run: |
           set -euo pipefail
-          if [[ ! -f src/buffalo/geometry.ts ]]; then
-            python3 scripts/m8-stage.py
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add src/buffalo src/mounts scripts Documentation AGENTS.md README.md
-            git commit -m 'feat: add independently authored rideable water buffalo and additive checks'
-            git push origin HEAD:refs/heads/work/m8-water-buffalo
-          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if [[ -f scripts/m8-integrate.py ]]; then python3 scripts/m8-integrate.py; fi
           echo "REVIEW_HEAD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           git rev-parse HEAD
-          git diff --stat
+          git diff --exit-code
       - name: Focused buffalo author, animation and riding checks
         run: npx tsx -e "import { checkBuffalo } from './scripts/mount-buffalo-checks.ts'; console.log(JSON.stringify(checkBuffalo(), null, 2));"
       - name: Build
