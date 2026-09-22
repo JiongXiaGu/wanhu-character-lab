@@ -1,0 +1,666 @@
+{
+  "sourceSHA": "d7f01d5086813ef17b0894990dc66d5941c561a3",
+  "result": "passed",
+  "sources": {
+    "before": {
+      "sha": "ea315d5e5ee125895089988804d50fff3a138ab3",
+      "geometrySHA256": "404851c2ca67ca8d51efcf1a35564227d4a2cca57685f9371aeabefc8664e8e0"
+    },
+    "after": {
+      "sha": "d7f01d5086813ef17b0894990dc66d5941c561a3",
+      "geometrySHA256": "eef70293661993ffeaba0fee55df9fe6aaaa32b27d9b4eb87eaf429b65fe22ee"
+    }
+  },
+  "shots": [
+    {
+      "file": "before-body-three.png",
+      "label": "before",
+      "lab": "mount",
+      "saddle": "none",
+      "clip": "bind",
+      "phase": 0,
+      "view": "three",
+      "finite": true,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.419999999999999,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.32,
+          0.15
+        ],
+        "projection": [
+          0.29515938606847697,
+          0,
+          0,
+          0,
+          0,
+          0.5714285714285714,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "stats": {
+        "triangles": 1792,
+        "logicalVertices": 958,
+        "gpuVertices": 5376,
+        "bones": 29
+      }
+    },
+    {
+      "file": "before-body-left.png",
+      "label": "before",
+      "lab": "mount",
+      "saddle": "none",
+      "clip": "bind",
+      "phase": 0,
+      "view": "left",
+      "finite": true,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.5000000000000004,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.32,
+          0.15
+        ],
+        "projection": [
+          0.29515938606847697,
+          0,
+          0,
+          0,
+          0,
+          0.5714285714285714,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "stats": {
+        "triangles": 1792,
+        "logicalVertices": 958,
+        "gpuVertices": 5376,
+        "bones": 29
+      }
+    },
+    {
+      "file": "before-rider-simple.png",
+      "label": "before",
+      "lab": "riding",
+      "saddle": "simple",
+      "clip": "pose",
+      "phase": 0,
+      "view": "three",
+      "finite": true,
+      "status": {
+        "clip": "pose",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "horsePhase": 0,
+        "riderPhase": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          5.3,
+          3.9000000000000004,
+          6.62
+        ],
+        "target": [
+          0,
+          1.6,
+          0.11999999999999998
+        ],
+        "projection": [
+          0.26087319475749227,
+          0,
+          0,
+          0,
+          0,
+          0.5050505050505051,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "stats": {
+        "horse": {
+          "triangles": 1792,
+          "logicalVertices": 958,
+          "gpuVertices": 5376,
+          "bones": 29
+        },
+        "rider": {
+          "triangles": 859,
+          "logicalVertices": 479,
+          "gpuVertices": 1661,
+          "bones": 20
+        }
+      }
+    },
+    {
+      "file": "after-body-three.png",
+      "label": "after",
+      "lab": "mount",
+      "saddle": "none",
+      "clip": "bind",
+      "phase": 0,
+      "view": "three",
+      "finite": true,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          4.6,
+          3.419999999999999,
+          5.3500000000000005
+        ],
+        "target": [
+          0,
+          1.32,
+          0.15
+        ],
+        "projection": [
+          0.29515938606847697,
+          0,
+          0,
+          0,
+          0,
+          0.5714285714285714,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "stats": {
+        "triangles": 2280,
+        "logicalVertices": 1198,
+        "gpuVertices": 6840,
+        "bones": 29
+      }
+    },
+    {
+      "file": "after-body-left.png",
+      "label": "after",
+      "lab": "mount",
+      "saddle": "none",
+      "clip": "bind",
+      "phase": 0,
+      "view": "left",
+      "finite": true,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.5000000000000004,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.32,
+          0.15
+        ],
+        "projection": [
+          0.29515938606847697,
+          0,
+          0,
+          0,
+          0,
+          0.5714285714285714,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "stats": {
+        "triangles": 2280,
+        "logicalVertices": 1198,
+        "gpuVertices": 6840,
+        "bones": 29
+      }
+    },
+    {
+      "file": "after-rider-simple.png",
+      "label": "after",
+      "lab": "riding",
+      "saddle": "simple",
+      "clip": "pose",
+      "phase": 0,
+      "view": "three",
+      "finite": true,
+      "status": {
+        "clip": "pose",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "horsePhase": 0,
+        "riderPhase": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          5.3,
+          3.9000000000000004,
+          6.62
+        ],
+        "target": [
+          0,
+          1.6,
+          0.11999999999999998
+        ],
+        "projection": [
+          0.26087319475749227,
+          0,
+          0,
+          0,
+          0,
+          0.5050505050505051,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "stats": {
+        "horse": {
+          "triangles": 2280,
+          "logicalVertices": 1198,
+          "gpuVertices": 6840,
+          "bones": 29
+        },
+        "rider": {
+          "triangles": 859,
+          "logicalVertices": 479,
+          "gpuVertices": 1661,
+          "bones": 20
+        }
+      }
+    },
+    {
+      "file": "after-body-rear.png",
+      "label": "after",
+      "lab": "mount",
+      "saddle": "none",
+      "clip": "bind",
+      "phase": 0,
+      "view": "rear-three",
+      "finite": true,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -4.6,
+          3.419999999999999,
+          -5.05
+        ],
+        "target": [
+          0,
+          1.32,
+          0.15
+        ],
+        "projection": [
+          0.29515938606847697,
+          0,
+          0,
+          0,
+          0,
+          0.5714285714285714,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "stats": {
+        "triangles": 2280,
+        "logicalVertices": 1198,
+        "gpuVertices": 6840,
+        "bones": 29
+      }
+    },
+    {
+      "file": "after-body-front.png",
+      "label": "after",
+      "lab": "mount",
+      "saddle": "none",
+      "clip": "bind",
+      "phase": 0,
+      "view": "front",
+      "finite": true,
+      "status": {
+        "clip": "bind",
+        "phase": 0,
+        "time": 0,
+        "duration": 0,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          0,
+          1.5000000000000004,
+          6.15
+        ],
+        "target": [
+          0,
+          1.32,
+          0.15
+        ],
+        "projection": [
+          0.29515938606847697,
+          0,
+          0,
+          0,
+          0,
+          0.5714285714285714,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "stats": {
+        "triangles": 2280,
+        "logicalVertices": 1198,
+        "gpuVertices": 6840,
+        "bones": 29
+      }
+    },
+    {
+      "file": "after-rider-travel.png",
+      "label": "after",
+      "lab": "riding",
+      "saddle": "travel",
+      "clip": "Rider_Walk",
+      "phase": 0.375,
+      "view": "three",
+      "finite": true,
+      "status": {
+        "clip": "Rider_Walk",
+        "phase": 0.37500000000000006,
+        "time": 0.6000000000000001,
+        "duration": 1.6,
+        "horsePhase": 0.37500000000000006,
+        "riderPhase": 0.37500000000000006,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          5.3,
+          3.9000000000000004,
+          6.62
+        ],
+        "target": [
+          0,
+          1.6,
+          0.11999999999999998
+        ],
+        "projection": [
+          0.26087319475749227,
+          0,
+          0,
+          0,
+          0,
+          0.5050505050505051,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "stats": {
+        "horse": {
+          "triangles": 2280,
+          "logicalVertices": 1198,
+          "gpuVertices": 6840,
+          "bones": 29
+        },
+        "rider": {
+          "triangles": 859,
+          "logicalVertices": 479,
+          "gpuVertices": 1661,
+          "bones": 20
+        }
+      }
+    },
+    {
+      "file": "after-rider-run.png",
+      "label": "after",
+      "lab": "riding",
+      "saddle": "simple",
+      "clip": "Rider_Run",
+      "phase": 0.625,
+      "view": "three",
+      "finite": true,
+      "status": {
+        "clip": "Rider_Run",
+        "phase": 0.625,
+        "time": 0.625,
+        "duration": 1,
+        "horsePhase": 0.625,
+        "riderPhase": 0.625,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          5.3,
+          3.9000000000000004,
+          6.62
+        ],
+        "target": [
+          0,
+          1.6,
+          0.11999999999999998
+        ],
+        "projection": [
+          0.26087319475749227,
+          0,
+          0,
+          0,
+          0,
+          0.5050505050505051,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "stats": {
+        "horse": {
+          "triangles": 2280,
+          "logicalVertices": 1198,
+          "gpuVertices": 6840,
+          "bones": 29
+        },
+        "rider": {
+          "triangles": 859,
+          "logicalVertices": 479,
+          "gpuVertices": 1661,
+          "bones": 20
+        }
+      }
+    },
+    {
+      "file": "after-body-eat.png",
+      "label": "after",
+      "lab": "mount",
+      "saddle": "none",
+      "clip": "eat",
+      "phase": 0.5,
+      "view": "left",
+      "finite": true,
+      "status": {
+        "clip": "eat",
+        "phase": 0.5,
+        "time": 3.4,
+        "duration": 6.8,
+        "loop": true,
+        "finished": false
+      },
+      "camera": {
+        "position": [
+          -6,
+          1.5000000000000004,
+          0.15000000000000036
+        ],
+        "target": [
+          0,
+          1.32,
+          0.15
+        ],
+        "projection": [
+          0.29515938606847697,
+          0,
+          0,
+          0,
+          0,
+          0.5714285714285714,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "stats": {
+        "triangles": 2280,
+        "logicalVertices": 1198,
+        "gpuVertices": 6840,
+        "bones": 29
+      }
+    }
+  ],
+  "errors": [],
+  "visualApproval": false,
+  "imageSHA256": {
+    "after-body-eat.png": "a7c0fe3a57c7c7196675f27a8bc9652b2cfdda9068c58a4fb1922d3a57ed1fba",
+    "after-body-front.png": "b93313773558de9f475ad9a0e22a80162b0a27bcfb28eaff98638c130304b3b1",
+    "after-body-left.png": "b7583462aa1cac59562f350d2533034ac909d948286796ed2dfc389bb533e7ff",
+    "after-body-rear.png": "2ca9903edc25e1ca4f3ed984ab3bb2dcf63eadf20253b254bf3fdcdb0fcd319d",
+    "after-body-three.png": "164942139908b81cc7a11d36c32ca92f2f71bb7ae1f57d5b26487c6419461a05",
+    "after-rider-run.png": "1761d7d82c51863396e23ecf7d21517ba7f675234683bd5e4dd18883333cf899",
+    "after-rider-simple.png": "6a9cba858cb1cf57f97b2276645d005d52e83d6f71177fe629611868635a791d",
+    "after-rider-travel.png": "27169150ce4071e68a2fb8c2a5591c3499779087aff3c3870395ccef92958fd5",
+    "before-after.png": "10ef0a50ad24dc50edd2631a46d9a230c0130cc15cee8ce249928e3d1e55c6c3",
+    "before-body-left.png": "342aa57d4c2126b04721964d4febe920f493212ec175cef5011918611fd25e81",
+    "before-body-three.png": "59b9a9895dbefdb186a3673bd3a6a91869a23808ad9e75b4fcc0bc25165a880a",
+    "before-rider-simple.png": "e5e58915ec7e973e353817de46b12a150aa734600b023fbcc15a7f3d48d5da19"
+  }
+}
