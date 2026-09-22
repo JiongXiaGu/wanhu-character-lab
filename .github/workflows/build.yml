@@ -1,15 +1,18 @@
-name: Build
+name: Build & Core Checks
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
+concurrency:
+  group: build-core-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:
@@ -17,7 +20,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
       - run: npm ci
-      - run: npm run check:retired
-      - run: npm run check:mesh
-      - run: npm run build
+      - name: Retired contract checks
+        run: npm run check:retired
+      - name: Core mesh and data checks
+        run: npm run check:core
+      - name: TypeScript and production build
+        run: npm run build
