@@ -9,7 +9,7 @@ export async function checkCamelBrowser(page, base, checks) {
   const valid = s => { assert(s.finite); near(s.status.horsePhase, s.status.riderPhase, 1e-9); assert(s.saddle.reinPositions.every(Number.isFinite)); };
   await page.goto(`${base}/?lab=mount&mount=camel_bactrian&clip=Camel_Walk&paused=1&phase=.375`);
   await page.waitForFunction(() => window.__MOUNT_REVIEW__?.mountId() === 'camel_bactrian');
-  const first = await body(); assert.equal(first.stats.bones, 29); assert.equal(first.stats.triangles, 1792); near(first.status.duration, 1.6); near(first.status.phase, .375);
+  const first = await body(); assert.equal(first.stats.bones, 29); assert.equal(first.stats.triangles, 2280); near(first.status.duration, 1.6); near(first.status.phase, .375);
   assert.equal(await page.getByTestId('mount-stage-name').innerText(), '双峰骆驼');
   assert.equal(await page.locator('.mount-selector select').count(), 2); assert.equal(await page.locator('.animal-mode-switcher a').count(), 2); assert.equal(await page.locator('canvas').count(), 1);
   for (const [clip, duration] of [['Camel_Idle', 4.8], ['Camel_Walk', 1.6], ['Camel_Run', 1], ['Camel_Eat', 6.8]]) {
@@ -19,7 +19,7 @@ export async function checkCamelBrowser(page, base, checks) {
   for (const saddle of ['simple', 'travel', 'none']) { await page.getByTestId('mount-saddle').selectOption(saddle); assert.equal((await body()).geometry, first.geometry); }
   await page.getByTestId('animal-mode-riding').click(); await page.waitForFunction(() => window.__RIDING_REVIEW__?.mountId() === 'camel_bactrian');
   let s = await riding(); assert.equal(s.saddle.id, 'none'); assert(!s.saddle.riderVisible && !s.saddle.reinsVisible); assert(await page.getByTestId('riding-play').isDisabled());
-  checks.push('camel native URL and four independent clips; 1792 triangles/29 bones; two fields/two modes/one canvas; no-saddle body-to-riding does not auto-equip');
+  checks.push('camel native URL and four independent clips; 2280 triangles/29 bones; two fields/two modes/one canvas; no-saddle body-to-riding does not auto-equip');
   await page.getByTestId('mount-saddle').selectOption('simple'); await pause('riding-play');
   await page.getByTestId('Rider_Walk').click(); await pause('riding-play');
   await page.evaluate(() => window.__RIDING_REVIEW__.seek(.375)); await page.getByTestId('riding-view-left').click();

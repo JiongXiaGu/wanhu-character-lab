@@ -8,6 +8,7 @@ import { CAMEL_JOINTS, camelBone } from '../src/camel/rig';
 import { createRidingPlayer, type RidingPlayer } from '../src/riding/riding-player';
 import { RIDING_CLIP_IDS } from '../src/riding/types';
 import { near, skinnedPoints, validateMountMesh, validateReins, validateSaddleShells } from './mount-check-helpers';
+import { CAMEL_SCULPT_STATS, checkCamelTorso } from './mount-camel-torso-checks';
 
 /** 有向脚轨迹面积：低位向后、高位向前才为正；只检查摆腿角度会漏掉倒放。 */
 function forwardFootLoop(points: Vector3[]): number {
@@ -48,16 +49,23 @@ function checkRider(player: RidingPlayer, intersections: boolean) {
     const [a, b, w] = vertex.w, p = new Vector3(...vertex.p).applyMatrix4(matrices[a]).multiplyScalar(w).add(new Vector3(...vertex.p).applyMatrix4(matrices[b]).multiplyScalar(1 - w));
     assert(p.toArray().every(Number.isFinite));
   }
-  validateReins(player, intersections); // 包含两峰，不豁免前峰与持缰曲线。
+  validateReins(player, intersections); // Body连续表面已包含两峰，不豁免前峰与持缰曲线。
 }
 /** 并入check:mounts，旧灰驴矩阵保留，不能以新物种检查替换老回归。 */
 export function checkCamel() {
   const d = mountDefinition('camel_bactrian'), actor = d.createActor(), player = createMountPlayer(actor, d);
   let bodyPoses = 0, ridingPoses = 0, wardrobeCases = 0, swaps = 0, faults = 0;
   const ground: Record<string, unknown> = {}, gait: Record<string, unknown> = {};
-  assert.deepEqual(actor.stats, { triangles: 1792, logicalVertices: 958, gpuVertices: 5376, bones: 29 });
-  assert.equal(validateMountMesh(actor), 31); assert.equal(CAMEL_JOINTS.length, 29);
+  assert.deepEqual(actor.stats, CAMEL_SCULPT_STATS);
+  assert.equal(validateMountMesh(actor), 29); assert.equal(CAMEL_JOINTS.length, 29);
   CAMEL_JOINTS.forEach((joint, i) => assert(joint.parent < i && (i === 0 ? joint.parent === -1 : joint.parent >= 0)));
+  const torso = checkCamelTorso(actor);
+  // 缺面/重新拆成独立峰两种故障均必须被连续网格检查拒绝。
+  const firstFace = actor.data.triangles[0], oldPart = firstFace.part;
+  firstFace.part = 'FrontHump'; assert.throws(() => checkCamelTorso(actor)); firstFace.part = oldPart;
+  const lastFace = actor.data.triangles.pop()!;
+  const bodyFace = actor.data.triangles.shift()!;
+  assert.throws(() => checkCamelTorso(actor)); actor.data.triangles.unshift(bodyFace); actor.data.triangles.push(lastFace);
   const facial = Object.fromEntries(['LeftNostril', 'RightNostril', 'LeftEye', 'RightEye'].map(name => [name, facialContact(actor, name)]));
   const nostrilIds = new Set(actor.data.triangles.filter(face => face.part === 'LeftNostril').flatMap(face => face.indices));
   for (const i of nostrilIds) actor.data.vertices[i].position[2] += .08;
@@ -65,11 +73,6 @@ export function checkCamel() {
   for (const i of nostrilIds) actor.data.vertices[i].position[2] -= .08;
   const weight = actor.data.vertices[0].weight[2]; actor.data.vertices[0].weight[2] = Number.NaN;
   assert.throws(() => validateMountMesh(actor)); actor.data.vertices[0].weight[2] = weight; faults++;
-  for (const name of ['FrontHump', 'BackHump']) {
-    const vertices = new Set(actor.data.triangles.filter(face => face.part === name).flatMap(face => face.indices));
-    assert(Math.max(...[...vertices].map(i => actor.data.vertices[i].position[1])) > 2.45);
-    for (const i of vertices) assert(actor.data.vertices[i].weight.slice(0, 2).every(bone => ['Pelvis', 'Spine', 'Chest'].includes(CAMEL_JOINTS[bone].name)));
-  }
   const feet = new Set(actor.data.triangles.filter(face => face.part.endsWith('Pad') || face.part.endsWith('Toe')).flatMap(face => face.indices));
   const heads = new Set(actor.data.triangles.filter(face => face.part === 'Head').flatMap(face => face.indices));
   const geometry = actor.mesh.geometry.uuid, inverses = actor.skeleton.boneInverses.map(m => [...m.elements]);
@@ -145,6 +148,6 @@ export function checkCamel() {
     let released = 0; riding.rider.mesh.geometry.addEventListener('dispose', () => released++); riding.dispose(); riding.dispose(); assert.equal(released, 1);
   }
   assert.equal(bodyPoses, 964); assert.equal(ridingPoses, 2892); assert.equal(wardrobeCases, 70); assert.equal(swaps, 24);
-  return { result: 'passed', mesh: { triangles: 1792, logicalVertices: 958, gpuVertices: 5376, bones: 29, shells: 31 }, ground, gait, facial, bodyPoses, ridingPoses, wardrobeCases, swaps, faults,
-    boundary: 'Authored in-place gait; sparse rein intersections include both humps. Not full garment/saddle/contact or visual approval.' };
+  return { result: 'passed', mesh: { ...CAMEL_SCULPT_STATS, shells: 29 }, torso, torsoFaults: 2, ground, gait, facial, bodyPoses, ridingPoses, wardrobeCases, swaps, faults,
+    boundary: 'Authored in-place gait; sparse rein intersections include the continuous hump/body surface. Not full garment/saddle/contact or visual approval.' };
 }
