@@ -40,9 +40,10 @@ export function authorBuffaloPose(id: MountMotion, phase: number) {
     const phases = run ? { FrontLeft: 0, BackRight: .09, FrontRight: .5, BackLeft: .59 } : { FrontLeft: 0, BackRight: .05, FrontRight: .5, BackLeft: .55 };
     for (const leg of ['FrontLeft', 'FrontRight', 'BackLeft', 'BackRight'] as const) {
       const q = 2 * Math.PI * ((phases[leg] - p + 1) % 1), front = leg.startsWith('Front'), swing = Math.max(0, Math.sin(q));
-      const upper = -(run ? front ? .38 : .27 : front ? .18 : .155) * Math.cos(q);
-      const middle = (run ? front ? .72 : .47 : front ? .42 : .29) * swing * swing;
-      const lower = -(front ? .15 : run ? .41 : .26) * swing * swing;
+      // 短前肢在快跑回收期加大屈膝，保证有实际离地回摆而非贴地往返。
+      const upper = -(run ? front ? .42 : .27 : front ? .18 : .155) * Math.cos(q);
+      const middle = (run ? front ? .84 : .47 : front ? .42 : .29) * swing * swing;
+      const lower = -(front ? .13 : run ? .41 : .26) * swing * swing;
       put(`${leg}Upper`, upper); put(`${leg}Middle`, middle); put(`${leg}Lower`, lower);
       put(`${leg}Foot`, -(pitch + (front ? spine + chest : 0) + upper + middle + lower), 0, -roll);
     }
