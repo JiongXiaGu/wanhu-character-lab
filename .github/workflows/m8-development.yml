@@ -29,6 +29,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config core.quotepath false
           if [[ -f scripts/m8-integrate.py ]]; then python3 scripts/m8-integrate.py; fi
           echo "REVIEW_HEAD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           git rev-parse HEAD
