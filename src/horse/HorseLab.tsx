@@ -4,6 +4,7 @@ import { HorseViewport } from './HorseViewport';
 import type { HorsePlayback } from './player';
 import type { HorseClipId, HorseDisplay, HorseStats, HorseView } from './types';
 import { WorkspaceSwitcher } from '../ui/WorkspaceSwitcher';
+import { AnimalModeSwitcher } from '../ui/AnimalModeSwitcher';
 import './horse.css';
 
 const query = new URLSearchParams(location.search);
@@ -55,6 +56,7 @@ export default function HorseLab() {
         </section>
       </section>
       <aside className="horse-inspector">
+        <AnimalModeSwitcher active="horse"/>
         <section><p className="horse-eyebrow">01 / MOTION</p><h2>基础动作</h2><div className="horse-clip-list">
           {HORSE_CLIPS.map(definition => <button key={definition.id} data-testid={definition.id} aria-pressed={clip === definition.id} onClick={() => selectClip(definition.id)}><strong>{definition.label}</strong><small>{definition.description}</small><span>{definition.duration.toFixed(1)} s</span></button>)}
         </div><button className="horse-bind-button" data-testid="horse-bind" aria-pressed={clip === 'bind'} onClick={() => selectClip('bind')}>查看静态绑定姿态</button></section>
@@ -63,7 +65,7 @@ export default function HorseLab() {
           <div className="horse-toggles"><label><input type="checkbox" checked={skeleton} onChange={event => setSkeleton(event.target.checked)} aria-label="马骨架" />骨架</label><label><input type="checkbox" checked={grid} onChange={event => setGrid(event.target.checked)} aria-label="马参考网格" />参考网格</label></div>
           <dl><div><dt>逻辑顶点</dt><dd>{stats?.logicalVertices ?? '—'}</dd></div><div><dt>三角形</dt><dd>{stats?.triangles ?? '—'}</dd></div><div><dt>骨骼 / 每点权重</dt><dd>{stats?.bones ?? '—'} / ≤ 2</dd></div><div><dt>单位 / 朝向</dt><dd>米 / +Z 前</dd></div></dl>
         </section>
-        <section className="horse-boundary"><p className="horse-eyebrow">本轮验收范围</p><p>只看马的轮廓、蒙皮和四个基础动作。没有人物骑乘、马具、实时 IK 或地形适配。</p><p>这是低模原地动画实验；蹄部可能存在有限滑动，不能视作完整移动系统。</p></section>
+        <section className="horse-boundary"><p className="horse-eyebrow">马匹本体范围</p><p>这里独立查看马的轮廓、蒙皮和四个基础动作。人物骑乘请切换右侧“骑乘试衣”。</p><p>这是低模原地动画实验；蹄部可能存在有限滑动，不能视作完整移动系统。</p></section>
       </aside>
     </div>
   </main>;

@@ -4,10 +4,13 @@ import App from './App';
 import './styles.css';
 
 const HorseLab = lazy(() => import('./horse/HorseLab'));
-const horse = new URLSearchParams(location.search).get('lab') === 'horse';
+const RidingLab = lazy(() => import('./riding/RidingLab'));
+const lab = new URLSearchParams(location.search).get('lab');
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {horse ? <Suspense fallback={<p style={{ padding: 32 }}>正在载入马匹实验…</p>}><HorseLab /></Suspense> : <App />}
+    <Suspense fallback={<p style={{ padding: 32 }}>正在载入工坊…</p>}>
+      {lab === 'riding' ? <RidingLab /> : lab === 'horse' ? <HorseLab /> : <App />}
+    </Suspense>
   </React.StrictMode>,
 );
