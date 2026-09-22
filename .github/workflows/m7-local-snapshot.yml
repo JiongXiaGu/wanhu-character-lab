@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      REVIEW_HEAD_SHA: 47d614eec23eb3c20defdbe7a60702f4cfdc0acf
+      REVIEW_HEAD_SHA: 6c8d3cf77009ba224982e443fd888de076ef6386
     steps:
       - uses: actions/checkout@v4
         with:
@@ -61,7 +61,7 @@ jobs:
               await page.waitForFunction(lab=>(lab==='mount'?window.__MOUNT_REVIEW__:window.__RIDING_REVIEW__)?.mountId()==='yak_black',lab);
               await page.getByTestId(`${lab==='mount'?'horse':'riding'}-view-${view}`).click();await page.waitForTimeout(200);
               const state=await page.evaluate(lab=>{const r=lab==='mount'?window.__MOUNT_REVIEW__:window.__RIDING_REVIEW__;return {finite:r.matricesFinite(),status:r.getStatus(),camera:r.cameraState(),stats:typeof r.stats==='function'?r.stats():r.stats}},lab);
-              assert(state.finite);assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('vite-error-overlay').count(),0);
+              assert(state.finite);assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('vite-error-overlay').count(),0);assert.equal(await page.locator('.horse-phase-tag').innerText(),'PHASE M7 · 多坐骑');
               await page.screenshot({path:out+'/'+name+'.png'});frames.push({file:name+'.png',lab,saddle,clip,bodyType,view,phase,...state});
             }
             assert.deepEqual(errors,[]);result='passed';
