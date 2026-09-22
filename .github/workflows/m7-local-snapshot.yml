@@ -1,4 +1,4 @@
-name: Temporary M7 authoring snapshot
+name: Temporary M7 candidate validation
 on:
   push:
     branches: [work/m7-yak-authoring]
@@ -6,22 +6,78 @@ on:
 permissions:
   contents: read
 jobs:
-  snapshot:
+  validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
+    env:
+      REVIEW_HEAD_SHA: 74ad356bdcc36bd46487cf255016514d1f3a5088
+      RIDING_CHECK_DIR: /tmp/wanhu-riding-checks
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ env.REVIEW_HEAD_SHA }}
           persist-credentials: false
+      - name: Record exact candidate source
+        run: |
+          test "$(git rev-parse HEAD)" = "$REVIEW_HEAD_SHA"
+          mkdir -p /tmp/wanhu-riding-checks
+          git ls-tree -r HEAD > /tmp/wanhu-riding-checks/source-tree.txt
+          echo "$REVIEW_HEAD_SHA" > /tmp/wanhu-riding-checks/source-sha.txt
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - name: Export source and installed dependencies for offline authoring
-        run: tar --exclude='./.git' -czf /tmp/m7-source.tgz .
+      - run: npm run build
+      - run: npm run check:mounts
+      - run: npm run check:riding
+      - run: npm run check:saddles
+      - run: npm run check:horse
+      - run: npx playwright install --with-deps chromium
+      - name: Five-species desktop interaction
+        run: npm run check:mounts-browser
+      - name: Original riding desktop interaction
+        if: success() || failure()
+        run: npm run check:riding-browser
+      - name: Original saddles desktop interaction
+        if: success() || failure()
+        run: npm run check:saddles-browser
+      - name: Four M7 baseline frames (separate from interaction checks)
+        if: success() || failure()
+        run: |
+          cat > scripts/.m7-baseline.mjs <<'JS'
+          import assert from 'node:assert/strict';
+          import { chromium } from 'playwright';
+          import { spawn } from 'node:child_process';
+          import { mkdirSync, writeFileSync } from 'node:fs';
+          const out='/tmp/wanhu-riding-checks/visual';mkdirSync(out,{recursive:true});
+          const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1','--port','4190','--strictPort'],{stdio:'ignore'});
+          let browser;const errors=[],frames=[];
+          try {
+            let ready=false;for(let i=0;i<200;i++){try{if((await fetch('http://127.0.0.1:4190')).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,200));}assert(ready);
+            browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+            const page=await browser.newPage({viewport:{width:1680,height:1050},deviceScaleFactor:1});page.setDefaultTimeout(30000);
+            page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+            await page.goto('http://127.0.0.1:4190/?lab=mount&mount=yak_black&pose=bind&paused=1');
+            await page.waitForFunction(()=>window.__MOUNT_REVIEW__?.mountId()==='yak_black');
+            assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('vite-error-overlay').count(),0);
+            await page.waitForTimeout(200);await page.screenshot({path:out+'/yak-body.png'});frames.push('yak-body.png');
+            await page.getByTestId('horse-view-left').click();await page.waitForTimeout(200);await page.screenshot({path:out+'/yak-side.png'});frames.push('yak-side.png');
+            await page.goto('http://127.0.0.1:4190/?lab=riding&mount=yak_black&saddle=travel&clip=pose&paused=1');
+            await page.waitForFunction(()=>window.__RIDING_REVIEW__?.mountId()==='yak_black');
+            await page.waitForTimeout(200);await page.screenshot({path:out+'/yak-travel.png'});frames.push('yak-travel.png');
+            await page.getByTestId('riding-body-female').click();await page.waitForFunction(()=>window.__RIDING_REVIEW__.recipe().bodyType==='female');
+            await page.waitForTimeout(200);await page.screenshot({path:out+'/yak-female.png'});frames.push('yak-female.png');assert.deepEqual(errors,[]);
+          } finally {
+            writeFileSync(out+'/baseline-report.json',JSON.stringify({sourceSHA:process.env.REVIEW_HEAD_SHA,errors,frames,visualApproval:false},null,2));
+            await browser?.close();server.kill('SIGTERM');
+          }
+          JS
+          node scripts/.m7-baseline.mjs
+          rm scripts/.m7-baseline.mjs
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: m7-local-source
-          path: /tmp/m7-source.tgz
-          retention-days: 1
+          name: m7-yak-validation
+          path: /tmp/wanhu-riding-checks
+          retention-days: 7
