@@ -40,8 +40,8 @@ export function authorCattlePose(id: MountMotion, phase: number) {
     const phases = run ? { FrontLeft: 0, BackRight: .08, FrontRight: .5, BackLeft: .58 } : { FrontLeft: 0, BackRight: .04, FrontRight: .5, BackLeft: .54 };
     for (const leg of ['FrontLeft', 'FrontRight', 'BackLeft', 'BackRight'] as const) {
       const q = 2 * Math.PI * ((phases[leg] - p + 1) % 1), front = leg.startsWith('Front'), swing = Math.max(0, Math.sin(q));
-      const upper = -(run ? front ? .34 : .26 : front ? .17 : .15) * Math.cos(q);
-      const middle = (run ? front ? .70 : .42 : front ? .42 : .26) * swing * swing;
+      const upper = -(run ? front ? .44 : .26 : front ? .17 : .15) * Math.cos(q);
+      const middle = (run ? front ? .80 : .42 : front ? .42 : .26) * swing * swing;
       const lower = -(front ? .13 : run ? .40 : .26) * swing * swing;
       put(`${leg}Upper`, upper); put(`${leg}Middle`, middle); put(`${leg}Lower`, lower);
       put(`${leg}Foot`, -(pitch + (front ? spine + chest : 0) + upper + middle + lower), 0, -roll);
