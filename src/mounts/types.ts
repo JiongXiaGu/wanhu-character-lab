@@ -3,7 +3,7 @@ import type { BodyType } from '../character/v3/types';
 import type { HorseMeshData, HorseStats } from '../horse/types';
 import type { SaddleId, Point } from '../horse/saddles/catalog';
 
-export const MOUNT_IDS = ['horse_chestnut', 'donkey_gray'] as const;
+export const MOUNT_IDS = ['horse_chestnut', 'donkey_gray', 'camel_bactrian'] as const;
 export type MountId = typeof MOUNT_IDS[number];
 export const MOUNT_MOTIONS = ['idle', 'walk', 'run', 'eat'] as const;
 export type MountMotion = typeof MOUNT_MOTIONS[number];
@@ -15,7 +15,11 @@ export interface MountActor {
   material: MeshStandardMaterial; helper: SkeletonHelper; mixer: AnimationMixer; stats: HorseStats;
   reset(): void; sync(): void; dispose(): void;
 }
-export interface RiderFit { hipsLift: number; thighDirection: Point }
+export interface RiderFit {
+  hipsLift: number; thighDirection: Point;
+  /** 可选作者持缰方向；未配置的马/驴严格保留原M3手臂数值。X为右手方向，左手镜像。 */
+  upperArmDirection?: Point; forearmDirection?: Point;
+}
 export interface SaddleProfile {
   backBone: string; headBone: string; bitLeft: Point; bitRight: Point;
   seat(id: SaddleId): Point | null;
