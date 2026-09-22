@@ -33,7 +33,7 @@ export function authorDonkeyPose(id: MountMotion, phase: number) {
     put('Neck', (run ? .04 : 0) + .024 * Math.sin(a - .3)); put('NeckUpper', -.012 * Math.sin(a - .3)); put('Head', .018 * Math.sin(a + .2));
     const phases = run ? { BackRight: 0, BackLeft: .14, FrontRight: .46, FrontLeft: .57 } : { BackLeft: 0, FrontLeft: .25, BackRight: .5, FrontRight: .75 };
     for (const leg of ['FrontLeft', 'FrontRight', 'BackLeft', 'BackRight'] as const) {
-      const q = 2 * Math.PI * ((p - phases[leg] + 1) % 1), front = leg.startsWith('Front'), swing = Math.max(0, Math.sin(q));
+      const q = 2 * Math.PI * ((phases[leg] - p + 1) % 1), front = leg.startsWith('Front'), swing = Math.max(0, Math.sin(q));
       const upper = -(run ? front ? .38 : .28 : front ? .19 : .16) * Math.cos(q);
       const middle = (run ? front ? .87 : .51 : front ? .56 : .31) * swing * swing;
       const lower = -(front ? .16 : run ? .53 : .30) * swing * swing;
