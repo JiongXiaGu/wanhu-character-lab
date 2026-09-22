@@ -59,4 +59,30 @@ export async function checkCattleBrowser(page, base, checks) {
   await page.getByTestId('animal-mode-horse').click(); await page.waitForFunction(() => window.__MOUNT_REVIEW__?.mountId() === 'cattle_yellow'); assert.equal(await page.getByTestId('mount-saddle').inputValue(), 'travel');
   await page.getByTestId('animal-mode-riding').click(); await page.waitForFunction(() => window.__RIDING_REVIEW__?.mountId() === 'cattle_yellow'); assert.equal(await page.getByTestId('mount-saddle').inputValue(), 'travel');
   assert.equal(await page.locator('canvas').count(), 1); checks.push('cattle body/riding round trip preserves fourth species and whole saddle kit');
+  const sameCamera = (a, b) => { for (const field of ['position', 'target', 'projection']) a[field].forEach((v, i) => near(v, b[field][i])); };
+  const wardrobeBefore = await page.evaluate(() => localStorage.getItem('wanhu.character.wardrobe.v5'));
+  await page.getByTestId('riding-body-female').click();
+  await page.getByTestId('riding-slot-top').selectOption('work_vest'); await page.getByTestId('riding-slot-bottom').selectOption('work_pants');
+  await page.getByTestId('Rider_Walk').click(); await pause('riding-play');
+  await page.evaluate(() => window.__RIDING_REVIEW__.seek(.375)); await page.getByTestId('riding-view-left').click();
+  const box = await page.locator('canvas').boundingBox(); assert(box); await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.wheel(0, -160); await page.waitForTimeout(250);
+  const savedRider = await riding();
+  await page.getByTestId('animal-mode-horse').click(); await page.waitForFunction(() => window.__MOUNT_REVIEW__?.mountId() === 'cattle_yellow');
+  await page.getByTestId('Cattle_Eat').click(); await pause('horse-play'); await page.evaluate(() => window.__MOUNT_REVIEW__.seek(.625)); await page.getByTestId('horse-view-front').click();
+  const savedBody = await page.evaluate(() => ({ status: window.__MOUNT_REVIEW__.getStatus(), camera: window.__MOUNT_REVIEW__.cameraState() }));
+  await page.getByTestId('animal-mode-riding').click(); await page.waitForFunction(() => window.__RIDING_REVIEW__?.mountId() === 'cattle_yellow');
+  const restoredRider = await riding(); valid(restoredRider); near(restoredRider.status.phase, .375); assert.equal(restoredRider.status.clip, savedRider.status.clip); assert.deepEqual(restoredRider.recipe, savedRider.recipe); sameCamera(restoredRider.camera, savedRider.camera);
+  assert((await page.getByTestId('riding-play').innerText()).includes('播放'));
+  await page.getByTestId('animal-mode-horse').click(); await page.waitForFunction(() => window.__MOUNT_REVIEW__?.mountId() === 'cattle_yellow');
+  const restoredBody = await page.evaluate(() => ({ status: window.__MOUNT_REVIEW__.getStatus(), camera: window.__MOUNT_REVIEW__.cameraState() }));
+  near(restoredBody.status.phase, .625); assert.equal(restoredBody.status.clip, 'eat'); sameCamera(restoredBody.camera, savedBody.camera);
+  assert((await page.getByTestId('horse-play').innerText()).includes('播放'));
+  assert.equal(await page.evaluate(() => localStorage.getItem('wanhu.character.wardrobe.v5')), wardrobeBefore);
+  checks.push('cattle real page round trips restore each mode phase, clip, paused state, Orbit camera/zoom and unsaved V5 rider appearance without writing wardrobe storage');
+  await page.evaluate(() => sessionStorage.setItem('wanhu.mount.preview.v1.riding', '{bad-cache'));
+  await page.goto(`${base}/?lab=riding&mount=cattle_yellow&saddle=simple&clip=Rider_Walk&paused=1&phase=.2&preview=resume`); await page.waitForFunction(() => window.__RIDING_REVIEW__?.mountId() === 'cattle_yellow');
+  valid(await riding()); near((await riding()).status.phase, .2); assert.equal(await page.locator('canvas').count(), 1);
+  assert.equal(await page.evaluate(() => localStorage.getItem('wanhu.character.wardrobe.v5')), wardrobeBefore);
+  checks.push('malformed temporary preview state falls back to explicit URL without corrupting wardrobe');
+
 }

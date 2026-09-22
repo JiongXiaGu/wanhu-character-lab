@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { readPreviewSession, registerPreviewCapture } from '../mounts/preview-session';
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { Recipe } from '../character/v3/types';
@@ -51,6 +52,7 @@ export function RidingViewport({ options, onStats, onPlayback, onError }: Props)
       resize() { const width = Math.max(1, element.clientWidth), height = Math.max(1, element.clientHeight), aspect = width / height; renderer.setSize(width, height, false); perspective.aspect = aspect; perspective.updateProjectionMatrix(); const half = Math.max(player.definition.frame.ridingHalf, 1.90 / aspect); ortho.left = -half * aspect; ortho.right = half * aspect; ortho.top = half; ortho.bottom = -half; ortho.updateProjectionMatrix(); }, render() { renderer.render(scene, rt.camera); },
     };
     runtime.current = rt; applyCamera(rt, latest.current); applyDisplay(rt, latest.current); stats.current(player.stats()); report.current(player.status());
+    const detachPreview = registerPreviewCapture('riding', () => ({ phase: rt.player.status().phase, camera: { position: rt.camera.position.toArray(), target: rt.controls.target.toArray(), zoom: rt.camera.zoom } }));
     if (import.meta.env.DEV || new URLSearchParams(location.search).has('review')) window.__RIDING_REVIEW__ = {
       mountId: () => player.mountId, seek(phase) { player.seek(phase); rt.render(); report.current(player.status()); }, getStatus: () => player.status(), stats: () => player.stats(), recipe: () => player.rider.data.recipe,
       geometryIds: () => ({ horse: player.mount.mesh.geometry.uuid, rider: player.rider.mesh.geometry.uuid }),
@@ -63,7 +65,7 @@ export function RidingViewport({ options, onStats, onPlayback, onError }: Props)
     let frame = 0, previous = performance.now(), lastReport = 0, stopped = false;
     const animate = (now: number) => { if (stopped) return; const delta = Math.min(.05, Math.max(0, (now - previous) / 1000)); previous = now; player.update(latest.current.playing ? delta * latest.current.speed : 0); rt.controls.update(); rt.render(); if (now - lastReport > 80) { report.current(player.status()); lastReport = now; } frame = requestAnimationFrame(animate); }; frame = requestAnimationFrame(animate);
     const lost = (event: Event) => { event.preventDefault(); error.current('WebGL上下文丢失，请刷新后重试。'); }; renderer.domElement.addEventListener('webglcontextlost', lost);
-    return () => { stopped = true; cancelAnimationFrame(frame); observer.disconnect(); rt.controls.dispose(); player.dispose(); floor.geometry.dispose(); floor.material.dispose(); grid.geometry.dispose(); seatHelper.geometry.dispose(); for (const helper of [grid, seatHelper]) for (const material of Array.isArray(helper.material) ? helper.material : [helper.material]) material.dispose(); key.shadow.map?.dispose(); renderer.domElement.removeEventListener('webglcontextlost', lost); renderer.dispose(); renderer.domElement.remove(); runtime.current = null; delete window.__RIDING_REVIEW__; };
+    return () => { detachPreview(); stopped = true; cancelAnimationFrame(frame); observer.disconnect(); rt.controls.dispose(); player.dispose(); floor.geometry.dispose(); floor.material.dispose(); grid.geometry.dispose(); seatHelper.geometry.dispose(); for (const helper of [grid, seatHelper]) for (const material of Array.isArray(helper.material) ? helper.material : [helper.material]) material.dispose(); key.shadow.map?.dispose(); renderer.domElement.removeEventListener('webglcontextlost', lost); renderer.dispose(); renderer.domElement.remove(); runtime.current = null; delete window.__RIDING_REVIEW__; };
   }, []);
   useEffect(() => {
     const rt = runtime.current; if (!rt || rt.player.mountId === options.mountId) return;
@@ -82,5 +84,12 @@ export function RidingViewport({ options, onStats, onPlayback, onError }: Props)
   useEffect(() => { const rt = runtime.current; if (rt) { rt.player.setLoop(options.loop); report.current(rt.player.status()); } }, [options.loop]);
   useEffect(() => { const rt = runtime.current; if (rt) applyCamera(rt, options); }, [options.view, options.viewRevision, options.orthographic]);
   useEffect(() => { const rt = runtime.current; if (rt) applyDisplay(rt, options); }, [options.display, options.riderSkeleton, options.horseSkeleton, options.seat, options.grid, options.reins]);
+  // 所有初始applyCamera完成后恢复真实Orbit位置与缩放；后续点击相机按钮仍使用原行为。
+  useEffect(() => {
+    const rt = runtime.current, saved = readPreviewSession('riding')?.camera;
+    if (!rt || !saved) return;
+    rt.camera.position.fromArray(saved.position); rt.controls.target.fromArray(saved.target); rt.camera.zoom = saved.zoom;
+    rt.camera.lookAt(rt.controls.target); rt.controls.update(); rt.resize(); rt.render();
+  }, []);
   return <div className="horse-viewport riding-viewport" data-testid="riding-viewport" data-mount-id={options.mountId} ref={host}/>;
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { readPreviewSession, registerPreviewCapture } from './preview-session';
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { HorseDisplay, HorseView, HorseStats } from '../horse/types';
@@ -52,6 +53,7 @@ export function MountViewport({ options, onStats, onPlayback, onError }: Props) 
       render() { renderer.render(scene, rt.camera); },
     };
     runtime.current = rt; applyCamera(rt, latest.current); applyDisplay(rt, latest.current); stats.current(bundle.actor.stats); report.current(bundle.player.status());
+    const detachPreview = registerPreviewCapture('horse', () => ({ phase: rt.bundle.player.status().phase, camera: { position: rt.camera.position.toArray(), target: rt.controls.target.toArray(), zoom: rt.camera.zoom } }));
     if (import.meta.env.DEV || new URLSearchParams(location.search).has('review')) {
       const hook: MountReview = { mountId: () => rt.bundle.definition.id, get stats() { return rt.bundle.actor.stats; }, seek(p) { rt.bundle.player.seek(p); rt.render(); report.current(rt.bundle.player.status()); }, getStatus: () => rt.bundle.player.status(), geometryId: () => rt.bundle.actor.mesh.geometry.uuid,
         cameraState: () => ({ position: rt.camera.position.toArray(), target: rt.controls.target.toArray(), projection: rt.camera.projectionMatrix.toArray() }),
@@ -66,7 +68,7 @@ export function MountViewport({ options, onStats, onPlayback, onError }: Props) 
     let frame = 0, previous = performance.now(), lastReport = 0, stopped = false;
     const animate = (now: number) => { if (stopped) return; const dt = Math.min(.05, Math.max(0, (now - previous) / 1000)); previous = now; rt.bundle.player.update(latest.current.playing ? dt * latest.current.speed : 0); rt.controls.update(); rt.render(); if (now - lastReport > 80) { report.current(rt.bundle.player.status()); lastReport = now; } frame = requestAnimationFrame(animate); }; frame = requestAnimationFrame(animate);
     const lost = (e: Event) => { e.preventDefault(); error.current('WebGL上下文丢失，请刷新。'); }; renderer.domElement.addEventListener('webglcontextlost', lost);
-    return () => { stopped = true; cancelAnimationFrame(frame); observer.disconnect(); rt.controls.dispose(); rt.bundle.dispose(); floor.geometry.dispose(); floor.material.dispose(); grid.geometry.dispose(); for (const m of Array.isArray(grid.material) ? grid.material : [grid.material]) m.dispose(); key.shadow.map?.dispose(); renderer.domElement.removeEventListener('webglcontextlost', lost); renderer.dispose(); renderer.domElement.remove(); runtime.current = null; delete window.__MOUNT_REVIEW__; delete window.__HORSE_REVIEW__; };
+    return () => { detachPreview(); stopped = true; cancelAnimationFrame(frame); observer.disconnect(); rt.controls.dispose(); rt.bundle.dispose(); floor.geometry.dispose(); floor.material.dispose(); grid.geometry.dispose(); for (const m of Array.isArray(grid.material) ? grid.material : [grid.material]) m.dispose(); key.shadow.map?.dispose(); renderer.domElement.removeEventListener('webglcontextlost', lost); renderer.dispose(); renderer.domElement.remove(); runtime.current = null; delete window.__MOUNT_REVIEW__; delete window.__HORSE_REVIEW__; };
   }, []);
   useEffect(() => {
     const rt = runtime.current; if (!rt || rt.bundle.definition.id === options.mountId) return;
@@ -83,5 +85,12 @@ export function MountViewport({ options, onStats, onPlayback, onError }: Props) 
   useEffect(() => { const rt = runtime.current; if (rt) rt.bundle.player.setLoop(options.loop); }, [options.loop]);
   useEffect(() => { const rt = runtime.current; if (rt) applyCamera(rt, options); }, [options.view, options.viewRevision, options.orthographic]);
   useEffect(() => { const rt = runtime.current; if (rt) applyDisplay(rt, options); }, [options.display, options.skeleton, options.grid]);
+  // 所有初始applyCamera完成后恢复真实Orbit位置与缩放；后续点击相机按钮仍使用原行为。
+  useEffect(() => {
+    const rt = runtime.current, saved = readPreviewSession('horse')?.camera;
+    if (!rt || !saved) return;
+    rt.camera.position.fromArray(saved.position); rt.controls.target.fromArray(saved.target); rt.camera.zoom = saved.zoom;
+    rt.camera.lookAt(rt.controls.target); rt.controls.update(); rt.resize(); rt.render();
+  }, []);
   return <div className="horse-viewport" data-testid="horse-viewport" data-mount-id={options.mountId} ref={host}/>;
 }

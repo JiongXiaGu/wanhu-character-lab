@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { readPreviewSession, savePreviewSession } from '../mounts/preview-session';
 import { createRecipe, patchSlots, type Recipe, type CharacterSlots } from '../character/v3/types';
 import { SLOT_OPTIONS } from '../character/wardrobe/catalog';
 import type { HorseDisplay, HorseView } from '../horse/types';
@@ -15,19 +16,21 @@ import '../horse/horse.css';
 import './riding.css';
 
 const query = new URLSearchParams(location.search), views: [HorseView, string][] = [['front', '正面'], ['left', '左侧'], ['right', '右侧'], ['back', '背面'], ['three', '前侧 ¾'], ['rear-three', '后侧 ¾']];
+const resumed = readPreviewSession('riding');
 const validPhase = (value: number) => Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
 function initialRecipe(): Recipe {
+  if (resumed?.recipe) return resumed.recipe;
   let recipe = createRecipe({ bodyType: query.get('bodyType') === 'female' ? 'female' : 'male' });
   for (const key of ['top', 'bottom', 'headwear', 'shoes'] as const) { const value = query.get(key); if (value && SLOT_OPTIONS[key].some(option => option.id === value)) recipe = patchSlots(recipe, { [key]: value } as Partial<CharacterSlots>); } return recipe;
 }
 export default function RidingLab() {
-  const initial = query.get('clip'), saddleQuery = query.get('saddle');
+  const initial = resumed?.clip ?? query.get('clip'), saddleQuery = query.get('saddle');
   const [mountId, setMountId] = useState(() => initialMount(query)), [saddleId, setSaddleId] = useState<SaddleId>(isSaddleId(saddleQuery) ? saddleQuery : 'simple');
   const definition = mountDefinition(mountId), rideable = saddleId !== 'none';
   const [reins, setReins] = useState(true), [clip, setClip] = useState<RidingSelection>(isRidingSelection(initial) ? initial : 'Rider_Idle'), [recipe, setRecipe] = useState<Recipe>(initialRecipe);
-  const [playing, setPlaying] = useState(!query.has('paused') && initial !== 'pose'), [phase, setPhase] = useState(validPhase(Number(query.get('phase') ?? 0))), [seekRevision, setSeekRevision] = useState(0);
-  const [speed, setSpeed] = useState(1), [loop, setLoop] = useState(true), [view, setView] = useState<HorseView>(views.some(([id]) => id === query.get('view')) ? query.get('view') as HorseView : 'three');
-  const [viewRevision, setViewRevision] = useState(0), [orthographic, setOrthographic] = useState(true), [display, setDisplay] = useState<HorseDisplay>('beauty');
+  const [playing, setPlaying] = useState(resumed?.playing ?? (!query.has('paused') && initial !== 'pose')), [phase, setPhase] = useState(resumed?.phase ?? validPhase(Number(query.get('phase') ?? 0))), [seekRevision, setSeekRevision] = useState(0);
+  const [speed, setSpeed] = useState(resumed?.speed ?? 1), [loop, setLoop] = useState(resumed?.loop ?? true), [view, setView] = useState<HorseView>(resumed?.view ?? (views.some(([id]) => id === query.get('view')) ? query.get('view') as HorseView : 'three'));
+  const [viewRevision, setViewRevision] = useState(0), [orthographic, setOrthographic] = useState(resumed?.orthographic ?? true), [display, setDisplay] = useState<HorseDisplay>('beauty');
   const [riderSkeleton, setRiderSkeleton] = useState(false), [horseSkeleton, setHorseSkeleton] = useState(false), [seat, setSeat] = useState(false), [grid, setGrid] = useState(false);
   const [stats, setStats] = useState<RidingStats | null>(null), [error, setError] = useState('');
   const [playback, setPlayback] = useState<RidingPlayback>({ clip, phase, horsePhase: phase, riderPhase: phase, time: 0, duration: 0, loop: true, finished: false });
@@ -37,7 +40,7 @@ export default function RidingLab() {
   const seek = (next: number) => { if (!rideable) return; setPlaying(false); setPhase(validPhase(next)); setSeekRevision(value => value + 1); };
   const replay = () => { if (!rideable) return; setPhase(0); setSeekRevision(value => value + 1); setPlaying(clip !== 'pose'); };
   return <main className="horse-lab riding-lab">
-    <header className="horse-topbar"><div><p>WANHU / RIDING STUDY</p><h1>骑乘试衣 <span>Riding Lab</span></h1></div><WorkspaceSwitcher active="animal"/><span className="horse-phase-tag">PHASE M5 · 多坐骑</span></header>
+    <header className="horse-topbar"><div><p>WANHU / RIDING STUDY</p><h1>骑乘试衣 <span>Riding Lab</span></h1></div><WorkspaceSwitcher active="animal"/><span className="horse-phase-tag">PHASE M6 · 多坐骑</span></header>
     <div className="horse-workspace">
       <section className="horse-stage" aria-label="骑乘预览">
         <div className="horse-stage-title"><p>MOUNT / SADDLE / RIDER</p><h2 data-testid="riding-stage-name">{definition.name}{rideable ? ' · 骑乘' : ''}</h2><span className="horse-stage-motion">{saddleDefinition(saddleId).name} · {rideable ? `${recipe.bodyType === 'female' ? '女性' : '男性'}骑手 · ${active?.label ?? '静态骑姿'}` : '骑乘已暂停'}</span></div>
@@ -55,13 +58,13 @@ export default function RidingLab() {
         </section>
       </section>
       <aside className="horse-inspector riding-inspector">
-        <AnimalModeSwitcher active="riding" saddleId={saddleId} mountId={mountId}/><MountSelector mountId={mountId} onMountChange={setMountId} saddleId={saddleId} onChange={setSaddleId}/><RiderWardrobe recipe={recipe} setRecipe={setRecipe}/>
+        <AnimalModeSwitcher onNavigate={() => savePreviewSession('riding', { clip, phase: playback.phase, playing, speed, loop, view, orthographic, recipe })} active="riding" saddleId={saddleId} mountId={mountId}/><MountSelector mountId={mountId} onMountChange={setMountId} saddleId={saddleId} onChange={setSaddleId}/><RiderWardrobe recipe={recipe} setRecipe={setRecipe}/>
         <section><p className="horse-eyebrow">03 / MOTION</p><h2>骑乘动作</h2><div className="horse-clip-list">{RIDING_CLIPS.map(value => <button key={value.id} data-testid={value.id} disabled={!rideable} aria-pressed={clip === value.id} onClick={() => selectClip(value.id)}><strong>{value.label}</strong><small>{value.description}</small><span>{ridingDefinition(value.id, mountId).duration.toFixed(1)} s</span></button>)}</div><button className="horse-bind-button" data-testid="riding-pose" disabled={!rideable} aria-pressed={clip === 'pose'} onClick={() => selectClip('pose')}>查看静态骑姿</button></section>
         <section><p className="horse-eyebrow">04 / INSPECTION</p><h2>结构检查</h2><div className="horse-display-options">{([['beauty', '色块'], ['clay', '素模'], ['wire', '线框']] as [HorseDisplay, string][]).map(([id, label]) => <button key={id} aria-pressed={display === id} onClick={() => setDisplay(id)}>{label}</button>)}</div><div className="riding-checks">
           <label><input type="checkbox" aria-label="骑手骨架" checked={riderSkeleton} onChange={e => setRiderSkeleton(e.target.checked)}/>骑手骨架</label><label><input type="checkbox" aria-label="坐骑骨架" checked={horseSkeleton} onChange={e => setHorseSkeleton(e.target.checked)}/>坐骑骨架</label>
           <label><input type="checkbox" aria-label="骑乘挂点" checked={seat} onChange={e => setSeat(e.target.checked)}/>骑乘挂点</label><label><input type="checkbox" aria-label="骑乘参考网格" checked={grid} onChange={e => setGrid(e.target.checked)}/>参考网格</label><label><input type="checkbox" aria-label="显示缰绳" checked={reins} onChange={e => setReins(e.target.checked)}/>显示缰绳</label>
         </div></section>
-        <section className="horse-boundary"><p className="horse-eyebrow">当前范围</p><p>同一人物可骑栗色马、灰驴或双峰骆驼。种类切换会适配鞍具、跨坐宽度和缰绳；衣物与人物绑定保持。</p><p>只有静态、停驻、步行和奔跑；进食在坐骑本体页查看。没有上下坐骑、导航、地形IK或玩家移动。</p></section>
+        <section className="horse-boundary"><p className="horse-eyebrow">当前范围</p><p>同一人物可骑栗色马、灰驴、双峰骆驼或黄牛。种类切换会适配鞍具、跨坐宽度和缰绳；衣物与人物绑定保持。</p><p>只有静态、停驻、步行和奔跑；进食在坐骑本体页查看。没有上下坐骑、导航、地形IK或玩家移动。</p></section>
       </aside>
     </div>
   </main>;
