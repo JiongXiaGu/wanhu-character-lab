@@ -14,7 +14,7 @@ geometry负责制作外形和静态权重，rig负责绑定，skinning负责渲�
 
 npm run check:horse包括网格／绑定／964姿态采样及地面高度失败门槛，保留五个故障注入。蹄低于-0.012m、头穿地、Eat最低头部不在0.01–0.12m均失败；这是平面低模实验容差，不是零滑步／零相交证明。首稿4cm入地不得回退成仅诊断不失败。
 
-npm run review:local -- --horse运行完整104张视口图＋工作台／小屏图＋9张接触表。正式horse-review job加入Character Model Review，独立artifact horse-m1-review；原model-review、其他五条工作流、全部人物压力矩阵不缩减。删除临时M1制作workflow，不留第七条永久流程；正式job不推送证据分支。自动通过、图片生成、下载与实际看图分别记录。
+`npm run check:horse`属于代码辅助检查；当`src/horse/**`等相关路径变化时由Targeted Numeric Checks自动执行。马匹截图不再随每个PR自动生成；只有用户明确要求视觉审查时，才运行`npm run review:local -- --horse`或手动触发Manual Visual Review。截图生成与视觉通过必须分开记录，最终外观判断由用户完成。
 
 ## 人物不变量
 
@@ -46,10 +46,10 @@ Cap试验当前只覆盖work_vest（128三角形）、short_trousers（164）和
 
 ## 审图与交付
 
-优先修改→本地真实浏览器→截图→实际看图→迭代。本地默认、--wardrobe、--lightwear、--skirts入口保留；各自--full完整矩阵。环境不能完成本机网页链路时如实记录，可在runner执行同一入口但不能称作本机截图成功。静态源码重建不能冒充网页／FBX。
+默认流程是修改→代码检查→必要的数值回归→交付用户体验。视觉截图不是每轮必做项；只有用户明确要求视觉审查、需要建立视觉基线或处理纯视觉问题时，才执行本地/runner截图。`review:local`保留`--character`、`--wardrobe`、`--lightwear`、`--skirts`、`--mixamo`、`--horse`，`--full`仅用于明确要求的完整视觉矩阵。
 
-最终保留原六条正式Actions：Build、Character Model Review、Mixamo Retarget Review、Wardrobe Review、Tailoring V2 Review、Modular Garment Review。裙装为Modular的并行job，原compare、人体、两批服饰与帽发矩阵不可减少。不部署Vercel／Visual，不留临时制作workflow为第七条永久流程。
+正式Actions收敛为三条：`Build & Core Checks`负责每次PR/push的编译与核心契约；`Targeted Numeric Checks`按改动路径自动执行Wardrobe/Mixamo/Tailoring/Horse数值检查；`Manual Visual Review`只允许手动触发并生成指定范围截图。不得因为小改动自动运行全人物、全FBX、全裙装或马匹截图矩阵。
 
-裙装快速160、完整412视口＋工作台，另52基线与36对同相机短裤对照、16次相位保持。完整模式保留Snatch .05压力帧。原播放结束／循环、故障注入、绑定保护签名保持，不刷新哈希掩盖变动。
+旧的大规模视觉矩阵与脚本保留作为按需工具，不再是默认CI门槛。数值侧的播放结束／循环、故障注入、绑定保护签名、源键／中点采样和贯穿阈值继续作为自动检查，不得为了加速而放宽。
 
-记录实际受测SHA、run、下载、实际看图文件／接触表范围、未看视频及最终main。成功检查、生成文件、人工看图是不同事实；有限抽查不是所有连续时刻零穿插。纯文档收尾可引用未变化受测代码；源码变动重新验证。正常合并前重读最新HEAD，避免覆盖并发提交。M1另需用户明确同意，不因CI全绿自动合并。
+记录实际受测SHA和自动检查结果。只有发生人工视觉审查时才记录实际看过的图片范围；不得把“生成了截图”写成“AI/用户已经看图通过”。AI默认负责代码、数值契约和自动化检查，不逐张代替用户做美术判断；用户明确要求视觉审查时再查看图片。正常合并前重读最新HEAD，避免覆盖并发提交。
