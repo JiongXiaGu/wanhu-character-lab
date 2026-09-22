@@ -1,0 +1,34 @@
+import { createHorseActor } from '../horse/skinning';
+import { authorHorsePose, bakeHorseClips, HORSE_CLIPS } from '../horse/animation';
+import type { HorseClipId } from '../horse/types';
+import { buildDonkeyMesh } from '../donkey/geometry';
+import { DONKEY_JOINTS } from '../donkey/rig';
+import { authorDonkeyPose, bakeDonkeyClips, DONKEY_MOTIONS } from '../donkey/animation';
+import { DONKEY_REIN_PROFILE, DONKEY_RIDER_FIT, DONKEY_SADDLE_PROFILE } from '../donkey/saddles';
+import { HORSE_REIN_PROFILE, HORSE_RIDER_FIT, HORSE_SADDLE_PROFILE } from './horse-profile';
+import { makeMountActor } from './skinning';
+import { MOUNT_IDS, MOUNT_MOTIONS, type MountDefinition, type MountId, type MountMotion, type MountMotionDefinition, type MountSelection } from './types';
+
+const horseIds: Record<MountMotion, HorseClipId> = { idle: 'Horse_Idle', walk: 'Horse_Walk', run: 'Horse_Run', eat: 'Horse_Eat' };
+const horseMotions = Object.fromEntries(MOUNT_MOTIONS.map(id => { const d = HORSE_CLIPS.find(c => c.id === horseIds[id])!; return [id, { nativeId: d.id, label: { idle: '停驻', walk: '步行', run: '奔跑', eat: '进食' }[id], duration: d.duration, description: d.description }]; })) as Record<MountMotion, MountMotionDefinition>;
+export const MOUNTS: readonly MountDefinition[] = [
+  { id: 'horse_chestnut', name: '栗色马', description: '现有栗色马，保持已认可的外形、绑定与四个动作。', createActor: createHorseActor,
+    bakeClips() { const native = bakeHorseClips(); return new Map(MOUNT_MOTIONS.map(id => [id, native.get(horseIds[id])!])); },
+    motions: horseMotions, saddle: HORSE_SADDLE_PROFILE, reins: HORSE_REIN_PROFILE, riderFit: HORSE_RIDER_FIT,
+    backPitch(id, p) { const pose = authorHorsePose(horseIds[id], p); return pose.rotations[1][0] + pose.rotations[2][0]; },
+    frame: { bodyY: 1.13, ridingY: 1.38, bodyHalf: 1.48, ridingHalf: 1.62 },
+  },
+  { id: 'donkey_gray', name: '灰驴', description: '长耳、浅吻、短鬃与尾端毛束；独立灰驴外形及较短步幅。', createActor: () => makeMountActor(buildDonkeyMesh(), DONKEY_JOINTS, 'WanhuDonkey'),
+    bakeClips: bakeDonkeyClips, motions: DONKEY_MOTIONS, saddle: DONKEY_SADDLE_PROFILE, reins: DONKEY_REIN_PROFILE, riderFit: DONKEY_RIDER_FIT,
+    backPitch(id, p) { const pose = authorDonkeyPose(id, p); return pose.rotations[1][0] + pose.rotations[2][0]; },
+    frame: { bodyY: 1.04, ridingY: 1.18, bodyHalf: 1.34, ridingHalf: 1.53 },
+  },
+];
+export function isMountId(value: unknown): value is MountId { return typeof value === 'string' && MOUNT_IDS.includes(value as MountId); }
+export function mountDefinition(id: MountId): MountDefinition { const definition = MOUNTS.find(value => value.id === id); if (!definition) throw new Error(`未知坐骑：${String(id)}`); return definition; }
+export function initialMount(query: URLSearchParams): MountId { const id = query.get('mount'); return isMountId(id) ? id : 'horse_chestnut'; }
+/** 历史马本体URL的片段名只在入口归一化；播放器始终使用语义，不给驴播放Horse轨道。 */
+export function initialMountMotion(value: string | null): MountSelection {
+  if (value === 'bind') return 'bind';
+  const semantic = value?.replace(/^(Horse|Donkey)_/, '').toLowerCase(); return MOUNT_MOTIONS.includes(semantic as MountMotion) ? semantic as MountMotion : 'idle';
+}
