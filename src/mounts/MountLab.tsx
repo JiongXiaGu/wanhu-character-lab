@@ -28,7 +28,7 @@ export default function MountLab() {
   const seek = (p: number) => { setPlaying(false); setPhase(validPhase(p)); setSeekRevision(v => v + 1); };
   const replay = () => { setPhase(0); setSeekRevision(v => v + 1); setPlaying(clip !== 'bind'); };
   return <main className="horse-lab mount-lab">
-    <header className="horse-topbar"><div><p>WANHU / MOUNT STUDY</p><h1>坐骑工坊 <span>Mount Lab</span></h1></div><WorkspaceSwitcher active="animal"/><span className="horse-phase-tag">PHASE M6 · 多坐骑</span></header>
+    <header className="horse-topbar"><div><p>WANHU / MOUNT STUDY</p><h1>坐骑工坊 <span>Mount Lab</span></h1></div><WorkspaceSwitcher active="animal"/><span className="horse-phase-tag">PHASE M7 · 多坐骑</span></header>
     <div className="horse-workspace">
       <section className="horse-stage" aria-label="坐骑本体预览">
         <div className="horse-stage-title"><p>MOUNT / LOW-POLY STUDY</p><h2 data-testid="mount-stage-name">{definition.name}</h2><span className="horse-stage-motion">{active?.label ?? '静态绑定姿态'}</span></div>
