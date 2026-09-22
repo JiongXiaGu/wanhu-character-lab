@@ -1,0 +1,66 @@
+name: M8 Development Verification (temporary)
+on:
+  push:
+    branches: [work/m8-water-buffalo]
+permissions:
+  contents: write
+concurrency:
+  group: m8-development
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RIDING_CHECK_DIR: /tmp/wanhu-riding-checks
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Materialize independent author assets once
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -f src/buffalo/geometry.ts ]]; then
+            python3 scripts/m8-stage.py
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add src/buffalo src/mounts scripts Documentation AGENTS.md README.md
+            git commit -m 'feat: add independently authored rideable water buffalo and additive checks'
+            git push origin HEAD:refs/heads/work/m8-water-buffalo
+          fi
+          echo "REVIEW_HEAD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          git rev-parse HEAD
+          git diff --stat
+      - name: Focused buffalo author, animation and riding checks
+        run: npx tsx -e "import { checkBuffalo } from './scripts/mount-buffalo-checks.ts'; console.log(JSON.stringify(checkBuffalo(), null, 2));"
+      - name: Build
+        run: npm run build
+      - name: All mounts numeric regression
+        run: npm run check:mounts
+      - name: Riding regression
+        run: npm run check:riding
+      - name: Saddles regression
+        run: npm run check:saddles
+      - name: Install real desktop Chromium
+        run: npx playwright install --with-deps chromium
+      - name: All mounts browser interactions
+        run: npm run check:mounts-browser
+      - name: Riding browser interactions
+        run: npm run check:riding-browser
+      - name: Saddle browser interactions
+        run: npm run check:saddles-browser
+      - name: Small verification reports only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m8-verification-reports
+          path: /tmp/wanhu-riding-checks/*.json
+          if-no-files-found: ignore
+          retention-days: 3
