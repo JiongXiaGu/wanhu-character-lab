@@ -1,6 +1,6 @@
 # 万户 · 衣冠工坊V5与多坐骑
 
-《万户天工》3D玩家／居民换装、FBX试衣与坐骑Web Demo。固定成年男女、一档低模精度；当前坐骑是栗色马、灰驴、双峰骆驼和黄牛。界面只选择种类与整体鞍具，正式玩法仍留在Unity。
+《万户天工》3D玩家／居民换装、FBX试衣与坐骑Web Demo。固定成年男女、一档低模精度；当前坐骑是栗色马、灰驴、双峰骆驼、黄牛和牦牛。界面只选择种类与整体鞍具，正式玩法仍留在Unity。
 
 ## 拉取与运行
 
@@ -23,11 +23,21 @@ npm run dev
 | ?lab=mount&mount=donkey_gray&pose=bind&paused=1 | 灰驴静态本体 |
 | ?lab=mount&mount=camel_bactrian&pose=bind&paused=1 | 双峰骆驼静态本体 |
 | ?lab=riding&mount=camel_bactrian&saddle=travel&clip=Rider_Walk | 骆驼旅行鞍具与步行骑乘 |
+| ?lab=mount&mount=yak_black&pose=bind&paused=1 | 牦牛静态本体 |
+| ?lab=riding&mount=yak_black&saddle=travel&clip=Rider_Walk | 牦牛旅行鞍与步行骑乘 |
 | ?lab=riding | 骑乘；直接进入默认栗色马和普通鞍具 |
 | ?lab=riding&mount=donkey_gray&saddle=travel&clip=pose&paused=1 | 灰驴旅行鞍具、静态骑姿 |
 | ?lab=riding&mount=donkey_gray&saddle=simple&bodyType=female&clip=Rider_Walk&paused=1 | 女性骑驴，步行初始暂停 |
 
 旧?lab=horse进入同一坐骑本体页，不再维护重复HorseLab。二级模式往返携带mount与saddle，并用页签内临时缓存恢复各自进度、相机和未保存骑手装扮；普通URL深链不自动读取该缓存，人物工坊存档不被覆盖；从无鞍本体进入骑乘不会自动装鞍，需要主动选择普通或旅行。
+
+## M7：可骑乘牦牛
+
+yak_black是独立高原牦牛：2328三角形、1224逻辑点、6984硬边顶点、29骨、30个闭合作者壳。低宽前躯、强肩低头、短粗颈、连续长毛下摆、宽厚胸毛、外展上扬角、小耳、蓬尾与八个分趾壳形成轮廓。躯干和左右裙毛是一张连续闭合表面，不是黄牛外套毛壳；不使用透明毛片或毛发物理。
+
+Yak_Idle 5.8秒、Walk 1.95秒、Run 1.10秒、Eat 7.2秒。独立宽背厚垫与低坐面，旅行款含布包、卷包和绑绳；鼻带侧环配专属角下缰绳导向。男女独立YAK_RIDER_FIT，原四物种、人物V5／20骨／服饰／FBX保持。仍只有种类与整体鞍具两个选择，没有牦牛专属页面。
+
+本体：?lab=mount&mount=yak_black&pose=bind&paused=1；骑乘：?lab=riding&mount=yak_black&saddle=travel&clip=Rider_Walk。check:mounts追加964本体／2892骑乘／70衣裤／40次五物种切换及30个故障反例，默认浏览器仍只做交互。详见[牦牛](Documentation/牦牛.md)。自动检查不等于用户已认可造型、步态或近景接触。
 
 ## M6：可骑乘黄牛
 
@@ -103,4 +113,4 @@ node scripts/review-camel-torso.mjs
 
 旧review:local各入口与--full保留按需使用；生成截图、自动通过和人工视觉认可分开记录。有限采样不是全时域零穿插。尚无跪下／起身、上下坐骑、导航、玩家移动、地形贴蹄、袋子物理、连续身材、儿童老人、多档LOD、Unity正式坐骑运行时或GPU Crowd。本项目不部署Vercel。
 
-文档：[V5契约](Documentation/固定基模与换装V5.md) · [服装架构](Documentation/服装生成架构.md) · [人物动画](Documentation/Mixamo动画接入.md) · [多坐骑](Documentation/多坐骑与灰驴.md) · [双峰骆驼](Documentation/双峰骆驼.md) · [Unity迁移](Documentation/GPU骨骼动画迁移契约.md)。
+文档：[V5契约](Documentation/固定基模与换装V5.md) · [服装架构](Documentation/服装生成架构.md) · [人物动画](Documentation/Mixamo动画接入.md) · [多坐骑](Documentation/多坐骑与灰驴.md) · [双峰骆驼](Documentation/双峰骆驼.md) · [黄牛](Documentation/黄牛.md) · [牦牛](Documentation/牦牛.md) · [Unity迁移](Documentation/GPU骨骼动画迁移契约.md)。
