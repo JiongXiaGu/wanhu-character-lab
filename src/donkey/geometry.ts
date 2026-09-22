@@ -50,7 +50,7 @@ export function buildDonkeyMesh() {
       { p: [sign * .119, 2.025, .773], width: .005, depth: .003, skin: weight(ear) },
     ], 4, '#b7a58c');
     b.gem(`${side}Eye`, [sign * .129, 1.651, .904], [.014, .018, .020], weight('Head'), '#232923');
-    b.gem(`${side}Nostril`, [sign * .077, 1.371, 1.217], [.012, .014, .008], weight('Head'), DARK);
+    b.gem(`${side}Nostril`, [sign * .084, 1.383, 1.183], [.010, .008, .005], weight('Head'), DARK);
     for (const front of [true, false]) {
       const n = `${front ? 'Front' : 'Back'}${side}`, x = sign * (front ? .20 : .215);
       const u = `${n}Upper`, m = `${n}Middle`, l = `${n}Lower`, h = `${n}Hoof`;
