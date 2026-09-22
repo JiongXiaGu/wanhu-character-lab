@@ -1,13 +1,20 @@
 import { makeContinuousSkirt } from './skirts';
 import { makeShortBottom } from './short-bottoms';
+import { sealGarmentInterfaces } from './seal-interfaces';
 import { B, type Cage, type Recipe, type Weight } from '../../v3/types';
 import { ring, bridge, vertex, face, orient } from '../../v3/cage';
 import { KNEE, kneeWeights } from '../../v3/leg-deformation';
 import { BOTTOM_PATTERNS } from '../patterns';
 import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from './contract';
 
-/** 保留下装只分为封口短裤、连续裙装和两种简洁实用长裤。 */
+/** 长裤腰口／双裤口、连续裙腰口使用原裤布／腰头色区封闭；已封短裤保持不变。 */
 export function makeTrousers(recipe:Recipe):GarmentPiece|undefined {
+  const piece=makeAuthoredBottom(recipe);
+  return piece?sealGarmentInterfaces(piece,recipe.dyes.secondary):undefined;
+}
+
+/** 保留下装只分为封口短裤、连续裙装和两种简洁实用长裤。 */
+function makeAuthoredBottom(recipe:Recipe):GarmentPiece|undefined {
   const id=recipe.slots.bottom;if(id==='body')return;
   const pattern=BOTTOM_PATTERNS[id];if(!pattern)throw new Error('下装资产未注册：'+id);
   if(pattern.asset==='short-trousers')return makeShortBottom(recipe);

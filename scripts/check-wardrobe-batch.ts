@@ -11,7 +11,7 @@ import { assertGarmentPiece } from './check-garment-assets';
 const tops=['rough_tunic','cross_jacket','layered_vest'] as const;
 const bottoms=['work_pants','work_wrap'] as const;
 const dyes={primary:'#ff2455',secondary:'#16c7ef',accent:'#f5de24'};
-const counts={rough_tunic:220,cross_jacket:290,layered_vest:340,work_pants:220,work_wrap:220};
+const counts={rough_tunic:246,cross_jacket:316,layered_vest:366,work_pants:240,work_wrap:240};
 const loop=(c:Cage,prefix:string)=>c.vertices.filter(v=>v.id.startsWith(prefix+'.'));
 const span=(c:Cage,prefix:string,axis:number)=>{const a=loop(c,prefix).map(v=>v.p[axis]);assert(a.length);return Math.max(...a)-Math.min(...a);};
 function assertLayer(c:Cage){
@@ -35,7 +35,7 @@ for(const id of [...tops,...bottoms]){
   const redyed=tops.includes(id as any)?makeTop(reverse)!:makeTrousers(reverse)!;
   assert.deepEqual(piece.mesh.vertices,redyed.mesh.vertices,'染色不能修改坐标/权重');
   assert.deepEqual(piece.mesh.faces.map(f=>f.v),redyed.mesh.faces.map(f=>f.v),'染色不能改变拓扑');
-  assets.push({id,triangles:triCount(piece.mesh),logicalVertices:piece.mesh.vertices.length,renderVertices:piece.mesh.faces.reduce((n,f)=>n+f.v.length,0),covers:piece.covers,openings:Object.keys(piece.openings)});
+  assets.push({id,triangles:triCount(piece.mesh),logicalVertices:piece.mesh.vertices.length,renderVertices:piece.mesh.faces.reduce((n,f)=>n+f.v.length,0),covers:piece.covers,openings:Object.keys(piece.openings),sealedInterfaces:Object.keys(piece.sealedInterfaces??{})});
 }
 const top=(id:typeof tops[number])=>makeTop(createRecipe({slots:{top:id}}))!.mesh;
 const work=top('rough_tunic'),cross=top('cross_jacket'),half=top('layered_vest');
@@ -52,5 +52,5 @@ for(const bodyType of ['male','female'] as const)for(const upper of tops)for(con
   assert(!d.surface.vertices.some(v=>/^(CrossCollar|InnerCollar)/.test(v.id)),'新领口不得叠加旧投影条');
   combinations.push({bodyType,top:upper,bottom,bodyTriangles:triCount(d.body),bodyLogicalVertices:d.body.vertices.length,triangles:triCount(d.surface),logicalVertices:d.surface.vertices.length,renderVertices:a.mesh.geometry.attributes.position.count});a.dispose();
 }
-const report={passed:true,sourceSha:process.env.REVIEW_HEAD_SHA??'local',assets,combinations,mutationChecks:1,manualVisualApproval:false,note:'保留三上衣、两实用长裤的制作差异/色区/接口检查；真实动作图片和贯穿检测独立执行。'};
+const report={passed:true,sourceSha:process.env.REVIEW_HEAD_SHA??'local',assets,combinations,mutationChecks:1,manualVisualApproval:false,note:'保留三上衣、两实用长裤的制作差异/色区/闭合接口检查；真实动作图片和贯穿检测独立执行。'};
 mkdirSync('review-wardrobe-batch',{recursive:true});writeFileSync('review-wardrobe-batch/numeric.json',JSON.stringify(report,null,2));console.log('PASS retained clothing batch',JSON.stringify(report));

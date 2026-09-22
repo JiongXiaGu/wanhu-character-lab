@@ -44,17 +44,20 @@ for(const bodyType of BODY_TYPES){
   for(const bottom of BOTTOM_IDS){
     if(bottom==='body')continue;
     const p=makeTrousers(createRecipe({bodyType,slots:{bottom}}))!;
+    assert.deepEqual(Object.keys(p.openings),[],'正式下装必须封闭');
     if(bottom==='short_trousers'){
       assert.equal(triCount(p.mesh),164);assert.deepEqual(p.covers,['pelvis','thigh']);assert(p.mesh.vertices.every(v=>v.p[1]>=.5),'短装不能暗中恢复长裤管');
-      assert.deepEqual(Object.keys(p.openings),[]);assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','waist'].sort());
+      assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','waist'].sort());
       for(const side of ['Right','Left'])assert.equal(p.sealedInterfaces![side+'Cuff'].length,8);
     }else if(bottom==='true_short_skirt'||bottom==='long_skirt'){
-      assert.deepEqual(Object.keys(p.openings).sort(),['waist']);
+      assert.deepEqual(Object.keys(p.sealedInterfaces??{}),['waist']);
+      assert.equal(triCount(p.mesh),bottom==='long_skirt'?262:190);
       assert(p.mesh.vertices.every(v=>v.id.startsWith('Skirt.')),'连续裙摆不能拼入裤腿或裆底');
       assert.equal(p.mesh.anchors.closedHem.length,12);
     }else{
       assertKnees(p.mesh,true);
-      assert.equal(triCount(p.mesh),220);
+      assert.equal(triCount(p.mesh),240);
+      assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','waist']);
     }
   }
   rows.push({bodyType,bodyTriangles:triCount(character.body),joints:character.joints.length});
@@ -65,5 +68,5 @@ const rear=cloneCage(pants);for(const v of rear.vertices)if(v.id.includes('.Knee
 const front=cloneCage(pants);for(const v of front.vertices)if(v.id.includes('.KneeUpper.')&&v.p[2]>0)v.w[2]=.6;assert.throws(()=>assertKnees(front,true));
 const hole=cloneCage(skin);hole.faces.splice(hole.faces.findIndex(f=>f.v.every(i=>hole.vertices[i].id.startsWith('SkinPelvis.'))&&f.region==='pelvis'),1);assert.throws(()=>assertSaddle(hole));
 const wrongSide=cloneCage(skin);wrongSide.vertices.find(v=>v.id==='SkinPelvis.Right.Root.0')!.w[1]=B.LeftThigh;assert.throws(()=>assertSaddle(wrongSide));
-const report={passed:true,bodyGeometryVersion:BODY_GEOMETRY_VERSION,rows,independentTrousersTriangles:{work_pants:220,work_wrap:220,short_trousers:164,true_short_skirt:180,long_skirt:252},mutationChecks:5,scope:'Authoring structure and injected regressions only. Actual FBX source-key/midpoint intersections and real screenshots remain separate checks; no automatic visual approval.'};
+const report={passed:true,bodyGeometryVersion:BODY_GEOMETRY_VERSION,rows,independentTrousersTriangles:{work_pants:240,work_wrap:240,short_trousers:164,true_short_skirt:190,long_skirt:262},mutationChecks:5,scope:'Authoring structure and injected regressions only. Actual FBX source-key/midpoint intersections and real screenshots remain separate checks; no automatic visual approval.'};
 mkdirSync('review-deformation',{recursive:true});writeFileSync('review-deformation/contracts.json',JSON.stringify(report,null,2));console.log('DEFORMATION CONTRACT',JSON.stringify(report));

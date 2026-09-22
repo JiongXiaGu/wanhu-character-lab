@@ -1,43 +1,51 @@
-# 服装Cap封闭实验
+# 服装Cap封闭与配色
 
-## 目标
+## 当前范围
 
-验证《万户天工》低模、中远景角色是否可以把服装接口直接用单面Cap封死，让身体或相邻服饰穿过不可见封面，以更少的内部结构消除袖窿、领口、腰口、裤脚和鞋口能看到背景／背面的裂缝。
+用户已认可干活背心＋封口短裤＋布鞋的直接Cap方案，以及背心封口跟随衣身主布色的修正。2026-09-22按删减后的正式衣柜推广：7款上衣、5款下装、1款布鞋，男女均使用同一套制作规则。已退役的9个资产不恢复。
 
-本轮只改三件资产，不批量推广：work_vest、short_trousers、cloth_shoes。固定成年男女、Recipe V5、20骨骼、双权重、人体几何、FBX、覆盖表和染色协议不变。
+本轮新增32处接口封口：其余6款上衣各4处、两种长裤各3处、两条连续裙各1处腰口。加上已经认可的9处接口，正式目录共有41处sealedInterfaces；连续裙原有HemCenter封底另行保留。零开放边是每件服饰的契约，不要求服装与皮肤焊接成一个整体。
 
-## 当前制作
+## 几何与预算
 
-| 资产 | 封闭接口 | 当前三角形 | 当前逻辑点 |
-|---|---|---:|---:|
-| work_vest | waist、neck、LeftCuff、RightCuff | 128 | 66 |
-| short_trousers | waist、LeftCuff、RightCuff | 164 | 84 |
-| cloth_shoes | LeftAnkle、RightAnkle | 64 | 36 |
+| 资产 | 当前三角形 | 封闭范围 |
+|---|---:|---|
+| work_vest 干活背心 | 128 | 领口、双袖窿、腰口，保持已认可版本 |
+| short_work_jacket 短打短褂 | 200 | 领口、双袖口、腰口 |
+| rough_tunic 劳作短衣 | 246 | 领口、双袖口、腰口 |
+| cross_jacket 交领常服 | 316 | 领口、双袖口、腰口 |
+| layered_vest 半臂配内衬 | 366 | 领口、双袖口、腰口 |
+| ceremony_robe 滚边礼衣 | 212 | 领口、双袖口、腰口 |
+| farmer_tunic 农户短衣 | 164 | 领口、双袖口、腰口 |
+| short_trousers 封口短裤 | 164 | 腰口、双裤脚，保持已认可版本 |
+| work_pants 劳动直裤 | 240 | 腰口、双裤脚 |
+| work_wrap 劳作束脚裤 | 240 | 腰口、双裤脚 |
+| true_short_skirt 日常短裙 | 190 | 新封腰口，原裙底不变 |
+| long_skirt 素面长裙 | 262 | 新封腰口，原裙底不变 |
+| cloth_shoes 布鞋 | 64 | 双脚踝，保持已认可版本 |
 
-Cap直接复用现有接口环，不增加中心点，不做内衬、布料厚度、Boolean、UV缝合或运行时裁剪。short_trousers删除原16个CuffInset顶点和32个厚断面三角形，再加入双裤脚12个Cap三角形及腰口8个Cap三角形。
+所有新增封口只引用原接口顶点；没有新增中心点或逻辑顶点，没有改已有坐标、权重、版型、装饰面或covers。六件上衣合计增加144个三角形，两条长裤增加40个，两条裙子增加20个；这是整个资源目录的增量，不是每个角色增加204面。
 
-work_vest仍只covers torso，必须保留原上臂、前臂和手；short_trousers仍只covers pelvis/thigh，必须保留shin；cloth_shoes只covers foot。视觉封闭不能通过扩大covers把应该露出的身体直接删掉。
+## 颜色与作者层职责
 
-## 背心封口配色
+上衣新增Cap全部使用recipe.dyes.primary，延续背心已认可的主布色规则。长裤的主裤布本来就是secondary，两条裙子的腰头本来也是secondary，因此它们的新增封面跟随该既有衣料色区，而不是硬套上衣primary。已认可的短裤裤口/腰头和布鞋不重染。封口不使用皮肤色、不增加额外染色通道、不人为压暗；真实露肤、门襟、滚边和半臂内袖原色区保持。
 
-work_vest的领口、双袖窿和腰口Cap统一使用recipe.dyes.primary，与衣身主布属于同一个色区。此前领口使用accent、袖窿和腰口使用secondary，浅色方案下会把封口表现为额外领边／内衬，甚至看起来像露肤；此处分离于几何裂缝处理。
+assets/seal-interfaces.ts只在makeTop/makeTrousers创建资产时处理作者显式声明的openings。它检查真实单边界和绕序，选择所有扇片面积均为正的扇分根，避开共线门襟切点；不改变单个多边形的原硬边法线约定。封面反向连接已定向衣壳，不再通过整体reverse移动扇分根。
 
-封口不单独染成肤色，不追加任意内衬色，也不人为压暗。玩家修改主布色时四个Cap一起变化；原门襟、装饰缘边和真实裸露的脖子／手臂维持原色区。光照和面法线造成的自然明暗不通过换材质、改灯光或删皮肤掩盖。
+不能正确扇分、重复接口或边界失效时直接报错，不扫描其他破洞并自动补上，也不把失败接口跳过。全部接口成功后才一次写入封面。对已经封闭的资产重复调用必须保持逐面不变。
 
-这次颜色修正只改变work_vest的四个Cap面颜色，不改变其128个三角形、66个逻辑点、接口、权重或朝向。short_trousers、cloth_shoes及其他服饰不因背心配色修正改动；几何版本仍为v8，Recipe仍为V5。
+## 数据与生命周期
 
-check:lightwear对男女各执行四处封口的原配色、改色和最终装配检查，共24项颜色断言；另逐封口注入secondary、accent和肤色共12个反例，保证错误色区会被拒绝。保留原拓扑、固定露肤、染色不改几何及帽发检查。自动通过不能替代用户对本次封口颜色的视觉审查。
+GarmentPiece.openings仅用于作者构造阶段；正式makeTop/makeTrousers/makeFootwear返回的衣柜资产必须是空openings，并带完整sealedInterfaces。assembly继续只做固定皮肤覆盖、索引偏移和锚点装配，不做焊接、Boolean、动态删面或逐帧补洞。
 
-## 数据契约
+服装几何版本为wanhu-modular-garments-v9；Recipe V5、20骨骼、每点最多双权重、固定成年男女、原人体、FBX、覆盖表与缓存的染色语义不变。背心和短褂保留原手臂，短裤和短裙保留原小腿，不能为了封闭而删掉应露出的皮肤。
 
-GarmentPiece继续用openings表示真实boundary edge；新增sealedInterfaces表示已封面的接口锚点。sealedInterfaces的每条环边必须恰好被两个面使用，并且必须存在一个直接复用该环顶点的Cap面。assembly同时保留两类锚点，但不做运行时求交或自动修补。
+## 自动检查与视觉边界
 
-当前三件试验资产应为零真实openings。其他服饰维持原契约，不因试验自动封口。几何版本升级为wanhu-modular-garments-v8，Recipe仍是V5。
+check:mesh中的check-garment-assets要求当前26个男女服饰资产全部零开放边，每条边恰有两个相邻面，逐顶点面扇形成单一闭环，接口恰有一个Cap，扇分无退化，朝向一致。遗漏Cap即失败，重新声明opening也不能绕过。
 
-## 相交与验收
+两套互异配色分别验证资产与最终装配颜色；逐接口注入漏面、肤色、错误衣料色，另验证重复封口幂等、共线轮廓反向环和原顶点/权重保留。原背心24项配色断言与12项错误色反例继续保留。报告写入review-wardrobe-batch/caps-numeric.json。
 
-Cap允许身体穿过不等于全局放宽穿模。离线相交检查只新增一条窄规则：short_trousers的Cuff Cap与可见skin.shin可记录为制作接口；腰口Cap、裤身、Calf、大腿和其他旧款没有豁免。裙装原HemCenter分类保持不变。
+现有源键／中点贯穿算法、阈值、压力动作不降低。短裤裤脚Cap与shin、连续裙原HemCenter与末端裙边/腿出口仍按既有窄规则单列；没有把所有带Cap的服装或内部面整体排除相交检测。闭合与有限值不代表所有动作、所有镜头都没有穿插。
 
-自动验收至少包括：未声明boundary edge为0、非流形为0、退化面为0、sealedInterfaces确实有Cap、固定露肤不变、染色不改拓扑、关键FBX有限值与既有源键／中点相交检查不降级。
-
-视觉验收使用现有lightwear矩阵，重点查看干活背心＋封口短裤＋布鞋的正／侧／背／自由视角，以及Pilot Flips Switches、Jogging、Shooting Arrow、Start Walking和Snatch。优先判断正常游戏距离是否仍能看到背景、服装背面或明显平面盖板；若试验观感成立，再由用户决定是否推广到其他服装。
+本轮视觉验收由用户完成。默认只运行Build & Core Checks和路径相关Targeted Numeric Checks，不触发Manual Visual Review，不批量生成或逐张审查截图。建议实际体验时检查各上衣的领袖腰、长裤裤脚、裙腰，以及坐姿／慢跑／射箭时的封面观感。
