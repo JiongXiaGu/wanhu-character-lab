@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { chromium } from 'playwright';
 import { checkCamelBrowser } from './mount-camel-browser.mjs';
 import { checkCattleBrowser } from './mount-cattle-browser.mjs';
+import { checkYakBrowser } from './mount-yak-browser.mjs';
 import { checkBuffaloBrowser } from './mount-buffalo-browser.mjs';
 
 // 桌面交互检查，不自动生成视觉矩阵或代替用户判断灰驴美术。
@@ -25,7 +26,7 @@ try {
   const valid = s => { assert(s.finite); near(s.status.horsePhase, s.status.riderPhase, 1e-9); assert(s.saddle.reinPositions.every(Number.isFinite)); };
   await page.goto(`${base}/?lab=mount&mount=donkey_gray&saddle=travel&clip=walk&paused=1&phase=.375`);
   await page.waitForFunction(() => window.__MOUNT_REVIEW__?.mountId() === 'donkey_gray'); const firstBody = await body(); near(firstBody.status.phase, .375); assert.equal(firstBody.stats.bones, 27); assert.equal(firstBody.status.duration, 1.4);
-  assert.deepEqual(await page.getByTestId('mount-horse').locator('option').evaluateAll(nodes => nodes.map(n => n.value)), ['horse_chestnut', 'donkey_gray', 'camel_bactrian', 'cattle_yellow', 'buffalo_water']);
+  assert.deepEqual(await page.getByTestId('mount-horse').locator('option').evaluateAll(nodes => nodes.map(n => n.value)), ['horse_chestnut', 'donkey_gray', 'camel_bactrian', 'cattle_yellow', 'yak_black', 'buffalo_water']);
   assert.equal(await page.locator('.mount-selector select').count(), 2); assert.equal(await page.locator('.animal-mode-switcher a').count(), 2); assert.equal(await page.locator('canvas').count(), 1); assert.equal(await page.getByTestId('mount-stage-name').innerText(), '灰驴');
   await page.getByTestId('mount-horse').selectOption('horse_chestnut'); let s = await body(); near(s.status.phase, .375); assert.equal(s.status.duration, 1.2); assert.equal(s.stats.bones, 25); assert.notEqual(s.geometry, firstBody.geometry); assert.equal(await page.getByTestId('mount-saddle').inputValue(), 'travel');
   await page.getByTestId('mount-horse').selectOption('donkey_gray'); near((await body()).status.phase, .375);
@@ -33,7 +34,7 @@ try {
   for (const id of ['Donkey_Idle', 'Donkey_Walk', 'Donkey_Run', 'Donkey_Eat']) { await page.getByTestId(id).click(); assert((await body()).finite); }
   await page.getByTestId('horse-play').click(); await page.evaluate(() => window.__MOUNT_REVIEW__.seek(.5)); const frozen = (await body()).status.phase;
   await page.getByTestId('mount-saddle').selectOption('travel'); near((await body()).status.phase, frozen);
-  checks.push('four real species, two equipment fields, body motion semantics and phase survive switching; all four donkey clips work without saddle');
+  checks.push('six real species, two equipment fields, body motion semantics and phase survive switching; all four donkey clips work without saddle');
   await page.getByTestId('animal-mode-riding').click(); await page.waitForFunction(() => window.__RIDING_REVIEW__?.mountId() === 'donkey_gray');
   await page.getByTestId('riding-play').click(); await page.getByTestId('riding-view-left').click(); await page.evaluate(() => window.__RIDING_REVIEW__.seek(.375));
   const first = await riding(); valid(first); assert.equal(first.saddle.id, 'travel'); assert.equal(first.stats.rider.bones, 20); assert.equal(first.stats.horse.bones, 27);
@@ -63,6 +64,7 @@ try {
   checks.push('body/riding round trip preserves species and saddle; legacy horse URL and original character workshop remain valid');
   await checkCamelBrowser(page, base, checks);
   await checkCattleBrowser(page, base, checks);
+  await checkYakBrowser(page, base, checks);
   await checkBuffaloBrowser(page, base, checks);
   assert.deepEqual(errors, []); const report = { result: 'passed', sourceSHA, screenshots: 0, viewport: { width: 1600, height: 1000 }, checks, errors }; writeFileSync(join(output, 'mounts-browser-checks.json'), JSON.stringify(report, null, 2)); console.log(JSON.stringify(report, null, 2));
 } catch (error) { writeFileSync(join(output, 'mounts-browser-checks.json'), JSON.stringify({ result: 'failed', sourceSHA, screenshots: 0, checks, errors, error: String(error?.stack || error) }, null, 2)); console.error(error); process.exitCode = 1; }

@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { BUFFALO_JOINTS } from '../src/buffalo/rig';
+import { CATTLE_JOINTS } from '../src/cattle/rig';
 import { Triangle, Vector3 } from 'three';
 import type { MountActor } from '../src/mounts/types';
 import { buffaloBone } from '../src/buffalo/rig';
@@ -86,6 +89,13 @@ function noseMirror(actor: MountActor) {
 }
 /** 水牛识别特征和真正会失败的反例；闭合性/姿态/地面仍走原有严格公共检查。 */
 export function checkBuffaloAnatomy(actor: MountActor) {
+  assert.notStrictEqual(BUFFALO_JOINTS, CATTLE_JOINTS);
+  assert.notDeepEqual(BUFFALO_JOINTS.map(joint => joint.bindWorld), CATTLE_JOINTS.map(joint => joint.bindWorld), 'buffalo cannot reuse cattle binding');
+  for (const file of ['geometry', 'rig', 'animation', 'saddles']) {
+    const source = readFileSync(new URL(`../src/buffalo/${file}.ts`, import.meta.url), 'utf8');
+    assert(!/from ['"]\.\.\/(cattle|yak|donkey|camel)\//.test(source), 'buffalo author module must not import another species author factory');
+    assert(!/buildCattleMesh|CATTLE_JOINTS|CATTLE_SADDLE_PROFILE/.test(source), 'buffalo is not a recolored cattle factory');
+  }
   const body = bounds(actor, 'Body'), head = bounds(actor, 'Head'), neck = bounds(actor, 'Neck');
   assert(body.width > 1.10 && body.width < 1.22 && body.min[1] > .40 && body.min[1] < .55 && body.max[1] < 1.31 && body.max[2] - body.min[2] > 1.95, 'water buffalo needs a long, low and broad body');
   assert(head.width > .53 && neck.width > .70 && head.max[1] < body.max[1] + .03 && head.max[2] - head.min[2] > .68, 'water buffalo needs a low elongated head and thick short neck');
@@ -113,5 +123,22 @@ export function checkBuffaloAnatomy(actor: MountActor) {
   frontFoot.position.z += .08; actor.bones[0].updateMatrixWorld(true); assert.throws(() => legPlacement(actor)); frontFoot.position.z = frontZ; actor.bones[0].updateMatrixWorld(true); faults++;
   const backUpper = actor.bones[buffaloBone('BackLeftUpper')], backZ = backUpper.position.z;
   backUpper.position.z += .12; actor.bones[0].updateMatrixWorld(true); assert.throws(() => legPlacement(actor)); backUpper.position.z = backZ; actor.bones[0].updateMatrixWorld(true); faults++;
+  // 左右一起拉直，仍保留镜像、角根和横展，确保曲率检查不是被对称检查偶然代替。
+  const bothHorns = ['LeftHorn', 'RightHorn'].map(part => idsFor(actor, part));
+  const savedHorns = bothHorns.map(ids => ids.map(i => [...actor.data.vertices[i].position] as [number, number, number]));
+  try {
+    for (const ids of bothHorns) {
+      const centers = Array.from({ length: 6 }, (_, r) => ids.slice(r * 8, r * 8 + 8).reduce((sum, i) => sum.add(new Vector3(...actor.data.vertices[i].position)), new Vector3()).multiplyScalar(1 / 8));
+      for (let r = 1; r < 5; r++) {
+        const delta = centers[0].clone().lerp(centers[5], r / 5).sub(centers[r]);
+        for (const i of ids.slice(r * 8, r * 8 + 8)) actor.data.vertices[i].position = new Vector3(...actor.data.vertices[i].position).add(delta).toArray() as [number, number, number];
+      }
+    }
+    assert.throws(() => horns(actor), /straight cone/); faults++;
+  } finally { bothHorns.forEach((ids, side) => ids.forEach((i, j) => { actor.data.vertices[i].position = savedHorns[side][j]; })); }
+  // 保留两趾名称和Foot刚性绑定，仅把外趾移进内趾，真实分缝必须报错。
+  const outerIds = idsFor(actor, 'FrontLeftOuterHoof'), outerX = outerIds.map(i => actor.data.vertices[i].position[0]);
+  try { outerIds.forEach(i => { actor.data.vertices[i].position[0] += .014; }); assert.throws(() => hooves(actor), /no real split hoof/); faults++; }
+  finally { outerIds.forEach((i, j) => { actor.data.vertices[i].position[0] = outerX[j]; }); }
   return { body, head, neck, horns: hornReport, splitHooves: 8, hoofGaps, noseContact, legs, faults };
 }
