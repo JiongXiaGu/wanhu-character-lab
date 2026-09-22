@@ -47,9 +47,7 @@ jobs:
               BASE="$PR_BASE_SHA"
             else
               BASE="$PUSH_BEFORE_SHA"
-              if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then
-                BASE="$(git rev-parse HEAD^)"
-              fi
+              if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then BASE="$(git rev-parse HEAD^)"; fi
             fi
             git diff --name-only "$BASE" HEAD | tee /tmp/changed-files.txt
           fi
@@ -70,16 +68,10 @@ jobs:
               src/horse/*|src/horse/**/*|scripts/check-horse*|src/animation/clip-clock.ts) horse=true ;;
             esac
             case "$path" in
-              src/riding/*|src/riding/**/*|src/horse/*|src/horse/**/*|src/character/v3/*|src/character/wardrobe/*|src/character/wardrobe/**/*|src/animation/clip-clock.ts|src/main.tsx|src/ui/AnimalModeSwitcher*|scripts/check-riding*) riding=true ;;
+              src/riding/*|src/riding/**/*|src/horse/*|src/horse/**/*|src/character/v3/*|src/character/wardrobe/*|src/character/wardrobe/**/*|src/animation/clip-clock.ts|src/main.tsx|src/ui/AnimalModeSwitcher*|src/ui/MountSelector*|src/ui/mount-selector*|scripts/check-riding*|scripts/check-saddles*) riding=true ;;
             esac
           done < /tmp/changed-files.txt
-          if [[ "$all" == "true" ]]; then
-            wardrobe=true
-            mixamo=true
-            tailoring=true
-            horse=true
-            riding=true
-          fi
+          if [[ "$all" == "true" ]]; then wardrobe=true; mixamo=true; tailoring=true; horse=true; riding=true; fi
           if [[ "$wardrobe" == "true" || "$mixamo" == "true" || "$tailoring" == "true" || "$horse" == "true" || "$riding" == "true" ]]; then any=true; else any=false; fi
           {
             echo "wardrobe=$wardrobe"
@@ -97,6 +89,9 @@ jobs:
           cache: npm
       - run: npm ci
         if: steps.scope.outputs.any == 'true'
+      - name: Saddle topology, rein endpoints and sampled clearance
+        if: steps.scope.outputs.riding == 'true'
+        run: npm run check:saddles
       - name: Riding numeric and lifecycle checks
         if: steps.scope.outputs.riding == 'true'
         run: npm run check:riding
@@ -106,11 +101,14 @@ jobs:
       - name: Riding browser interaction checks (no screenshots)
         if: steps.scope.outputs.riding == 'true'
         run: npm run check:riding-browser
-      - name: Upload riding numeric and browser reports
+      - name: Saddle browser interaction checks (no screenshots)
+        if: steps.scope.outputs.riding == 'true'
+        run: npm run check:saddles-browser
+      - name: Upload riding and saddle reports
         if: always() && steps.scope.outputs.riding == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: riding-m2-checks
+          name: riding-m3-checks
           path: ${{ env.RIDING_CHECK_DIR }}
           if-no-files-found: warn
           retention-days: 7

@@ -3,9 +3,7 @@
   "version": "0.3.0",
   "private": true,
   "type": "module",
-  "engines": {
-    "node": ">=22.12.0"
-  },
+  "engines": { "node": ">=22.12.0" },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -37,23 +35,15 @@
     "review:horse": "node scripts/review-horse.mjs",
     "check:riding": "tsx scripts/check-riding.ts",
     "check:riding-browser": "node scripts/check-riding-browser.mjs",
+    "check:saddles": "tsx scripts/check-saddles.ts",
+    "check:saddles-browser": "node scripts/check-saddles-browser.mjs",
     "check:core": "tsx scripts/check-v3.ts && tsx scripts/check-body-profiles.ts && tsx scripts/check-garment-assets.ts && npm run check:deformation",
     "check:wardrobe-numeric": "npm run check:wardrobe-batch && npm run check:lightwear && npm run check:skirts",
     "review:character": "node scripts/review-v3.mjs"
   },
-  "dependencies": {
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
-    "three": "0.180.0"
-  },
+  "dependencies": { "react": "19.1.1", "react-dom": "19.1.1", "three": "0.180.0" },
   "devDependencies": {
-    "@types/react": "19.1.16",
-    "@types/react-dom": "19.1.9",
-    "@types/three": "0.180.0",
-    "@vitejs/plugin-react": "5.0.4",
-    "playwright": "1.55.0",
-    "tsx": "4.20.5",
-    "typescript": "5.9.2",
-    "vite": "7.1.7"
+    "@types/react": "19.1.16", "@types/react-dom": "19.1.9", "@types/three": "0.180.0",
+    "@vitejs/plugin-react": "5.0.4", "playwright": "1.55.0", "tsx": "4.20.5", "typescript": "5.9.2", "vite": "7.1.7"
   }
 }

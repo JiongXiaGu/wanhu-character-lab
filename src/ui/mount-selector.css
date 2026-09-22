@@ -1,0 +1,6 @@
+.mount-selector-row{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:9px;margin:12px 0;color:#b6c0b8;font-size:12px}
+.horse-lab .mount-selector select{min-width:0;width:100%;background:#23363a;border:1px solid var(--horse-border);color:#e7e3d8;border-radius:5px;padding:8px;font-size:12px}
+.mount-selector-note{margin:13px 0 0;font-size:11px;line-height:1.75;color:#a4b4ab}
+.horse-lab .mount-disabled-notice{margin:0 0 13px;padding:10px 12px;background:#343b32;border-left:2px solid #b49765;color:#d8c6a3;font-size:12px;line-height:1.7}
+.horse-lab .riding-motion-fieldset{border:0;padding:0;margin:0;min-width:0}
+.horse-lab .riding-motion-fieldset:disabled{opacity:.48}
