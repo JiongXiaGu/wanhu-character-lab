@@ -1,0 +1,102 @@
+name: Manual Visual Review
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: Visual area to capture
+        required: true
+        type: choice
+        default: wardrobe
+        options:
+          - character
+          - wardrobe
+          - lightwear
+          - skirts
+          - mixamo
+          - horse
+          - all
+      full:
+        description: Generate the full screenshot matrix when supported
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: manual-visual-${{ github.ref }}-${{ inputs.scope }}
+  cancel-in-progress: true
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      REVIEW_HEAD_SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build exact candidate
+        run: npm run build
+      - name: Install browser and Chinese fonts
+        run: |
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Generate requested visual evidence
+        shell: bash
+        env:
+          SCOPE: ${{ inputs.scope }}
+          FULL: ${{ inputs.full }}
+        run: |
+          set -euo pipefail
+          : > manual-visual-review.log
+          extra=()
+          if [[ "$FULL" == "true" ]]; then extra+=(--full); fi
+
+          run_scope() {
+            local scope="$1"
+            echo "=== visual scope: $scope ===" | tee -a manual-visual-review.log
+            npm run review:local -- "--$scope" "${extra[@]}" 2>&1 | tee -a manual-visual-review.log
+          }
+
+          case "$SCOPE" in
+            character|wardrobe|lightwear|skirts|mixamo|horse)
+              run_scope "$SCOPE"
+              ;;
+            all)
+              for scope in character wardrobe lightwear skirts mixamo horse; do
+                run_scope "$scope"
+              done
+              ;;
+            *)
+              echo "Unknown visual scope: $SCOPE" >&2
+              exit 2
+              ;;
+          esac
+
+          {
+            echo "### Manual visual review evidence"
+            echo ""
+            echo "- Scope: $SCOPE"
+            echo "- Full matrix: $FULL"
+            echo "- SHA: $REVIEW_HEAD_SHA"
+            echo "- Screenshots were generated only. Human visual approval is still required."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Review must not mutate tracked source
+        run: git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: manual-visual-${{ inputs.scope }}-${{ github.sha }}
+          path: |
+            review/
+            review-mixamo/
+            review-deformation/
+            review-wardrobe-batch/
+            manual-visual-review.log
+          if-no-files-found: ignore
+          retention-days: 14
