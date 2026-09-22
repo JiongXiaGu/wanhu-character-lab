@@ -4,7 +4,7 @@ import type { Point3 } from '../horse/types';
 import { CATTLE_JOINTS, cattleBone } from './rig';
 import { buildCattleMesh } from './geometry';
 
-export const CATTLE_MOTION_VERSION = 'wanhu-cattle-motion-m6-v1';
+export const CATTLE_MOTION_VERSION = 'wanhu-cattle-motion-m6-v2';
 export const CATTLE_MOTIONS: Readonly<Record<MountMotion, MountMotionDefinition>> = {
   idle: { nativeId: 'Cattle_Idle', duration: 5.2, label: '停驻', description: '厚重身体缓慢呼吸、横耳轻摆、细尾甩动。' },
   walk: { nativeId: 'Cattle_Walk', duration: 1.8, label: '步行', description: '缓慢稳重的对角腿节奏，短粗颈随步轻点。' },
