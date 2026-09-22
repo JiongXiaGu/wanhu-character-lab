@@ -24,7 +24,7 @@ npx playwright install chromium
 npm run review:local -- --horse
 ```
 
-horse入口复用原review:local启动器。正式马匹检查为Character Model Review中的独立Horse M1 Review job，产物horse-m1-review与人物证据分开；原六条永久工作流和全部原人物／服饰矩阵保留。实际下载、人工查看与受测SHA见[工作交接](Documentation/工作交接.md)和对应PR验收评论；检查生成图片不等于人工审完。
+horse入口复用`review:local`。默认CI只在马匹相关代码变化时执行`npm run check:horse`数值/结构检查，不自动生成104张视觉矩阵；需要看马的外形或动画时，手动运行`npm run review:local -- --horse`或触发Manual Visual Review。截图生成不等于视觉验收。
 
 没有骑乘、Rider动画、上／下马、马鞍／缰绳、Root Motion正式移动、实时IK、地形贴蹄、其他动物或AI行为。马不进入Recipe V5或七槽位。人物侧仅把原时间游标等价提取为共享clip-clock，FBX／重定向、人体、20骨骼绑定、裙装和换装契约不改。详见[低模马与基础四足动画](Documentation/低模马与基础四足动画.md)。
 
@@ -66,20 +66,26 @@ Recipe V5 → patterns注册 → 独立服饰网格 → 固定皮肤覆盖 → �
 
 服装几何为wanhu-modular-garments-v8，皮肤wanhu-skin-cage-v3，绑定wanhu-fixed-bodies-v1。资源v8不改变配方：Recipe仍精确六字段version/bodyType/slots/dyes/hairStyle/hairColor，只读取wanhu.character.wardrobe.v5。旧版本、未知和缺失字段拒绝，不建立兼容fallback。源人体各524三角形，保护签名不刷新。
 
-## 人物快速审图与正式回归
+## 自动检查与按需视觉 Review
+
+日常开发默认不跑大规模截图矩阵。自动化分为三条正式工作流：
+
+- **Build & Core Checks**：每次 PR / main push 执行编译、退役契约和核心网格/数据检查。
+- **Targeted Numeric Checks**：根据实际改动路径，只执行相关的 Wardrobe、Mixamo、Tailoring 或 Horse 数值检查。
+- **Manual Visual Review**：仅手动触发；按 `character / wardrobe / lightwear / skirts / mixamo / horse / all` 选择截图范围，可选完整矩阵。
+
+本地需要视觉复核时使用：
 
 ```sh
-npm run review:local
+npm run review:local -- --character
 npm run review:local -- --wardrobe
-npm run review:local -- --lightwear
 npm run review:local -- --skirts
-npm run review:local -- --skirts --full
+npm run review:local -- --mixamo
+npm run review:local -- --horse
+# 明确需要完整视觉矩阵时再追加 --full
 ```
 
-所有原入口保留。裙装快速入口160张视口＋工作台，完整入口412张＋工作台；16次真实UI换装检查暂停相位。图片生成不等于实际查看。本轮马匹使用GitHub runner真实浏览器截图，不冒充执行者本机网页成功，也不以源码重建图替代动画证据。
-
-保留check:retired、check:mesh、build、check:mixamo、check:wardrobe、check:tailoring和check:skirts。原六条正式Actions不减少；裙装并行job仍在Modular Garment Review。所有回归矩阵改为引用当前正式衣柜，不再人为保留已退役资产的截图或固定样本数。源帧／中点贯穿继续覆盖当前全部下装、男女基模与关键动作，算法和阈值不因目录瘦身而放宽。
-
+视觉正确性的最终判断由人完成。AI/CI默认负责代码、拓扑、权重、协议、数值、动画采样和交互契约；不会因为每次代码修改自动生成并逐张判断数百张图片。用户明确要求视觉审查时，再生成截图并进行人工检查。历史大矩阵脚本仍保留，可用于阶段发布或专项回归。
 低模膝肘折面、裙底暗面与极端动作穿插仍有边界；不承诺实时布料表现或所有连续时刻零穿模。尚无通用外部服装导入器、连续身材、多档LOD、儿童老人、Unity正式运行时或GPU Crowd。不部署Vercel／Visual。
 
 文档：[V5契约](Documentation/固定基模与换装V5.md) · [服装架构](Documentation/服装生成架构.md) · [人物动画](Documentation/Mixamo动画接入.md) · [Unity迁移](Documentation/GPU骨骼动画迁移契约.md)。
