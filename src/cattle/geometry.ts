@@ -3,7 +3,7 @@ import { HorseMeshBuilder, type Section } from '../horse/geometry/builder';
 import type { HorseWeight, Point3 } from '../horse/types';
 import { weight } from './rig';
 
-export const CATTLE_MESH_VERSION = 'wanhu-cattle-mesh-m6-v1';
+export const CATTLE_MESH_VERSION = 'wanhu-cattle-mesh-m6-v2';
 const COAT = '#b88c50', PALE = '#c8aa76', SHADE = '#987342', NOSE = '#4d493c', HOOF = '#454035';
 interface SweepSection { p: Point3; u: number; v: number; color?: string }
 /** 只供黄牛横耳和弯角使用的作者壳：截面随三维切线，不能用两根直锥冒充牛角。 */
@@ -104,30 +104,30 @@ export function buildCattleMesh() {
       const name = `${front ? 'Front' : 'Back'}${side}`, x = sign * (front ? .31 : .32);
       const upper = `${name}Upper`, middle = `${name}Middle`, lower = `${name}Lower`, foot = `${name}Foot`;
       const rows: Section[] = front ? [
-        { p: [x, 1.22, .46], width: .135, depth: .16, skin: weight('Chest', upper, .50) },
-        { p: [x, 1.09, .49], width: .125, depth: .14, skin: weight(upper) },
-        { p: [x, .86, .515], width: .089, depth: .098, skin: weight(upper) },
-        { p: [x, .64, .54], width: .070, depth: .074, skin: weight(upper, middle, .5) },
-        { p: [x, .49, .54], width: .059, depth: .064, skin: weight(middle) },
-        { p: [x, .30, .54], width: .052, depth: .060, skin: weight(middle) },
-        { p: [x, .185, .54], width: .064, depth: .069, skin: weight(middle, lower, .5), color: SHADE },
-        { p: [x, .12, .57], width: .069, depth: .075, skin: weight(lower), color: SHADE },
-        { p: [x, .087, .595], width: .083, depth: .073, skin: weight(lower, foot, .35), color: SHADE },
+        { p: [x, 1.22, .47], width: .135, depth: .16, skin: weight('Chest', upper, .50) },
+        { p: [x, 1.09, .48], width: .125, depth: .14, skin: weight(upper) },
+        { p: [x, .86, .50], width: .089, depth: .098, skin: weight(upper) },
+        { p: [x, .64, .515], width: .070, depth: .074, skin: weight(upper, middle, .5) },
+        { p: [x, .49, .515], width: .059, depth: .064, skin: weight(middle) },
+        { p: [x, .30, .515], width: .052, depth: .060, skin: weight(middle) },
+        { p: [x, .185, .515], width: .064, depth: .069, skin: weight(middle, lower, .5), color: SHADE },
+        { p: [x, .12, .535], width: .069, depth: .075, skin: weight(lower), color: SHADE },
+        { p: [x, .087, .555], width: .083, depth: .073, skin: weight(lower, foot, .35), color: SHADE },
       ] : [
-        { p: [x, 1.21, -.61], width: .15, depth: .18, skin: weight('Pelvis', upper, .50) },
-        { p: [x, 1.095, -.59], width: .145, depth: .16, skin: weight(upper) },
-        { p: [x, .94, -.51], width: .12, depth: .135, skin: weight(upper) },
-        { p: [x, .79, -.43], width: .091, depth: .10, skin: weight(upper, middle, .5) },
-        { p: [x, .58, -.55], width: .077, depth: .089, skin: weight(middle) },
-        { p: [x, .365, -.67], width: .065, depth: .074, skin: weight(middle, lower, .5) },
-        { p: [x, .23, -.65], width: .055, depth: .060, skin: weight(lower), color: SHADE },
-        { p: [x, .13, -.63], width: .066, depth: .07, skin: weight(lower), color: SHADE },
-        { p: [x, .087, -.62], width: .083, depth: .074, skin: weight(lower, foot, .35), color: SHADE },
+        { p: [x, 1.21, -.70], width: .15, depth: .18, skin: weight('Pelvis', upper, .50) },
+        { p: [x, 1.095, -.68], width: .145, depth: .16, skin: weight(upper) },
+        { p: [x, .94, -.59], width: .12, depth: .135, skin: weight(upper) },
+        { p: [x, .79, -.51], width: .091, depth: .10, skin: weight(upper, middle, .5) },
+        { p: [x, .58, -.62], width: .077, depth: .089, skin: weight(middle) },
+        { p: [x, .365, -.73], width: .065, depth: .074, skin: weight(middle, lower, .5) },
+        { p: [x, .23, -.72], width: .055, depth: .060, skin: weight(lower), color: SHADE },
+        { p: [x, .13, -.70], width: .066, depth: .07, skin: weight(lower), color: SHADE },
+        { p: [x, .087, -.69], width: .083, depth: .074, skin: weight(lower, foot, .35), color: SHADE },
       ];
       b.loft(`${name}Leg`, rows, 8, COAT);
       // 每个Foot下两个独立闭合趾壳，沿X保留真实分趾缝，不画一条黑线冒充偶蹄。
       for (const outer of [false, true]) {
-        const hx = x + sign * (outer ? .052 : -.052), z = front ? .615 : -.60;
+        const hx = x + sign * (outer ? .052 : -.052), z = front ? .565 : -.68;
         b.loft(`${name}${outer ? 'Outer' : 'Inner'}Hoof`, [
           { p: [hx, .132, z - .018], width: .039, depth: .073, skin: weight(foot) },
           { p: [hx, .057, z], width: .046, depth: .102, skin: weight(foot) },

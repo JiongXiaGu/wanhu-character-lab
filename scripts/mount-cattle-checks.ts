@@ -11,10 +11,10 @@ import { near, skinnedPoints, validateMountMesh, validateReins, validateSaddleSh
 import { CATTLE_AUTHOR_STATS, checkCattleAnatomy } from './mount-cattle-anatomy-checks';
 
 /** 有向脚轨迹面积：低位向后、高位向前才为正；只检查摆腿角度会漏掉倒放。 */
-function forwardFootLoop(points: Vector3[]): number {
+function forwardFootLoop(points: Vector3[], label = 'foot'): number {
   let area = 0;
   for (let i = 1; i < points.length; i++) area += (points[i - 1].y + points[i].y) * .5 * (points[i].z - points[i - 1].z);
-  assert(area > .003, `foot cycle is reversed or degenerate: ${area}`);
+  assert(area > .003, `${label} cycle is reversed or degenerate: ${area}`);
   return area;
 }
 function facialContact(actor: MountActor, part: string): number {
@@ -93,7 +93,7 @@ export function checkCattle() {
     ground[motion] = { foot, head };
     if (motion === 'walk' || motion === 'run') {
       gait[motion] = Object.fromEntries(trajectories.map(t => {
-        const area = forwardFootLoop(t.points); assert.throws(() => forwardFootLoop([...t.points].reverse())); faults++; return [t.leg, area];
+        const area = forwardFootLoop(t.points, `${motion}/${t.leg}`); assert.throws(() => forwardFootLoop([...t.points].reverse(), `${motion}/${t.leg}/reversed`)); faults++; return [t.leg, area];
       }));
     }
     player.setLoop(false); player.seek(.99); player.update(2); assert(player.status().finished); near(player.status().phase, 1);
