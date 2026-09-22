@@ -26,7 +26,7 @@ function facialContact(actor: MountActor, part: string): number {
   }
   center.multiplyScalar(1 / ids.size);
   const triangle = new Triangle(), point = new Vector3(); let distance = Infinity;
-  for (const face of actor.data.triangles.filter(face => face.part === (part.endsWith('Nostril') ? 'NoseMirror' : 'Head')) {
+  for (const face of actor.data.triangles.filter(face => face.part === (part.endsWith('Nostril') ? 'NoseMirror' : 'Head'))) {
     triangle.set(...face.indices.map(i => new Vector3(...actor.data.vertices[i].position)) as [Vector3, Vector3, Vector3]);
     triangle.closestPointToPoint(center, point); distance = Math.min(distance, center.distanceTo(point));
   }
