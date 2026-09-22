@@ -1,0 +1,27 @@
+name: Temporary M7 authoring snapshot
+on:
+  push:
+    branches: [work/m7-yak-authoring]
+    paths: [.github/workflows/m7-local-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Export source and installed dependencies for offline authoring
+        run: tar --exclude='./.git' -czf /tmp/m7-source.tgz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m7-local-source
+          path: /tmp/m7-source.tgz
+          retention-days: 1
