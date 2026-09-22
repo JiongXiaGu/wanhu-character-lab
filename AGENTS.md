@@ -2,7 +2,7 @@
 
 ## 接手
 
-这是wanhu-character-lab的3D换装与FBX试衣项目，不是头像或UI原型。先核对最新main、任务分支、PR和Actions，再读README、工作交接、服装Cap封闭实验、低模马与基础四足动画、短裤封边与连续裙装、固定基模与换装V5、服装生成架构、轻便服饰与头饰安全留量、运行时人物生成架构、Mixamo动画接入、男性FBX校正、GPU骨骼动画迁移契约、GitHubActions截图验收规范。不要用聊天历史SHA覆盖新提交。
+这是wanhu-character-lab的3D换装与FBX试衣项目，不是头像或UI原型。先核对最新main、任务分支、PR和Actions，再读README、工作交接、服装Cap封闭实验、头饰闭合与安全留量、低模马与基础四足动画、短裤封边与连续裙装、固定基模与换装V5、服装生成架构、轻便服饰与头饰安全留量、运行时人物生成架构、Mixamo动画接入、男性FBX校正、GPU骨骼动画迁移契约、GitHubActions截图验收规范。不要用聊天历史SHA覆盖新提交。
 
 ## 当前M1边界
 
@@ -22,7 +22,7 @@ npm run check:horse包括网格／绑定／964姿态采样及地面高度失败�
 
 20骨骼语义、索引与父关系不变，每顶点最多两非零权重；单位米、+X右/+Y上/+Z前。男女绑定位置可不同，衣服共享该基模骨架，不新增Animator，不未经验证共用男女最终矩阵。颜色仍进入网格缓存。
 
-正式路径Recipe→固定基模／资产注册→资产接口封闭→装配→CharacterData→rig→viewport；FBX→离线提取→retarget→目标局部轨道→player。patterns只注册，assets拥有几何与静态权重，seal-interfaces只在创建资产时封闭显式接口，assembly做固定覆盖，adornments负责冠髻，headwear-fit负责一次性帽壳留量。无通用外部Mesh导入器，不恢复tailoring或人体衣面fallback。
+正式路径Recipe→固定基模／资产注册→资产接口封闭→装配→CharacterData→rig→viewport；FBX→离线提取→retarget→目标局部轨道→player。patterns只注册，assets拥有几何与静态权重，seal-interfaces只在创建资产时封闭显式接口，assembly做固定覆盖，adornments负责冠髻与头饰作者网格，headwear-fit只负责一次性帽壳留量。无通用外部Mesh导入器，不恢复tailoring或人体衣面fallback。
 
 ## 人物生产基线
 
@@ -31,6 +31,8 @@ npm run check:horse包括网格／绑定／964姿态采样及地面高度失败�
 两条真裙仍是连续12段裙壳和12片固定扇面封底，本轮只补腰口。服装wanhu-modular-garments-v9；皮肤wanhu-skin-cage-v3、绑定wanhu-fixed-bodies-v1保持。资源v9不是Recipe升级。短裙与短裤只遮pelvis/thigh，长裙再遮shin；背心／短褂只遮torso，裸露手臂和小腿不能整块删除。
 
 用户已认可Cap及背心主布色修正，并批准推广到删减后的全部衣裤。所有正式makeTop/makeTrousers/makeFootwear输出必须零openings且带完整sealedInterfaces：上衣4口、裤装3口、连续裙腰口、布鞋2口。seal-interfaces复用原顶点及权重并处理共线切点；不得新增运行时补洞、布料或人体切割。上衣封口使用primary，长裤及裙腰使用原裤布/腰头secondary；已认可work_vest、short_trousers、cloth_shoes不重做。完整预算集中于《服装Cap封闭实验.md》。
+
+头饰现执行闭合拓扑契约：草帽与玉簪原本已闭合；guard_helmet、cloth_wrap、scholar_cap补齐同帽身色底盖；archer_headband保持前额开放造型但自身改成封闭薄实体。除none外所有正式头饰必须零开放边、无非流形边且保持Head刚性权重。帽底Cap允许头部／主头发穿过，但仅该指定底盖属于制作接触；帽侧和帽顶仍不得以此豁免。头饰几何版本wanhu-headwear-closed-v3，详见《头饰闭合与安全留量.md》。
 
 普通站立、行走、起步、轻跑和坐姿是日常裙装用途；Snatch深蹲举重与极端大开腿、高踢、翻滚属于低运动服饰边界，不以“不支持一字马”阻塞资产。短裤没有动作豁免。
 
