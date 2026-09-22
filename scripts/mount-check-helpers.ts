@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { Matrix4, Ray, Vector3, type BufferGeometry } from 'three';
+import { YAK_FUR_PARTS } from '../src/yak/geometry';
 import type { MountActor } from '../src/mounts/types';
 import type { RidingPlayer } from '../src/riding/riding-player';
 
@@ -43,7 +44,8 @@ export function validateSaddleShells(geometry: BufferGeometry) {
 }
 export function validateReins(player: RidingPlayer, intersections = true) {
   const actor = player.mount, inverse = actor.mesh.matrixWorld.clone().invert(), pose = intersections ? skinnedPoints(actor) : [];
-  const faces = actor.data.triangles.filter(f => ['Head', 'Neck', 'Body', 'FrontHump', 'BackHump', 'NoseMirror', 'LeftHorn', 'RightHorn', 'Dewlap'].includes(f.part));
+  const extraParts: readonly string[] = player.mountId === 'yak_black' ? YAK_FUR_PARTS : [];
+  const faces = actor.data.triangles.filter(f => [...extraParts, 'Head', 'Neck', 'Body', 'FrontHump', 'BackHump', 'NoseMirror', 'LeftHorn', 'RightHorn', 'Dewlap'].includes(f.part));
   const ray = new Ray(), hit = new Vector3();
   for (let side = 0; side < 2; side++) {
     const points = player.reins.points[side], bit = (side === 0 ? player.tack.bitLeft : player.tack.bitRight).getWorldPosition(new Vector3()).applyMatrix4(inverse), grip = player.reins.grips[side].getWorldPosition(new Vector3()).applyMatrix4(inverse);

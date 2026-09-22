@@ -13,6 +13,10 @@ import { buildCattleMesh } from '../cattle/geometry';
 import { CATTLE_JOINTS } from '../cattle/rig';
 import { authorCattlePose, bakeCattleClips, CATTLE_MOTIONS } from '../cattle/animation';
 import { CATTLE_REIN_PROFILE, CATTLE_RIDER_FIT, CATTLE_SADDLE_PROFILE } from '../cattle/saddles';
+import { buildYakMesh } from '../yak/geometry';
+import { YAK_JOINTS } from '../yak/rig';
+import { authorYakPose, bakeYakClips, YAK_MOTIONS } from '../yak/animation';
+import { YAK_REIN_PROFILE, YAK_RIDER_FIT, YAK_SADDLE_PROFILE } from '../yak/saddles';
 import { HORSE_REIN_PROFILE, HORSE_RIDER_FIT, HORSE_SADDLE_PROFILE } from './horse-profile';
 import { makeMountActor } from './skinning';
 import { MOUNT_IDS, MOUNT_MOTIONS, type MountDefinition, type MountId, type MountMotion, type MountMotionDefinition, type MountSelection } from './types';
@@ -41,6 +45,11 @@ export const MOUNTS: readonly MountDefinition[] = [
     backPitch(id, p) { const pose = authorCattlePose(id, p); return pose.rotations[1][0] + pose.rotations[2][0]; },
     frame: { bodyY: 1.02, ridingY: 1.24, bodyHalf: 1.42, ridingHalf: 1.58 },
   },
+  { id: 'yak_black', name: '牦牛', description: '低宽前躯、厚肩低头、连续长毛下摆、外展上扬角和分趾蹄；高原语境的独立可骑乘牦牛。', createActor: () => makeMountActor(buildYakMesh(), YAK_JOINTS, 'WanhuYak'),
+    bakeClips: bakeYakClips, motions: YAK_MOTIONS, saddle: YAK_SADDLE_PROFILE, reins: YAK_REIN_PROFILE, riderFit: YAK_RIDER_FIT,
+    backPitch(id, p) { const pose = authorYakPose(id, p); return pose.rotations[1][0] + pose.rotations[2][0]; },
+    frame: { bodyY: .98, ridingY: 1.23, bodyHalf: 1.46, ridingHalf: 1.62 },
+  },
 ];
 export function isMountId(value: unknown): value is MountId { return typeof value === 'string' && MOUNT_IDS.includes(value as MountId); }
 export function mountDefinition(id: MountId): MountDefinition { const definition = MOUNTS.find(value => value.id === id); if (!definition) throw new Error(`未知坐骑：${String(id)}`); return definition; }
@@ -48,5 +57,5 @@ export function initialMount(query: URLSearchParams): MountId { const id = query
 /** 历史马本体URL的片段名只在入口归一化；播放器始终使用语义，不给驴播放Horse轨道。 */
 export function initialMountMotion(value: string | null): MountSelection {
   if (value === 'bind') return 'bind';
-  const semantic = value?.replace(/^(Horse|Donkey|Camel|Cattle)_/, '').toLowerCase(); return MOUNT_MOTIONS.includes(semantic as MountMotion) ? semantic as MountMotion : 'idle';
+  const semantic = value?.replace(/^(Horse|Donkey|Camel|Cattle|Yak)_/, '').toLowerCase(); return MOUNT_MOTIONS.includes(semantic as MountMotion) ? semantic as MountMotion : 'idle';
 }
