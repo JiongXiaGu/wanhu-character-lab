@@ -70,6 +70,9 @@ jobs:
       - name: Install browser for riding interaction checks
         if: steps.scope.outputs.riding == 'true'
         run: npx playwright install --with-deps chromium
+      - name: Multi-mount browser interaction checks (no screenshots)
+        if: steps.scope.outputs.riding == 'true'
+        run: npm run check:mounts-browser
       - name: Riding browser interaction checks (no screenshots)
         if: steps.scope.outputs.riding == 'true'
         run: npm run check:riding-browser

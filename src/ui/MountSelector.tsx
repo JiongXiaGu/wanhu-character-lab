@@ -1,13 +1,15 @@
-import { HORSES, SADDLES, isSaddleId, saddleDefinition, type SaddleId } from '../horse/saddles/catalog';
+import { SADDLES, isSaddleId, saddleDefinition, type SaddleId } from '../horse/saddles/catalog';
+import { MOUNTS, isMountId, mountDefinition } from '../mounts/catalog';
+import type { MountId } from '../mounts/types';
 import './mount-selector.css';
 
-/** 只有马匹和整体马鞍两项；行囊、辔头和缰绳不暴露成更多槽位。 */
-export function MountSelector({ saddleId, onChange }: { saddleId: SaddleId; onChange: (id: SaddleId) => void }) {
-  const definition = saddleDefinition(saddleId);
+/** 只有种类和整套鞍具；灰驴使用自己的资产，不把行囊拆成额外槽位。 */
+export function MountSelector({ mountId, onMountChange, saddleId, onChange }: { mountId: MountId; onMountChange: (id: MountId) => void; saddleId: SaddleId; onChange: (id: SaddleId) => void }) {
+  const animal = mountDefinition(mountId), saddle = saddleDefinition(saddleId);
   return <section className="mount-selector">
     <p className="horse-eyebrow">01 / MOUNT</p><h2>坐骑</h2>
-    <label className="mount-selector-row"><span>马匹</span><select aria-label="马匹" data-testid="mount-horse" defaultValue="chestnut">{HORSES.map(horse => <option key={horse.id} value={horse.id}>{horse.name}</option>)}</select></label>
-    <label className="mount-selector-row"><span>马鞍</span><select aria-label="马鞍" data-testid="mount-saddle" value={saddleId} onChange={event => { if (isSaddleId(event.target.value)) onChange(event.target.value); }}>{SADDLES.map(saddle => <option key={saddle.id} value={saddle.id}>{saddle.name}</option>)}</select></label>
-    <p className="mount-selector-note" data-testid="mount-description">{definition.description}</p>
+    <label className="mount-selector-row"><span>种类</span><select aria-label="坐骑种类" data-testid="mount-horse" value={mountId} onChange={event => { if (isMountId(event.target.value)) onMountChange(event.target.value); }}>{MOUNTS.map(value => <option key={value.id} value={value.id}>{value.name}</option>)}</select></label>
+    <label className="mount-selector-row"><span>鞍具</span><select aria-label="鞍具" data-testid="mount-saddle" value={saddleId} onChange={event => { if (isSaddleId(event.target.value)) onChange(event.target.value); }}>{SADDLES.map(value => <option key={value.id} value={value.id}>{value.name}</option>)}</select></label>
+    <p className="mount-selector-note" data-testid="mount-description">{animal.name} · {saddle.description}</p>
   </section>;
 }
