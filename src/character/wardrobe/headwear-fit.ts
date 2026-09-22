@@ -8,7 +8,7 @@ export const HEADWEAR_CLEARANCE:Partial<Record<HeadwearId,readonly [number,numbe
   farmer_straw_hat:[1.12,1.10,1.12],
   archer_headband:[1.16,1.00,1.16],
 };
-export const HEADWEAR_GEOMETRY_VERSION='wanhu-headwear-clearance-v2';
+export const HEADWEAR_GEOMETRY_VERSION='wanhu-headwear-closed-v3';
 export function applyHeadwearClearance(c:Cage,firstVertex:number,id:HeadwearId):void {
   const scale=HEADWEAR_CLEARANCE[id];if(!scale)return;
   const originY=1.690,originZ=-.006;
