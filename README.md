@@ -56,15 +56,15 @@ npm run dev
 
 右栏“下装”可选封口短裤、日常短裙、素面长裙、劳动直裤、劳作束脚裤；鞋只显示布鞋。男女都能自由交叉搭配，搭配灵感不强制改变性别。保留发式、帽饰、发色、种子、锁定、撤销、浏览器保存和严格V5文件导入导出。
 
-当前先在“干活背心＋封口短裤＋布鞋”验证全封闭 Cap：背心领口/双袖窿/腰口、短裤双裤脚/腰口、布鞋双脚踝都直接封面，让对应身体部位穿过 Cap。其余服饰暂不推广，待真实截图确认中远景观感后再决定统一规范。
+用户认可“干活背心＋封口短裤＋布鞋”及背心主布色后，Cap已推广到当前全部衣裤：其余上衣的领口/双袖口/腰口、两种长裤的腰口/双裤脚、两条连续裙的腰口均补齐。所有正式服饰自身必须零开放边，接口仍保留为sealedInterfaces；不焊接人体、不改变原坐标或权重、不新增逻辑顶点。上衣封口跟随主布primary，长裤和裙腰跟随原裤布/腰头secondary，不用皮肤色或额外的内衬色。已认可的三件资产保持不变，完整预算和验收边界见[服装Cap封闭](Documentation/服装Cap封闭实验.md)。
 
 FBX放入动画参考目录（允许子目录），重启或构建会动态扫描提取。当前23份不是上限；搜索、分类、收藏、逐帧、变速、源骨架对照及暂停换装相位保持不变。
 
 ## 人物数据与职责
 
-Recipe V5 → patterns注册 → 独立服饰网格 → 固定皮肤覆盖 → 一个蒙皮网格 → 当前基模的20骨骼。每顶点最多双权重。patterns只注册；assets拥有专用版型与权重；assembly负责覆盖与装配；adornments负责冠髻。
+Recipe V5 → patterns注册 → 独立服饰网格 → 作者接口封闭 → 固定皮肤覆盖 → 一个蒙皮网格 → 当前基模的20骨骼。每顶点最多双权重。patterns只注册；assets拥有专用版型、权重和封口；assembly负责覆盖与装配；adornments负责冠髻。
 
-服装几何为wanhu-modular-garments-v8，皮肤wanhu-skin-cage-v3，绑定wanhu-fixed-bodies-v1。资源v8不改变配方：Recipe仍精确六字段version/bodyType/slots/dyes/hairStyle/hairColor，只读取wanhu.character.wardrobe.v5。旧版本、未知和缺失字段拒绝，不建立兼容fallback。源人体各524三角形，保护签名不刷新。
+服装几何为wanhu-modular-garments-v9，皮肤wanhu-skin-cage-v3，绑定wanhu-fixed-bodies-v1。资源v9不改变配方：Recipe仍精确六字段version/bodyType/slots/dyes/hairStyle/hairColor，只读取wanhu.character.wardrobe.v5。旧版本、未知和缺失字段拒绝，不建立兼容fallback。源人体各524三角形，保护签名不刷新。
 
 ## 自动检查与按需视觉 Review
 

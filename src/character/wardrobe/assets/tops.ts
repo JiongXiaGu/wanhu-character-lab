@@ -3,13 +3,20 @@ import { makeShortJacket } from './short-jacket';
 import { makeWorkShirt } from './work-shirt';
 import { makeCrossShirt } from './cross-shirt';
 import { makeHalfSleeve } from './half-sleeve';
+import { sealGarmentInterfaces } from './seal-interfaces';
 import { B, rigid, type Cage, type Recipe, type Vec3, type Weight } from '../../v3/types';
 import { OCT, HEX, ring, bridge, face, orient } from '../../v3/cage';
 import { TOP_PATTERNS } from '../patterns';
 import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from './contract';
 
-/** 短衣/长袖独立衣面。袖口、领口、腰口是明确接口，不继承人体裆部。 */
+/** 所有保留上衣的领口、袖口和腰口均以衣身主布色封闭；已封资产不重复处理。 */
 export function makeTop(recipe:Recipe):GarmentPiece|undefined {
+  const piece=makeAuthoredTop(recipe);
+  return piece?sealGarmentInterfaces(piece,recipe.dyes.primary):undefined;
+}
+
+/** 作者层保留独立版型；封口不改变人体、衣身坐标、权重或装饰色区。 */
+function makeAuthoredTop(recipe:Recipe):GarmentPiece|undefined {
   const id=recipe.slots.top;
   if(id==='body')return;
   const pattern=TOP_PATTERNS[id];

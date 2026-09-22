@@ -21,14 +21,14 @@ const signature=(p:GarmentPiece)=>JSON.stringify({v:p.mesh.vertices,f:p.mesh.fac
 function assertContinuous(p:GarmentPiece){
   assertGarmentPiece(p);assert(skirts.some(id=>id===p.id),'裙裤不能冒充连续裙装');
   const long=p.id==='long_skirt',c=p.mesh;
-  assert.equal(triCount(c),long?252:180);assert.equal(c.vertices.length,long?133:97);
-  assert.deepEqual(Object.keys(p.openings).sort(),['waist']);
-  assert.equal(c.anchors.closedHem.length,12);assert.equal(p.openings.waist.length,12);
+  assert.equal(triCount(c),long?262:190);assert.equal(c.vertices.length,long?133:97);
+  assert.deepEqual(Object.keys(p.openings),[]);assert.deepEqual(Object.keys(p.sealedInterfaces??{}),['waist']);
+  assert.equal(c.anchors.closedHem.length,12);assert.equal(p.sealedInterfaces!.waist.length,12);
   assert(c.vertices.every(v=>v.id.startsWith('Skirt.')),'裙装不能调用裤装或人体部件');
   assert(Math.abs(Math.min(...c.vertices.map(v=>v.p[1]))-(long?.05:.489))<1e-10);
   const width=(prefix:string)=>Math.max(...c.vertices.filter(v=>v.id.startsWith(prefix)).map(v=>Math.abs(v.p[0])));
   assert(width('Skirt.Hem.')>width('Skirt.Waist.')*1.7,'裙腰必须收住，下摆必须展开');
-  // 连续表面必须在前后跨过中线；没有分腿裤管；封底是连续环与一个双小腿权重中心构成的扇面。
+  // 连续表面必须在前后跨过中线；原封底中心与权重不变，只新增腰口 Cap。
   for(const zsign of [1,-1])assert(c.faces.some(f=>f.v.some(i=>c.vertices[i].p[0]<0)&&f.v.some(i=>c.vertices[i].p[0]>0)&&f.v.every(i=>c.vertices[i].p[2]*zsign>0)));
   const center=c.vertices.findIndex(v=>v.id==='Skirt.HemCenter');
   assert(center>=0);assert.deepEqual(c.vertices[center].w,[B.RightShin,B.LeftShin,.5]);
@@ -47,10 +47,10 @@ for(const bodyType of BODY_TYPES){
     const recipe=createRecipe({bodyType,slots:{...emptySlots(),bottom},dyes:colors}),piece=makeTrousers(recipe)!;assertContinuous(piece);
     assert.equal(signature(piece),signature(makeTrousers({...recipe,dyes:{primary:'#102030',secondary:'#304050',accent:'#506070'}})!));
     const character=makeCharacter(recipe),bare=makeCharacter(createRecipe({bodyType,slots:emptySlots()}));
-    assert.deepEqual(character.body,bare.body);assert.deepEqual(character.joints,bare.joints);
+    assert.deepEqual(character.body,bare.body);assert.deepEqual(character.joints, bare.joints);
     if(bottom==='true_short_skirt')assert.equal(character.surface.faces.filter(f=>f.part==='skin'&&f.region==='shin').length,bare.body.faces.filter(f=>f.region==='shin').length);
     assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);
-    assets.push({bodyType,id:bottom,triangles:triCount(piece.mesh),logicalVertices:piece.mesh.vertices.length,covers:piece.covers,openings:Object.keys(piece.openings)});
+    assets.push({bodyType,id:bottom,triangles:triCount(piece.mesh),logicalVertices:piece.mesh.vertices.length,covers:piece.covers,openings:Object.keys(piece.openings),sealedInterfaces:Object.keys(piece.sealedInterfaces??{})});
   }
   for(const bottom of ['short_trousers',...skirts] as const)for(const top of bottom==='short_trousers'?['work_vest','short_work_jacket'] as const:['work_vest','short_work_jacket','cross_jacket'] as const){
     const recipe=createRecipe({bodyType,slots:{...emptySlots(),top,bottom,shoes:'cloth_shoes'},dyes:colors}),d=makeCharacter(recipe);

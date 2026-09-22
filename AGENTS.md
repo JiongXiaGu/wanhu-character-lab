@@ -2,7 +2,7 @@
 
 ## 接手
 
-这是wanhu-character-lab的3D换装与FBX试衣项目，不是头像或UI原型。先核对最新main、任务分支、PR和Actions，再读README、工作交接、低模马与基础四足动画、短裤封边与连续裙装、固定基模与换装V5、服装生成架构、轻便服饰与头饰安全留量、运行时人物生成架构、Mixamo动画接入、男性FBX校正、GPU骨骼动画迁移契约、GitHubActions截图验收规范。不要用聊天历史SHA覆盖新提交。
+这是wanhu-character-lab的3D换装与FBX试衣项目，不是头像或UI原型。先核对最新main、任务分支、PR和Actions，再读README、工作交接、服装Cap封闭实验、低模马与基础四足动画、短裤封边与连续裙装、固定基模与换装V5、服装生成架构、轻便服饰与头饰安全留量、运行时人物生成架构、Mixamo动画接入、男性FBX校正、GPU骨骼动画迁移契约、GitHubActions截图验收规范。不要用聊天历史SHA覆盖新提交。
 
 ## 当前M1边界
 
@@ -22,15 +22,15 @@ npm run check:horse包括网格／绑定／964姿态采样及地面高度失败�
 
 20骨骼语义、索引与父关系不变，每顶点最多两非零权重；单位米、+X右/+Y上/+Z前。男女绑定位置可不同，衣服共享该基模骨架，不新增Animator，不未经验证共用男女最终矩阵。颜色仍进入网格缓存。
 
-正式路径Recipe→固定基模／资产注册→装配→CharacterData→rig→viewport；FBX→离线提取→retarget→目标局部轨道→player。patterns只注册，assets拥有几何与静态权重，assembly做固定覆盖，adornments负责冠髻，headwear-fit负责一次性帽壳留量。无通用外部Mesh导入器，不恢复tailoring或人体衣面fallback。
+正式路径Recipe→固定基模／资产注册→资产接口封闭→装配→CharacterData→rig→viewport；FBX→离线提取→retarget→目标局部轨道→player。patterns只注册，assets拥有几何与静态权重，seal-interfaces只在创建资产时封闭显式接口，assembly做固定覆盖，adornments负责冠髻，headwear-fit负责一次性帽壳留量。无通用外部Mesh导入器，不恢复tailoring或人体衣面fallback。
 
 ## 人物生产基线
 
 当前正式衣柜为7上衣／5下装／1鞋款，另保留body作为内部裸模哨兵；10张“搭配灵感”继续存在，但“基础搭配”整组已删除。上衣保留work_vest、short_work_jacket、rough_tunic、cross_jacket、layered_vest、ceremony_robe、farmer_tunic；下装保留short_trousers、true_short_skirt、long_skirt、work_pants、work_wrap；鞋只保留cloth_shoes。已退役guard_light_armor、archer_tunic、loose_trousers、guard_pants、archer_pants、pleated_skirt、robe_skirt、short_skirt、boots，不得恢复为隐藏选项或兼容fallback。
 
-两条真裙是连续12段裙壳和12片固定扇面封底，不是裤腿、复杂内衬或布料。服装wanhu-modular-garments-v8；皮肤wanhu-skin-cage-v3、绑定wanhu-fixed-bodies-v1保持。资源v7不是Recipe升级。新短裙与短裤只遮pelvis/thigh，长裙再遮shin；背心／短褂只遮torso，裸露手臂和小腿不能整块删除。
+两条真裙仍是连续12段裙壳和12片固定扇面封底，本轮只补腰口。服装wanhu-modular-garments-v9；皮肤wanhu-skin-cage-v3、绑定wanhu-fixed-bodies-v1保持。资源v9不是Recipe升级。短裙与短裤只遮pelvis/thigh，长裙再遮shin；背心／短褂只遮torso，裸露手臂和小腿不能整块删除。
 
-Cap试验当前只覆盖work_vest（128三角形）、short_trousers（164）和cloth_shoes（64）：领口／袖窿／腰口／裤脚／脚踝直接用现有接口环封面，身体允许穿过不可见Cap。其余服饰仍保持原开口，不得在用户完成视觉验收前批量推广。
+用户已认可Cap及背心主布色修正，并批准推广到删减后的全部衣裤。所有正式makeTop/makeTrousers/makeFootwear输出必须零openings且带完整sealedInterfaces：上衣4口、裤装3口、连续裙腰口、布鞋2口。seal-interfaces复用原顶点及权重并处理共线切点；不得新增运行时补洞、布料或人体切割。上衣封口使用primary，长裤及裙腰使用原裤布/腰头secondary；已认可work_vest、short_trousers、cloth_shoes不重做。完整预算集中于《服装Cap封闭实验.md》。
 
 普通站立、行走、起步、轻跑和坐姿是日常裙装用途；Snatch深蹲举重与极端大开腿、高踢、翻滚属于低运动服饰边界，不以“不支持一字马”阻塞资产。短裤没有动作豁免。
 
@@ -40,7 +40,7 @@ Cap试验当前只覆盖work_vest（128三角形）、short_trousers（164）和
 
 允许按明确covers不绘制内部皮肤，不按动画临时删面、不改光照或源动作伪造通过。差异大的服饰允许专用拓扑，上衣含自身领袖腰带，不无限叠穿槽。
 
-原相交算法、容差、全部源键／中点与压力动作保持；样本数量随当前保留下装目录计算，不再把已删除资产计入固定总数。连续裙固定封底与腿出口可能数学相交：garment-contact-scope只在离线计算后分类裙子的HemCenter与末端Hem/HemInset/HemFacing或皮肤shin。原始交点和接口／其他交点分列，不能宣称全部交点为0。Calf、裙身、腰臀、大腿、上衣及其他保留下装不得被接口豁免；普通动作非接口穿插继续阻塞，两条连续裙的Snatch仅作为压力观察。
+原相交算法、容差、全部源键／中点与压力动作保持；样本数量随当前保留下装目录计算，不再把已删除资产计入固定总数。短裤Cuff与可见shin、连续裙HemCenter与末端Hem/HemInset/HemFacing或皮肤shin的既有固定接口仅在离线计算后窄范围分类。原始交点和接口／其他交点分列，不能宣称全部交点为0，也不能泛化为所有Cap或衣服整体免检。普通动作非接口穿插继续阻塞，两条连续裙的Snatch仅作为压力观察。
 
 自动扫描全部FBX不固定数量，失败明确报错。真实inverse bind，不用首帧代替；保留头部相对bind完整旋转差，不把HeadTop_End当脸前向或锁俯仰。换装／男女切换保持暂停相位，切动画复用网格。
 

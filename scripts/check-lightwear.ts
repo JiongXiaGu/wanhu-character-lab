@@ -79,7 +79,7 @@ function assertHat(c:Cage,id:HeadwearId){
 for(const bodyType of BODY_TYPES){
   for(const top of newTops){
     const recipe=createRecipe({bodyType,slots:{...emptySlots(),top},dyes:contrast}),p=makeTop(recipe)!;assertGarmentPiece(p);
-    assert.equal(triCount(p.mesh),top==='work_vest'?128:174);assert.deepEqual(p.covers,['torso']);
+    assert.equal(triCount(p.mesh),top==='work_vest'?128:200);assert.deepEqual(p.covers,['torso']);
     if(top==='work_vest'){assert.deepEqual(Object.keys(p.openings),[]);assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','neck','waist'].sort());assertVestCapColors(p.mesh,p.sealedInterfaces!,recipe.dyes.primary);}
     assert.deepEqual([...new Set(p.mesh.faces.map(f=>f.color))].sort(),Object.values(contrast).sort());
     const changed=makeTop({...recipe,dyes:{primary:'#203040',secondary:'#405060',accent:'#607080'}})!;assert.equal(signature(p.mesh),signature(changed.mesh));
