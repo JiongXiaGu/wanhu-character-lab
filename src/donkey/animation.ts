@@ -24,7 +24,8 @@ export function authorDonkeyPose(id: MountMotion, phase: number) {
     pelvisOffset[1] = .003 * Math.sin(a); put('Chest', .004 * Math.sin(a)); put('Neck', .012 * Math.sin(a)); put('Head', .018 * Math.sin(a + .2), .012 * Math.sin(a));
   } else if (id === 'eat') {
     const down = p < .23 ? smooth(p / .23) : p < .73 ? 1 : 1 - smooth((p - .73) / .27);
-    put('Neck', 1.86 * down); put('NeckUpper', .45 * down); put('Head', -1.75 * down + .012 * down * Math.sin(4 * a), .018 * down * Math.sin(2 * a));
+    // 首稿口鼻最低仍离地约14cm；校准颈部作者姿态，不改地面或放宽检测范围。
+    put('Neck', 2.00 * down); put('NeckUpper', .45 * down); put('Head', -1.75 * down + .012 * down * Math.sin(4 * a), .018 * down * Math.sin(2 * a));
   } else {
     const run = id === 'run', pitch = (run ? .025 : .005) * Math.sin(a - .4), spine = -(run ? .008 : .002) * Math.sin(a - .4), chest = .004 * Math.sin(a + .2);
     pelvisOffset[1] = run ? .024 + .025 * Math.sin(a - .5) : .006 + .004 * Math.sin(2 * a);
