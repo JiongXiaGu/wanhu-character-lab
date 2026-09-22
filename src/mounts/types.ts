@@ -3,7 +3,7 @@ import type { BodyType } from '../character/v3/types';
 import type { HorseMeshData, HorseStats } from '../horse/types';
 import type { SaddleId, Point } from '../horse/saddles/catalog';
 
-export const MOUNT_IDS = ['horse_chestnut', 'donkey_gray', 'camel_bactrian', 'cattle_yellow'] as const;
+export const MOUNT_IDS = ['horse_chestnut', 'donkey_gray', 'camel_bactrian', 'cattle_yellow', 'buffalo_water'] as const;
 export type MountId = typeof MOUNT_IDS[number];
 export const MOUNT_MOTIONS = ['idle', 'walk', 'run', 'eat'] as const;
 export type MountMotion = typeof MOUNT_MOTIONS[number];

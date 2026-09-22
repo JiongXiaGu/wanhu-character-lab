@@ -1,6 +1,6 @@
 # 万户 · 衣冠工坊V5与多坐骑
 
-《万户天工》3D玩家／居民换装、FBX试衣与坐骑Web Demo。固定成年男女、一档低模精度；当前坐骑是栗色马、灰驴、双峰骆驼和黄牛。界面只选择种类与整体鞍具，正式玩法仍留在Unity。
+《万户天工》3D玩家／居民换装、FBX试衣与坐骑Web Demo。固定成年男女、一档低模精度；当前坐骑是栗色马、灰驴、双峰骆驼、黄牛和水牛。界面只选择种类与整体鞍具，正式玩法仍留在Unity。
 
 ## 拉取与运行
 
@@ -28,6 +28,12 @@ npm run dev
 | ?lab=riding&mount=donkey_gray&saddle=simple&bodyType=female&clip=Rider_Walk&paused=1 | 女性骑驴，步行初始暂停 |
 
 旧?lab=horse进入同一坐骑本体页，不再维护重复HorseLab。二级模式往返携带mount与saddle，并用页签内临时缓存恢复各自进度、相机和未保存骑手装扮；普通URL深链不自动读取该缓存，人物工坊存档不被覆盖；从无鞍本体进入骑乘不会自动装鞍，需要主动选择普通或旅行。
+
+## M8：可骑乘水牛
+
+buffalo_water使用独立低长头、横展后弯角、低沉宽体、横耳与八个分趾壳；2056三角形、1082逻辑点、28骨。不是黄牛换色缩放。Buffalo_Idle／Walk／Run／Eat分别5.8／2.0／1.15／7.2秒；普通／旅行水牛鞍、鼻侧缰具和男女骑姿均有独立作者配置，人物V5、20骨、衣柜及FBX不改。
+
+本体：?lab=mount&mount=buffalo_water&pose=bind&paused=1；旅行骑乘：?lab=riding&mount=buffalo_water&saddle=travel&clip=Rider_Walk。仍使用原动物工坊两个模式和种类／整体鞍具两个选择。接手时牦牛尚未合入，不展示假牦牛。检查和视觉验收边界见[水牛](Documentation/水牛.md)。
 
 ## M6：可骑乘黄牛
 

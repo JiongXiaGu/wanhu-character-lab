@@ -13,6 +13,10 @@ import { buildCattleMesh } from '../cattle/geometry';
 import { CATTLE_JOINTS } from '../cattle/rig';
 import { authorCattlePose, bakeCattleClips, CATTLE_MOTIONS } from '../cattle/animation';
 import { CATTLE_REIN_PROFILE, CATTLE_RIDER_FIT, CATTLE_SADDLE_PROFILE } from '../cattle/saddles';
+import { buildBuffaloMesh } from '../buffalo/geometry';
+import { BUFFALO_JOINTS } from '../buffalo/rig';
+import { authorBuffaloPose, bakeBuffaloClips, BUFFALO_MOTIONS } from '../buffalo/animation';
+import { BUFFALO_REIN_PROFILE, BUFFALO_RIDER_FIT, BUFFALO_SADDLE_PROFILE } from '../buffalo/saddles';
 import { HORSE_REIN_PROFILE, HORSE_RIDER_FIT, HORSE_SADDLE_PROFILE } from './horse-profile';
 import { makeMountActor } from './skinning';
 import { MOUNT_IDS, MOUNT_MOTIONS, type MountDefinition, type MountId, type MountMotion, type MountMotionDefinition, type MountSelection } from './types';
@@ -41,6 +45,11 @@ export const MOUNTS: readonly MountDefinition[] = [
     backPitch(id, p) { const pose = authorCattlePose(id, p); return pose.rotations[1][0] + pose.rotations[2][0]; },
     frame: { bodyY: 1.02, ridingY: 1.24, bodyHalf: 1.42, ridingHalf: 1.58 },
   },
+  { id: 'buffalo_water', name: '水牛', description: '低长头、横展后弯角、低沉宽体与真实分趾蹄；南方水田家养水牛的独立作者资产。', createActor: () => makeMountActor(buildBuffaloMesh(), BUFFALO_JOINTS, 'WanhuBuffalo'),
+    bakeClips: bakeBuffaloClips, motions: BUFFALO_MOTIONS, saddle: BUFFALO_SADDLE_PROFILE, reins: BUFFALO_REIN_PROFILE, riderFit: BUFFALO_RIDER_FIT,
+    backPitch(id, p) { const pose = authorBuffaloPose(id, p); return pose.rotations[1][0] + pose.rotations[2][0]; },
+    frame: { bodyY: .91, ridingY: 1.18, bodyHalf: 1.63, ridingHalf: 1.72 },
+  },
 ];
 export function isMountId(value: unknown): value is MountId { return typeof value === 'string' && MOUNT_IDS.includes(value as MountId); }
 export function mountDefinition(id: MountId): MountDefinition { const definition = MOUNTS.find(value => value.id === id); if (!definition) throw new Error(`未知坐骑：${String(id)}`); return definition; }
@@ -48,5 +57,5 @@ export function initialMount(query: URLSearchParams): MountId { const id = query
 /** 历史马本体URL的片段名只在入口归一化；播放器始终使用语义，不给驴播放Horse轨道。 */
 export function initialMountMotion(value: string | null): MountSelection {
   if (value === 'bind') return 'bind';
-  const semantic = value?.replace(/^(Horse|Donkey|Camel|Cattle)_/, '').toLowerCase(); return MOUNT_MOTIONS.includes(semantic as MountMotion) ? semantic as MountMotion : 'idle';
+  const semantic = value?.replace(/^(Horse|Donkey|Camel|Cattle|Buffalo)_/, '').toLowerCase(); return MOUNT_MOTIONS.includes(semantic as MountMotion) ? semantic as MountMotion : 'idle';
 }
