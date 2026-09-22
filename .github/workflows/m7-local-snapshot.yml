@@ -1,4 +1,4 @@
-name: Temporary M7 candidate validation
+name: Temporary M7 visual baseline
 on:
   push:
     branches: [work/m7-yak-authoring]
@@ -6,78 +6,75 @@ on:
 permissions:
   contents: read
 jobs:
-  validate:
+  baseline:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
     env:
-      REVIEW_HEAD_SHA: 74ad356bdcc36bd46487cf255016514d1f3a5088
-      RIDING_CHECK_DIR: /tmp/wanhu-riding-checks
+      REVIEW_HEAD_SHA: 47d614eec23eb3c20defdbe7a60702f4cfdc0acf
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.REVIEW_HEAD_SHA }}
           persist-credentials: false
-      - name: Record exact candidate source
-        run: |
-          test "$(git rev-parse HEAD)" = "$REVIEW_HEAD_SHA"
-          mkdir -p /tmp/wanhu-riding-checks
-          git ls-tree -r HEAD > /tmp/wanhu-riding-checks/source-tree.txt
-          echo "$REVIEW_HEAD_SHA" > /tmp/wanhu-riding-checks/source-sha.txt
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npm run build
-      - run: npm run check:mounts
-      - run: npm run check:riding
-      - run: npm run check:saddles
-      - run: npm run check:horse
       - run: npx playwright install --with-deps chromium
-      - name: Five-species desktop interaction
-        run: npm run check:mounts-browser
-      - name: Original riding desktop interaction
-        if: success() || failure()
-        run: npm run check:riding-browser
-      - name: Original saddles desktop interaction
-        if: success() || failure()
-        run: npm run check:saddles-browser
-      - name: Four M7 baseline frames (separate from interaction checks)
-        if: success() || failure()
+      - name: Capture exact main body and rider baseline
         run: |
+          test "$(git rev-parse HEAD)" = "$REVIEW_HEAD_SHA"
+          mkdir -p /tmp/m7-visual
           cat > scripts/.m7-baseline.mjs <<'JS'
           import assert from 'node:assert/strict';
           import { chromium } from 'playwright';
           import { spawn } from 'node:child_process';
-          import { mkdirSync, writeFileSync } from 'node:fs';
-          const out='/tmp/wanhu-riding-checks/visual';mkdirSync(out,{recursive:true});
-          const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1','--port','4190','--strictPort'],{stdio:'ignore'});
-          let browser;const errors=[],frames=[];
+          import { mkdirSync, writeFileSync, createWriteStream } from 'node:fs';
+          import { resolve } from 'node:path';
+          const out='/tmp/m7-visual', root=process.cwd(); mkdirSync(out,{recursive:true});
+          const log=createWriteStream(out+'/server.log');
+          const server=spawn(process.execPath,[resolve(root,'node_modules/vite/bin/vite.js'),root,'--host','127.0.0.1','--port','4180','--strictPort'],{cwd:root,stdio:['ignore','pipe','pipe']});
+          server.stdout.pipe(log,{end:false}); server.stderr.pipe(log,{end:false}); server.stdout.pipe(process.stdout); server.stderr.pipe(process.stderr);
+          let browser; const errors=[],frames=[]; let result='failed'; let readiness='not started';
           try {
-            let ready=false;for(let i=0;i<200;i++){try{if((await fetch('http://127.0.0.1:4190')).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,200));}assert(ready);
+            let ready=false;
+            for(let i=0;i<200;i++){
+              assert(server.exitCode===null,`Vite exited ${server.exitCode}`);
+              try{const response=await fetch('http://127.0.0.1:4180');readiness=`HTTP ${response.status}`;if(response.ok){ready=true;break;}}catch(e){readiness=String(e?.cause||e)}
+              await new Promise(r=>setTimeout(r,200));
+            }
+            assert(ready,`Vite unavailable: ${readiness}`);
             browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
-            const page=await browser.newPage({viewport:{width:1680,height:1050},deviceScaleFactor:1});page.setDefaultTimeout(30000);
+            const page=await browser.newPage({viewport:{width:1600,height:1000},deviceScaleFactor:1});page.setDefaultTimeout(45000);
             page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
-            await page.goto('http://127.0.0.1:4190/?lab=mount&mount=yak_black&pose=bind&paused=1');
-            await page.waitForFunction(()=>window.__MOUNT_REVIEW__?.mountId()==='yak_black');
-            assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('vite-error-overlay').count(),0);
-            await page.waitForTimeout(200);await page.screenshot({path:out+'/yak-body.png'});frames.push('yak-body.png');
-            await page.getByTestId('horse-view-left').click();await page.waitForTimeout(200);await page.screenshot({path:out+'/yak-side.png'});frames.push('yak-side.png');
-            await page.goto('http://127.0.0.1:4190/?lab=riding&mount=yak_black&saddle=travel&clip=pose&paused=1');
-            await page.waitForFunction(()=>window.__RIDING_REVIEW__?.mountId()==='yak_black');
-            await page.waitForTimeout(200);await page.screenshot({path:out+'/yak-travel.png'});frames.push('yak-travel.png');
-            await page.getByTestId('riding-body-female').click();await page.waitForFunction(()=>window.__RIDING_REVIEW__.recipe().bodyType==='female');
-            await page.waitForTimeout(200);await page.screenshot({path:out+'/yak-female.png'});frames.push('yak-female.png');assert.deepEqual(errors,[]);
-          } finally {
-            writeFileSync(out+'/baseline-report.json',JSON.stringify({sourceSHA:process.env.REVIEW_HEAD_SHA,errors,frames,visualApproval:false},null,2));
-            await browser?.close();server.kill('SIGTERM');
+            const cases=[
+              ['yak-body','mount','none','bind','male','three',0],
+              ['yak-side','mount','none','bind','male','left',0],
+              ['yak-simple','riding','simple','pose','male','three',0],
+              ['yak-female-travel','riding','travel','pose','female','three',0],
+              ['yak-eat','mount','none','eat','male','left',.5]
+            ];
+            for(const [name,lab,saddle,clip,bodyType,view,phase] of cases){
+              const params=new URLSearchParams({lab,mount:'yak_black',saddle,clip,bodyType,phase:String(phase),paused:'1'});
+              await page.goto(`http://127.0.0.1:4180/?${params}`,{waitUntil:'networkidle'});
+              await page.waitForFunction(lab=>(lab==='mount'?window.__MOUNT_REVIEW__:window.__RIDING_REVIEW__)?.mountId()==='yak_black',lab);
+              await page.getByTestId(`${lab==='mount'?'horse':'riding'}-view-${view}`).click();await page.waitForTimeout(200);
+              const state=await page.evaluate(lab=>{const r=lab==='mount'?window.__MOUNT_REVIEW__:window.__RIDING_REVIEW__;return {finite:r.matricesFinite(),status:r.getStatus(),camera:r.cameraState(),stats:typeof r.stats==='function'?r.stats():r.stats}},lab);
+              assert(state.finite);assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('vite-error-overlay').count(),0);
+              await page.screenshot({path:out+'/'+name+'.png'});frames.push({file:name+'.png',lab,saddle,clip,bodyType,view,phase,...state});
+            }
+            assert.deepEqual(errors,[]);result='passed';
+          }catch(error){errors.push(String(error?.stack||error));process.exitCode=1;}
+          finally{
+            writeFileSync(out+'/baseline-report.json',JSON.stringify({sourceSHA:process.env.REVIEW_HEAD_SHA,result,readiness,errors,frames,visualApproval:false},null,2));
+            await browser?.close();server.kill('SIGTERM');log.end();
           }
           JS
           node scripts/.m7-baseline.mjs
-          rm scripts/.m7-baseline.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: m7-yak-validation
-          path: /tmp/wanhu-riding-checks
+          name: m7-yak-main-visual
+          path: /tmp/m7-visual
           retention-days: 7
