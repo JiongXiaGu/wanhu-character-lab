@@ -47,6 +47,33 @@ function hooves(actor: MountActor) {
   }
   return gaps;
 }
+function partCenter(actor: MountActor, part: string) {
+  const ids = idsFor(actor, part); assert(ids.length > 0, `missing ${part}`);
+  return ids.reduce((sum, i) => sum.add(new Vector3(...actor.data.vertices[i].position)), new Vector3()).multiplyScalar(1 / ids.length);
+}
+function legPlacement(actor: MountActor) {
+  actor.bones[0].updateMatrixWorld(true);
+  const body = bounds(actor, 'Body'), length = body.max[2] - body.min[2], reports: Record<string, unknown> = {};
+  const joint = (name: string) => actor.bones[cattleBone(name)].getWorldPosition(new Vector3());
+  for (const side of ['Left', 'Right']) {
+    const frontUpper = joint(`Front${side}Upper`), frontMiddle = joint(`Front${side}Middle`), frontFoot = joint(`Front${side}Foot`);
+    const backUpper = joint(`Back${side}Upper`), backMiddle = joint(`Back${side}Middle`), backLower = joint(`Back${side}Lower`), backFoot = joint(`Back${side}Foot`);
+    const frontShoulderInset = (body.max[2] - frontUpper.z) / length, rearHipInset = (backUpper.z - body.min[2]) / length;
+    const frontAdvance = frontFoot.z - frontUpper.z, rearKneeAdvance = backMiddle.z - backUpper.z, rearHockReturn = backLower.z - backMiddle.z;
+    assert(frontShoulderInset > .08 && frontShoulderInset < .18, `Front${side}: shoulder leg root drifted along body (${frontShoulderInset})`);
+    assert(frontAdvance > .04 && frontAdvance < .105, `Front${side}: hoof is too far ahead of shoulder (${frontAdvance})`);
+    assert(rearHipInset > .12 && rearHipInset < .20, `Back${side}: hind leg root is too far forward on the barrel (${rearHipInset})`);
+    assert(rearKneeAdvance > .14 && rearKneeAdvance < .25, `Back${side}: stifle needs controlled forward break (${rearKneeAdvance})`);
+    assert(rearHockReturn < -.16 && rearHockReturn > -.28, `Back${side}: hock must return behind the stifle (${rearHockReturn})`);
+    assert(Math.abs(backFoot.z - backUpper.z) < .07, `Back${side}: planted hoof should return under the hindquarter`);
+    const frontToe = partCenter(actor, `Front${side}InnerHoof`).add(partCenter(actor, `Front${side}OuterHoof`)).multiplyScalar(.5);
+    const backToe = partCenter(actor, `Back${side}InnerHoof`).add(partCenter(actor, `Back${side}OuterHoof`)).multiplyScalar(.5);
+    assert(Math.abs(frontToe.z - frontFoot.z) < .035, `Front${side}: hoof shell detached from Foot author point`);
+    assert(Math.abs(backToe.z - backFoot.z) < .035, `Back${side}: hoof shell detached from Foot author point`);
+    reports[side] = { frontShoulderInset, frontAdvance, rearHipInset, rearKneeAdvance, rearHockReturn, rearFootOffset: backFoot.z - backUpper.z };
+  }
+  return reports;
+}
 function dewlap(actor: MountActor) {
   const ids = idsFor(actor, 'Dewlap'); assert.equal(ids.length, 34);
   for (const i of ids) { const [a, b, w] = actor.data.vertices[i].weight; assert.equal(a, cattleBone('Chest')); assert.equal(b, cattleBone('NeckBase')); assert(w > 0 && w < 1); }
@@ -62,7 +89,7 @@ export function checkCattleAnatomy(actor: MountActor) {
   const body = bounds(actor, 'Body'), head = bounds(actor, 'Head'), neck = bounds(actor, 'Neck');
   assert(body.width > .90 && body.width < 1.05 && body.min[1] < .65 && body.max[1] < 1.45, 'cattle needs a low broad barrel');
   assert(head.width > .44 && neck.width > .54, 'cattle needs a broad head and thick short neck');
-  const hornReport = horns(actor), hoofGaps = hooves(actor), noseContact = noseMirror(actor); dewlap(actor);
+  const hornReport = horns(actor), hoofGaps = hooves(actor), noseContact = noseMirror(actor), legs = legPlacement(actor); dewlap(actor);
   let faults = 0;
   const hornIds = idsFor(actor, 'LeftHorn'), horn = actor.data.vertices[hornIds[0]], savedWeight = [...horn.weight] as [number, number, number];
   horn.weight = [cattleBone('Neck'), cattleBone('Neck'), 1]; assert.throws(() => horns(actor)); horn.weight = savedWeight; faults++;
@@ -74,5 +101,9 @@ export function checkCattleAnatomy(actor: MountActor) {
   const d = actor.data.vertices[idsFor(actor, 'Dewlap')[0]], dw = [...d.weight] as [number, number, number]; d.weight = [cattleBone('Head'), cattleBone('Head'), 1]; assert.throws(() => dewlap(actor)); d.weight = dw; faults++;
   const nose = idsFor(actor, 'NoseMirror'), saved = nose.map(i => actor.data.vertices[i].position[2]);
   nose.forEach(i => { actor.data.vertices[i].position[2] += .10; }); assert.throws(() => noseMirror(actor)); nose.forEach((i, j) => { actor.data.vertices[i].position[2] = saved[j]; }); faults++;
-  return { body, head, neck, horns: hornReport, splitHooves: 8, hoofGaps, noseContact, faults };
+  const frontFoot = actor.bones[cattleBone('FrontLeftFoot')], frontZ = frontFoot.position.z;
+  frontFoot.position.z += .08; actor.bones[0].updateMatrixWorld(true); assert.throws(() => legPlacement(actor)); frontFoot.position.z = frontZ; actor.bones[0].updateMatrixWorld(true); faults++;
+  const backUpper = actor.bones[cattleBone('BackLeftUpper')], backZ = backUpper.position.z;
+  backUpper.position.z += .12; actor.bones[0].updateMatrixWorld(true); assert.throws(() => legPlacement(actor)); backUpper.position.z = backZ; actor.bones[0].updateMatrixWorld(true); faults++;
+  return { body, head, neck, horns: hornReport, splitHooves: 8, hoofGaps, noseContact, legs, faults };
 }
