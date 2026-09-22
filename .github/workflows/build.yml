@@ -27,6 +27,21 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Export temporary camel task workspace
+        if: github.head_ref == 'task/camel-bactrian-20260922'
+        run: |
+          git archive --format=tar HEAD | gzip > /tmp/wanhu-source.tar.gz
+          tar -czf /tmp/wanhu-dependencies.tar.gz node_modules
+          printf '%s\n' "$REVIEW_HEAD_SHA" > /tmp/wanhu-source-sha.txt
+      - uses: actions/upload-artifact@v4
+        if: github.head_ref == 'task/camel-bactrian-20260922'
+        with:
+          name: camel-task-workspace
+          path: |
+            /tmp/wanhu-source.tar.gz
+            /tmp/wanhu-dependencies.tar.gz
+            /tmp/wanhu-source-sha.txt
+          retention-days: 1
       - name: Retired contract checks
         run: npm run check:retired
       - name: Core mesh and data checks
