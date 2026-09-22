@@ -16,8 +16,9 @@ const extremes = { minimumKneeX: Infinity, minimumFootX: Infinity, maximumSeatEr
 function checkSync(status: RidingPlayback) { near(status.horsePhase, status.riderPhase, 1e-9); near(status.phase, status.horsePhase, 1e-9); }
 function checkPose(player: RidingPlayer, vertices = true) {
   assert.equal(player.horse.bones.length, 25); assert.equal(player.rider.bones.length, 20);
-  assert.equal(player.seat.parent, player.horse.bones[2], 'RiderSeat must follow horse Spine');
-  assert.equal(player.rider.mesh.parent, player.riderRoot);
+  // 只断言身份条件，故障注入失败时不让assert格式化整棵带循环引用的Three.js场景。
+  assert(player.seat.parent === player.horse.bones[2], 'RiderSeat must follow horse Spine');
+  assert(player.rider.mesh.parent === player.riderRoot, 'rider must be attached to RiderRoot');
   checkSync(player.status());
   const bones = [...player.horse.bones, ...player.rider.bones];
   for (const bone of [...bones, player.seat, player.riderRoot]) assert(bone.matrixWorld.elements.every(Number.isFinite), `non-finite ${bone.name}`);
@@ -25,17 +26,19 @@ function checkPose(player: RidingPlayer, vertices = true) {
   const inverseSeat = player.seat.matrixWorld.clone().invert();
   const inSeat = (index: number) => player.rider.bones[index].getWorldPosition(new Vector3()).applyMatrix4(inverseSeat);
   const hips = inSeat(B.Hips), lift = RIDER_FIT[player.rider.data.recipe.bodyType].hipsLift;
-  const error = hips.distanceTo(new Vector3(0, lift, 0)); extremes.maximumSeatError = Math.max(extremes.maximumSeatError, error);
+  const error = hips.distanceTo(new Vector3(0, lift, 0));
   assert(error < 1e-6, `pelvis drift: ${error}`);
+  // 只把通过门槛的正常数据写入统计，不将故意注入的0.2m漂移混为运行结果。
+  extremes.maximumSeatError = Math.max(extremes.maximumSeatError, error);
   for (const [kneeIndex, footIndex, sign] of [[B.RightShin, B.RightFoot, 1], [B.LeftShin, B.LeftFoot, -1]]) {
     const knee = inSeat(kneeIndex), foot = inSeat(footIndex);
-    extremes.minimumKneeX = Math.min(extremes.minimumKneeX, sign * knee.x);
-    extremes.minimumFootX = Math.min(extremes.minimumFootX, sign * foot.x);
     // 骨性标记的粗边界，不把它冒充逐三角服饰碰撞证明。
     assert(sign * knee.x > .37 && sign * knee.x < .55, `knee does not straddle: ${knee.toArray()}`);
     assert(sign * foot.x > .40 && sign * foot.x < .60, `foot crosses barrel: ${foot.toArray()}`);
     assert(knee.y < hips.y - .15 && knee.y > hips.y - .40, 'knee height');
     assert(foot.y < knee.y - .25 && foot.y > hips.y - .9, 'foot height');
+    extremes.minimumKneeX = Math.min(extremes.minimumKneeX, sign * knee.x);
+    extremes.minimumFootX = Math.min(extremes.minimumFootX, sign * foot.x);
   }
   if (vertices) {
     const actor = player.rider, matrices = actor.bones.map((bone, index) => new Matrix4().multiplyMatrices(bone.matrixWorld, actor.skeleton.boneInverses[index]));
@@ -44,7 +47,7 @@ function checkPose(player: RidingPlayer, vertices = true) {
       const [first, second, weight] = vertex.w;
       a.fromArray(vertex.p).applyMatrix4(matrices[first]).multiplyScalar(weight);
       b.fromArray(vertex.p).applyMatrix4(matrices[second]).multiplyScalar(1 - weight); a.add(b);
-      assert(a.toArray().every(Number.isFinite), `non-finite skinned vertex ${vertex.id}`); vertexSamples++;
+      assert(Number.isFinite(a.x) && Number.isFinite(a.y) && Number.isFinite(a.z), `non-finite skinned vertex ${vertex.id}`); vertexSamples++;
     }
     // 同时核对真正SkinnedMesh路径，捕捉父变换重复应用/重新bind一类错误。
     const positions = actor.mesh.geometry.getAttribute('position'), indices = actor.mesh.geometry.getAttribute('skinIndex'), weights = actor.mesh.geometry.getAttribute('skinWeight');
@@ -59,6 +62,7 @@ function checkPose(player: RidingPlayer, vertices = true) {
   poses++;
 }
 for (const bodyType of BODY_TYPES) {
+  console.log(`Riding dense sampling: ${bodyType}`);
   const recipe = createRecipe({ bodyType }), original = JSON.stringify(recipe), player = createRidingPlayer(recipe);
   const horseId = player.horse.mesh.geometry.uuid, riderId = player.rider.mesh.geometry.uuid;
   const inverses = player.rider.skeleton.boneInverses.map(matrix => [...matrix.elements]);
@@ -89,27 +93,26 @@ for (const bodyType of BODY_TYPES) {
     player.replay(); near(player.status().phase, 0); assert(!player.status().finished);
     player.setLoop(true); player.seek(.99); player.update(ridingDefinition(id).duration * .03); near(player.status().phase, .02); checkSync(player.status());
     player.seek(.4); player.step(1); near(player.status().time, .4 * ridingDefinition(id).duration + 1 / 30); player.step(-1); near(player.status().phase, .4);
+    console.log(`PASS ${bodyType} ${id}: 241 poses, seam and playback contract`);
   }
   assert.equal(player.horse.mesh.geometry.uuid, horseId); assert.equal(player.rider.mesh.geometry.uuid, riderId);
   assert.deepEqual(player.rider.skeleton.boneInverses.map(matrix => [...matrix.elements]), inverses);
   player.seek(Number.NaN); near(player.status().phase, 0); player.update(Number.NaN); player.update(-3); checkPose(player);
-  // 非单位实例变换下也必须只跟随一次；不是只在原点碰巧对齐。
   player.horse.mesh.position.set(2.1, .7, -1.3); player.horse.mesh.rotation.y = .8; player.horse.mesh.scale.setScalar(1.17); player.update(0); checkPose(player);
   player.horse.mesh.position.set(0, 0, 0); player.horse.mesh.rotation.set(0, 0, 0); player.horse.mesh.scale.setScalar(1); player.update(0);
   player.seek(.375); player.setLoop(false);
   assert(player.setRecipe(createRecipe({ bodyType: bodyType === 'male' ? 'female' : 'male', slots: { top: 'work_vest', bottom: 'short_trousers' } })));
   near(player.status().phase, .375); assert(!player.status().loop); assert.equal(player.horse.mesh.geometry.uuid, horseId); assert.notEqual(player.rider.mesh.geometry.uuid, riderId); checkPose(player);
   assert.equal(JSON.stringify(recipe), original);
-  // 四个故障注入：相位脱同步、脱离Spine、骨盆漂移、非有限矩阵。
   assert.throws(() => checkSync({ ...player.status(), riderPhase: player.status().phase + .1 }));
-  player.seat.removeFromParent(); assert.throws(() => checkPose(player, false)); player.horse.bones[2].add(player.seat); player.update(0);
-  player.riderRoot.position.y += .2; player.update(0); assert.throws(() => checkPose(player, false)); player.riderRoot.position.y -= .2; player.update(0);
-  player.rider.bones[B.Head].matrixWorld.elements[0] = Number.NaN; assert.throws(() => checkPose(player, false)); player.update(0); checkPose(player);
+  player.seat.removeFromParent(); assert.throws(() => checkPose(player, false), /RiderSeat must follow horse Spine/); player.horse.bones[2].add(player.seat); player.update(0);
+  player.riderRoot.position.y += .2; player.update(0); assert.throws(() => checkPose(player, false), /pelvis drift/); player.riderRoot.position.y -= .2; player.update(0);
+  player.rider.bones[B.Head].matrixWorld.elements[0] = Number.NaN; assert.throws(() => checkPose(player, false), /non-finite/); player.update(0); checkPose(player);
   let horseDisposed = 0, riderDisposed = 0;
   player.horse.mesh.geometry.addEventListener('dispose', () => horseDisposed++); player.rider.mesh.geometry.addEventListener('dispose', () => riderDisposed++);
   player.dispose(); player.dispose(); assert.equal(horseDisposed, 1); assert.equal(riderDisposed, 1);
+  console.log(`PASS ${bodyType}: instance transform, recipe replacement, 4 fault injections and disposal`);
 }
-// 全部现役衣裤都可构造及播放；裙装只做结构检查，不能据此宣称骑乘穿插已解决。
 for (const bodyType of BODY_TYPES) {
   const player = createRidingPlayer(createRecipe({ bodyType }));
   for (const top of TOP_IDS.filter(id => id !== 'body')) for (const bottom of BOTTOM_IDS.filter(id => id !== 'body')) {
@@ -120,7 +123,7 @@ for (const bodyType of BODY_TYPES) {
       for (const phase of [0, .25, .5, .75, 1]) { player.seek(phase); checkPose(player); }
     }
   }
-  player.dispose();
+  player.dispose(); console.log(`PASS ${bodyType}: 35 wardrobe constructions and sampled poses (not intersection approval)`);
 }
 assert.equal(wardrobeCases, 70, 'current 2 bodies x 7 tops x 5 bottoms');
 const sourceSHA = process.env.REVIEW_HEAD_SHA || execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
