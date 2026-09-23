@@ -2,18 +2,21 @@ import { ACESFilmicToneMapping, CircleGeometry, DirectionalLight, GridHelper, He
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { createClipClock } from '../animation/clip-clock';
 import { createAnimalActor } from './actor';
+import { livestockDefinition } from './catalog';
+import { habitatDefinition } from './habitat';
+import { createPreviewWater } from './water';
 import { createCrowd, layoutHalf, previewDuration } from './crowd';
 import { LIVESTOCK_REFERENCE_HEIGHT, selectLivestockLod } from './lod';
 import type { CameraSnapshot, LabOptions, LabStats, LivestockDefinition, LivestockLodId, Playback } from './types';
 
 export interface LivestockReviewHook {
-  snapshot(): LabStats & Playback & { motion: string; mixed: boolean; playing: boolean; seed: number; geometries: number; calls: number; geometryId: number; camera: CameraSnapshot };
+  snapshot(): LabStats & Playback & { animal: string; surface: string; waterLevel: number; rendererId: string; motion: string; mixed: boolean; playing: boolean; seed: number; geometries: number; calls: number; geometryId: number; camera: CameraSnapshot };
   camera(): CameraSnapshot;
 }
 declare global { interface Window { __LIVESTOCK_REVIEW__?: LivestockReviewHook } }
 
 /** 一个页面只有一个RAF与一个时间游标；LOD切换只换作者几何/姿态缓存，不重建Renderer。 */
-export function createLivestockScene(host: HTMLElement, definition: LivestockDefinition, current: { current: LabOptions }, report: (stats: LabStats, playback: Playback) => void, initialCamera?: CameraSnapshot) {
+export function createLivestockScene(host: HTMLElement, initialDefinition: LivestockDefinition, current: { current: LabOptions }, report: (stats: LabStats, playback: Playback) => void, initialCamera?: CameraSnapshot) {
   const cleanup: (() => void)[] = [];
   try {
     const renderer = new WebGLRenderer({ antialias: true, alpha: true }); cleanup.push(() => { renderer.dispose(); renderer.domElement.remove(); });
@@ -35,12 +38,16 @@ export function createLivestockScene(host: HTMLElement, definition: LivestockDef
     const grid = new GridHelper(2, 20, '#b6b09a', '#a6a28d'); grid.position.y = .002; scene.add(grid);
     cleanup.push(() => { grid.geometry.dispose(); const material = grid.material; if (Array.isArray(material)) material.forEach(m => m.dispose()); else material.dispose(); });
 
-    const actors = new Map<LivestockLodId, ReturnType<typeof createAnimalActor>>();
-    for (const lod of definition.lods) {
-      const actor = createAnimalActor(definition, lod.id); actors.set(lod.id, actor); scene.add(actor.mesh, actor.helper);
+    function makeActors(definition: LivestockDefinition) {
+      const candidates = new Map<LivestockLodId, ReturnType<typeof createAnimalActor>>();
+      try { for (const lod of definition.lods) candidates.set(lod.id, createAnimalActor(definition, lod.id)); }
+      catch (error) { for (const actor of candidates.values()) actor.dispose(); throw error; }
+      return candidates;
     }
+    let definition = initialDefinition, actors = makeActors(definition);
+    for (const actor of actors.values()) scene.add(actor.mesh, actor.helper);
     cleanup.push(() => { for (const actor of actors.values()) actor.dispose(); actors.clear(); });
-    const crowdMaterial = actors.get('lod0')!.material;
+    const water = createPreviewWater(); scene.add(water.mesh, water.ripple); cleanup.push(() => water.dispose());
     let crowd: ReturnType<typeof createCrowd> | undefined;
     cleanup.push(() => crowd?.dispose());
 
@@ -62,7 +69,7 @@ export function createLivestockScene(host: HTMLElement, definition: LivestockDef
     }
     function pixelHeight() {
       const visibleWorldHeight = Math.max(.001, (camera.top - camera.bottom) / Math.max(.001, camera.zoom));
-      return Math.max(0, host.clientHeight) * LIVESTOCK_REFERENCE_HEIGHT / visibleWorldHeight;
+      return Math.max(0, host.clientHeight) * (definition.referenceHeight ?? LIVESTOCK_REFERENCE_HEIGHT) / visibleWorldHeight;
     }
     function resolvedLod() { return selectLivestockLod(options.lod, pixelHeight()); }
     fit();
@@ -78,11 +85,12 @@ export function createLivestockScene(host: HTMLElement, definition: LivestockDef
     const hook: LivestockReviewHook = {
       snapshot: () => {
         const lod = resolvedLod(), actor = actors.get(lod)!;
-        return { ...stats(), ...playback(), motion: options.motion, mixed: options.count > 1 && options.mixed, playing: options.playing, seed: options.seed,
+        return { ...stats(), ...playback(), animal: definition.id, surface: options.surface, waterLevel: habitatDefinition(definition, options.surface).waterline ?? 0, rendererId: renderer.domElement.dataset.rendererId!, motion: options.motion, mixed: options.count > 1 && options.mixed, playing: options.playing, seed: options.seed,
           geometries: renderer.info.memory.geometries, calls: renderer.info.render.calls, geometryId: actor.geometry.id, camera: cameraSnapshot() };
       },
       camera: cameraSnapshot,
     };
+    renderer.domElement.dataset.rendererId = crypto.randomUUID();
     window.__LIVESTOCK_REVIEW__ = hook;
     cleanup.push(() => { if (window.__LIVESTOCK_REVIEW__ === hook) delete window.__LIVESTOCK_REVIEW__; });
     cleanup.push(() => { alive = false; cancelAnimationFrame(frameId); scene.clear(); });
@@ -90,6 +98,15 @@ export function createLivestockScene(host: HTMLElement, definition: LivestockDef
     function frame(now: number) {
       if (!alive) return;
       options = current.current;
+      const changedSpecies = options.animal !== definition.id;
+      if (changedSpecies) {
+        // 候选完整创建成功后再释放旧物种，不重建Renderer、相机或覆盖旧物种作者数据。
+        const next = livestockDefinition(options.animal), candidates = makeActors(next);
+        crowd?.dispose(); crowd = undefined;
+        for (const actor of actors.values()) actor.dispose();
+        definition = next; actors = candidates;
+        for (const actor of actors.values()) scene.add(actor.mesh, actor.helper);
+      }
       const nextDuration = previewDuration(definition, options);
       if (nextDuration !== duration) { const phase = clock.phase; duration = nextDuration; clock = createClipClock(duration, options.loop); clock.seek(phase); }
       clock.setLoop(options.loop);
@@ -97,13 +114,13 @@ export function createLivestockScene(host: HTMLElement, definition: LivestockDef
       if (seeking) clock.seek(options.phase);
       if (options.playing && !seeking) clock.advance(Math.min(.1, Math.max(0, (now - previousTime) / 1000)) * options.speed);
       previousTime = now;
-      if (first || options.count !== previous.count || options.seed !== previous.seed) {
-        if (options.count > 1) { if (!crowd) { crowd = createCrowd(definition, crowdMaterial); scene.add(crowd.group); } crowd.setLayout(options.count, options.seed); }
+      if (first || changedSpecies || options.count !== previous.count || options.seed !== previous.seed) {
+        if (options.count > 1) { if (!crowd) { crowd = createCrowd(definition, actors.get('lod0')!.material); scene.add(crowd.group); } crowd.setLayout(options.count, options.seed); }
         const radius = options.count === 1 ? .49 : layoutHalf(options.count) * Math.SQRT2;
         floor.scale.setScalar(radius); grid.scale.setScalar(options.count === 1 ? .5 : layoutHalf(options.count));
       }
       if (options.count !== previous.count || options.viewRevision !== previous.viewRevision) fit();
-      if (first || options.display !== previous.display) {
+      if (first || changedSpecies || options.display !== previous.display) {
         for (const actor of actors.values()) {
           actor.material.vertexColors = options.display === 'beauty'; actor.material.color.set(options.display === 'beauty' ? '#ffffff' : '#dad1b9');
           actor.material.wireframe = options.display === 'wire'; actor.material.needsUpdate = true;
@@ -114,11 +131,16 @@ export function createLivestockScene(host: HTMLElement, definition: LivestockDef
         candidate.mesh.visible = options.count === 1 && id === lod;
         candidate.helper.visible = options.count === 1 && options.skeleton && id === lod;
       }
-      shadow.visible = options.count === 1; grid.visible = options.grid;
+      const profile = habitatDefinition(definition, options.surface), onWater = profile.id === 'water';
+      const waterY = profile.waterline ?? 0, radius = options.count === 1 ? .49 : layoutHalf(options.count) * Math.SQRT2;
+      water.update(onWater, waterY, radius, clock.phase * 6, options.count === 1);
+      floor.visible = !onWater; shadow.visible = !onWater && options.count === 1;
+      grid.position.y = (onWater ? waterY : 0) + .002;
+      grid.visible = options.grid || (onWater && options.waterline);
       if (crowd) crowd.group.visible = options.count > 1;
       if (options.count === 1) actor.sample(options.motion, clock.phase); else crowd!.update(clock.time, options, lod);
       controls.update(); renderer.render(scene, camera);
-      if (now - lastReport >= 150 || seeking || options.lod !== previous.lod || (clock.finished && !wasFinished) || first) { report(stats(), playback()); lastReport = now; }
+      if (now - lastReport >= 150 || seeking || options.lod !== previous.lod || changedSpecies || options.surface !== previous.surface || (clock.finished && !wasFinished) || first) { report(stats(), playback()); lastReport = now; }
       wasFinished = clock.finished; previous = { ...options }; first = false; frameId = requestAnimationFrame(frame);
     }
     frameId = requestAnimationFrame(frame);

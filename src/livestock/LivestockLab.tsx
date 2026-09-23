@@ -3,10 +3,11 @@ import { WorkspaceSwitcher } from '../ui/WorkspaceSwitcher';
 import { AnimalModeSwitcher } from '../ui/AnimalModeSwitcher';
 import { isMountId } from '../mounts/catalog';
 import { isSaddleId } from '../horse/saddles/catalog';
-import { LIVESTOCK } from './catalog';
+import { LIVESTOCK, livestockDefinition } from './catalog';
 import { CROWD_COUNTS } from './types';
-import type { CrowdCount, LabOptions, LabStats, LivestockLodMode, LivestockView, Playback } from './types';
+import type { CrowdCount, LabOptions, LabStats, Habitat, LivestockLodMode, LivestockView, Playback } from './types';
 import { clampPhase, readLivestockSession, saveLivestockSession } from './session';
+import { habitatDefinition, resolveHabitat } from './habitat';
 import { LivestockViewport } from './LivestockViewport';
 import '../horse/horse.css';
 import './livestock.css';
@@ -20,10 +21,16 @@ const lodModes: [LivestockLodMode, string][] = [['auto', '自动'], ['lod0', 'LO
 export default function LivestockLab() {
   const [options, setOptions] = useState<LabOptions>(resumed.options), [stats, setStats] = useState<LabStats | null>(null);
   const [playback, setPlayback] = useState<Playback>({ phase: options.phase, time: 0, duration: 3, finished: false }), [error, setError] = useState('');
-  const definition = LIVESTOCK[0], mixed = options.count > 1 && options.mixed, active = definition.motions.find(m => m.id === options.motion)!;
+  const definition = livestockDefinition(options.animal), profile = habitatDefinition(definition, options.surface), mixed = options.count > 1 && options.mixed, active = definition.motions.find(m => m.id === options.motion)!;
   const report = useCallback((s: LabStats, p: Playback) => {
     setStats(s); setPlayback(p); if (p.finished) setOptions(value => value.playing ? { ...value, playing: false } : value);
   }, []);
+  const changeAnimal = (animal: string) => setOptions(value => ({ ...value, animal,
+    ...resolveHabitat(livestockDefinition(animal), value.surface, value.motion), phase: playback.phase, seekRevision: value.seekRevision+1,
+  }));
+  const changeSurface = (surface: Habitat) => setOptions(value => ({ ...value,
+    ...resolveHabitat(definition, surface, value.motion), phase: playback.phase, seekRevision: value.seekRevision+1,
+  }));
   const chooseMotion = (motion: string) => setOptions(value => ({ ...value, motion, mixed: false, playing: true, phase: 0, seekRevision: value.seekRevision + 1 }));
   const chooseCount = (count: CrowdCount) => setOptions(value => ({ ...value, count, mixed: count > 1 && value.count === 1 ? true : value.mixed, view: count > 1 ? 'farm' : 'three', viewRevision: value.viewRevision + 1 }));
   const seek = (phase: number) => {
@@ -35,10 +42,10 @@ export default function LivestockLab() {
   const replay = () => setOptions(value => ({ ...value, playing: true, phase: 0, seekRevision: value.seekRevision + 1 }));
   const save = () => saveLivestockSession(options, playback.phase, window.__LIVESTOCK_REVIEW__?.camera());
   return <main className="horse-lab livestock-lab">
-    <header className="horse-topbar"><div><p>WANHU / LIVESTOCK STUDY</p><h1>家畜工坊 <span>Livestock Lab</span></h1></div><WorkspaceSwitcher active="animal"/><span className="horse-phase-tag">L2 · 三档 LOD</span></header>
+    <header className="horse-topbar"><div><p>WANHU / LIVESTOCK STUDY</p><h1>家畜工坊 <span>Livestock Lab</span></h1></div><WorkspaceSwitcher active="animal"/><span className="horse-phase-tag">L3 · 家禽水陆</span></header>
     <div className="horse-workspace">
       <section className="horse-stage" aria-label="家畜模型与群体预览">
-        <div className="horse-stage-title"><p>SMALL ANIMAL / LARGE SCENE</p><h2>{definition.name}</h2><span className="horse-stage-motion">{options.count === 1 ? '单只检查' : `${options.count} 只群体预览`} · {mixed ? '日常混合' : active.label}{stats ? ` · ${stats.lod.toUpperCase()}` : ''}</span></div>
+        <div className="horse-stage-title"><p>SMALL ANIMAL / LARGE SCENE</p><h2>{definition.name}</h2><span className="horse-stage-motion">{options.count === 1 ? '单只检查' : `${options.count} 只群体预览`} · {profile.label} · {mixed ? '日常混合' : active.label}{stats ? ` · ${stats.lod.toUpperCase()}` : ''}</span></div>
         <nav className="horse-cameras" aria-label="家畜相机">{views.map(([view, label]) => <button key={view} data-testid={`livestock-view-${view}`} aria-pressed={options.view === view} onClick={() => setOptions(value => ({ ...value, view, viewRevision: value.viewRevision + 1 }))}>{label}</button>)}<button onClick={() => setOptions(value => ({ ...value, viewRevision: value.viewRevision + 1 }))}>适配画面</button></nav>
         {error ? <div className="horse-error" role="alert">{error}<button onClick={() => location.reload()}>重新载入</button></div> : <LivestockViewport options={options} camera={resumed.camera} onReport={report} onError={setError}/>}
         <div className="horse-stage-caption"><span>拖动旋转 · 滚轮缩放 · 正交相机</span><span data-testid="livestock-stats">{stats ? `${stats.lod.toUpperCase()} · ${stats.triangles} tris / 只 · ${stats.logicalVertices} 逻辑点 · 约 ${stats.pixelHeight.toFixed(0)} px 高` : '正在生成模型…'}</span></div>
@@ -54,12 +61,15 @@ export default function LivestockLab() {
       </section>
       <aside className="horse-inspector">
         <AnimalModeSwitcher active="livestock" mountId={mountId} saddleId={saddleId} onNavigate={save}/>
-        <section className="livestock-selector"><p className="horse-eyebrow">01 / LIVESTOCK</p><h2>家畜</h2><label><span>种类</span><select aria-label="家畜种类" value={definition.id} onChange={() => {}}>{LIVESTOCK.map(value => <option key={value.id} value={value.id}>鸡 · {value.name}</option>)}</select></label><p>成年母鸡 · 不可骑乘 · 三档作者 LOD</p></section>
-        <section><p className="horse-eyebrow">02 / MOTION</p><h2>基础动作</h2><div className="livestock-motions">{definition.motions.map(motion => <button key={motion.id} data-testid={`livestock-motion-${motion.id}`} aria-pressed={!mixed && options.motion === motion.id} onClick={() => chooseMotion(motion.id)}><strong>{motion.label}</strong><span>{motion.duration.toFixed(1)} s</span><small>{motion.description}</small></button>)}</div></section>
+        <section className="livestock-selector"><p className="horse-eyebrow">01 / LIVESTOCK</p><h2>家畜</h2><label><span>种类</span><select aria-label="家畜种类" value={definition.id} onChange={event => changeAnimal(event.target.value)}>{LIVESTOCK.map(value => <option key={value.id} value={value.id}>{value.name}</option>)}</select></label><p>不可骑乘 · 三档作者 LOD</p>
+          {definition.habitats.length > 1 && <div className="livestock-environment" data-testid="livestock-environment"><span>环境</span><div>{definition.habitats.map(h => <button key={h.id} data-testid={`livestock-surface-${h.id}`} aria-pressed={options.surface === h.id} onClick={() => changeSurface(h.id)}>{h.label}</button>)}</div></div>}
+          {options.surface === 'water' && <label className="livestock-waterline"><input aria-label="显示水位线" type="checkbox" checked={options.waterline} onChange={event => setOptions(value => ({ ...value, waterline: event.target.checked }))}/><span>显示水位线 · {profile.waterline?.toFixed(3)} m</span></label>}
+        </section>
+        <section><p className="horse-eyebrow">02 / MOTION</p><h2>基础动作</h2><div className="livestock-motions">{definition.motions.filter(motion => (motion.surface ?? 'land') === options.surface).map(motion => <button key={motion.id} data-testid={`livestock-motion-${motion.id}`} aria-pressed={!mixed && options.motion === motion.id} onClick={() => chooseMotion(motion.id)}><strong>{motion.label}</strong><span>{motion.duration.toFixed(1)} s</span><small>{motion.description}</small></button>)}</div></section>
         <section><p className="horse-eyebrow">03 / CROWD</p><h2>群体预览</h2><div className="livestock-counts" aria-label="家畜数量">{CROWD_COUNTS.map(count => <button key={count} data-testid={`livestock-count-${count}`} aria-pressed={options.count === count} onClick={() => chooseCount(count)}>{count}</button>)}</div>
           <div className="livestock-crowd-controls"><label><input aria-label="家畜日常混合" type="checkbox" checked={mixed} disabled={options.count === 1} onChange={event => setOptions(value => ({ ...value, mixed: event.target.checked, phase: 0, seekRevision: value.seekRevision + 1 }))}/>日常混合</label><button data-testid="livestock-reshuffle" disabled={options.count === 1} onClick={() => setOptions(value => ({ ...value, seed: (value.seed + 1) >>> 0 }))}>重新散布</button></div>
-          <p className="livestock-help">{mixed ? '停驻、行走、啄食错峰分布。点击上方动作可切换为统一检查。' : options.count > 1 ? '统一动作，循环时错开相位；关闭循环后同步检查单次动作。' : '切换数量后自动适配经营俯视。自动LOD会根据屏幕尺寸降档。'}</p>
-          <div className="livestock-summary" data-testid="livestock-crowd-summary"><div><strong>{options.count}</strong><span>只</span></div><div><strong>{stats?.modelTriangles.toLocaleString() ?? '—'}</strong><span>当前模型三角形</span></div><div><strong>{stats?.batches ?? '—'}</strong><span>鸡绘制批次</span></div></div>
+          <p className="livestock-help">{mixed ? `${profile.label}动作错峰分布；点击动作可切换为统一原地检查。` : options.count > 1 ? '统一动作，循环时错开相位；关闭循环后同步检查单次动作。' : '切换数量后自动适配经营俯视。自动LOD会根据屏幕尺寸降档。'}</p>
+          <div className="livestock-summary" data-testid="livestock-crowd-summary"><div><strong>{options.count}</strong><span>只</span></div><div><strong>{stats?.modelTriangles.toLocaleString() ?? '—'}</strong><span>当前模型三角形</span></div><div><strong>{stats?.batches ?? '—'}</strong><span>动物绘制批次</span></div></div>
         </section>
         <section className="livestock-lod"><p className="horse-eyebrow">04 / LOD</p><h2>细节层级</h2>
           <div className="livestock-lod-modes">{lodModes.map(([lod, label]) => <button key={lod} data-testid={`livestock-lod-${lod}`} aria-pressed={options.lod === lod} onClick={() => setOptions(value => ({ ...value, lod }))}>{label}</button>)}</div>
@@ -67,7 +77,7 @@ export default function LivestockLab() {
           <div className="livestock-lod-budget">{definition.lods.map(lod => <div key={lod.id} data-active={stats?.lod === lod.id}><strong>{lod.label}</strong><span>{lod.triangles} tris</span><small>{lod.description}</small></div>)}</div>
         </section>
         <details className="livestock-inspection"><summary>模型审查<span>色块 / 素模 / 线框</span></summary><div className="horse-display-options">{([['beauty', '色块'], ['clay', '素模'], ['wire', '线框']] as const).map(([display, label]) => <button key={display} aria-pressed={options.display === display} onClick={() => setOptions(value => ({ ...value, display }))}>{label}</button>)}</div><div className="horse-toggles"><label><input aria-label="家畜骨架" type="checkbox" checked={options.skeleton} disabled={options.count !== 1} onChange={event => setOptions(value => ({ ...value, skeleton: event.target.checked }))}/>骨架</label><label><input aria-label="家畜参考网格" type="checkbox" checked={options.grid} onChange={event => setOptions(value => ({ ...value, grid: event.target.checked }))}/>网格</label></div><p className="livestock-help">三档共用同一 8 骨动作语义；骨架只在单只模式显示。</p></details>
-        <p className="livestock-boundary">本页自动LOD按正交镜头中的屏幕高度整群切换，适合验证经营俯视预算；正式 Unity 仍应按逐实例距离/屏占比、剔除和动画降频另行实现。</p>
+        <p className="livestock-boundary">本页自动LOD按正交镜头中的屏幕高度整群切换，适合验证经营俯视预算；水面是固定水位预览；不含受惊AI、寻路、入水上岸或浮力模拟。</p>
       </aside>
     </div>
   </main>;

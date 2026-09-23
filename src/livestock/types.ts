@@ -10,7 +10,13 @@ export interface AnimalActor {
   bones: Bone[]; skeleton: Skeleton; helper: SkeletonHelper;
   sample(motion: string, phase: number): void; bind(): void; dispose(): void;
 }
-export interface MotionDefinition { id: string; label: string; description: string; duration: number }
+export type Habitat = 'land' | 'water';
+export interface MotionDefinition { id: string; label: string; description: string; duration: number; surface?: Habitat }
+/** 作者预览配置，不是环境模拟；各环境只允许自己的动作池。 */
+export interface HabitatDefinition {
+  id: Habitat; label: string; defaultMotion: string; duration: number; waterline?: number;
+  mixed: readonly { motion: string; weight: number; radius?: number; laps?: number }[];
+}
 export const LIVESTOCK_LOD_IDS = ['lod0', 'lod1', 'lod2'] as const;
 export type LivestockLodId = typeof LIVESTOCK_LOD_IDS[number];
 export type LivestockLodMode = 'auto' | LivestockLodId;
@@ -25,6 +31,7 @@ export interface LivestockDefinition {
   buildMesh(): AnimalMeshData;
   lods: readonly LivestockLodDefinition[];
   bakeClips(): Map<string, AnimationClip>;
+  habitats: readonly HabitatDefinition[]; referenceHeight?: number;
 }
 export const CROWD_COUNTS = [1, 10, 50, 100, 500] as const;
 export type CrowdCount = typeof CROWD_COUNTS[number];
@@ -32,6 +39,7 @@ export type LivestockView = 'three' | 'front' | 'left' | 'farm';
 export type DisplayMode = 'beauty' | 'clay' | 'wire';
 export interface CameraSnapshot { position: number[]; target: number[]; zoom: number }
 export interface LabOptions {
+  animal: string; surface: Habitat; waterline: boolean;
   count: CrowdCount; motion: string; mixed: boolean; playing: boolean; loop: boolean; speed: number;
   phase: number; seekRevision: number; seed: number; view: LivestockView; viewRevision: number;
   display: DisplayMode; skeleton: boolean; grid: boolean; lod: LivestockLodMode;
