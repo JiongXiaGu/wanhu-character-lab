@@ -130,9 +130,30 @@ function nose(actor: MountActor) {
   const gap = Math.min(...ids.map(i => distanceTo(actor, 'Head', new Vector3(...actor.data.vertices[i].position))));
   assert(gap < .008 && bounds(actor, 'NoseMirror').width > .36, `detached nose ${gap}`); return gap;
 }
+function eyes(actor: MountActor) {
+  const report: Record<string, unknown> = {}, centers: Vector3[] = [];
+  for (const side of ['Left', 'Right'] as const) {
+    const part = `${side}Eye`, ids = idsFor(actor, part); assert.equal(ids.length, 6, `${part}: missing low-poly eye`);
+    const box = bounds(actor, part), center = ids.reduce((p, i) => p.add(new Vector3(...actor.data.vertices[i].position)), new Vector3()).multiplyScalar(1 / ids.length);
+    const height = box.max[1] - box.min[1], depth = box.max[2] - box.min[2];
+    assert(box.width > .052 && box.width < .064, `${part}: eye width no longer readable (${box.width})`);
+    assert(height > .052 && height < .064, `${part}: eye height no longer rounded (${height})`);
+    assert(depth > .040 && depth < .052, `${part}: eye depth no longer readable (${depth})`);
+    assert(center.y > 1.16 && center.y < 1.25, `${part}: eye must stay slightly low on the broad head`);
+    assert(center.z > 1.22 && center.z < 1.35, `${part}: eye must remain forward-readable in three-quarter view`);
+    assert(Math.abs(center.x) > .20 && Math.abs(center.x) < .28, `${part}: eye must remain on the side of the head`);
+    for (const i of ids) assert.deepEqual(actor.data.vertices[i].weight, [yakBone('Head'), yakBone('Head'), 1]);
+    centers.push(center); report[part] = { center: center.toArray(), width: box.width, height, depth };
+  }
+  nearMirror: {
+    const mirrored = centers[0].clone(); mirrored.x *= -1;
+    assert(mirrored.distanceTo(centers[1]) < 1e-8, 'asymmetric yak eyes');
+  }
+  return report;
+}
 /** 牦牛作者结构与故障注入：必须检测缺毛、飘毛、坏绑定、单蹄、错腿位，而非只测目录可切换。 */
 export function checkYakAnatomy(actor: MountActor) {
-  const body = mantle(actor), hornReport = horns(actor), hoofGaps = hooves(actor), legReport = legs(actor), noseContact = nose(actor);
+  const body = mantle(actor), hornReport = horns(actor), hoofGaps = hooves(actor), legReport = legs(actor), noseContact = nose(actor), eyeReadability = eyes(actor);
   hairWeights(actor); const attachments = checkYakFurAttachments(actor);
   const head = bounds(actor, 'Head'), neck = bounds(actor, 'Neck'), chest = bounds(actor, 'ChestFur'), tail = bounds(actor, 'TailPlume');
   assert(head.width > .50 && head.max[1] < 1.43 && neck.width > .65 && neck.max[2] - neck.min[2] < .85, 'low broad head / short thick neck');
@@ -150,6 +171,10 @@ export function checkYakAnatomy(actor: MountActor) {
   mutate('ChestFur', ids => { actor.data.vertices[ids[0]].weight = [yakBone('Head'), yakBone('Head'), 1]; }, () => hairWeights(actor));
   for (const part of YAK_FUR_PARTS) mutate(part, ids => ids.forEach(i => { actor.data.vertices[i].position[0] += 1; }), () => checkYakFurAttachments(actor));
   mutate('NoseMirror', ids => ids.forEach(i => { actor.data.vertices[i].position[2] += .12; }), () => nose(actor));
+  mutate('LeftEye', ids => {
+    const center = ids.reduce((p, i) => p.add(new Vector3(...actor.data.vertices[i].position)), new Vector3()).multiplyScalar(1 / ids.length);
+    ids.forEach(i => actor.data.vertices[i].position = new Vector3(...actor.data.vertices[i].position).sub(center).multiplyScalar(.45).add(center).toArray() as [number, number, number]);
+  }, () => eyes(actor));
   mutate('Body', ids => { for (const i of ids) if (actor.data.vertices[i].position[1] < .58) actor.data.vertices[i].position[1] = .59; }, () => mantle(actor));
   mutate('Body', ids => { actor.data.vertices[ids[0]].weight = [yakBone('Head'), yakBone('Head'), 1]; }, () => mantle(actor));
   const faceIndex = actor.data.triangles.findIndex(f => f.part === 'ChestFur'), removed = actor.data.triangles.splice(faceIndex, 1)[0];
@@ -158,5 +183,5 @@ export function checkYakAnatomy(actor: MountActor) {
     const bone = actor.bones[yakBone(name)], z = bone.position.z; bone.position.z += dz; actor.bones[0].updateMatrixWorld(true);
     assert.throws(() => legs(actor)); bone.position.z = z; actor.bones[0].updateMatrixWorld(true); faults++;
   }
-  return { body, head, neck, chest, tail, horns: hornReport, splitHooves: 8, hoofGaps, legs: legReport, attachments, noseContact, faults };
+  return { body, head, neck, chest, tail, horns: hornReport, splitHooves: 8, hoofGaps, legs: legReport, attachments, noseContact, eyeReadability, faults };
 }

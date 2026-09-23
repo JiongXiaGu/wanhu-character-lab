@@ -3,8 +3,8 @@ import { HorseMeshBuilder, type Section } from '../horse/geometry/builder';
 import type { HorseWeight, Point3 } from '../horse/types';
 import { weight } from './rig';
 
-export const YAK_MESH_VERSION = 'wanhu-yak-mesh-m7-v1';
-const COAT = '#3e3934', BACK = '#494139', SHADE = '#302e2b', NOSE = '#5a534c', HOOF = '#645b4e';
+export const YAK_MESH_VERSION = 'wanhu-yak-mesh-m7-v2';
+const COAT = '#3e3934', BACK = '#494139', SHADE = '#302e2b', NOSE = '#5a534c', HOOF = '#645b4e', EYE_ZONE = '#514a43', EYE = '#160f0b';
 /** Body自身包含肩峰和左右长毛下摆；这些额外小壳只是胸毛、额毛、面侧毛与蓬尾。 */
 export const YAK_FUR_PARTS = ['ChestFur', 'Forelock', 'LeftCheekFur', 'RightCheekFur', 'TailPlume'] as const;
 
@@ -106,9 +106,9 @@ export function buildYakMesh() {
   ], 12, NOSE);
   b.loft('Forelock', [
     { p: [0, 1.36, 1.10], width: .21, depth: .085, skin: weight('Head') },
-    { p: [0, 1.30, 1.22], width: .245, depth: .095, skin: weight('Head', 'Forelock', .65) },
-    { p: [0, 1.18, 1.31], width: .18, depth: .07, skin: weight('Head', 'Forelock', .35) },
-    { p: [0, 1.145, 1.32], width: .12, depth: .018, skin: weight('Forelock') },
+    { p: [0, 1.30, 1.22], width: .225, depth: .09, skin: weight('Head', 'Forelock', .65) },
+    { p: [0, 1.18, 1.31], width: .165, depth: .065, skin: weight('Head', 'Forelock', .35) },
+    { p: [0, 1.145, 1.32], width: .105, depth: .018, skin: weight('Forelock') },
   ], 10, SHADE);
   for (const sign of [-1, 1]) {
     const side = sign < 0 ? 'Left' : 'Right';
@@ -126,12 +126,13 @@ export function buildYakMesh() {
       { p: [sign * .40, 1.21, 1.17], u: .009, v: .015 },
     ], weight(`${side}Ear`), '#51483e');
     b.loft(`${side}CheekFur`, [
-      { p: [sign * .20, 1.28, 1.11], width: .065, depth: .085, skin: weight('Head') },
-      { p: [sign * .25, 1.17, 1.16], width: .09, depth: .12, skin: weight('Head') },
-      { p: [sign * .27, 1.02, 1.235], width: .055, depth: .065, skin: weight('Head') },
-      { p: [sign * .255, .98, 1.255], width: .016, depth: .021, skin: weight('Head') },
+      { p: [sign * .205, 1.285, 1.105], width: .055, depth: .07, skin: weight('Head'), color: EYE_ZONE },
+      { p: [sign * .255, 1.145, 1.15], width: .078, depth: .10, skin: weight('Head'), color: EYE_ZONE },
+      { p: [sign * .272, 1.015, 1.23], width: .052, depth: .06, skin: weight('Head') },
+      { p: [sign * .255, .975, 1.255], width: .016, depth: .021, skin: weight('Head') },
     ], 8, COAT);
-    detail(b, `${side}Eye`, 'Head', [sign * .23, 1.24, 1.24], [.016, .018, .014], '#111712');
+    // M7补丁：更大的短椭圆豆豆眼略下移、前移；眼旁上缘毛面稍亮并让出稳定可读窗口，不使用白眼球。
+    detail(b, `${side}Eye`, 'Head', [sign * .245, 1.205, 1.285], [.029, .029, .023], EYE);
     detail(b, `${side}Nostril`, 'NoseMirror', [sign * .13, .88, 1.604], [.016, .010, .007], '#202721');
     for (const front of [true, false]) {
       const name = `${front ? 'Front' : 'Back'}${side}`, x = sign * (front ? .38 : .37);
