@@ -175,7 +175,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     }catch(error){errorRef.current(String(error));}
   },[options.recipe,options.motion,options.restart]);
   useEffect(()=>{const r=runtime.current;if(r&&!options.playing)seek(r,options.phase);},[options.phase]);
-  useEffect(()=>{const r=runtime.current;if(r?.mixamo){r.motion.setLoop(options.loop);playbackRef.current(playback(r));}},[options.loop]);
+  useEffect(()=>{const r=runtime.current;if(r?.motion){r.motion.setLoop(options.loop);playbackRef.current(playback(r));}},[options.loop]);
   useEffect(()=>{const r=runtime.current;if(r){applyCamera(r,options);r.resize();}},[options.view,options.viewRevision,options.orthographic,options.motion,options.compareSource]);
   useEffect(()=>{const r=runtime.current;if(r)applyDisplay(r,options);},[options.display,options.skeleton,options.grid,options.headAxes]);
   return <div ref={host} className="character-viewport" data-testid="viewport"/>;
