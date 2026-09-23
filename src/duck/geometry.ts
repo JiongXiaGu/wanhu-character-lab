@@ -46,7 +46,7 @@ export function buildDuckMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
     }
     data.parts.push({ name, start, count: points.length });
   }
-  const r = (z: number  const r = (z: number, y: number, rx: number, ry: number, sides: number, bone = B.Body as number, color = feather): Ring => ({ z, y, rx, ry, sides, bone, color });
+  const r = (z: number, y: number, rx: number, ry: number, sides: number, bone = B.Body as number, color = feather): Ring => ({ z, y, rx, ry, sides, bone, color });
   if (lod === 'lod0') tube([
     r(-.235,.233,.064,.061,6), r(-.125,.219,.169,.112,8), r(.045,.233,.153,.118,8),
     r(.123,.275,.079,.066,6,B.Body,chest), r(.178,.366,.044,.044,6,B.Neck,chest),
