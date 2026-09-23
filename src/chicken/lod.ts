@@ -2,67 +2,99 @@ import { Vector3 } from 'three';
 import type { AnimalMeshData, Point } from '../livestock/types';
 import { CHICKEN_BONES as B } from './rig';
 
-export const CHICKEN_LOD1_VERSION = 'wanhu-chicken-mesh-lod1-v1';
-export const CHICKEN_LOD2_VERSION = 'wanhu-chicken-mesh-lod2-v1';
-const TETRA = [[0, 1, 2], [0, 3, 1], [1, 3, 2], [2, 3, 0]];
-const OCTA = [[0, 2, 4], [2, 1, 4], [1, 3, 4], [3, 0, 4], [2, 0, 5], [1, 2, 5], [3, 1, 5], [0, 3, 5]];
+export const CHICKEN_LOD1_VERSION = 'wanhu-chicken-mesh-lod1-v2';
+export const CHICKEN_LOD2_VERSION = 'wanhu-chicken-mesh-lod2-v2';
 
-/** LOD1/2是独立闭合作者壳，不由运行时删三角形。两档继续使用8骨语义，但允许省略远处不可读部件。 */
-function builder(version: string) {
-  const data: AnimalMeshData = { positions: [], indices: [], bones: [], colors: [], parts: [], version };
-  function part(name: string, points: Point[], faces: number[][], bone: number, color: string) {
-    const start = data.positions.length, center = new Vector3();
-    for (const p of points) center.add(new Vector3(...p));
-    center.multiplyScalar(1 / points.length);
-    data.positions.push(...points); data.bones.push(...points.map(() => bone)); data.colors.push(...points.map(() => color));
-    for (const face of faces) for (let k = 1; k < face.length - 1; k++) {
-      const ids = [face[0], face[k], face[k + 1]], a = new Vector3(...points[ids[0]]), b = new Vector3(...points[ids[1]]), c = new Vector3(...points[ids[2]]);
-      const outward = a.clone().add(b).add(c).multiplyScalar(1 / 3).sub(center);
-      if (b.clone().sub(a).cross(c.clone().sub(a)).dot(outward) < 0) [ids[1], ids[2]] = [ids[2], ids[1]];
-      data.indices.push(...ids.map(i => i + start));
-    }
+/** 低档优先保留连接关系。尾、身、颈、头、喙是一张共用逻辑顶点的闭合表面。
+ * 各截面仍为单骨刚性权重，跨截面的面承担过渡；不是几个会脱开的独立闭合小块。
+ * 不重写LOD0、不改8骨绑定/动作，不在播放时补洞或重新建模。 */
+function buildConnectedChicken(coarse: boolean): AnimalMeshData {
+  const data: AnimalMeshData = {
+    positions: [], indices: [], bones: [], colors: [], parts: [],
+    version: coarse ? CHICKEN_LOD2_VERSION : CHICKEN_LOD1_VERSION,
+  };
+  function vertices(name: string, points: Point[], bone: number, color: string): number[] {
+    const start = data.positions.length;
+    data.positions.push(...points);
+    data.bones.push(...points.map(() => bone));
+    data.colors.push(...points.map(() => color));
     data.parts.push({ name, start, count: points.length });
+    return points.map((_, i) => start + i);
   }
-  function octa(name: string, c: Point, r: Point, bone: number, color: string) {
-    const [x, y, z] = c, [rx, ry, rz] = r;
-    part(name, [[x-rx,y,z],[x+rx,y,z],[x,y-ry,z],[x,y+ry,z],[x,y,z+rz],[x,y,z-rz]], OCTA, bone, color);
+  function ring(name: string, sides: number, y: number, z: number, rx: number, ry: number, bone: number, color: string, dy = 1, dz = 0): number[] {
+    return vertices(name, Array.from({ length: sides }, (_, i) => {
+      const angle = Math.PI / 2 + i * Math.PI * 2 / sides;
+      return [Math.cos(angle) * rx, y + Math.sin(angle) * ry * dy, z + Math.sin(angle) * ry * dz] as Point;
+    }), bone, color);
   }
-  function tetra(name: string, points: Point[], bone: number, color: string) { part(name, points, TETRA, bone, color); }
-  function triPrism(name: string, x: number, y0: number, y1: number, bone: number, color: string) {
-    const points: Point[] = [[x-.013,y0,-.012],[x+.013,y0,-.012],[x,y0,.014],[x-.011,y1,-.006],[x+.011,y1,-.006],[x,y1,.012]];
-    part(name, points, [[0,2,1],[3,4,5],[0,1,4,3],[1,2,5,4],[2,0,3,5]], bone, color);
+  /** 连接不同边数的同向截面；只使用已有顶点，不能在颈两端复制出裂缝。 */
+  function join(a: number[], b: number[]) {
+    let i = 0, j = 0;
+    while (i < a.length || j < b.length) {
+      const ai = a[i % a.length], bj = b[j % b.length];
+      const nextA = (i + 1) * b.length, nextB = (j + 1) * a.length;
+      if (nextA === nextB) {
+        const an = a[(i + 1) % a.length], bn = b[(j + 1) % b.length];
+        data.indices.push(ai, an, bn, ai, bn, bj); i++; j++;
+      } else if (nextA < nextB) {
+        data.indices.push(ai, a[(i + 1) % a.length], bj); i++;
+      } else {
+        data.indices.push(ai, b[(j + 1) % b.length], bj); j++;
+      }
+    }
   }
-  return { data, part, octa, tetra, triPrism };
+  function tetra(name: string, points: Point[], bone: number, color: string) {
+    const ids = vertices(name, points, bone, color);
+    const center = points.reduce((sum, p) => sum.add(new Vector3(...p)), new Vector3()).multiplyScalar(.25);
+    for (const face of [[0, 1, 2], [0, 3, 1], [1, 3, 2], [2, 3, 0]]) {
+      const [a, b, c] = face.map(i => new Vector3(...points[i]));
+      const normal = b.clone().sub(a).cross(c.clone().sub(a));
+      if (normal.dot(a.clone().sub(center)) < 0) [face[1], face[2]] = [face[2], face[1]];
+      data.indices.push(...face.map(i => ids[i]));
+    }
+  }
+
+  const tail = vertices('Tail', [[0, .374, -.315]], B.Body, '#424d44')[0];
+  const sections = coarse ? [
+    ring('Body', 4, .261, -.050, .122, .117, B.Body, '#aa6b39'),
+    ring('Neck', 3, .332, .156, .052, .049, B.Neck, '#c18a4f', .65, -.76),
+    ring('Head', 3, .445, .235, .049, .041, B.Head, '#dba564'),
+  ] : [
+    ring('Rump', 4, .253, -.170, .057, .063, B.Body, '#805c3c'),
+    ring('Body', 4, .258, -.065, .126, .118, B.Body, '#aa6b39'),
+    ring('Chest', 4, .295, .115, .080, .083, B.Body, '#aa6b39'),
+    ring('Neck', 3, .359, .173, .039, .040, B.Neck, '#c18a4f', .65, -.76),
+    ring('Head', 3, .446, .238, .050, .044, B.Head, '#dba564'),
+  ];
+  // 喙直接收成头壳前端，不再叠一个独立尖块。
+  const beak = vertices('Beak', [[0, .434, .328]], B.Head, '#dfaf50')[0];
+  const first = sections[0], last = sections[sections.length - 1];
+  for (let i = 0; i < first.length; i++) data.indices.push(tail, first[(i + 1) % first.length], first[i]);
+  for (let i = 1; i < sections.length; i++) join(sections[i - 1], sections[i]);
+  for (let i = 0; i < last.length; i++) data.indices.push(last[i], last[(i + 1) % last.length], beak);
+
+  for (const side of [-1, 1]) {
+    const x = side * .063, bone = side < 0 ? B.LegL : B.LegR, suffix = side < 0 ? 'L' : 'R';
+    const bottom: Point[] = [[x - .014, .008, .024], [x + .014, .008, .024], [x, .008, -.016]];
+    if (coarse) {
+      tetra('Leg' + suffix, [...bottom, [x, .193, 0]], bone, '#c3954e');
+    } else {
+      // 窄三棱柱同时给出腿与最低限度的落地轮廓，不增加脚趾壳。
+      const lower = vertices('Foot' + suffix, bottom, bone, '#c3954e');
+      const upper = vertices('Leg' + suffix, [[x - .011, .186, .007], [x + .011, .186, .007], [x, .186, -.010]], bone, '#c3954e');
+      data.indices.push(lower[0], lower[2], lower[1]);
+      join(lower, upper);
+      data.indices.push(upper[0], upper[1], upper[2]);
+    }
+  }
+  if (!coarse) {
+    // 仅剩一个小鸡冠；LOD1已删除眼睛、肉垂和翅膀小壳，LOD2连鸡冠也删除。
+    tetra('Comb', [[-.008, .468, .230], [.008, .468, .230], [0, .468, .268], [0, .510, .241]], B.Head, '#b94334');
+  }
+  return data;
 }
 
-export function buildChickenLod1Mesh(): AnimalMeshData {
-  const b = builder(CHICKEN_LOD1_VERSION);
-  b.octa('Body', [0,.275,-.015], [.142,.132,.230], B.Body, '#aa6b39');
-  b.octa('Head', [0,.448,.225], [.054,.056,.055], B.Head, '#dba564');
-  b.tetra('Beak', [[0,.434,.333],[-.027,.451,.263],[.027,.451,.263],[0,.418,.268]], B.Head, '#dfaf50');
-  b.tetra('Comb', [[-.010,.480,.215],[.010,.480,.215],[0,.531,.226],[0,.482,.260]], B.Head, '#b94334');
-  b.tetra('Wattle', [[-.013,.425,.255],[.013,.425,.255],[0,.389,.260],[0,.421,.278]], B.Head, '#a53d32');
-  b.tetra('Tail', [[-.040,.285,-.165],[.040,.285,-.165],[0,.395,-.330],[0,.235,-.300]], B.Body, '#424d44');
-  for (const side of [-1, 1]) {
-    const suffix = side < 0 ? 'L' : 'R', leg = side < 0 ? B.LegL : B.LegR, wing = side < 0 ? B.WingL : B.WingR, x = side * .063;
-    b.tetra('Wing'+suffix, [[side*.105,.310,.090],[side*.137,.236,.010],[side*.094,.235,-.135],[side*.098,.315,-.050]], wing, '#754c32');
-    b.triPrism('Leg'+suffix, x, .028, .184, leg, '#c3954e');
-    b.tetra('Foot'+suffix, [[x-.020,.026,.015],[x+.020,.026,.015],[x,.025,.105],[x,.010,-.045]], leg, '#c3954e');
-    b.tetra('Eye'+suffix, [[side*.034,.455,.236],[side*.034,.441,.236],[side*.034,.448,.251],[side*.041,.448,.240]], B.Head, '#292922');
-  }
-  return b.data;
-}
-
-export function buildChickenLod2Mesh(): AnimalMeshData {
-  const b = builder(CHICKEN_LOD2_VERSION);
-  b.octa('Body', [0,.270,-.020], [.145,.135,.235], B.Body, '#a96a39');
-  b.octa('Head', [0,.447,.226], [.056,.058,.058], B.Head, '#d9a05f');
-  b.tetra('Beak', [[0,.432,.336],[-.030,.452,.261],[.030,.452,.261],[0,.415,.267]], B.Head, '#dfaf50');
-  b.tetra('Comb', [[-.012,.478,.212],[.012,.478,.212],[0,.535,.226],[0,.481,.264]], B.Head, '#b94334');
-  b.tetra('Tail', [[-.043,.285,-.165],[.043,.285,-.165],[0,.400,-.340],[0,.230,-.305]], B.Body, '#424d44');
-  for (const side of [-1, 1]) {
-    const x = side * .063, leg = side < 0 ? B.LegL : B.LegR, suffix = side < 0 ? 'L' : 'R';
-    b.tetra('Leg'+suffix, [[x-.015,.030,.010],[x+.015,.030,.010],[x,.190,.000],[x,.025,-.065]], leg, '#c3954e');
-  }
-  return b.data;
-}
+/** 56 tris / 36逻辑点：连续主壳36面、两腿16面、小鸡冠4面。 */
+export function buildChickenLod1Mesh(): AnimalMeshData { return buildConnectedChicken(false); }
+/** 28 tris / 20逻辑点：连续主壳20面、两腿8面；没有独立头部细节。 */
+export function buildChickenLod2Mesh(): AnimalMeshData { return buildConnectedChicken(true); }
