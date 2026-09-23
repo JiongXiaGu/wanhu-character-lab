@@ -1,5 +1,7 @@
 name: Manual Visual Review
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       scope:
@@ -13,6 +15,7 @@ on:
           - lightwear
           - skirts
           - motion
+          - system-animator
           - horse
           - livestock
           - all
@@ -28,6 +31,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   review:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[visual-system-animator]')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
@@ -50,8 +54,8 @@ jobs:
       - name: Generate requested visual evidence
         shell: bash
         env:
-          SCOPE: ${{ inputs.scope }}
-          FULL: ${{ inputs.full }}
+          SCOPE: ${{ github.event_name == 'workflow_dispatch' && inputs.scope || 'system-animator' }}
+          FULL: ${{ github.event_name == 'workflow_dispatch' && inputs.full || false }}
         run: |
           set -euo pipefail
           : > manual-visual-review.log
@@ -63,13 +67,15 @@ jobs:
             echo "=== visual scope: $scope ===" | tee -a manual-visual-review.log
             if [[ "$scope" == livestock ]]; then
               npm run review:livestock 2>&1 | tee -a manual-visual-review.log
+            elif [[ "$scope" == system-animator ]]; then
+              npm run review:system-animator 2>&1 | tee -a manual-visual-review.log
             else
               npm run review:local -- "--$scope" "${extra[@]}" 2>&1 | tee -a manual-visual-review.log
             fi
           }
 
           case "$SCOPE" in
-            character|wardrobe|lightwear|skirts|motion|horse|livestock)
+            character|wardrobe|lightwear|skirts|motion|system-animator|horse|livestock)
               run_scope "$SCOPE"
               ;;
             all)
@@ -100,6 +106,7 @@ jobs:
           path: |
             review/
             review-motion/
+            review-system-animator/
             review-deformation/
             review-wardrobe-batch/
             manual-visual-review.log
