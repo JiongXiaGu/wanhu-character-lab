@@ -4,7 +4,7 @@
     "dev": "vite", "build": "tsc --noEmit && vite build", "preview": "vite preview",
     "check:mesh": "npm run check:core && npm run check:wardrobe-numeric", "check:visual": "node scripts/review-v3.mjs",
     "prepare:mixamo": "tsx scripts/prepare-mixamo.ts", "prepare:system-animator": "tsx scripts/prepare-system-animator.ts", "prepare:motion": "npm run prepare:mixamo && npm run prepare:system-animator", "predev": "npm run prepare:motion", "prebuild": "npm run prepare:motion",
-    "check:mixamo": "tsx scripts/check-mixamo.ts && tsx scripts/check-mixamo-clock.ts && tsx scripts/check-head-calibration.ts", "check:system-animator": "tsx scripts/check-system-animator.ts", "review:motion": "tsx scripts/review-motion.ts",
+    "check:mixamo": "tsx scripts/check-mixamo.ts && tsx scripts/check-mixamo-clock.ts && tsx scripts/check-head-calibration.ts", "check:system-animator": "tsx scripts/check-system-animator.ts", "review:motion": "tsx scripts/review-motion.ts", "review:system-animator": "tsx scripts/review-system-animator.ts",
     "check:retired": "tsx scripts/check-motion-runtime.ts && npm run check:fixed",
     "check:wardrobe": "tsx scripts/check-wardrobe.ts && tsx scripts/check-skirts.ts --motion", "review:wardrobe": "tsx scripts/review-wardrobe.ts && tsx scripts/review-fixed-v5.ts",
     "check:tailoring": "tsx scripts/check-tailoring-v2.ts && tsx scripts/check-tailoring-intersections.ts", "review:tailoring": "tsx scripts/review-tailoring-v2.ts", "check:intersections": "tsx scripts/check-tailoring-intersections.ts",
