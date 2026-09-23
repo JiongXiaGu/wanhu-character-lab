@@ -37,8 +37,10 @@ for(const [id,pattern] of Object.entries({...TOP_PATTERNS,...BOTTOM_PATTERNS})){
 assert.deepEqual(Object.keys(BODY_HEIGHT).sort(),['female','male']);
 function files(path:string):string[]{return readdirSync(path,{withFileTypes:true}).flatMap(e=>e.isDirectory()?files(join(path,e.name)):[join(path,e.name)]);}
 for(const path of files('src')){
- const code=readFileSync(path,'utf8');
- assert(!/\b(?:recipe|input|options)\.(?:height|build|lod|palette)\b|WardrobeLod|cleanRecipe|defaultHeight/.test(code),path+': retired runtime contract remains');
+ const code=readFileSync(path,'utf8'), normalized=path.replaceAll('\\\\','/');
+ // height/build/lod/palette 是人物Recipe退役字段；家畜拥有独立的合法 options.lod，不应被人物协议扫描误伤。
+ if(!normalized.startsWith('src/livestock/')&&!normalized.startsWith('src/chicken/'))
+  assert(!/\b(?:recipe|input|options)\.(?:height|build|lod|palette)\b|WardrobeLod|cleanRecipe|defaultHeight/.test(code),path+': retired runtime contract remains');
  assert(!/wanhu\.character\.wardrobe\.v[1-4]\b/.test(code),path+': legacy wardrobe storage key remains');
 }
 // 旧实现只找 params.get，而 App 实际使用 qs.get，不能证明旧入口已删除。
