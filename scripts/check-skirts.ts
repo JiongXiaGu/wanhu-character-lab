@@ -11,7 +11,7 @@ import {B,BODY_TYPES,createRecipe,emptySlots,type Recipe} from '../src/character
 import {cloneCage,triCount} from '../src/character/v3/cage';
 import {parseRecipeFile} from '../src/character/wardrobe/catalog';
 import {MIXAMO_CLIPS} from '../src/character/mixamo/catalog';
-import {retargetMixamo} from '../src/character/mixamo/retarget';
+import {retargetMotion} from '../src/character/motion/retarget';
 import {assertGarmentPiece} from './check-garment-assets';
 
 const colors={primary:'#fa1945',secondary:'#12cee7',accent:'#ffda16'};
@@ -80,7 +80,7 @@ const motion=process.argv.includes('--motion');
 if(motion)for(const def of MIXAMO_CLIPS){
   const source=JSON.parse(readFileSync(`public/mixamo/${def.id}.json`,'utf8'));
   for(const recipe of mixes){
-    const data=makeCharacter(recipe),actor=makeActor(data),bake=retargetMixamo(data,source),geometry=actor.mesh.geometry;
+    const data=makeCharacter(recipe),actor=makeActor(data),bake=retargetMotion(data,source),geometry=actor.mesh.geometry;
     const action=actor.mixer.clipAction(bake.clip);action.setLoop(T.LoopOnce,1).play();action.paused=true;action.clampWhenFinished=true;
     for(const phase of [0,.125,.25,.375,.5,.625,.75,.875,1]){
       action.time=source.duration*phase;actor.update(0);sampledFrames++;assert.equal(actor.mesh.geometry,geometry);

@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import * as T from 'three';
 import { MIXAMO_CLIPS } from '../src/character/mixamo/catalog';
-import { RETARGET_VERSION, type MixamoMotionData } from '../src/character/mixamo/data';
-import { calibration, retargetMixamo, exportTargetMotion } from '../src/character/mixamo/retarget';
+import {RETARGET_VERSION,type HumanoidMotionData} from '../src/character/motion/data';
+import {calibration,retargetMotion,exportTargetMotion} from '../src/character/motion/retarget';
 import { makeActor } from '../src/character/v3/rig';
 import { makeCharacter } from '../src/character/v3/outfit';
 import { DEFAULT_RECIPE, BODY_TYPES, emptySlots } from '../src/character/v3/types';
@@ -11,7 +11,7 @@ import { DEFAULT_RECIPE, BODY_TYPES, emptySlots } from '../src/character/v3/type
 const degrees=180/Math.PI, records:unknown[]=[];
 let frames=0,worstHeadError=0;
 for(const def of MIXAMO_CLIPS){
-  const source=JSON.parse(readFileSync(`public/mixamo/${def.id}.json`,'utf8')) as MixamoMotionData;
+  const source=JSON.parse(readFileSync(`public/mixamo/${def.id}.json`,'utf8')) as HumanoidMotionData;
   const headTip=new T.Vector3().fromArray(source.bindPositions,60).sub(new T.Vector3().fromArray(source.bindPositions,15)).normalize();
   const oldCorrection=new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),headTip);
   const oldBias=oldCorrection.angleTo(new T.Quaternion())*degrees;
@@ -21,7 +21,7 @@ for(const def of MIXAMO_CLIPS){
   for(const bodyType of BODY_TYPES)
   {
     const data=makeCharacter({...DEFAULT_RECIPE,bodyType,slots:emptySlots()});
-    const saved=JSON.stringify(data),actor=makeActor(data),bake=retargetMixamo(data,source);
+    const saved=JSON.stringify(data),actor=makeActor(data),bake=retargetMotion(data,source);
     assert(calibration(data.joints,source)[5].angleTo(new T.Quaternion())<1e-10);
     const action=actor.mixer.clipAction(bake.clip).setLoop(T.LoopOnce,1).play();action.paused=true;action.clampWhenFinished=true;
     for(let frame=0;frame<source.times.length;frame++){
@@ -40,7 +40,7 @@ for(const def of MIXAMO_CLIPS){
     assert.equal(output.skeletonVersion,'wanhu-20-v1');assert.equal(JSON.stringify(data),saved,'calibration mutated geometry/bind/DIY');
     // 只挪动头顶辅助点不得重新改变头部朝向；它仍可以用于源骨架显示。
     const perturbed=structuredClone(source);perturbed.bindPositions[62]+=.2;
-    assert.deepEqual(retargetMixamo(data,perturbed).rotations[5],bake.rotations[5]);
+    assert.deepEqual(retargetMotion(data,perturbed).rotations[5],bake.rotations[5]);
     actor.dispose();
   }
   if(def.id==='shooting-arrow')assert(maxPitch-minPitch>30,'真实搭箭低头被错误抹平');
@@ -50,5 +50,5 @@ for(const def of MIXAMO_CLIPS){
 const actor=makeActor(makeCharacter(DEFAULT_RECIPE));
 actor.update(10);assert.deepEqual(actor.bones[5].quaternion.toArray(),[0,0,0,1]);actor.resetBindPose();actor.dispose();
 const report={retargetVersion:RETARGET_VERSION,clips:MIXAMO_CLIPS.length,bodyTypes:2,profilesPerBodyType:1,sampledFrames:frames,worstHeadQuaternionErrorDegrees:worstHeadError,records};
-mkdirSync('review-mixamo',{recursive:true});writeFileSync('review-mixamo/head-calibration.json',JSON.stringify(report,null,2));
+mkdirSync('review-motion',{recursive:true});writeFileSync('review-motion/head-calibration.json',JSON.stringify(report,null,2));
 console.log('PASS head calibration: '+JSON.stringify(report));

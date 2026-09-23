@@ -9,8 +9,8 @@ import {triCount} from '../src/character/v3/cage';
 import {WARDROBE_LOOKS,applyLook} from '../src/character/wardrobe/catalog';
 import {GARMENT_GEOMETRY_VERSION} from '../src/character/wardrobe/assembly';
 import {MIXAMO_CLIPS} from '../src/character/mixamo/catalog';
-import {retargetMixamo} from '../src/character/mixamo/retarget';
-import type {MixamoMotionData} from '../src/character/mixamo/data';
+import {retargetMotion} from '../src/character/motion/retarget';
+import type {HumanoidMotionData} from '../src/character/motion/data';
 import {scanMotionFiles} from './lib/register-mixamo';
 import {assertModularAssets} from './check-garment-assets';
 import {assertComponentWinding} from './check-components';
@@ -34,9 +34,9 @@ for(const look of WARDROBE_LOOKS)for(const bodyType of BODY_TYPES){
  assert(counts.length===1 && counts[0]<1000,'标准衣面精度预算');rows.push({look:look.id,bodyType,triangles:counts[0]});
 }
 const priority=[...new Set(['pilot-switches','shooting-arrow','jogging',...MIXAMO_CLIPS.filter(c=>c.category==='劳动').slice(0,3).map(c=>c.id)])];
-for(const id of priority){const source=JSON.parse(readFileSync(`public/mixamo/${id}.json`,'utf8'))as MixamoMotionData;
+for(const id of priority){const source=JSON.parse(readFileSync(`public/mixamo/${id}.json`,'utf8'))as HumanoidMotionData;
  for(const bodyType of BODY_TYPES)for(const look of ['plain-female','town-female','ceremony-female','lightwork-male','lightwork-female']){
-  const recipe=applyLook(createRecipe({bodyType}),look),d=makeCharacter(recipe),actor=makeActor(d),bake=retargetMixamo(d,source),g=actor.mesh.geometry;
+  const recipe=applyLook(createRecipe({bodyType}),look),d=makeCharacter(recipe),actor=makeActor(d),bake=retargetMotion(d,source),g=actor.mesh.geometry;
   const action=actor.mixer.clipAction(bake.clip);action.setLoop(T.LoopOnce,1).play();action.paused=true;action.clampWhenFinished=true;
   for(let frame=0;frame<source.times.length;frame++){action.time=source.times[frame];actor.update(0);frames++;const v=new T.Vector3();for(let i=0;i<g.attributes.position.count;i++){actor.mesh.getVertexPosition(i,v);if(!v.toArray().every(Number.isFinite)||v.length()>8)failures.push(`${id}/${bodyType}/${look}/${frame}: invalid vertex`);vertices++;}}
   actor.mixer.uncacheClip(bake.clip);actor.dispose();

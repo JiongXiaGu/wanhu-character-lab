@@ -12,7 +12,7 @@ on:
           - wardrobe
           - lightwear
           - skirts
-          - mixamo
+          - motion
           - horse
           - livestock
           - all
@@ -69,11 +69,11 @@ jobs:
           }
 
           case "$SCOPE" in
-            character|wardrobe|lightwear|skirts|mixamo|horse|livestock)
+            character|wardrobe|lightwear|skirts|motion|horse|livestock)
               run_scope "$SCOPE"
               ;;
             all)
-              for scope in character wardrobe lightwear skirts mixamo horse livestock; do
+              for scope in character wardrobe lightwear skirts motion horse livestock; do
                 run_scope "$scope"
               done
               ;;
@@ -99,7 +99,7 @@ jobs:
           name: manual-visual-${{ inputs.scope }}-${{ github.sha }}
           path: |
             review/
-            review-mixamo/
+            review-motion/
             review-deformation/
             review-wardrobe-batch/
             manual-visual-review.log

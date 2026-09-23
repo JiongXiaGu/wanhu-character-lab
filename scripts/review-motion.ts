@@ -2,12 +2,11 @@ import {readFileSync} from 'node:fs';
 import { chromium } from 'playwright';
 import { mkdir, writeFile, stat } from 'node:fs/promises';
 import assert from 'node:assert/strict';
-import { MIXAMO_CLIPS } from '../src/character/mixamo/catalog';
+import {MOTION_CLIPS,motionAssetDirectory} from '../src/character/motion/catalog';
 
-const REVIEW_IDS:string[] = JSON.parse(readFileSync('public/mixamo/inventory.json','utf8')).clips.map((c:{id:string})=>c.id);
-assert.deepEqual([...REVIEW_IDS].sort(), MIXAMO_CLIPS.map(c=>c.id).sort());
+const REVIEW_IDS:string[]=MOTION_CLIPS.map(c=>c.id);
 const BODY_TYPES=['male','female'];let activeBodyType='male';
-const directory='review-mixamo'; await mkdir(directory,{recursive:true});
+const directory='review-motion'; await mkdir(directory,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--use-angle=swiftshader','--enable-webgl']});
 const videos:string[]=[],playbackChecks:string[]=[]; let failure='';
 const errors:string[]=[], records:{file:string;bodyType:string;id:string;view:string;phase:number}[]=[];
@@ -17,8 +16,8 @@ page.on('pageerror',e=>errors.push(e.message));
 page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
 const base=process.env.REVIEW_URL??'http://127.0.0.1:4173';
 async function open(id:string,extra:Record<string,string>={}){
-  const query=new URLSearchParams({review:'1',paused:'1',mixamo:id,preset:'farmer',bodyType:activeBodyType,...extra});
-  await page.goto(`${base}/?${query}`);await page.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
+  const query=new URLSearchParams({review:'1',paused:'1',motion:id,preset:'farmer',bodyType:activeBodyType,...extra});
+  await page.goto(`${base}/?${query}`);await page.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().motion?.ready);
   assert(await page.getByRole('checkbox',{name:'人物动画循环播放',exact:true}).isChecked(),'人物动画默认应循环播放');
   assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('[role="alert"]').count(),0);
 }
@@ -48,8 +47,8 @@ try{
     const videoPage=await videoContext.newPage();
     try{
       videoPage.on('pageerror',e=>errors.push(e.message));
-      await videoPage.goto(`${base}/?review=1&paused=1&bodyType=${activeBodyType}&mixamo=${id}&compare=1&view=side&preset=archer&headwear=none&leftHand=none&headAxes=1`);
-      await videoPage.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
+      await videoPage.goto(`${base}/?review=1&paused=1&bodyType=${activeBodyType}&motion=${id}&compare=1&view=side&preset=archer&headwear=none&leftHand=none&headAxes=1`);
+      await videoPage.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().motion?.ready);
       assert(await videoPage.getByRole('checkbox',{name:'人物动画循环播放',exact:true}).isChecked(),'人物动画默认循环未启用');
       if(id==='shooting-arrow')await videoPage.getByRole('checkbox',{name:'人物动画循环播放',exact:true}).uncheck();
       await videoPage.getByRole('button',{name:'播放',exact:true}).click();
@@ -66,7 +65,7 @@ try{
   await page.evaluate(()=>window.__WANHU_REVIEW__!.seek(.45));
   for(const bottom of ['work_wrap','long_skirt']){
     await page.getByLabel('下装',{exact:true}).selectOption(bottom);
-    await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
+    await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().motion?.ready);
     assert.equal(await page.getByLabel('头饰',{exact:true}).inputValue(),'farmer_straw_hat');
     assert(Math.abs((await page.evaluate(()=>window.__WANHU_REVIEW__!.getStatus().phase))-.45)<1e-6);
     await shot('shooting-arrow',`diy-${bottom}`, .45);
@@ -74,18 +73,18 @@ try{
   const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'导出目标骨架动画 JSON',exact:true}).click()]);
   await download.saveAs(`${directory}/reviewed-target-motion.json`);
   const geometryId=await page.evaluate(()=>window.__WANHU_REVIEW__!.geometryId());
-  await page.getByTestId('mixamo-hip-hop').click();await page.getByTestId('mixamo-jogging').click();
-  await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.id==='jogging');
+  await page.getByTestId('motion-hip-hop').click();await page.getByTestId('motion-jogging').click();
+  await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().motion?.id==='jogging');
   assert.equal(await page.evaluate(()=>window.__WANHU_REVIEW__!.geometryId()),geometryId,'switching FBX rebuilt the mesh');
   await page.getByRole('button',{name:'绑定姿态（静态）',exact:true}).click();await page.waitForTimeout(300);
   assert(!(await page.evaluate(()=>window.__WANHU_REVIEW__!.getStatus())).mixamo);
   const failContext=await browser.newContext();const failPage=await failContext.newPage();
   await failPage.route('**/mixamo/jogging.json',route=>route.fulfill({status:404,body:'missing'}));
-  await failPage.goto(`${base}/?mixamo=jogging&review=1`);
+  await failPage.goto(`${base}/?motion=jogging&review=1`);
   await failPage.waitForFunction(()=>!!window.__WANHU_REVIEW__?.getStatus().loadError);
   await failPage.unroute('**/mixamo/jogging.json');
   await failPage.getByRole('button',{name:'重试加载',exact:true}).click();
-  await failPage.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.id==='jogging');
+  await failPage.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().motion?.id==='jogging');
   await failPage.getByRole('button',{name:'绑定姿态（静态）',exact:true}).click();await failPage.waitForTimeout(200);
   assert.equal(await failPage.locator('canvas').count(),1);await failContext.close();
   for(const bodyType of BODY_TYPES)for(const id of ['jogging','shooting-arrow','catwalk','zombie-stand-up']){
@@ -102,7 +101,7 @@ try{
 }catch(error){failure=String(error);throw error;}finally{
   const report={sourceSha:process.env.REVIEW_HEAD_SHA??'local',testedSha:process.env.GITHUB_SHA??'local',retargetVersion:'wanhu-mixamo-2',clips:REVIEW_IDS.length,bodyTypes:2,images:records.length,records,errors,failure,passed:!failure&&errors.length===0,continuousVideos:videos,playbackChecks};
   await writeFile(`${directory}/report.json`,JSON.stringify(report,null,2));
-  await writeFile(`${directory}/index.html`,`<!doctype html><meta charset="utf-8"><title>Mixamo review</title><style>body{font:16px sans-serif;background:#18242a;color:#eee}section{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}img,video{width:100%}figure{margin:0}h2{grid-column:1/-1}</style><h1>Mixamo source / target review</h1><p>SHA ${report.sourceSha} · Passed ${report.passed}</p>${REVIEW_IDS.map(id=>`<h2>${id}</h2><section>${records.filter(r=>r.id===id).map(r=>`<figure><img loading="lazy" src="${r.file}"><figcaption>${r.bodyType} · ${r.view} · ${r.phase}</figcaption></figure>`).join('')}</section>`).join('')}<h2>Continuous playback</h2>${report.continuousVideos.map(f=>`<video controls loop src="${f}"></video>`).join('')}`);
+  await writeFile(`${directory}/index.html`,`<!doctype html><meta charset="utf-8"><title>Motion review</title><style>body{font:16px sans-serif;background:#18242a;color:#eee}section{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}img,video{width:100%}figure{margin:0}h2{grid-column:1/-1}</style><h1>Motion source / target review</h1><p>SHA ${report.sourceSha} · Passed ${report.passed}</p>${REVIEW_IDS.map(id=>`<h2>${id}</h2><section>${records.filter(r=>r.id===id).map(r=>`<figure><img loading="lazy" src="${r.file}"><figcaption>${r.bodyType} · ${r.view} · ${r.phase}</figcaption></figure>`).join('')}</section>`).join('')}<h2>Continuous playback</h2>${report.continuousVideos.map(f=>`<video controls loop src="${f}"></video>`).join('')}`);
   await context.close();await browser.close();
 }
 console.log(`PASS: ${REVIEW_IDS.length} clips; ${records.length} images; four record-free playback checks; interaction/export/error recovery.`);

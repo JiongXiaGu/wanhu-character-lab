@@ -15,8 +15,8 @@ const lightwear = process.argv.includes('--lightwear');
 const skirts=process.argv.includes('--skirts');
 const horse=process.argv.includes('--horse');
 const character=process.argv.includes('--character');
-const mixamo=process.argv.includes('--mixamo');
-if([wardrobe,lightwear,skirts,horse,character,mixamo].filter(Boolean).length>1)throw new Error('请选择 --character、--wardrobe、--lightwear、--skirts、--mixamo 或 --horse 中的一个');
+const motion=process.argv.includes('--motion');
+if([wardrobe,lightwear,skirts,horse,character,motion].filter(Boolean).length>1)throw new Error('请选择 --character、--wardrobe、--lightwear、--skirts、--motion 或 --horse 中的一个');
 const children = new Set();
 function launch(args, env = process.env) {
   const child = spawn(process.execPath, args, { cwd: process.cwd(), env, stdio: 'inherit' });
@@ -50,7 +50,8 @@ for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => {
 });
 
 try {
-  await run(['node_modules/tsx/dist/cli.mjs', 'scripts/prepare-mixamo.ts']);
+  await run(['node_modules/tsx/dist/cli.mjs','scripts/prepare-mixamo.ts']);
+  await run(['node_modules/tsx/dist/cli.mjs','scripts/prepare-system-animator.ts']);
   const port = await freePort();
   const server = launch(['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', String(port), '--strictPort']);
   const url = `http://127.0.0.1:${port}`;
@@ -62,13 +63,13 @@ try {
     await delay(300);
   }
   if (!ready) throw new Error('本地 Vite 启动超时');
-  const reviewArgs = mixamo
-    ? ['node_modules/tsx/dist/cli.mjs','scripts/review-mixamo.ts']
+  const reviewArgs = motion
+    ? ['node_modules/tsx/dist/cli.mjs','scripts/review-motion.ts']
     : [character ? 'scripts/review-v3.mjs' : horse ? 'scripts/review-horse.mjs' : skirts ? 'scripts/review-skirts.mjs' : lightwear ? 'scripts/review-lightwear.mjs' : wardrobe ? 'scripts/review-wardrobe-batch.mjs' : 'scripts/review-deformation.mjs', ...(full ? [] : ['--quick'])];
   await run(reviewArgs, {
     ...process.env, REVIEW_URL: url, REVIEW_STAGE: 'local',
   });
-  const outputDir = character ? 'review' : mixamo ? 'review-mixamo' : horse ? 'review/horse' : skirts ? 'review-wardrobe-batch/skirts-local' : lightwear ? 'review-wardrobe-batch/lightwear-local' : wardrobe ? 'review-wardrobe-batch/local' : 'review-deformation/local';
+  const outputDir = character ? 'review' : motion ? 'review-motion' : horse ? 'review/horse' : skirts ? 'review-wardrobe-batch/skirts-local' : lightwear ? 'review-wardrobe-batch/lightwear-local' : wardrobe ? 'review-wardrobe-batch/local' : 'review-deformation/local';
   console.log(`本地实机截图已写入 ${outputDir}/。请由人实际看图；此命令只生成视觉证据，不代表视觉已通过。`);
 } finally {
   await stopChildren();

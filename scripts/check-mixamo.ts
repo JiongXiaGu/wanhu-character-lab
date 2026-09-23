@@ -2,22 +2,22 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import * as T from 'three';
 import { MIXAMO_CLIPS } from '../src/character/mixamo/catalog';
-import { CALIBRATION_CHILD, SAMPLE_BONE_COUNT, validateMixamoData, type MixamoMotionData } from '../src/character/mixamo/data';
-import { retargetMixamo, exportTargetMotion } from '../src/character/mixamo/retarget';
-import { createMixamoPlayer } from '../src/character/mixamo/player';
+import {CALIBRATION_CHILD,SAMPLE_BONE_COUNT,validateMotionData,type HumanoidMotionData} from '../src/character/motion/data';
+import {retargetMotion,exportTargetMotion} from '../src/character/motion/retarget';
+import {createMotionPlayer} from '../src/character/motion/player';
 import { makeCharacter } from '../src/character/v3/outfit';
 import { makeActor } from '../src/character/v3/rig';
 import { DEFAULT_RECIPE, BODY_TYPES, patchSlots } from '../src/character/v3/types';
 let frames = 0, worstDirection = 0;
 for (const def of MIXAMO_CLIPS) {
-  const source = JSON.parse(readFileSync(`public/mixamo/${def.id}.json`, 'utf8')) as MixamoMotionData;
-  validateMixamoData(source, def.id);
+  const source = JSON.parse(readFileSync(`public/mixamo/${def.id}.json`, 'utf8')) as HumanoidMotionData;
+  validateMotionData(source, def.id); assert.equal(source.source.profile,'mixamo-fbx-v2');
   assert.equal(source.source.uniqueBones, 65); assert.equal(source.source.rawBoneNodes, 130);
   for (const bodyType of BODY_TYPES)
   {
     const recipe = patchSlots({ ...DEFAULT_RECIPE, bodyType, slots:{headwear:'archer_headband',top:'short_work_jacket',bottom:'work_wrap',shoes:'cloth_shoes',back:'archer_quiver',leftHand:'archer_bow',rightHand:'none'} }, { headwear: 'farmer_straw_hat', leftHand: 'none' });
     const saved = JSON.stringify(recipe), data = makeCharacter(recipe), actor = makeActor(data), geometry = actor.mesh.geometry;
-    const bake = retargetMixamo(data, source);
+    const bake = retargetMotion(data, source);
     assert.equal(JSON.stringify(recipe), saved); assert.equal(actor.bones.length, 20);
     assert.equal(actor.data.recipe.slots.headwear, 'farmer_straw_hat');
     actor.mixer.stopAllAction(); const action = actor.mixer.clipAction(bake.clip); action.setLoop(T.LoopOnce,1).play(); action.paused = true; action.clampWhenFinished = true;
@@ -56,11 +56,11 @@ for (const def of MIXAMO_CLIPS) {
 }
 const first = JSON.parse(readFileSync('public/mixamo/jogging.json','utf8'));
 for (const mutate of [(d:any)=>d.times.reverse(),(d:any)=>d.worldDeltas[0]=NaN,(d:any)=>d.names[2]='BadBone',(d:any)=>d.schema=999]) {
-  const bad=structuredClone(first);mutate(bad);assert.throws(()=>validateMixamoData(bad,'jogging'));
+  const bad=structuredClone(first);mutate(bad);assert.throws(()=>validateMotionData(bad,'jogging'));
 }
 for(const id of ['jogging','shooting-arrow'] as const){
   const actor=makeActor(makeCharacter(DEFAULT_RECIPE));
-  const player=createMixamoPlayer(actor,JSON.parse(readFileSync(`public/mixamo/${id}.json`,'utf8')));
+  const player=createMotionPlayer(actor,JSON.parse(readFileSync(`public/mixamo/${id}.json`,'utf8')));
   player.seek(1);player.update(0);assert.equal(player.status().phase,1);
   player.replay();assert.equal(player.status().phase,0);player.update(.3);const paused=player.status().phase;
   player.update(0);player.update(NaN);assert.equal(player.status().phase,paused);
