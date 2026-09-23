@@ -1,6 +1,6 @@
 export const MOTION_SCHEMA = 1;
 export const MIXAMO_SCHEMA = MOTION_SCHEMA;
-export const RETARGET_VERSION = 'wanhu-humanoid-3';
+export const RETARGET_VERSION = 'wanhu-humanoid-4';
 export const SOURCE_BONES = ['', 'Hips', 'Spine', 'Spine2', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'LeftUpLeg', 'LeftLeg', 'LeftFoot'] as const;
 export const SOURCE_ENDPOINTS = ['HeadTop_End', 'RightHandMiddle1', 'LeftHandMiddle1', 'RightToeBase', 'LeftToeBase'] as const;
 export const SAMPLE_BONES = [...SOURCE_BONES, ...SOURCE_ENDPOINTS] as const;
