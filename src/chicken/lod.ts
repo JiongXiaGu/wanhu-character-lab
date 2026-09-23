@@ -1,8 +1,8 @@
 import type { AnimalMeshData, Point } from '../livestock/types';
 import { CHICKEN_BONES as B } from './rig';
 
-export const CHICKEN_LOD1_VERSION = 'wanhu-chicken-mesh-lod1-v4';
-export const CHICKEN_LOD2_VERSION = 'wanhu-chicken-mesh-lod2-v4';
+export const CHICKEN_LOD1_VERSION = 'wanhu-chicken-mesh-lod1-v5';
+export const CHICKEN_LOD2_VERSION = 'wanhu-chicken-mesh-lod2-v5';
 interface Ring { z: number; y: number; rx: number; ry: number; sides: number; bone: number; color: string }
 
 /** 低档优先保留连续大形：躯干、颈、头、喙是同一闭合壳，接口共用逻辑顶点。 */
@@ -17,9 +17,9 @@ function builder(version: string) {
     const start = data.positions.length;
     const rings = rows.map((row, r) => Array.from({ length: row.sides }, (_, i) => {
       const a = Math.PI / 6 + i * Math.PI * 2 / row.sides;
-      // 翼区并入已有左右侧带；不增加面数，也不移动连续主体的任何顶点。
+      // 低档仍不增加翅膀壳体，但把翼色提示扩成后/中段两圈的左右侧带，避免退化回一个小色点。
       const near = version === CHICKEN_LOD1_VERSION;
-      const wingHint = r === (near ? 1 : 0) && (i === 0 || i === 2 || i === 3 || i === 5);
+      const wingHint = row.bone === B.Body && r <= 1 && Math.abs(Math.cos(a)) > .45;
       return vertex([Math.cos(a) * row.rx, row.y + Math.sin(a) * row.ry, row.z], row.bone, wingHint ? (near ? '#936039' : '#9d6438') : row.color);
     }));
     // 以环绕序连接不同边数的截面；不能用整壳质心翻面，颈部本来就是弯曲的非凸壳。
