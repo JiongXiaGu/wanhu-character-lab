@@ -68,7 +68,7 @@ jobs:
             if [[ "$scope" == livestock ]]; then
               npm run review:livestock 2>&1 | tee -a manual-visual-review.log
             elif [[ "$scope" == system-animator ]]; then
-              npm run review:system-animator 2>&1 | tee -a manual-visual-review.log
+              npm run review:local -- --system-animator 2>&1 | tee -a manual-visual-review.log
             else
               npm run review:local -- "--$scope" "${extra[@]}" 2>&1 | tee -a manual-visual-review.log
             fi
