@@ -3,9 +3,9 @@ import {readFileSync} from 'node:fs';
 import {makeCharacter} from '../src/character/v3/outfit';
 import {makeActor} from '../src/character/v3/rig';
 import {DEFAULT_RECIPE} from '../src/character/v3/types';
-import {createMixamoPlayer} from '../src/character/mixamo/player';
+import {createMotionPlayer} from '../src/character/motion/player';
 const actor=makeActor(makeCharacter(DEFAULT_RECIPE));
-const player=createMixamoPlayer(actor,JSON.parse(readFileSync('public/mixamo/shooting-arrow.json','utf8')));
+const player=createMotionPlayer(actor,JSON.parse(readFileSync('public/mixamo/shooting-arrow.json','utf8')));
 for(const step of [.05,1/30,1/60]){
   player.replay();
   const count=Math.ceil(player.status().duration/step);
