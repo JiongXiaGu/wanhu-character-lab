@@ -1,5 +1,5 @@
-import { CROWD_COUNTS } from './types';
-import type { CameraSnapshot, CrowdCount, LabOptions, LivestockView } from './types';
+import { CROWD_COUNTS, LIVESTOCK_LOD_IDS } from './types';
+import type { CameraSnapshot, CrowdCount, LabOptions, LivestockLodMode, LivestockView } from './types';
 import { LIVESTOCK } from './catalog';
 
 const KEY = 'wanhu.livestock.preview.v1';
@@ -12,8 +12,10 @@ export function readLivestockSession(query: URLSearchParams): { options: LabOpti
   const count: CrowdCount = CROWD_COUNTS.includes(rawCount as CrowdCount) ? rawCount as CrowdCount : 1;
   const rawMotion = query.get('clip') ?? stored.motion, motion = LIVESTOCK[0].motions.some(m => m.id === rawMotion) ? String(rawMotion) : 'idle';
   const rawView = query.get('view') ?? stored.view, view: LivestockView = ['three', 'front', 'left', 'farm'].includes(String(rawView)) ? rawView as LivestockView : count > 1 ? 'farm' : 'three';
+  const rawLod = query.get('lod') ?? stored.lod;
+  const lod: LivestockLodMode = rawLod === 'auto' || LIVESTOCK_LOD_IDS.includes(rawLod as any) ? rawLod as LivestockLodMode : 'auto';
   const options: LabOptions = {
-    count, motion, view, mixed: query.has('mixed') ? query.get('mixed') === '1' : typeof stored.mixed === 'boolean' ? stored.mixed : count > 1,
+    count, motion, view, lod, mixed: query.has('mixed') ? query.get('mixed') === '1' : typeof stored.mixed === 'boolean' ? stored.mixed : count > 1,
     playing: query.has('paused') ? false : typeof stored.playing === 'boolean' ? stored.playing : true,
     loop: query.has('loop') ? query.get('loop') !== '0' : typeof stored.loop === 'boolean' ? stored.loop : true,
     speed: Math.max(.25, Math.min(2, finite(stored.speed, 1))), phase: clampPhase(query.has('phase') ? Number(query.get('phase')) : stored.phase),
