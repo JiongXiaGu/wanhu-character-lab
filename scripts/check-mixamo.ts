@@ -68,3 +68,6 @@ for(const id of ['jogging','shooting-arrow'] as const){
   player.dispose();actor.dispose();
 }
 console.log(JSON.stringify({clips:MIXAMO_CLIPS.length,bodyTypes:2,profilesPerBodyType:1,sampledFrames:frames,worstDirectionDegrees:worstDirection,invalidDataRejected:4,playerBoundaryCases:2}));
+
+// 第二种外部人体动作来源沿用同一数值验收入口。
+await import('./check-bvh');
