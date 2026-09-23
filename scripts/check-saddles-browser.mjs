@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 
-// 原马具交互回归；只把目录断言更新为M4实际种类，不减少原检查。
+// 原马具交互回归；目录和栏目按实际资源更新，不减少原检查。
 const output = process.env.RIDING_CHECK_DIR || join(tmpdir(), 'wanhu-riding-checks'); mkdirSync(output, { recursive: true });
 const port = Number(process.env.SADDLE_REVIEW_PORT || 4179); assert(Number.isInteger(port) && port > 0 && port < 65536);
 const base = process.env.SADDLE_REVIEW_URL || `http://127.0.0.1:${port}`;
@@ -22,7 +22,9 @@ try {
   await page.goto(`${base}/?lab=riding&paused=1&clip=Rider_Walk&phase=.375&saddle=simple`); await page.waitForFunction(() => window.__RIDING_REVIEW__?.saddleState().id === 'simple');
   const first = await state(); valid(first); assert(first.saddle.canRide && first.saddle.riderVisible && first.saddle.reinsVisible); near(first.status.phase, .375);
   assert.equal(await page.locator('.mount-selector select').count(), 2); assert.deepEqual(await page.getByTestId('mount-horse').locator('option').evaluateAll(nodes => nodes.map(n => n.value)), ['horse_chestnut', 'donkey_gray', 'camel_bactrian', 'cattle_yellow', 'yak_black', 'buffalo_water']);
-  assert.equal(await page.getByTestId('mount-saddle').locator('option').count(), 3); assert.equal(await page.locator('.animal-mode-switcher a').count(), 2); assert.equal(await page.locator('canvas').count(), 1); checks.push('only species/saddle choices, two preview modes, one real WebGL scene');
+  assert.equal(await page.getByTestId('mount-saddle').locator('option').count(), 3);
+  assert.deepEqual(await page.locator('.animal-mode-switcher a').allTextContents(), ['坐骑本体', '骑乘试衣', '家畜']);
+  assert.equal(await page.locator('canvas').count(), 1); checks.push('only species/saddle choices, three animal sections, one real WebGL scene');
   await page.getByLabel('骑手骨架', { exact: true }).check(); await page.getByTestId('mount-saddle').selectOption('travel'); let current = await state(); valid(current);
   assert.equal(current.saddle.id, 'travel'); assert(current.saddle.triangles > first.saddle.triangles); assert.deepEqual(current.ids, first.ids); assert.deepEqual(current.camera, first.camera); assert.deepEqual(current.recipe, first.recipe); assert.deepEqual(current.status, first.status); assert.equal(current.saddle.reinGeometry, first.saddle.reinGeometry); assert.notDeepEqual(current.saddle.seat, first.saddle.seat);
   checks.push('travel saddle switches complete geometry and seat, preserves actors, camera, recipe, paused phase and rein buffer');
