@@ -1,4 +1,5 @@
 import { checkDuckBrowser } from './check-livestock-duck-browser.mjs';
+import { capturePoultryWings } from './check-livestock-wings-browser.mjs';
 import './check-livestock-lod-browser.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
@@ -79,6 +80,7 @@ try {
   assert.equal((await snap()).count, 1); assert.equal((await snap()).motion, 'idle'); assert.equal((await snap()).phase, 0); assert.equal((await snap()).lod, 'lod0');
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, '桌面横向溢出'); assert.deepEqual(errors, []);
   await checkDuckBrowser(page, base, dir, screenshots, setPhase);
+  await capturePoultryWings(page, base, dir, screenshots);
   assert.deepEqual(errors, []);
   const result = { sha: process.env.REVIEW_HEAD_SHA ?? 'local', result: 'passed', viewport: '1600x1000', lods: { lod0: 140, lod1: 72, lod2: 36 }, counts, screenshots, errors };
   writeFileSync(`${dir}/browser.json`, JSON.stringify(result, null, 2)); if (screenshots) writeFileSync('review/livestock/evidence.json', JSON.stringify(result, null, 2)); console.log(JSON.stringify(result, null, 2));

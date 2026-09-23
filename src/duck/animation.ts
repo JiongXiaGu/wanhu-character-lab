@@ -2,7 +2,7 @@ import { AnimationClip, Euler, Quaternion, QuaternionKeyframeTrack, VectorKeyfra
 import type { MotionDefinition } from '../livestock/types';
 import { DUCK_BONES as B, DUCK_JOINTS, DUCK_SOLE } from './rig';
 
-export const DUCK_ANIMATION_VERSION = 'wanhu-duck-motion-v1';
+export const DUCK_ANIMATION_VERSION = 'wanhu-duck-motion-v2';
 export const DUCK_MOTIONS: readonly MotionDefinition[] = [
   { id: 'idle_land', label: '停驻', description: '陆地观察，短颈轻轻转动。', duration: 3, surface: 'land' },
   { id: 'walk', label: '摇摆行走', description: '短步交替，身体左右轻摆。', duration: 1.2, surface: 'land' },
@@ -27,7 +27,8 @@ export function authorDuckPose(motion: string, phase: number) {
     rotations[B.Neck][0] = .035 * Math.sin(2*a);
     rotations[B.Head][0] = -rotations[B.Body][0] - rotations[B.Neck][0];
     rotations[B.Head][2] = -rotations[B.Body][2] * .65;
-    rotations[B.WingL][2] = running ? -.10 : 0; rotations[B.WingR][2] = running ? .10 : 0;
+    // 只修正折叠翅的Run角度，避免背侧片面被旧侧展姿态转入身体。
+    rotations[B.WingL][2] = running ? -.008 : 0; rotations[B.WingR][2] = running ? .008 : 0;
     for (const [bone, shift] of [[B.LegL,0],[B.LegR,.5]]) {
       const t = (p + shift) % 1, swing = t >= .6, u = swing ? (t-.6)/.4 : t/.6;
       const z = stride * (swing ? -.5*Math.cos(Math.PI*u) : .5-u), angle = -Math.asin(z/.146);

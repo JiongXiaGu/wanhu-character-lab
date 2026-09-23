@@ -2,8 +2,8 @@ import { Vector3 } from 'three';
 import type { AnimalMeshData, Point } from '../livestock/types';
 import { CHICKEN_BONES as B, FOOT_POINTS } from './rig';
 
-export const CHICKEN_MESH_VERSION = 'wanhu-chicken-mesh-v1';
-/** 140 tris / 100逻辑点；15个闭合凸壳。没有透明羽片、单面眼睛或隐藏高模。 */
+export const CHICKEN_MESH_VERSION = 'wanhu-chicken-mesh-v2';
+/** 140 tris / 100逻辑点；13个闭合体壳 + 两片零厚度背侧翅，每侧正反共4面。 */
 export function buildChickenMesh(): AnimalMeshData {
   const data: AnimalMeshData = { positions: [], indices: [], bones: [], colors: [], parts: [], version: CHICKEN_MESH_VERSION };
   const tetra = [[0, 1, 2], [0, 3, 1], [1, 3, 2], [2, 3, 0]];
@@ -30,6 +30,18 @@ export function buildChickenMesh(): AnimalMeshData {
     const p: Point[] = [-halfWidth, halfWidth].flatMap(x => yz.map(([y, z]) => [x, y, z] as Point));
     part(name, p, [[0, 1, 2], [3, 4, 5], [0, 1, 4, 3], [1, 2, 5, 4], [2, 0, 3, 5]], bone, color);
   }
+  function wing(side: number, suffix: string, bone: number) {
+    const start = data.positions.length;
+    // 短而收拢的小叶片；顺着原六边躯干的背侧斜面，不以体积强调翅膀。
+    const points: Point[] = [[side*.046,.371231,.040],[side*.092,.330468,-.035],[side*.060,.334534,-.090],[side*.031,.362881,-.035]];
+    data.positions.push(...points); data.bones.push(...points.map(() => bone)); data.colors.push(...points.map(() => '#865333'));
+    for (const face of [[0,1,3],[1,2,3]]) {
+      const [a,b,c] = side > 0 ? face : [face[0],face[2],face[1]];
+      // 反向索引复用同一组位置，厚度严格为0；硬边展开分别生成正反法线。
+      data.indices.push(start+a,start+b,start+c,start+a,start+c,start+b);
+    }
+    data.parts.push({ name: 'Wing'+suffix, start, count: points.length });
+  }
   const bodyRows = [[-.185, .245, .055, .060], [-.095, .250, .130, .108], [.065, .270, .120, .130], [.160, .300, .058, .075]];
   rings('Body', bodyRows.map(([z, y, rx, ry]) => Array.from({ length: 6 }, (_, i) => {
     const a = Math.PI / 6 + i * Math.PI / 3; return [Math.cos(a) * rx, y + Math.sin(a) * ry, z] as Point;
@@ -45,8 +57,8 @@ export function buildChickenMesh(): AnimalMeshData {
   part('Wattle', [[-.013, .424, .255], [.013, .424, .255], [0, .389, .260], [0, .420, .277]], tetra, B.Head, '#a53d32');
   prism('Tail', .039, [[.235, -.175], [.392, -.245], [.355, -.335]], B.Body, '#424d44');
   for (const side of [-1, 1]) {
-    const suffix = side < 0 ? 'L' : 'R', leg = side < 0 ? B.LegL : B.LegR, wing = side < 0 ? B.WingL : B.WingR, x = side * .063;
-    part('Wing' + suffix, [[side * .109, .298, .075], [side * .137, .232, .005], [side * .091, .235, -.137], [side * .100, .310, -.050]], tetra, wing, '#754c32');
+    const suffix = side < 0 ? 'L' : 'R', leg = side < 0 ? B.LegL : B.LegR, wingBone = side < 0 ? B.WingL : B.WingR, x = side * .063;
+    wing(side, suffix, wingBone);
     rings('Leg' + suffix, [.022, .184].map(y => Array.from({ length: 3 }, (_, i) => [x + Math.cos(i * Math.PI * 2 / 3) * .013, y, Math.sin(i * Math.PI * 2 / 3) * .013] as Point)), leg, '#c3954e');
     part('Foot' + suffix, FOOT_POINTS.map(([px, py, pz]) => [px + x, py, pz] as Point), tetra, leg, '#c3954e');
     // 浅闭合眼壳嵌入头侧；不另建球体或悬浮黑点。

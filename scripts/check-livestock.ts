@@ -1,5 +1,6 @@
 import './check-livestock-duck';
 import './check-livestock-lod';
+import { assertPoultryWingTopology } from './check-livestock-wings';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { Vector3 } from 'three';
@@ -14,6 +15,7 @@ import { authorChickenPose } from '../src/chicken/animation';
 const definition = LIVESTOCK[0], point = new Vector3();
 function validateTopology(lod, triangles, logicalVertices) {
   const actor = createAnimalActor(definition, lod), data = actor.data;
+  const wingVertices = assertPoultryWingTopology(data, lod);
   assert.equal(data.indices.length / 3, triangles); assert.equal(data.positions.length, logicalVertices); assert.equal(actor.bones.length, 8);
   assert.equal(actor.geometry.getAttribute('position').count, triangles * 3); assert.equal(actor.geometry.groups.length, 0);
   for (const attribute of Object.values(actor.geometry.attributes)) assert([...attribute.array].every(Number.isFinite));
@@ -23,12 +25,14 @@ function validateTopology(lod, triangles, logicalVertices) {
   for (let i = 0; i < data.indices.length; i += 3) {
     const triangle = data.indices.slice(i, i + 3), [a, b, c] = triangle.map(index => new Vector3(...data.positions[index]));
     assert(b.clone().sub(a).cross(c.clone().sub(a)).lengthSq() > 1e-12, `${lod}退化三角形`);
+    // 仅已通过完整正反片面契约的Wing面不按体壳计边；主体门槛不变。
+    if (triangle.every(index => wingVertices.has(index))) continue;
     for (let j = 0; j < 3; j++) {
       const x = triangle[j], y = triangle[(j + 1) % 3], key = `${Math.min(x, y)}/${Math.max(x, y)}`;
       edgeCounts.set(key, (edgeCounts.get(key) ?? 0) + 1); signedEdges.set(key, (signedEdges.get(key) ?? 0) + (x < y ? 1 : -1));
     }
   }
-  assert([...edgeCounts.values()].every(value => value === 2), `${lod}所有小壳必须闭合`);
+  assert([...edgeCounts.values()].every(value => value === 2), `${lod}所有体壳必须闭合`);
   assert([...signedEdges.values()].every(value => value === 0), `${lod}相邻面绕序必须一致`);
   actor.bind(); const pos = actor.geometry.getAttribute('position');
   for (let i = 0; i < pos.count; i++) { point.fromBufferAttribute(pos, i); const original = point.clone(); actor.mesh.applyBoneTransform(i, point); assert(point.distanceTo(original) < 1e-6, `${lod} inverse bind失真`); }

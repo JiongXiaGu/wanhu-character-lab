@@ -9,8 +9,8 @@ export const DUCK_DEFINITION: LivestockDefinition = {
   joints: DUCK_JOINTS, motions: DUCK_MOTIONS, bakeClips: bakeDuckClips, buildMesh: () => buildDuckMesh('lod0'),
   referenceHeight: .45,
   lods: [
-    { id: 'lod0', label: 'LOD0', description: '近景 · 蹼足与贴体翅', triangles: 126, logicalVertices: 77, buildMesh: () => buildDuckMesh('lod0') },
-    { id: 'lod1', label: 'LOD1', description: '连续头颈 · 无眼翅附件', triangles: 60, logicalVertices: 36, buildMesh: () => buildDuckMesh('lod1') },
+    { id: 'lod0', label: 'LOD0', description: '近景 · 蹼足与背侧片翅', triangles: 126, logicalVertices: 77, buildMesh: () => buildDuckMesh('lod0') },
+    { id: 'lod1', label: 'LOD1', description: '连续头颈 · 翼区并入主体', triangles: 60, logicalVertices: 36, buildMesh: () => buildDuckMesh('lod1') },
     { id: 'lod2', label: 'LOD2', description: '完整轮廓 · 保留扁喙', triangles: 36, logicalVertices: 24, buildMesh: () => buildDuckMesh('lod2') },
   ],
   habitats: [
