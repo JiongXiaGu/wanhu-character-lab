@@ -27,7 +27,7 @@ export function authorDuckPose(motion: string, phase: number) {
     rotations[B.Neck][0] = .035 * Math.sin(2*a);
     rotations[B.Head][0] = -rotations[B.Body][0] - rotations[B.Neck][0];
     rotations[B.Head][2] = -rotations[B.Body][2] * .65;
-    // 只修正折叠翅的Run角度，避免背侧片面被旧侧展姿态转入身体。
+    // 只保留极轻的Run收翼角度，避免侧面薄片重新变成外张凸块。
     rotations[B.WingL][2] = running ? -.008 : 0; rotations[B.WingR][2] = running ? .008 : 0;
     for (const [bone, shift] of [[B.LegL,0],[B.LegR,.5]]) {
       const t = (p + shift) % 1, swing = t >= .6, u = swing ? (t-.6)/.4 : t/.6;

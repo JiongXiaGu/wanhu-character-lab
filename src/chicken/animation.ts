@@ -23,7 +23,7 @@ export function authorChickenPose(motion: string, phase: number) {
     rotations[B.Neck][0] = .09 * Math.sin(a * 2);
     rotations[B.Head][0] = -.07 * Math.sin(a * 2) - rotations[B.Body][0];
     offsets[B.Neck][2] = .009 * Math.sin(a * 2);
-    // 背侧薄片只保留极轻的收翼变化；旧侧展角会把片面转进身体。
+    // 侧面薄片只保留极轻的收翼变化；旧侧展角会让片面从身体侧面弹出。
     rotations[B.WingL][2] = running ? -.012 : 0;
     rotations[B.WingR][2] = running ? .012 : 0;
     for (const [bone, shift] of [[B.LegL, 0], [B.LegR, .5]]) {
