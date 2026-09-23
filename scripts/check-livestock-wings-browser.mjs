@@ -7,8 +7,8 @@ export async function capturePoultryWings(page, base, dir, screenshots) {
   mkdirSync('review/livestock', { recursive: true });
   const images=[], comparisons=[];
   const snapshot=()=>page.evaluate(()=>window.__LIVESTOCK_REVIEW__.snapshot());
-  async function open(animal, motion, lod='lod0', count=1, surface='land') {
-    const query=new URLSearchParams({lab:'livestock',animal,clip:motion,lod,count:String(count),surface,view:'farm',phase:'.25',paused:'1',mixed:count===1?'0':'1'});
+  async function open(animal, motion, lod='lod0', count=1, surface='land', view='farm') {
+    const query=new URLSearchParams({lab:'livestock',animal,clip:motion,lod,count:String(count),surface,view,phase:'.25',paused:'1',mixed:count===1?'0':'1'});
     await page.goto(`${base}/?${query}`,{waitUntil:'networkidle'});
     await page.waitForFunction(({animal,motion,count})=>{
       const s=window.__LIVESTOCK_REVIEW__?.snapshot();return s?.animal===animal&&s.motion===motion&&s.count===count&&!s.playing&&s.phase===.25;
@@ -20,9 +20,9 @@ export async function capturePoultryWings(page, base, dir, screenshots) {
     assert.equal(s.modelTriangles,s.triangles*count);
     const d=s.camera.position.map((v,i)=>v-s.camera.target[i]);
     const elevation=Math.atan2(d[1],Math.hypot(d[0],d[2]))*180/Math.PI;
-    assert(elevation>=45&&elevation<=70,`必须使用经营俯视而不是侧视：${elevation}`);
+    if(view==='farm')assert(elevation>=45&&elevation<=70,`必须使用经营俯视：${elevation}`);
     if(lod!=='auto')assert.equal(s.lod,lod);
-    return {...s,view:'farm',elevation};
+    return {...s,view,elevation};
   }
   async function image(name,state) {
     await page.locator('.livestock-viewport').screenshot({path:`review/livestock/${name}`});
@@ -53,6 +53,8 @@ export async function capturePoultryWings(page, base, dir, screenshots) {
       await sheet.screenshot({path:`review/livestock/${name}`,fullPage:true});
     } finally {await context.close();}
     comparisons.push({name,cells:cells.map(({png,...cell})=>cell)});
+    // 真侧视用于确认翅膀确实位于身体侧面，而不是通过俯视角度隐藏位置错误。
+    await image(`wings-${animal.prefix}-side.png`,await open(animal.id,animal.idle,'lod0',1,'land','left'));
     await image(`wings-${animal.prefix}-run-top.png`,await open(animal.id,'run'));
     if(animal.prefix==='duck')await image('wings-duck-swim-top.png',await open(animal.id,'swim','lod0',1,'water'));
     // 自动LOD用于实际经营轮廓，固定LOD0额外检查100只翅片不会横向撑开。
@@ -64,5 +66,5 @@ export async function capturePoultryWings(page, base, dir, screenshots) {
   const result={result:'passed',sourceSHA:process.env.REVIEW_HEAD_SHA??'local',viewport:'1600x1000',images,comparisons};
   writeFileSync(`${dir}/wings-browser.json`,JSON.stringify(result,null,2));
   writeFileSync('review/livestock/wings-evidence.json',JSON.stringify(result,null,2));
-  console.log(`Poultry wing evidence: ${images.length} high-angle frames and ${comparisons.length} equal-camera LOD sheets.`);
+  console.log(`Poultry wing evidence: ${images.length} frames (including true side views) and ${comparisons.length} equal-camera LOD sheets.`);
 }
