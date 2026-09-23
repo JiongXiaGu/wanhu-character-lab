@@ -48,13 +48,15 @@ export async function capturePoultryWings(page, base, dir, screenshots) {
     const name=`wings-${animal.prefix}-lod-comparison.png`;
     try {
       const sheet=await context.newPage();
-      await sheet.setContent(`<!doctype html><html lang="zh"><meta charset="utf-8"><style>body{margin:0;padding:20px;background:#19292c;color:#e7e3d8;font-family:'Noto Sans CJK SC',sans-serif}h1{margin:0 0 8px;font-size:23px;font-weight:500}p{font-size:13px;color:#abbfb6}.row{display:flex;gap:10px}.card{border:1px solid #53645c;border-radius:8px;overflow:hidden;flex:1;min-width:0}.card header{padding:11px;background:#243639;font-size:16px;color:#ddc49c}.card img{width:100%;display:block}</style><h1>${animal.name} · 贴体片面翅 · 经营俯视三档对照</h1><p>同一相机 / phase 0.25 / zoom 1 / 500 × 460 等尺度裁切 · LOD0 每侧4 tris（含反向面），低档翼区并入主体</p><div class="row">${cells.map(c=>`<div class="card"><header>${c.lod.toUpperCase()} · ${c.state.triangles} tris</header><img src="data:image/png;base64,${c.png.toString('base64')}"></div>`).join('')}</div></html>`);
+      await sheet.setContent(`<!doctype html><html lang="zh"><meta charset="utf-8"><style>body{margin:0;padding:20px;background:#19292c;color:#e7e3d8;font-family:'Noto Sans CJK SC',sans-serif}h1{margin:0 0 8px;font-size:23px;font-weight:500}p{font-size:13px;color:#abbfb6}.row{display:flex;gap:10px}.card{border:1px solid #53645c;border-radius:8px;overflow:hidden;flex:1;min-width:0}.card header{padding:11px;background:#243639;font-size:16px;color:#ddc49c}.card img{width:100%;display:block}</style><h1>${animal.name} · 大侧面翼区 · 经营俯视三档对照</h1><p>同一相机 / phase 0.25 / zoom 1 / 500 × 460 等尺度裁切 · LOD0 每侧4 tris（单面大侧翼区），低档大翼区并入主体</p><div class="row">${cells.map(c=>`<div class="card"><header>${c.lod.toUpperCase()} · ${c.state.triangles} tris</header><img src="data:image/png;base64,${c.png.toString('base64')}"></div>`).join('')}</div></html>`);
       await sheet.waitForFunction(()=>[...document.images].every(i=>i.complete&&i.naturalWidth>0));
       await sheet.screenshot({path:`review/livestock/${name}`,fullPage:true});
     } finally {await context.close();}
     comparisons.push({name,cells:cells.map(({png,...cell})=>cell)});
-    // 真侧视用于确认翅膀确实位于身体侧面，而不是通过俯视角度隐藏位置错误。
+    // 真侧视 + ¾斜侧视共同确认：翼区是身体侧面的大分区，而不是靠单一角度隐藏的小贴片。
     await image(`wings-${animal.prefix}-side.png`,await open(animal.id,animal.idle,'lod0',1,'land','left'));
+    await image(`wings-${animal.prefix}-three.png`,await open(animal.id,animal.idle,'lod0',1,'land','three'));
+    if(animal.prefix==='chicken')await image('wings-chicken-walk-top.png',await open(animal.id,'walk'));
     await image(`wings-${animal.prefix}-run-top.png`,await open(animal.id,'run'));
     if(animal.prefix==='duck')await image('wings-duck-swim-top.png',await open(animal.id,'swim','lod0',1,'water'));
     // 自动LOD用于实际经营轮廓，固定LOD0额外检查100只翅片不会横向撑开。
@@ -66,5 +68,5 @@ export async function capturePoultryWings(page, base, dir, screenshots) {
   const result={result:'passed',sourceSHA:process.env.REVIEW_HEAD_SHA??'local',viewport:'1600x1000',images,comparisons};
   writeFileSync(`${dir}/wings-browser.json`,JSON.stringify(result,null,2));
   writeFileSync('review/livestock/wings-evidence.json',JSON.stringify(result,null,2));
-  console.log(`Poultry wing evidence: ${images.length} frames (including true side views) and ${comparisons.length} equal-camera LOD sheets.`);
+  console.log(`Poultry wing evidence: ${images.length} frames (including side, three-quarter and action views) and ${comparisons.length} equal-camera LOD sheets.`);
 }

@@ -9,15 +9,21 @@ import type { AnimalMeshData, LivestockLodId } from '../src/livestock/types';
 export function assertPoultryWingTopology(data: AnimalMeshData, lod: LivestockLodId): Set<number> {
   const parts = data.parts.filter(p => p.name.startsWith('Wing'));
   const vertices = new Set<number>();
+  const chicken = data.version.includes('chicken');
+  const expectedVertices = chicken ? 5 : 6;
+  const minSideArea = chicken ? .0095 : .0190;
+  const hintColors = new Set(chicken ? ['#936039','#9d6438'] : ['#90764f','#9b7d55']);
   if (lod !== 'lod0') {
     assert.equal(parts.length, 0, `${lod}不能恢复独立翅块`);
     assert(!data.bones.some(b => b === 6 || b === 7), `${lod}翼区必须并入Body`);
+    const hintCount = data.colors.filter(color => hintColors.has(color)).length;
+    assert(hintCount >= 6, `${lod}大翼区颜色提示过小：${hintCount}`);
     return vertices;
   }
   assert.deepEqual(parts.map(p => p.name).sort(), ['WingL', 'WingR']);
   for (const part of parts) {
     const side = part.name === 'WingL' ? -1 : 1;
-    assert.equal(part.count, 4, '每片恰好4个逻辑点');
+    assert.equal(part.count, expectedVertices, chicken ? '鸡翅应为4边界+中心的5点大侧翼区' : '鸭翅应为6点中后段大侧翼区');
     const own = new Set(Array.from({ length: part.count }, (_, i) => part.start + i));
     const faces: number[][] = [];
     for (const i of own) {
@@ -28,34 +34,27 @@ export function assertPoultryWingTopology(data: AnimalMeshData, lod: LivestockLo
     for (let i = 0; i < data.indices.length; i += 3) {
       const tri = data.indices.slice(i, i + 3);
       if (!tri.some(v => own.has(v))) continue;
-      assert(tri.every(v => own.has(v)), '翅片不能偷偷连接或豁免主体面');
+      assert(tri.every(v => own.has(v)), '翅区不能偷偷连接或豁免主体面');
       assert.equal(new Set(tri).size, 3);
       faces.push(tri);
     }
-    assert.equal(faces.length, 4, '每侧2正向+2反向，共4面');
-    const yz = Array.from(own).map(i => data.positions[i]);
-    const sideArea = Math.abs(yz.reduce((sum, p, i) => {
-      const q = yz[(i + 1) % yz.length];
-      return sum + p[2] * q[1] - q[2] * p[1];
-    }, 0)) * .5;
-    assert(sideArea >= .003, `侧视翅膀面积过小：${sideArea}`);
+    assert.equal(faces.length, 4, '每侧必须把原4 tris预算全部用于大侧面翼区');
     const normals = faces.map(tri => {
       const [a,b,c] = tri.map(i => new Vector3(...data.positions[i]));
-      const n = b.sub(a).cross(c.sub(a)); assert(n.lengthSq() > 1e-12, '翅片退化面');
+      const n = b.sub(a).cross(c.sub(a)); assert(n.lengthSq() > 1e-12, '翼区退化面');
       return n.normalize();
     });
-    const outward = faces.map((_, i) => i).filter(i => normals[i].x * side > .65);
-    assert.equal(outward.length, 2, '每侧必须有两张朝身体外侧的正面');
+    const outward = faces.map((_, i) => i).filter(i => normals[i].x * side > .62);
+    assert.equal(outward.length, 4, '四张翼面都必须朝身体外侧；不再用反向面浪费预算');
     for (const i of outward) {
       const n = normals[i];
-      assert(n.x * side > Math.abs(n.y), '翅片主法线必须朝左右侧面，不能重新变成背顶片');
+      assert(n.x * side > Math.abs(n.y), '翼区主法线必须朝左右侧面，不能重新变成背顶片');
     }
-    for (let i = 0; i < faces.length; i++) {
-      const [a,b,c] = faces[i];
-      const reverse = faces.findIndex(([x,y,z], j) => j !== i && ((x===a&&y===c&&z===b)||(x===c&&y===b&&z===a)||(x===b&&y===a&&z===c)));
-      assert(reverse >= 0, '反面必须使用同一组位置，禁止另造厚度顶点');
-      assert(normals[i].dot(normals[reverse]) < -.999999);
-    }
+    const sideArea = outward.reduce((sum, i) => {
+      const [a,b,c] = faces[i].map(index => data.positions[index]);
+      return sum + Math.abs((b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1])) * .5;
+    }, 0);
+    assert(sideArea >= minSideArea, `侧视翼区面积过小：${sideArea} < ${minSideArea}`);
     const uniqueEdges = new Map<string, number>();
     outward.forEach(i => {
       const tri=faces[i];
@@ -64,13 +63,15 @@ export function assertPoultryWingTopology(data: AnimalMeshData, lod: LivestockLo
         uniqueEdges.set(key,(uniqueEdges.get(key)??0)+1);
       }
     });
-    assert.equal([...uniqueEdges.values()].filter(n => n === 1).length, 4);
-    assert.equal([...uniqueEdges.values()].filter(n => n === 2).length, 1);
+    const boundaryEdges=[...uniqueEdges.values()].filter(n => n === 1).length;
+    const internalEdges=[...uniqueEdges.values()].filter(n => n === 2).length;
+    assert.equal(boundaryEdges, chicken ? 4 : 6, '大侧翼区边界拓扑异常');
+    assert.equal(internalEdges, chicken ? 4 : 3, '大侧翼区内部拼接异常');
   }
   const left = parts.find(p => p.name === 'WingL')!, right = parts.find(p => p.name === 'WingR')!;
-  for (let i=0;i<4;i++) {
+  for (let i=0;i<expectedVertices;i++) {
     const a=data.positions[left.start+i], b=data.positions[right.start+i];
-    assert(Math.abs(a[0]+b[0])+Math.abs(a[1]-b[1])+Math.abs(a[2]-b[2])<1e-9, '两侧作者翅片必须镜像');
+    assert(Math.abs(a[0]+b[0])+Math.abs(a[1]-b[1])+Math.abs(a[2]-b[2])<1e-9, '两侧作者翼区必须镜像');
     assert.equal(data.colors[left.start+i],data.colors[right.start+i]);
   }
   return vertices;
@@ -122,16 +123,16 @@ for(const definition of LIVESTOCK) {
         if(!ids.every(j=>own.has(j))) continue;
         const [a,b,c]=ids.map(j=>new Vector3(...data.positions[j]));
         const n=b.sub(a).cross(c.sub(a)).normalize();
-        if(n.x*side>.65) faces.push(ids);
+        if(n.x*side>.62) faces.push(ids);
       }
-      assert.equal(faces.length,2);
+      assert.equal(faces.length,4);
       partFaces.set(part.name,faces);
     }
     const firstRender=new Map<number,number>();
     data.indices.forEach((j,i)=>{if(wings.has(j)&&!firstRender.has(j))firstRender.set(j,i);});
     const surface=sideSurface(data), source=actor.geometry.getAttribute('position');
     let poses=0,minClearance=Infinity,maxClearance=-Infinity,minSideNormal=Infinity;
-    const maxGap=definition.id==='chicken_brown'?.0155:.019;
+    const maxGap=definition.id==='chicken_brown'?.0105:.0115;
     for(const motion of definition.motions) for(let f=0;f<=240;f++) {
       actor.sample(motion.id,f/240); poses++;
       const toBody=new Matrix4().makeTranslation(...definition.joints[1].position).multiply(actor.bones[1].matrixWorld.clone().invert());
@@ -146,13 +147,13 @@ for(const definition of LIVESTOCK) {
           const [a,b,c]=tri.map(i=>points.get(i)!);
           const normal=b.clone().sub(a).cross(c.clone().sub(a)).normalize();
           minSideNormal=Math.min(minSideNormal,normal.x*side);
-          assert(normal.x*side>.65 && normal.x*side>Math.abs(normal.y),`${definition.id}/${motion.id}/${f}翅片离开身体侧面`);
+          assert(normal.x*side>.62 && normal.x*side>Math.abs(normal.y),`${definition.id}/${motion.id}/${f}翼区离开身体侧面`);
           for(let i=0;i<=8;i++) for(let j=0;j<=8-i;j++) {
             const p=a.clone().multiplyScalar(1-(i+j)/8).addScaledVector(b,i/8).addScaledVector(c,j/8);
             const sx=surface(side,p.y,p.z); assert(Number.isFinite(sx),'翅片超出身体侧面投影');
             const gap=side*(p.x-sx);
             minClearance=Math.min(minClearance,gap); maxClearance=Math.max(maxClearance,gap);
-            assert(gap>.0001&&gap<maxGap,`${definition.id}/${motion.id}/${f}侧翅不贴体：${gap}`);
+            assert(gap>.0001&&gap<maxGap,`${definition.id}/${motion.id}/${f}大侧翼区不贴体：${gap}`);
           }
         }
       }

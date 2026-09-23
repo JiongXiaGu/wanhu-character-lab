@@ -2,8 +2,8 @@ import { Vector3 } from 'three';
 import type { AnimalMeshData, Point } from '../livestock/types';
 import { CHICKEN_BONES as B, FOOT_POINTS } from './rig';
 
-export const CHICKEN_MESH_VERSION = 'wanhu-chicken-mesh-v4';
-/** 140 tris / 100逻辑点；13个闭合体壳 + 两片零厚度身体侧面翅，每侧正反共4面。 */
+export const CHICKEN_MESH_VERSION = 'wanhu-chicken-mesh-v5';
+/** 140 tris / 102逻辑点；13个闭合体壳 + 两块零厚度大侧面翼区，每侧4张朝外面。 */
 export function buildChickenMesh(): AnimalMeshData {
   const data: AnimalMeshData = { positions: [], indices: [], bones: [], colors: [], parts: [], version: CHICKEN_MESH_VERSION };
   const tetra = [[0, 1, 2], [0, 3, 1], [1, 3, 2], [2, 3, 0]];
@@ -32,14 +32,20 @@ export function buildChickenMesh(): AnimalMeshData {
   }
   function wing(side: number, suffix: string, bone: number) {
     const start = data.positions.length;
-    // 明确可读的短圆侧翅：面积覆盖身体中侧部，而不是只做一小块提示片。
-    // 仍沿Body侧表面折线贴附，厚度为0；从俯视只露适度侧缘。
-    const points: Point[] = [[side*.09986,.3069,.0956],[side*.12078,.2619,-.0019],[side*.11184,.2319,-.1144],[side*.11718,.2844,-.0244]];
+    // 大侧面翼区：边界收在身体中段，短、圆、饱满；不是外挂小片，也不做实体厚度。
+    // 4个边界点都贴合Body右/左侧同一局部平面并只外移约4.5mm；中心点把现有4 tris预算用于圆润扇面。
+    const boundary: Point[] = [
+      [side * .10951, .310, .045],
+      [side * .11627, .292, -.080],
+      [side * .11654, .220, -.085],
+      [side * .11005, .205, .035],
+    ];
+    const points: Point[] = [...boundary, [side * .11309, .25675, -.02125]];
     data.positions.push(...points); data.bones.push(...points.map(() => bone)); data.colors.push(...points.map(() => '#865333'));
-    for (const face of [[0,1,3],[1,2,3]]) {
-      const [a,b,c] = side > 0 ? face : [face[0],face[2],face[1]];
-      // 反向索引复用同一组位置，厚度严格为0；硬边展开分别生成正反法线。
-      data.indices.push(start+a,start+b,start+c,start+a,start+c,start+b);
+    for (const face of [[4,0,1],[4,1,2],[4,2,3],[4,3,0]]) {
+      // 单面朝身体外侧；不再复制反向面，把同样的4 tris预算全部用于更大的身体侧面分区。
+      const [a,b,c] = side > 0 ? [face[0],face[2],face[1]] : face;
+      data.indices.push(start+a,start+b,start+c);
     }
     data.parts.push({ name: 'Wing'+suffix, start, count: points.length });
   }
