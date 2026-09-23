@@ -16,7 +16,7 @@ function builder(version: string) {
   function tube(rows: Ring[]) {
     const start = data.positions.length;
     const rings = rows.map(row => Array.from({ length: row.sides }, (_, i) => {
-      const a = (row.sides === 4 ? Math.PI / 4 : Math.PI / 6) + i * Math.PI * 2 / row.sides;
+      const a = Math.PI / 6 + i * Math.PI * 2 / row.sides;
       return vertex([Math.cos(a) * row.rx, row.y + Math.sin(a) * row.ry, row.z], row.bone, row.color);
     }));
     // 以环绕序连接不同边数的截面；不能用整壳质心翻面，颈部本来就是弯曲的非凸壳。
@@ -85,9 +85,9 @@ export function buildChickenLod1Mesh(): AnimalMeshData {
 export function buildChickenLod2Mesh(): AnimalMeshData {
   const b = builder(CHICKEN_LOD2_VERSION);
   b.tube([
-    { z: -.080, y: .260, rx: .165, ry: .150, sides: 4, bone: B.Body, color: '#aa6b39' },
-    { z: .134, y: .315, rx: .090, ry: .098, sides: 4, bone: B.Body, color: '#aa6b39' },
-    { z: .263, y: .439, rx: .045, ry: .040, sides: 4, bone: B.Head, color: '#dba564' },
+    { z: -.055, y: .260, rx: .135, ry: .108, sides: 6, bone: B.Body, color: '#aa6b39' },
+    { z: .128, y: .315, rx: .085, ry: .080, sides: 3, bone: B.Body, color: '#aa6b39' },
+    { z: .263, y: .447, rx: .037, ry: .040, sides: 3, bone: B.Head, color: '#dba564' },
   ]);
   b.tail(); b.legs(false);
   return b.data;
