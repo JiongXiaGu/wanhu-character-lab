@@ -1,11 +1,11 @@
 import type { AnimalMeshData, LivestockLodId, Point } from '../livestock/types';
 import { DUCK_BONES as B, DUCK_SOLE } from './rig';
 
-export const DUCK_MESH_VERSION = 'wanhu-domestic-duck-mesh-v4';
+export const DUCK_MESH_VERSION = 'wanhu-domestic-duck-mesh-v5';
 interface Ring { z: number; y: number; rx: number; ry: number; sides: number; bone: number; color: string }
 const feather = '#ab865b', chest = '#c6a577', head = '#b49163', bill = '#c8a044', foot = '#c49a43';
 
-/** 三档保留原连续尾身颈头扁喙主壳；LOD0为身体侧面零厚度长叶翅，低档直接以主体侧带顶点色提示翼区。 */
+/** 三档保留原连续尾身颈头扁喙主壳；LOD0为身体中后段零厚度大侧面翼区，低档直接以主体侧带顶点色提示翼区。 */
 export function buildDuckMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
   if (!['lod0', 'lod1', 'lod2'].includes(lod)) throw new Error(`未知鸭LOD：${lod}`);
   const data: AnimalMeshData = { positions: [], indices: [], bones: [], colors: [], parts: [], version: `${DUCK_MESH_VERSION}/${lod}` };
@@ -16,8 +16,8 @@ export function buildDuckMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
     const start = data.positions.length;
     const rings = rows.map((r, row) => Array.from({ length: r.sides }, (_, i) => {
       const a = Math.PI / 2 + Math.PI * 2 * i / r.sides;
-      // 低档把翼区并入左右侧带，而不是背顶；不新增顶点、面、部件或Wing权重。
-      const wingHint = lod !== 'lod0' && row === 0 && (i === 1 || i === 2 || i === r.sides - 2 || i === r.sides - 1);
+      // 低档把翼区扩成Body后/中段两圈的左右侧带；不新增顶点、面、部件或Wing权重。
+      const wingHint = lod !== 'lod0' && r.bone === B.Body && row <= 1 && Math.abs(Math.cos(a)) > .45;
       return vertex([Math.cos(a) * r.rx, r.y + Math.sin(a) * r.ry, r.z], r.bone, wingHint ? (lod === 'lod1' ? '#90764f' : '#9b7d55') : r.color);
     }));
     for (let r = 1; r < rings.length; r++) {
@@ -50,14 +50,20 @@ export function buildDuckMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
   }
   function wing(side: number, suffix: string) {
     const start = data.positions.length, bone = side < 0 ? B.WingL : B.WingR;
-    // 明确可读的长侧翅：覆盖身体中后段侧面，从肩后顺躯干向后收拢。
-    // 不再是侧边小提示片；仍保持零厚度并顺着Body侧表面折线贴附。
-    const points: Point[] = [[side*.13148,.2612,.0812],[side*.17482,.2312,-.0237],[side*.16657,.2238,-.1438],[side*.16332,.2538,-.0838]];
+    // 大侧面翼区：沿Body现有侧面三角片复制一条中后段长叶区域，只向外留约5mm防止深度冲突。
+    // 6点/4 tris仍维持原每侧4 tris预算；不加反向面、不挤出侧壁，轮廓自然并入鸭身。
+    const points: Point[] = [
+      [side * .06043, .20250, -.235],
+      [side * .06043, .26350, -.235],
+      [side * .17400, .21900, -.125],
+      [side * .12450, .29820, -.125],
+      [side * .15800, .23300, .045],
+      [side * .11319, .31644, .045],
+    ];
     points.forEach(p => vertex(p, bone, '#8b704d'));
-    for (const face of [[0,1,3],[1,2,3]]) {
+    for (const face of [[0,1,2],[1,3,2],[2,3,4],[3,5,4]]) {
       const [a,b,c] = side > 0 ? face : [face[0],face[2],face[1]];
-      // 同位置反向面，不挤出侧墙，不改变整只动物的FrontSide材质。
-      data.indices.push(start+a,start+b,start+c,start+a,start+c,start+b);
+      data.indices.push(start+a,start+b,start+c);
     }
     data.parts.push({ name: 'Wing'+suffix, start, count: points.length });
   }
