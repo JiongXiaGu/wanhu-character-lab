@@ -1,5 +1,3 @@
-import type { MixamoId } from './catalog';
-
 export const MIXAMO_SCHEMA = 1;
 export const RETARGET_VERSION = 'wanhu-mixamo-2';
 /** 索引与目标 20 Bone ID 一致；Root 为目标生成的原点，不取自 FBX。 */
@@ -19,9 +17,9 @@ export const CALIBRATION_CHILD = [-1, 2, 3, 4, 5, 20, 7, 8, 9, 21, 11, 12, 13, 2
 /** 离线提取的源动作。positions 和 bindPositions 以米为单位，尚未按目标体型缩放。 */
 export interface MixamoMotionData {
   schema: number;
-  id: MixamoId;
+  id: string;
   source: {
-    provider: 'Mixamo'; file: string; sha256: string; clipName: string;
+    provider: 'Mixamo' | 'BVH'; file: string; sha256: string; clipName: string; extractorVersion?: string;
     uniqueBones: number; rawBoneNodes: number; tracks: number;
     threeVersion: string; axisConversion: string;
   };
@@ -37,7 +35,7 @@ export interface MixamoMotionData {
   positions: number[];
 }
 
-export function validateMixamoData(data: MixamoMotionData, id: MixamoId): void {
+export function validateMixamoData(data: MixamoMotionData, id: string): void {
   const count = data?.times?.length;
   if (data?.schema !== MIXAMO_SCHEMA || data.id !== id || !Number.isFinite(data.duration) || data.duration <= 0 || data.duration > 120 || !count || count < 2 || count > 7202)
     throw new Error('Mixamo 动画数据版本、ID 或时长无效，请运行 npm run prepare:mixamo。');
