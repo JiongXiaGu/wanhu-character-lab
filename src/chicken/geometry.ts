@@ -2,7 +2,7 @@ import { Vector3 } from 'three';
 import type { AnimalMeshData, Point } from '../livestock/types';
 import { CHICKEN_BONES as B, FOOT_POINTS } from './rig';
 
-export const CHICKEN_MESH_VERSION = 'wanhu-chicken-mesh-v3';
+export const CHICKEN_MESH_VERSION = 'wanhu-chicken-mesh-v4';
 /** 140 tris / 100逻辑点；13个闭合体壳 + 两片零厚度身体侧面翅，每侧正反共4面。 */
 export function buildChickenMesh(): AnimalMeshData {
   const data: AnimalMeshData = { positions: [], indices: [], bones: [], colors: [], parts: [], version: CHICKEN_MESH_VERSION };
@@ -32,9 +32,9 @@ export function buildChickenMesh(): AnimalMeshData {
   }
   function wing(side: number, suffix: string, bone: number) {
     const start = data.positions.length;
-    // 短而收拢的小叶片；贴在身体中侧部，法线以左右方向为主，不放到背顶。
-    // 四点沿原Body侧面留约4mm视觉层次，避免深度冲突，但不形成实体厚度。
-    const points: Point[] = [[side*.1082,.295,.060],[side*.1117,.265,-.005],[side*.1158,.245,-.080],[side*.1125,.280,-.020]];
+    // 明确可读的短圆侧翅：面积覆盖身体中侧部，而不是只做一小块提示片。
+    // 仍沿Body侧表面折线贴附，厚度为0；从俯视只露适度侧缘。
+    const points: Point[] = [[side*.09986,.3069,.0956],[side*.12078,.2619,-.0019],[side*.11184,.2319,-.1144],[side*.11718,.2844,-.0244]];
     data.positions.push(...points); data.bones.push(...points.map(() => bone)); data.colors.push(...points.map(() => '#865333'));
     for (const face of [[0,1,3],[1,2,3]]) {
       const [a,b,c] = side > 0 ? face : [face[0],face[2],face[1]];

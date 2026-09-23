@@ -1,7 +1,7 @@
 import type { AnimalMeshData, LivestockLodId, Point } from '../livestock/types';
 import { DUCK_BONES as B, DUCK_SOLE } from './rig';
 
-export const DUCK_MESH_VERSION = 'wanhu-domestic-duck-mesh-v3';
+export const DUCK_MESH_VERSION = 'wanhu-domestic-duck-mesh-v4';
 interface Ring { z: number; y: number; rx: number; ry: number; sides: number; bone: number; color: string }
 const feather = '#ab865b', chest = '#c6a577', head = '#b49163', bill = '#c8a044', foot = '#c49a43';
 
@@ -50,9 +50,9 @@ export function buildDuckMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
   }
   function wing(side: number, suffix: string) {
     const start = data.positions.length, bone = side < 0 ? B.WingL : B.WingR;
-    // 独立鸭作者长叶片：位于身体侧面，从肩后沿躯干向后收拢；不再放到背顶。
-    // 四点沿原Body侧面保留约4mm间隙，俯视不额外撑宽身体。
-    const points: Point[] = [[side*.1452,.255,.040],[side*.1589,.235,-.030],[side*.1655,.230,-.110],[side*.1513,.250,-.070]];
+    // 明确可读的长侧翅：覆盖身体中后段侧面，从肩后顺躯干向后收拢。
+    // 不再是侧边小提示片；仍保持零厚度并顺着Body侧表面折线贴附。
+    const points: Point[] = [[side*.13123,.2612,.0812],[side*.17457,.2312,-.0237],[side*.16632,.2238,-.1438],[side*.16307,.2538,-.0838]];
     points.forEach(p => vertex(p, bone, '#8b704d'));
     for (const face of [[0,1,3],[1,2,3]]) {
       const [a,b,c] = side > 0 ? face : [face[0],face[2],face[1]];

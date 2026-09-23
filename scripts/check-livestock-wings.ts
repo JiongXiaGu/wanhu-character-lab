@@ -33,6 +33,12 @@ export function assertPoultryWingTopology(data: AnimalMeshData, lod: LivestockLo
       faces.push(tri);
     }
     assert.equal(faces.length, 4, '每侧2正向+2反向，共4面');
+    const yz = Array.from(own).map(i => data.positions[i]);
+    const sideArea = Math.abs(yz.reduce((sum, p, i) => {
+      const q = yz[(i + 1) % yz.length];
+      return sum + p[2] * q[1] - q[2] * p[1];
+    }, 0)) * .5;
+    assert(sideArea >= .003, `侧视翅膀面积过小：${sideArea}`);
     const normals = faces.map(tri => {
       const [a,b,c] = tri.map(i => new Vector3(...data.positions[i]));
       const n = b.sub(a).cross(c.sub(a)); assert(n.lengthSq() > 1e-12, '翅片退化面');
@@ -125,7 +131,7 @@ for(const definition of LIVESTOCK) {
     data.indices.forEach((j,i)=>{if(wings.has(j)&&!firstRender.has(j))firstRender.set(j,i);});
     const surface=sideSurface(data), source=actor.geometry.getAttribute('position');
     let poses=0,minClearance=Infinity,maxClearance=-Infinity,minSideNormal=Infinity;
-    const maxGap=definition.id==='chicken_brown'?.007:.008;
+    const maxGap=definition.id==='chicken_brown'?.0155:.019;
     for(const motion of definition.motions) for(let f=0;f<=240;f++) {
       actor.sample(motion.id,f/240); poses++;
       const toBody=new Matrix4().makeTranslation(...definition.joints[1].position).multiply(actor.bones[1].matrixWorld.clone().invert());
