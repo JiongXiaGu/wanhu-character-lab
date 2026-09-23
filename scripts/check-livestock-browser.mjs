@@ -1,3 +1,4 @@
+import './check-livestock-lod-browser.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';

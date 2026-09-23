@@ -1,3 +1,4 @@
+import './check-livestock-lod';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { Vector3 } from 'three';
