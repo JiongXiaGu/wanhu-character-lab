@@ -22,7 +22,7 @@ jobs:
       - name: Package offline authoring inputs (no credentials or Git directory)
         run: |
           git rev-parse HEAD > SOURCE_SHA.txt
-          tar --exclude=.git --exclude=dist --exclude=review --exclude='*.fbx' --exclude='*.bvh' -czf /tmp/duck-workspace.tar.gz .
+          tar --exclude=./.git --exclude=./dist --exclude=./review --exclude='*.fbx' --exclude='*.bvh' -czf /tmp/duck-workspace.tar.gz .
       - uses: actions/upload-artifact@v4
         with:
           name: duck-authoring-workspace-a44bb9c
