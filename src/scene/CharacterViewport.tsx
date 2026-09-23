@@ -133,7 +133,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     };frame=requestAnimationFrame(animate);
     const lost=(event:Event)=>{event.preventDefault();errorRef.current('WebGL 上下文丢失，请刷新页面。');};
     renderer.domElement.addEventListener('webglcontextlost',lost);
-    window.__WANHU_EXPORT_MOTION__=()=>rt?.mixamo?.export();
+    window.__WANHU_EXPORT_MOTION__=()=>rt?.motion?.export();
     window.__WANHU_CAPTURE__=()=>{render();renderer.domElement.toBlob(blob=>{
       if(!blob)return;const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;
       link.download=`wanhu-${latest.current.recipe.bodyType}-${latest.current.motion==='none'?'bind':latest.current.motion}.png`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -152,7 +152,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     const keepCamera=recipeChanged && r.builtRecipe.bodyType===options.recipe.bodyType;
     r.restart=options.restart;
     if(!recipeChanged&&!selectionChanged&&!(restarted&&r.loadError)){
-      if(restarted){r.desiredPhase=0;r.mixamo?.replay();playbackRef.current(playback(r));}
+      if(restarted){r.desiredPhase=0;r.motion?.replay();playbackRef.current(playback(r));}
       return;
     }
     // 换 FBX 不重建模型；改 Recipe 才重建几何。异步代次阻止过期资源覆盖当前选择。
@@ -168,14 +168,14 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
         const generation=r.generation,actor=r.actor;
         loadMotion(options.motion).then(source=>{
           if(runtime.current!==r||r.generation!==generation)return;
-          r.mixamo=createMotionPlayer(actor,source);r.mixamo.setLoop(latest.current.loop);r.scene.add(r.mixamo.targetDebug);r.loading=false;
-          r.mixamo.seek(r.desiredPhase);applyDisplay(r,latest.current);if(!keepCamera)applyCamera(r,latest.current);r.resize();playbackRef.current(playback(r));
+          r.motion=createMotionPlayer(actor,source);r.motion.setLoop(latest.current.loop);r.scene.add(r.motion.targetDebug);r.loading=false;
+          r.motion.seek(r.desiredPhase);applyDisplay(r,latest.current);if(!keepCamera)applyCamera(r,latest.current);r.resize();playbackRef.current(playback(r));
         }).catch(error=>{if(runtime.current!==r||r.generation!==generation)return;r.loading=false;r.loadError=String(error);playbackRef.current(playback(r));});
       }
     }catch(error){errorRef.current(String(error));}
   },[options.recipe,options.motion,options.restart]);
   useEffect(()=>{const r=runtime.current;if(r&&!options.playing)seek(r,options.phase);},[options.phase]);
-  useEffect(()=>{const r=runtime.current;if(r?.mixamo){r.mixamo.setLoop(options.loop);playbackRef.current(playback(r));}},[options.loop]);
+  useEffect(()=>{const r=runtime.current;if(r?.mixamo){r.motion.setLoop(options.loop);playbackRef.current(playback(r));}},[options.loop]);
   useEffect(()=>{const r=runtime.current;if(r){applyCamera(r,options);r.resize();}},[options.view,options.viewRevision,options.orthographic,options.motion,options.compareSource]);
   useEffect(()=>{const r=runtime.current;if(r)applyDisplay(r,options);},[options.display,options.skeleton,options.grid,options.headAxes]);
   return <div ref={host} className="character-viewport" data-testid="viewport"/>;
@@ -186,13 +186,13 @@ function applyDisplay(r:Runtime,o:ViewOptions){
   material.wireframe=o.display==='triangles';material.vertexColors=o.display!=='clay';material.color.set(o.display==='clay'?'#c2b49c':'#ffffff');
   material.polygonOffset=o.display==='cage';material.polygonOffsetFactor=1;material.polygonOffsetUnits=1;material.needsUpdate=true;
   r.actor.wire.visible=o.display==='cage';r.actor.skeletonHelper.visible=o.skeleton;r.grid.visible=o.grid;
-  r.mixamo?.setHeadAxes(o.headAxes);if(r.mixamo)r.mixamo.update(0);else r.actor.update(0);
+  r.motion?.setHeadAxes(o.headAxes);if(r.motion)r.motion.update(0);else r.actor.update(0);
 }
 function applyCamera(r:Runtime,o:ViewOptions){
   const next=o.orthographic?r.ortho:r.perspective;
   if(r.camera!==next){r.controls.dispose();r.camera=next;r.controls=new OrbitControls(next,r.renderer.domElement);
     r.controls.enableDamping=true;r.controls.minDistance=1.4;r.controls.maxDistance=8;r.controls.minZoom=.55;r.controls.maxZoom=5;}
-  const y=BODY_HEIGHT[o.recipe.bodyType]*.53,target=r.mixamo?r.mixamo.bake.bounds.getCenter(new T.Vector3()):new T.Vector3(0,y,0);
+  const y=BODY_HEIGHT[o.recipe.bodyType]*.53,target=r.motion?r.motion.bake.bounds.getCenter(new T.Vector3()):new T.Vector3(0,y,0);
   next.up.set(0,1,0);if(next instanceof T.OrthographicCamera)next.zoom=o.view==='top'?1.7:1;
   const position=o.view==='front'?[0,y,4]:o.view==='back'?[0,y,-4]:o.view==='side'?[4,y,0]:o.view==='top'?[0,5,.001]:[2.8,y+1.05,4.5];
   next.position.fromArray(position).add(new T.Vector3(target.x,target.y-y,target.z));
@@ -200,7 +200,7 @@ function applyCamera(r:Runtime,o:ViewOptions){
   r.views.forEach((c,i)=>{c.position.set(...(i===0?[0,0,4]:i===1?[4,0,0]:[0,0,-4]) as [number,number,number]);c.position.add(target);c.lookAt(target);});
 }
 function playback(r:Runtime):PlaybackStatus{
-  if(r.mixamo){const status=r.mixamo.status();return {...status,motion:status};}
+  if(r.motion){const status=r.motion.status();return {...status,motion:status};}
   return {phase:r.loading?r.desiredPhase:0,stage:r.loading?'正在载入外部动作':r.loadError?'动画载入失败':'静态绑定姿态',loading:r.loading,loadError:r.loadError,finished:false};
 }
-function seek(r:Runtime,phase:number){r.desiredPhase=T.MathUtils.clamp(Number.isFinite(phase)?phase:0,0,1);r.mixamo?.seek(r.desiredPhase);r.render();}
+function seek(r:Runtime,phase:number){r.desiredPhase=T.MathUtils.clamp(Number.isFinite(phase)?phase:0,0,1);r.motion?.seek(r.desiredPhase);r.render();}

@@ -44,7 +44,7 @@ export function extractSystemAnimatorGlb(id:string,filename:string,rootDirectory
   const position=(matrix:T.Matrix4)=>new T.Vector3().setFromMatrixPosition(matrix),rotation=(matrix:T.Matrix4)=>new T.Quaternion().setFromRotationMatrix(new T.Matrix4().extractRotation(matrix));
   const hips=actual[1]!,head=actual[5]!,leftArm=actual[11]!,rightArm=actual[7]!,leftFoot=actual[19]!,rightFoot=actual[16]!,leftToe=actual[24]!,rightToe=actual[23]!;
   const up=position(worldBind(head)).sub(position(worldBind(hips))).normalize(),right=position(worldBind(rightArm)).sub(position(worldBind(leftArm)));right.addScaledVector(up,-right.dot(up)).normalize();
-  const forward=position(worldBind(leftToe)).sub(position(worldBind(leftFoot)).add(position(worldBind(rightToe)).sub(position(worldBind(rightFoot)));forward.addScaledVector(up,-forward.dot(up)).addScaledVector(right,-forward.dot(right)).normalize();
+  const forward=position(worldBind(leftToe)).sub(position(worldBind(leftFoot))).add(position(worldBind(rightToe)).sub(position(worldBind(rightFoot))));forward.addScaledVector(up,-forward.dot(up)).addScaledVector(right,-forward.dot(right)).normalize();
   if(right.lengthSq()<.99||forward.lengthSq()<.99)throw new Error(`${filename}: 无法确定人体坐标轴。`);
   const conversion=new T.Matrix4().makeBasis(right,up,forward).invert(),inverseConversion=conversion.clone().invert();
   const tracks=new Map<string,{times:number[][];values:number[][];path:string;interpolation:string}>();
