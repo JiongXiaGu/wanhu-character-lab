@@ -10,8 +10,8 @@ preview.log
 reviewed-source.tar.gz
 .scratch/
 public/mixamo/
-public/bvh/
-review-mixamo/
+public/system-animator/
+review-motion/
 review-wardrobe/
 review-tailoring-v2/
 review-fixed/

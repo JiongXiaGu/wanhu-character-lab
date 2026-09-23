@@ -1,6 +1,6 @@
-## BVH 人物动作验证
+## XR Animator GLB 人物动作验证
 
-已授权把 `动画参考_BVH/` 作为第二种人物动作输入，并在现有人物试衣 UI 中直接视觉验证。BVH 不替换 Mixamo FBX；两者最终都进入现有 20 骨骼重定向、同一播放器和同一服装蒙皮。先读《BVH动作接入.md》。当前首个真实样本为 `简单跳舞_A.bvh`；手指、眼睛、下颌、脚趾独立驱动不进入当前目标骨架。不得因此修改 Recipe V5、人物骨数或恢复程序动作。新增 BVH 必须能明确失败，不能静默猜骨；视觉正确性最终由用户验收。
+用户已明确停止 BVH 路线并删除 BVH 源资产；不得恢复 BVH 导入、兼容层、脚本或 UI。XR Animator/SystemAnimator 的动作源统一放在 `动画参考_glb/`，当前首个真实样本为 `简单跳舞_A.glb`。GLB 使用 `system-animator-glb-v1` 离线提取真实 Bind World Transform、Quaternion 动画与 Hips 位移，进入 `HumanoidMotionData` 后与 Mixamo FBX 共用 `src/character/motion/` 的播放器和 20 骨重定向。G1 不做动作平滑、Foot IK 或 Foot Lock；固定 Ground Baseline 只处理整体地面基准，脚滑/脚穿地保留为后续动捕清理问题。视觉正确性最终由用户验收。
 
 # AGENTS · 衣冠工坊V5、多坐骑与家畜
 
@@ -24,7 +24,7 @@ src/buffalo独立拥有2056三角形／1082逻辑点／28骨、低长头、横�
 
 ## 接手
 
-这是wanhu-character-lab的3D换装、FBX试衣与动物Web实验，不是头像或UI原型。先核对远端main、任务分支、PR与Actions，再读README、工作交接、家畜与低模鸡、牦牛、黄牛、双峰骆驼、多坐骑与灰驴、马鞍与缰绳、骑乘与坐骑挂接、低模马与基础四足动画、服装Cap封闭实验、头饰闭合与安全留量、短裤封边与连续裙装、固定基模与换装V5、服装生成架构、轻便服饰与头饰安全留量、运行时人物生成架构、Mixamo动画接入、男性FBX校正、GPU骨骼动画迁移契约及GitHubActions截图验收规范。不要用历史SHA覆盖并发新提交。
+这是wanhu-character-lab的3D换装、外部动作试衣与动物Web实验，不是头像或UI原型。先核对远端main、任务分支、PR与Actions，再读README、工作交接、家畜与低模鸡、牦牛、黄牛、双峰骆驼、多坐骑与灰驴、马鞍与缰绳、骑乘与坐骑挂接、低模马与基础四足动画、服装Cap封闭实验、头饰闭合与安全留量、短裤封边与连续裙装、固定基模与换装V5、服装生成架构、轻便服饰与头饰安全留量、运行时人物生成架构、Mixamo动画接入、SystemAnimator GLB动作接入、男性FBX校正、GPU骨骼动画迁移契约及GitHubActions截图验收规范。不要用历史SHA覆盖并发新提交。
 
 ## 多坐骑与当前范围
 
@@ -76,7 +76,7 @@ check:riding-browser、check:saddles-browser、check:mounts-browser只做真实�
 
 20骨骼语义、索引和父关系不变，最多双权重，米制、+X右/+Y上/+Z前。男女绑定位置可以不同，服装共享当前基模骨架，不新增服装Animator，不未经验证共用男女最终矩阵。颜色仍进入网格缓存。
 
-正式路径Recipe→固定基模／资产注册→作者接口封闭→装配→CharacterData→rig→viewport；FBX→离线提取→retarget→局部轨道→player。patterns只注册，assets拥有几何与静态权重，seal-interfaces只在创建时封闭显式接口，assembly负责固定覆盖，adornments拥有头发／头饰，headwear-fit只做一次性帽壳留量。无外部Mesh通用导入器，不恢复tailoring或人体衣面fallback。
+正式路径Recipe→固定基模／资产注册→作者接口封闭→装配→CharacterData→rig→viewport；Mixamo FBX／XR Animator GLB→各自离线提取→HumanoidMotionData→motion/retarget→motion/player。patterns只注册，assets拥有几何与静态权重，seal-interfaces只在创建时封闭显式接口，assembly负责固定覆盖，adornments拥有头发／头饰，headwear-fit只做一次性帽壳留量。无外部Mesh通用导入器，不恢复tailoring或人体衣面fallback。
 
 正式衣柜7上衣／5下装／1鞋，body只为内部裸模哨兵；10张搭配灵感保留、基础搭配已删。上衣work_vest、short_work_jacket、rough_tunic、cross_jacket、layered_vest、ceremony_robe、farmer_tunic；下装short_trousers、true_short_skirt、long_skirt、work_pants、work_wrap；鞋cloth_shoes。guard_light_armor、archer_tunic、loose_trousers、guard_pants、archer_pants、pleated_skirt、robe_skirt、short_skirt、boots退役，不恢复隐藏选项或fallback。
 
@@ -90,7 +90,7 @@ check:riding-browser、check:saddles-browser、check:mounts-browser只做真实�
 
 只按covers不绘制内部皮肤，不随动作删面，不改灯光／源动作伪造通过。不同服饰允许专用拓扑，上衣含自身领袖腰带，不无限加槽。原相交算法、容差、全部源键／中点与压力动作保持；样本随现役目录计算。Cuff与可见shin、裙HemCenter与Hem/HemInset/HemFacing或皮肤shin的既有固定接口仅离线窄范围分类，原始／接口／其他交点分列，不宣称全为0或整件免检。普通非接口穿插阻塞，真裙Snatch仅压力观察。
 
-动态扫描全部FBX不固定总数，失败明确报错；真实inverse bind，不用首帧替代。保留头部相对bind完整旋转差，不用HeadTop_End当脸前向或锁俯仰。原人物换装／男女切换保持暂停相位，切动画复用网格。
+动态扫描全部 Mixamo FBX 与 XR Animator GLB，不固定总数，失败明确报错；GLB 必须使用真实 Bind World Transform，FBX 继续使用真实 inverse bind，不用首帧替代。保留头部相对bind完整旋转差，不用HeadTop_End当脸前向或锁俯仰。原人物换装／男女切换保持暂停相位，切动画复用网格。
 
 ## 审图与交付
 
