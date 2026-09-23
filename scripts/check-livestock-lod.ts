@@ -33,6 +33,10 @@ function continuousMain(data: AnimalMeshData, lod: LivestockLodId) {
   assert.equal(main.count - edges.size + faces.length, 2, `${lod}主体拓扑异常`);
   assert(faces.some(tri => new Set(tri.map(i => data.bones[i])).size > 1), '颈部不能仅有彼此独立的刚性壳');
   assert([...vertices].some(i => data.bones[i] === B.Head)); assert([...vertices].some(i => data.bones[i] === B.Body));
+  for (const i of vertices) {
+    const p = data.positions[i];
+    assert([...vertices].some(j => { const q = data.positions[j]; return data.bones[i] === data.bones[j] && Math.abs(p[0]+q[0]) < 1e-8 && Math.abs(p[1]-q[1]) < 1e-8 && Math.abs(p[2]-q[2]) < 1e-8; }), `${lod}主体制作轮廓必须左右对称`);
+  }
   return faces;
 }
 
@@ -49,6 +53,7 @@ for (const lod of ['lod1', 'lod2'] as const) {
   }) };
   assert.throws(() => continuousMain(broken, lod));
   assert.throws(() => continuousMain({ ...data, parts: [...data.parts, { name: 'EyeL', start: 0, count: 1 }] }, lod));
+  assert.throws(() => continuousMain({ ...data, positions: data.positions.map((p, i) => i === 0 ? [p[0] + .01, p[1], p[2]] as const : p) }, lod));
   const source = actor.geometry.getAttribute('position'), firstRender = new Int32Array(data.positions.length).fill(-1);
   data.indices.forEach((v, i) => { if (firstRender[v] < 0) firstRender[v] = i; });
   const area = (points: Vector3[], tri: number[]) => points[tri[1]].clone().sub(points[tri[0]]).cross(points[tri[2]].clone().sub(points[tri[0]])).length();
@@ -84,7 +89,7 @@ for (const lod of ['lod1', 'lod2'] as const) {
       }
     }
   }
-  reports.push({ lod, triangles: data.indices.length / 3, logicalVertices: data.positions.length, mainTriangles: mainFaces.length, poses, minFoot, minBeak, minAreaRatio, faultInjections: 2 });
+  reports.push({ lod, triangles: data.indices.length / 3, logicalVertices: data.positions.length, mainTriangles: mainFaces.length, poses, minFoot, minBeak, minAreaRatio, faultInjections: 3 });
   cache.dispose(); cache.dispose(); actor.dispose(); actor.dispose();
 }
 const dir = process.env.LIVESTOCK_CHECK_DIR ?? '/tmp/wanhu-livestock-checks'; mkdirSync(dir, { recursive: true });

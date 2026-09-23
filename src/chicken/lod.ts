@@ -16,7 +16,7 @@ function builder(version: string) {
   function tube(rows: Ring[]) {
     const start = data.positions.length;
     const rings = rows.map(row => Array.from({ length: row.sides }, (_, i) => {
-      const a = Math.PI / 6 + i * Math.PI * 2 / row.sides;
+      const a = (row.sides === 4 ? Math.PI / 4 : Math.PI / 6) + i * Math.PI * 2 / row.sides;
       return vertex([Math.cos(a) * row.rx, row.y + Math.sin(a) * row.ry, row.z], row.bone, row.color);
     }));
     // 以环绕序连接不同边数的截面；不能用整壳质心翻面，颈部本来就是弯曲的非凸壳。
@@ -55,8 +55,8 @@ function builder(version: string) {
   function legs(detailed: boolean) {
     for (const side of [-1, 1]) {
       const x = side * .063, bone = side < 0 ? B.LegL : B.LegR, name = side < 0 ? 'LegL' : 'LegR';
-      // 低档腿与脚合成一个壳；脚底仍沿用原动作制作的三个支撑点，没有独立脚趾。
-      const sole: Point[] = [[x-.030,.005,.060],[x+.030,.005,.060],[x,.005,-.030]];
+      // 低档腿与脚合成一个壳；仅保留短小支撑面，无独立脚趾；不更改骨骼或动作制作。
+      const sole: Point[] = [[x-.009,.005,.014],[x+.009,.005,.014],[x,.005,-.010]];
       if (detailed) solid(name, [...sole, [x-.010,.193,.008],[x+.010,.193,.008],[x,.193,-.010]], [[0,1,2],[3,5,4],[0,3,4,1],[1,4,5,2],[2,5,3,0]], bone, '#c3954e');
       else tetra(name, [...sole, [x,.193,0]], bone, '#c3954e');
     }
@@ -85,9 +85,9 @@ export function buildChickenLod1Mesh(): AnimalMeshData {
 export function buildChickenLod2Mesh(): AnimalMeshData {
   const b = builder(CHICKEN_LOD2_VERSION);
   b.tube([
-    { z: -.080, y: .260, rx: .135, ry: .120, sides: 4, bone: B.Body, color: '#aa6b39' },
-    { z: .134, y: .315, rx: .077, ry: .082, sides: 4, bone: B.Body, color: '#aa6b39' },
-    { z: .263, y: .439, rx: .037, ry: .037, sides: 4, bone: B.Head, color: '#dba564' },
+    { z: -.080, y: .260, rx: .165, ry: .150, sides: 4, bone: B.Body, color: '#aa6b39' },
+    { z: .134, y: .315, rx: .090, ry: .098, sides: 4, bone: B.Body, color: '#aa6b39' },
+    { z: .263, y: .439, rx: .045, ry: .040, sides: 4, bone: B.Head, color: '#dba564' },
   ]);
   b.tail(); b.legs(false);
   return b.data;

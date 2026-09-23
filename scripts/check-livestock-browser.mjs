@@ -20,8 +20,21 @@ try {
   const setPhase = async value => {
     const slider = page.getByLabel('家畜动画相位', { exact: true });
     await slider.scrollIntoViewIfNeeded(); const box = await slider.boundingBox(); assert(box);
-    await slider.click({ position: { x: 8 + (box.width - 16) * value, y: box.height / 2 } }); await page.waitForTimeout(220);
-    for (let i = 0; i < 30; i++) { const actual = Number(await slider.inputValue()); if (Math.abs(actual - value) < .0005) break; await slider.press(actual < value ? 'ArrowRight' : 'ArrowLeft'); await page.waitForTimeout(180); }
+    await slider.click({ position: { x: 8 + (box.width - 16) * value, y: box.height / 2 } });
+    // 等待每次真实输入被时钟和受控控件共同确认，不用固定延时猜测React/软件WebGL是否已经处理。
+    await page.waitForFunction(() => {
+      const state = window.__LIVESTOCK_REVIEW__.snapshot(), input = document.querySelector('input[aria-label="家畜动画相位"]');
+      return !state.playing && Math.abs(Number(input.value) - state.phase) < .0005;
+    });
+    for (let i = 0; i < 120; i++) {
+      const actual = Number(await slider.inputValue()); if (Math.abs(actual - value) < .0005) break;
+      const direction = actual < value ? 1 : -1, next = Number((actual + direction * .001).toFixed(3));
+      await slider.press(direction > 0 ? 'ArrowRight' : 'ArrowLeft');
+      await page.waitForFunction(expected => {
+        const state = window.__LIVESTOCK_REVIEW__.snapshot(), input = document.querySelector('input[aria-label="家畜动画相位"]');
+        return Math.abs(state.phase - expected) < .0005 && Math.abs(Number(input.value) - expected) < .0005;
+      }, next);
+    }
     await page.waitForFunction(target => Math.abs(window.__LIVESTOCK_REVIEW__.snapshot().phase - target) < .001, value);
   };
   await page.goto(`${base}/?lab=livestock&paused=1`, { waitUntil: 'networkidle' }); await ready();
