@@ -23,8 +23,11 @@ export async function captureLodComparison(page, base) {
       images[motion].push(await page.screenshot({ clip }));
     }
   }
-  const sheet = await page.context().newPage(); await sheet.setViewportSize({ width: 1600, height: 640 });
+  // browser.newPage()拥有的快捷上下文只能有一页；拼版显式拥有并释放独立上下文。
+  const browser = page.context().browser(); assert(browser, '截图浏览器已关闭');
+  const context = await browser.newContext({ viewport: { width: 1600, height: 640 }, deviceScaleFactor: 1 });
   try {
+    const sheet = await context.newPage();
     for (const [motion, title, filename] of [['idle', '停驻 · 三档同角度对照', '09-lod-comparison.png'], ['peck', '啄食最低点 · 三档侧面对照', '10-lod-peck-comparison.png']]) {
       await sheet.setContent(`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><style>
         *{box-sizing:border-box}body{margin:0;background:#19292c;color:#e7e3d8;font-family:'Noto Sans CJK SC','Noto Sans SC',sans-serif;padding:26px 24px}
@@ -35,6 +38,6 @@ export async function captureLodComparison(page, base) {
       await sheet.waitForFunction(() => [...document.images].every(image => image.complete && image.naturalWidth > 0));
       await sheet.screenshot({ path: `review/livestock/${filename}`, fullPage: true });
     }
-  } finally { await sheet.close(); }
+  } finally { await context.close(); }
   return snapshots;
 }
