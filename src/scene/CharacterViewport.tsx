@@ -6,21 +6,21 @@ import { makeActor, type Actor } from '../character/v3/rig';
 import { triCount } from '../character/v3/cage';
 import { BODY_HEIGHT, type Recipe } from '../character/v3/types';
 import { createMixamoPlayer, loadMixamo, type MixamoPlayer, type MixamoStatus } from '../character/mixamo/player';
-import type { MixamoSelection } from '../character/mixamo/catalog';
+import type { MotionSelection } from '../character/motion/catalog';
 
 export interface PlaybackStatus { phase:number; stage:string; finished:boolean; mixamo?:MixamoStatus; loading?:boolean; loadError?:string }
 export type View = 'free' | 'front' | 'side' | 'back' | 'top' | 'three';
 export type Display = 'beauty' | 'cage' | 'triangles' | 'clay' | 'unlit';
 export interface Stats { triangles:number; bodyTriangles:number; vertices:number; gpuVertices:number; bones:number; replaced:number }
 export interface ViewOptions {
-  recipe:Recipe; mixamo:MixamoSelection; compareSource:boolean; headAxes:boolean; restart:number;
+  recipe:Recipe; mixamo:MotionSelection; compareSource:boolean; headAxes:boolean; restart:number;
   playing:boolean; speed:number; phase:number; loop:boolean; view:View; viewRevision:number;
   orthographic:boolean; display:Display; skeleton:boolean; grid:boolean;
 }
 interface Props { options:ViewOptions; onStats:(v:Stats)=>void; onPlayback:(v:PlaybackStatus)=>void; onError:(message:string)=>void }
 interface Runtime {
   renderer:T.WebGLRenderer; scene:T.Scene; actor:Actor; mixamo?:MixamoPlayer;
-  selection:MixamoSelection; generation:number; loading:boolean; loadError:string; desiredPhase:number; restart:number;
+  selection:MotionSelection; generation:number; loading:boolean; loadError:string; desiredPhase:number; restart:number;
   builtRecipe:Recipe; pairPerspective:T.PerspectiveCamera; pairOrtho:T.OrthographicCamera;
   controls:OrbitControls; camera:T.Camera; perspective:T.PerspectiveCamera; ortho:T.OrthographicCamera; views:T.OrthographicCamera[];
   resize:()=>void; render:()=>void; grid:T.GridHelper; disposePlayer:()=>void; disposeActor:()=>void;

@@ -21,9 +21,9 @@ export interface MixamoMotionData {
   schema: number;
   id: MixamoId;
   source: {
-    provider: 'Mixamo'; file: string; sha256: string; clipName: string;
+    provider: 'Mixamo' | 'BVH'; format?: 'fbx' | 'bvh'; file: string; sha256: string; clipName: string;
     uniqueBones: number; rawBoneNodes: number; tracks: number;
-    threeVersion: string; axisConversion: string;
+    threeVersion: string; axisConversion: string; extractorVersion?: string; headCorrection?: string;
   };
   duration: number;
   fps: number;
