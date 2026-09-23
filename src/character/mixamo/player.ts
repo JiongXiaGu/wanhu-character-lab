@@ -3,14 +3,14 @@ import * as T from 'three';
 import { createClipClock } from '../../animation/clip-clock';
 import type { Actor } from '../v3/rig';
 import { SAMPLE_BONE_COUNT, SAMPLE_PARENTS, validateMixamoData, type MixamoMotionData } from './data';
-import { mixamoDefinition, type MixamoId } from './catalog';
+import { motionAssetPath, motionDefinition, type MotionId, type MotionSource } from '../motion/catalog';
 import { retargetMixamo, exportTargetMotion, type RetargetBake } from './retarget';
 
-const cache = new Map<MixamoId, Promise<MixamoMotionData>>();
+const cache = new Map<MotionId, Promise<MixamoMotionData>>();
 /** 只缓存有限的源动作；不缓存某个角色或其装备，失败后允许重试。 */
-export function loadMixamo(id: MixamoId): Promise<MixamoMotionData> {
+export function loadMixamo(id: MotionId): Promise<MixamoMotionData> {
   const found = cache.get(id); if (found) return found;
-  const pending = fetch(`${import.meta.env.BASE_URL}mixamo/${id}.json`).then(async response => {
+  const pending = fetch(`${import.meta.env.BASE_URL}${motionAssetPath(id)}`).then(async response => {
     if (!response.ok) throw new Error(`动画资源 ${response.status}；请运行 npm run prepare:mixamo 后重新启动。`);
     const data = await response.json() as MixamoMotionData; validateMixamoData(data, id); return data;
   }).catch(error => { if (cache.get(id) === pending) cache.delete(id); throw error; });
@@ -19,7 +19,7 @@ export function loadMixamo(id: MixamoId): Promise<MixamoMotionData> {
   return pending;
 }
 export interface MixamoStatus {
-  id: MixamoId; ready: boolean; duration: number; loop: boolean; seamDegrees: number; sourceHash: string;
+  id: MotionId; source: MotionSource; ready: boolean; duration: number; loop: boolean; seamDegrees: number; sourceHash: string;
   phase: number; stage: string; finished: boolean;
 }
 export interface MixamoPlayer {
@@ -38,7 +38,7 @@ function makeHeadAxes(): T.LineSegments {
   return lines;
 }
 export function createMixamoPlayer(actor: Actor, source: MixamoMotionData): MixamoPlayer {
-  const bake = retargetMixamo(actor.data, source), def = mixamoDefinition(source.id);
+  const bake = retargetMixamo(actor.data, source), def = motionDefinition(source.id);
   const scene = new T.Scene(), geometry = new T.BufferGeometry();
   const edges = SAMPLE_PARENTS.map((parent, i) => [parent, i]).filter(([parent, i]) => parent > 0 && i !== 1);
   const points = new Float32Array(edges.length * 6);
@@ -94,8 +94,8 @@ export function createMixamoPlayer(actor: Actor, source: MixamoMotionData): Mixa
     replay() { clock.replay(); sync(); },
     setLoop(value) { clock.setLoop(value); sync(); },
     setHeadAxes(visible){sourceDebug.visible=visible;targetDebug.visible=visible;sync();},
-    status() { return { id: source.id, ready: true, duration: source.duration, loop: clock.loop, seamDegrees: bake.seamDegrees, sourceHash: source.source.sha256,
-      phase: clock.phase, stage: `Mixamo · ${def.label}`, finished: clock.finished }; },
+    status() { return { id: source.id, source: def.source, ready: true, duration: source.duration, loop: clock.loop, seamDegrees: bake.seamDegrees, sourceHash: source.source.sha256,
+      phase: clock.phase, stage: `${def.source==='bvh'?'BVH':'Mixamo'} · ${def.label}`, finished: clock.finished }; },
     export() { return exportTargetMotion(actor.data, source, bake); },
     dispose() {
       disposed = true; action.stop(); actor.mixer.uncacheClip(bake.clip);
