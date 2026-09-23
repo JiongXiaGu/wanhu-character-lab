@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { Matrix4, Vector3 } from 'three';
+import { assertPoultryWingTopology } from './check-livestock-wings';
 import { DUCK_DEFINITION as definition } from '../src/duck/definition';
 import { DUCK_BONES as B, DUCK_WATERLINE } from '../src/duck/rig';
 import { authorDuckPose } from '../src/duck/animation';
@@ -14,12 +15,15 @@ import type { AnimalMeshData, LivestockLodId } from '../src/livestock/types';
 const area = (a: Vector3, b: Vector3, c: Vector3) => b.clone().sub(a).cross(c.clone().sub(a)).length();
 function topology(data: AnimalMeshData, lod: LivestockLodId) {
   const main = data.parts.find(p => p.name === 'BodyNeckHeadBill'); assert(main);
+  const wingVertices = assertPoultryWingTopology(data, lod);
   const edges = new Map<string, [number,number]>(), links = new Map<number, Set<number>>();
   let mainFaces = 0, volume = 0;
   for (let i=0;i<data.indices.length;i+=3) {
     const ids = data.indices.slice(i,i+3), [a,b,c] = ids.map(j => new Vector3(...data.positions[j]));
     assert(area(a,b,c)>1e-10, `${lod}退化面`); volume += a.dot(b.clone().cross(c))/6;
     if (ids.every(j => j < main.count)) mainFaces++;
+    // 只有独立通过正反片面契约的Wing面走片翅检查，主体闭合门槛完全保留。
+    if (ids.every(j => wingVertices.has(j))) continue;
     for(let k=0;k<3;k++) {
       const x=ids[k], y=ids[(k+1)%3], key=`${Math.min(x,y)}/${Math.max(x,y)}`, count=edges.get(key)??[0,0];
       count[0]++; count[1]+=x<y?1:-1; edges.set(key,count);

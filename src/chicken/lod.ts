@@ -1,8 +1,8 @@
 import type { AnimalMeshData, Point } from '../livestock/types';
 import { CHICKEN_BONES as B } from './rig';
 
-export const CHICKEN_LOD1_VERSION = 'wanhu-chicken-mesh-lod1-v2';
-export const CHICKEN_LOD2_VERSION = 'wanhu-chicken-mesh-lod2-v2';
+export const CHICKEN_LOD1_VERSION = 'wanhu-chicken-mesh-lod1-v3';
+export const CHICKEN_LOD2_VERSION = 'wanhu-chicken-mesh-lod2-v3';
 interface Ring { z: number; y: number; rx: number; ry: number; sides: number; bone: number; color: string }
 
 /** 低档优先保留连续大形：躯干、颈、头、喙是同一闭合壳，接口共用逻辑顶点。 */
@@ -15,9 +15,12 @@ function builder(version: string) {
   }
   function tube(rows: Ring[]) {
     const start = data.positions.length;
-    const rings = rows.map(row => Array.from({ length: row.sides }, (_, i) => {
+    const rings = rows.map((row, r) => Array.from({ length: row.sides }, (_, i) => {
       const a = Math.PI / 6 + i * Math.PI * 2 / row.sides;
-      return vertex([Math.cos(a) * row.rx, row.y + Math.sin(a) * row.ry, row.z], row.bone, row.color);
+      // 翼区并入已有背侧色面；不增加面数，也不移动连续主体的任何顶点。
+      const near = version === CHICKEN_LOD1_VERSION;
+      const wingHint = r === (near ? 1 : 0) && (i === 0 || i === 2);
+      return vertex([Math.cos(a) * row.rx, row.y + Math.sin(a) * row.ry, row.z], row.bone, wingHint ? (near ? '#936039' : '#9d6438') : row.color);
     }));
     // 以环绕序连接不同边数的截面；不能用整壳质心翻面，颈部本来就是弯曲的非凸壳。
     for (let r = 1; r < rings.length; r++) {
@@ -65,7 +68,7 @@ function builder(version: string) {
   return { data, tube, tetra, legs, tail };
 }
 
-/** 72三角形/46逻辑点：48面连续主体，余量用于尾、单块鸡冠与合并腿脚。没有眼睛/肉垂/独立翅片。 */
+/** 72三角形/46逻辑点：48面连续主体，余量用于尾、单块鸡冠与合并腿脚。翼区以主体顶点色提示。 */
 export function buildChickenLod1Mesh(): AnimalMeshData {
   const b = builder(CHICKEN_LOD1_VERSION);
   b.tube([
@@ -81,7 +84,7 @@ export function buildChickenLod1Mesh(): AnimalMeshData {
   return b.data;
 }
 
-/** 36三角形/26逻辑点：24面连续主体，4面尾，8面腿脚；远档不再保留任何头部小配件。 */
+/** 36三角形/26逻辑点：24面连续主体，4面尾，8面腿脚；远档不保留头部小配件或独立翅。 */
 export function buildChickenLod2Mesh(): AnimalMeshData {
   const b = builder(CHICKEN_LOD2_VERSION);
   b.tube([

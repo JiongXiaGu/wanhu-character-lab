@@ -1,11 +1,11 @@
 import type { AnimalMeshData, LivestockLodId, Point } from '../livestock/types';
 import { DUCK_BONES as B, DUCK_SOLE } from './rig';
 
-export const DUCK_MESH_VERSION = 'wanhu-domestic-duck-mesh-v1';
+export const DUCK_MESH_VERSION = 'wanhu-domestic-duck-mesh-v2';
 interface Ring { z: number; y: number; rx: number; ry: number; sides: number; bone: number; color: string }
 const feather = '#ab865b', chest = '#c6a577', head = '#b49163', bill = '#c8a044', foot = '#c49a43';
 
-/** 三档均为真正连续的尾身颈头扁喙主壳；先省眼/翅，再省截面，绝不删除脖子。 */
+/** 三档保留原连续尾身颈头扁喙主壳；LOD0零厚度长叶翅，低档直接以主体顶点色提示翼区。 */
 export function buildDuckMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
   if (!['lod0', 'lod1', 'lod2'].includes(lod)) throw new Error(`未知鸭LOD：${lod}`);
   const data: AnimalMeshData = { positions: [], indices: [], bones: [], colors: [], parts: [], version: `${DUCK_MESH_VERSION}/${lod}` };
@@ -14,9 +14,11 @@ export function buildDuckMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
   };
   function tube(rows: Ring[]) {
     const start = data.positions.length;
-    const rings = rows.map(r => Array.from({ length: r.sides }, (_, i) => {
+    const rings = rows.map((r, row) => Array.from({ length: r.sides }, (_, i) => {
       const a = Math.PI / 2 + Math.PI * 2 * i / r.sides;
-      return vertex([Math.cos(a) * r.rx, r.y + Math.sin(a) * r.ry, r.z], r.bone, r.color);
+      // 低档仅给后背左右两个既有点着色；不新增顶点、面、部件或Wing权重。
+      const wingHint = lod !== 'lod0' && row === 0 && (i === 1 || i === r.sides - 1);
+      return vertex([Math.cos(a) * r.rx, r.y + Math.sin(a) * r.ry, r.z], r.bone, wingHint ? (lod === 'lod1' ? '#90764f' : '#9b7d55') : r.color);
     }));
     for (let r = 1; r < rings.length; r++) {
       const a = rings[r - 1], b = rings[r]; let i = 0, j = 0;
@@ -46,6 +48,18 @@ export function buildDuckMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
     }
     data.parts.push({ name, start, count: points.length });
   }
+  function wing(side: number, suffix: string) {
+    const start = data.positions.length, bone = side < 0 ? B.WingL : B.WingR;
+    // 独立鸭作者长叶片：从肩背向后收尖，横向不越过躯干。中间折线顺着后背截面。
+    const points: Point[] = [[side*.061,.333513,.028],[side*.107,.305628,-.125],[side*.060,.296781,-.185],[side*.034,.325667,-.125]];
+    points.forEach(p => vertex(p, bone, '#8b704d'));
+    for (const face of [[0,1,3],[1,2,3]]) {
+      const [a,b,c] = side > 0 ? face : [face[0],face[2],face[1]];
+      // 同位置反向面，不挤出侧墙，不改变整只动物的FrontSide材质。
+      data.indices.push(start+a,start+b,start+c,start+a,start+c,start+b);
+    }
+    data.parts.push({ name: 'Wing'+suffix, start, count: points.length });
+  }
   const r = (z: number, y: number, rx: number, ry: number, sides: number, bone = B.Body as number, color = feather): Ring => ({ z, y, rx, ry, sides, bone, color });
   if (lod === 'lod0') tube([
     r(-.235,.233,.064,.061,6), r(-.125,.219,.169,.112,8), r(.045,.233,.153,.118,8),
@@ -69,7 +83,7 @@ export function buildDuckMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
     if (lod !== 'lod2') solid('Leg'+suffix, [...sole, [x-.010,.172,-.054],[x+.010,.172,-.054],[x,.172,-.073]], [[0,1,2],[3,5,4],[0,3,4,1],[1,4,5,2],[2,5,3,0]], leg, foot);
     else solid('Leg'+suffix, [...sole, [x,.172,-.060]], tetra, leg, foot);
     if (lod === 'lod0') {
-      solid('Wing'+suffix, [[side*.137,.272,.042],[side*.160,.215,-.055],[side*.105,.220,-.190],[side*.124,.283,-.084]], tetra, side < 0 ? B.WingL : B.WingR, '#806d4a');
+      wing(side, suffix);
       solid('Eye'+suffix, [[side*.045,.418,.262],[side*.045,.406,.262],[side*.042,.412,.273],[side*.052,.412,.265]], tetra, B.Head, '#2c3028');
     }
   }
