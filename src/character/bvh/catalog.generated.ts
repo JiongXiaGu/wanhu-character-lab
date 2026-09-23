@@ -1,7 +1,7 @@
 /** 自动生成；勿手写。来源：动画参考_BVH/。 */
 export const GENERATED_BVH_CLIPS=[
   {
-    "id":"bvh-2701f397",
+    "id":"bvh-b8271bd5",
     "label":"简单跳舞 A",
     "file":"简单跳舞_A",
     "filename":"简单跳舞_A.bvh",
