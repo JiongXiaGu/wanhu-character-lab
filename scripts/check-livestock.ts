@@ -15,6 +15,8 @@ const definition = LIVESTOCK[0], point = new Vector3();
 function validateTopology(lod, triangles, logicalVertices) {
   const actor = createAnimalActor(definition, lod), data = actor.data;
   assert.equal(data.indices.length / 3, triangles); assert.equal(data.positions.length, logicalVertices); assert.equal(actor.bones.length, 8);
+  assert(!data.parts.some(part => part.name.startsWith('Wing')), `${lod}不得恢复可见Wing部件`);
+  assert(!data.bones.some(bone => bone === 6 || bone === 7), `${lod}不得给兼容Wing骨分配可见几何`);
   assert.equal(actor.geometry.getAttribute('position').count, triangles * 3); assert.equal(actor.geometry.groups.length, 0);
   for (const attribute of Object.values(actor.geometry.attributes)) assert([...attribute.array].every(Number.isFinite));
   const weights = actor.geometry.getAttribute('skinWeight');
