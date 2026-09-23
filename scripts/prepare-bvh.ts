@@ -1,0 +1,26 @@
+import {createHash} from 'node:crypto';
+import {existsSync,mkdirSync,readFileSync,readdirSync,rmSync,writeFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {registerBvh} from './lib/register-bvh';
+
+const entries=registerBvh();
+const {extractBvh}=await import('./lib/bvh-motion');
+const directory=resolve('public/bvh');mkdirSync(directory,{recursive:true});
+const expected=new Set(entries.map(e=>e.id+'.json'));expected.add('inventory.json');
+for(const name of readdirSync(directory))if(name.endsWith('.json')&&!expected.has(name))rmSync(resolve(directory,name));
+const inventory:unknown[]=[],failures:string[]=[];
+for(const def of entries){
+  try{
+    const sourcePath=resolve('动画参考_BVH',def.filename),sha=createHash('sha256').update(readFileSync(sourcePath)).digest('hex');
+    const path=resolve(directory,def.id+'.json');let data:any;
+    if(existsSync(path)){
+      try{const cached=JSON.parse(readFileSync(path,'utf8'));if(cached.source?.sha256===sha&&cached.source?.extractorVersion==='bvh-v1')data=cached;}catch{/* 损坏缓存重新提取。 */}
+    }
+    if(!data){data=extractBvh(def.id);data.source.extractorVersion='bvh-v1';writeFileSync(path,JSON.stringify(data));}
+    inventory.push({...def,duration:data.duration,frames:data.times.length,bytes:Buffer.byteLength(JSON.stringify(data)),...data.source});
+    console.log(`BVH ${def.id}: ${data.times.length} frames / ${data.duration.toFixed(3)}s / ${def.filename}`);
+  }catch(error){failures.push(def.filename+': '+String(error));console.error(failures.at(-1));}
+}
+writeFileSync(resolve(directory,'inventory.json'),JSON.stringify({schema:'wanhu-bvh-inventory-v1',totalFiles:entries.length,prepared:inventory.length,clips:inventory,failures},null,2));
+if(failures.length)throw new Error(`${failures.length} BVH 提取失败，详见 public/bvh/inventory.json。`);
+console.log(`Prepared all ${inventory.length} BVH clips.`);
