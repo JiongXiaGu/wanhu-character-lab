@@ -1,7 +1,7 @@
 import * as T from 'three';
 import { BODY_PROFILE_VERSION, type CharacterData, type Joint } from '../v3/types';
 import { CALIBRATION_CHILD, RETARGET_VERSION, SAMPLE_BONE_COUNT, validateMixamoData, type MixamoMotionData } from './data';
-import { mixamoDefinition } from './catalog';
+import { motionDefinition } from '../motion/catalog';
 
 export interface RetargetBake {
   clip: T.AnimationClip;
@@ -39,7 +39,7 @@ export function calibration(joints: Joint[], source: MixamoMotionData): T.Quater
 /** 只在载入动作或改变体型时烘焙；播放阶段没有重定向、IK 或顶点重建。 */
 export function retargetMixamo(data: CharacterData, source: MixamoMotionData): RetargetBake {
   validateMixamoData(source, source.id);
-  const joints = data.joints, def = mixamoDefinition(source.id), count = source.times.length;
+  const joints = data.joints, def = motionDefinition(source.id), count = source.times.length;
   const correct = calibration(joints, source), scale = joints[1].p[1] / source.bindPositions[4];
   const localBind = joints.map(j => v(j.p, 0).sub(j.parent < 0 ? new T.Vector3() : v(joints[j.parent].p, 0)));
   const globalQ = joints.map(() => new T.Quaternion()), globalP = joints.map(() => new T.Vector3());

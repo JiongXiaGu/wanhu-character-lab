@@ -6,21 +6,21 @@ import { makeActor, type Actor } from '../character/v3/rig';
 import { triCount } from '../character/v3/cage';
 import { BODY_HEIGHT, type Recipe } from '../character/v3/types';
 import { createMixamoPlayer, loadMixamo, type MixamoPlayer, type MixamoStatus } from '../character/mixamo/player';
-import type { MixamoSelection } from '../character/mixamo/catalog';
+import type { MotionSelection } from '../character/motion/catalog';
 
 export interface PlaybackStatus { phase:number; stage:string; finished:boolean; mixamo?:MixamoStatus; loading?:boolean; loadError?:string }
 export type View = 'free' | 'front' | 'side' | 'back' | 'top' | 'three';
 export type Display = 'beauty' | 'cage' | 'triangles' | 'clay' | 'unlit';
 export interface Stats { triangles:number; bodyTriangles:number; vertices:number; gpuVertices:number; bones:number; replaced:number }
 export interface ViewOptions {
-  recipe:Recipe; mixamo:MixamoSelection; compareSource:boolean; headAxes:boolean; restart:number;
+  recipe:Recipe; mixamo:MotionSelection; compareSource:boolean; headAxes:boolean; restart:number;
   playing:boolean; speed:number; phase:number; loop:boolean; view:View; viewRevision:number;
   orthographic:boolean; display:Display; skeleton:boolean; grid:boolean;
 }
 interface Props { options:ViewOptions; onStats:(v:Stats)=>void; onPlayback:(v:PlaybackStatus)=>void; onError:(message:string)=>void }
 interface Runtime {
   renderer:T.WebGLRenderer; scene:T.Scene; actor:Actor; mixamo?:MixamoPlayer;
-  selection:MixamoSelection; generation:number; loading:boolean; loadError:string; desiredPhase:number; restart:number;
+  selection:MotionSelection; generation:number; loading:boolean; loadError:string; desiredPhase:number; restart:number;
   builtRecipe:Recipe; pairPerspective:T.PerspectiveCamera; pairOrtho:T.OrthographicCamera;
   controls:OrbitControls; camera:T.Camera; perspective:T.PerspectiveCamera; ortho:T.OrthographicCamera; views:T.OrthographicCamera[];
   resize:()=>void; render:()=>void; grid:T.GridHelper; disposePlayer:()=>void; disposeActor:()=>void;
@@ -155,7 +155,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
       if(restarted){r.desiredPhase=0;r.mixamo?.replay();playbackRef.current(playback(r));}
       return;
     }
-    // 换 FBX 不重建模型；改 Recipe 才重建几何。异步代次阻止过期资源覆盖当前选择。
+    // 换外部动作不重建模型；改 Recipe 才重建几何。异步代次阻止过期资源覆盖当前选择。
     const phase=!selectionChanged&&!restarted?playback(r).phase:options.phase;
     try{
       if(recipeChanged){r.disposeActor();r.actor=makeActor(makeCharacter(options.recipe));r.builtRecipe=options.recipe;r.scene.add(r.actor.mesh,r.actor.wire,r.actor.skeletonHelper);}
@@ -201,6 +201,6 @@ function applyCamera(r:Runtime,o:ViewOptions){
 }
 function playback(r:Runtime):PlaybackStatus{
   if(r.mixamo){const status=r.mixamo.status();return {...status,mixamo:status};}
-  return {phase:r.loading?r.desiredPhase:0,stage:r.loading?'正在载入 FBX 动画':r.loadError?'动画载入失败':'静态绑定姿态',loading:r.loading,loadError:r.loadError,finished:false};
+  return {phase:r.loading?r.desiredPhase:0,stage:r.loading?'正在载入外部动作':r.loadError?'动画载入失败':'静态绑定姿态',loading:r.loading,loadError:r.loadError,finished:false};
 }
 function seek(r:Runtime,phase:number){r.desiredPhase=T.MathUtils.clamp(Number.isFinite(phase)?phase:0,0,1);r.mixamo?.seek(r.desiredPhase);r.render();}

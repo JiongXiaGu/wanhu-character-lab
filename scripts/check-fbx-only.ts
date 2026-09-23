@@ -12,4 +12,4 @@ const pkg=JSON.parse(readFileSync('package.json','utf8'));
 assert(!pkg.scripts['check:actions']);assert(!pkg.scripts['review:actions']);
 const app=readFileSync('src/App.tsx','utf8');
 assert(!app.includes('程序动作对照'));assert(app.includes('绑定姿态（静态）'));assert(app.includes("review?'jogging':'none'"));
-console.log('PASS FBX-only runtime: retired code/imports/commands absent; static fitting default and FBX-only diagnostic default retained.');
+console.log('PASS external-motion runtime: retired procedural code/imports/commands absent; static fitting default and FBX review diagnostic default retained.');

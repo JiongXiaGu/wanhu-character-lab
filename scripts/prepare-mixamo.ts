@@ -22,3 +22,6 @@ for(const def of entries){
 writeFileSync(resolve(directory,'inventory.json'),JSON.stringify({schema:'wanhu-motion-inventory-v2',totalFiles:entries.length,prepared:inventory.length,clips:inventory,failures},null,2));
 if(failures.length)throw new Error(`${failures.length} FBX 提取失败，详见 inventory.json。未忽略任何文件。`);
 console.log(`Prepared all ${inventory.length} FBX clips; source meshes/textures excluded.`);
+
+// BVH 与 FBX 共用现有外部动作准备入口，避免新增 package 生命周期分支。
+await import('./prepare-bvh');
