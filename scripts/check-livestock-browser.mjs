@@ -66,7 +66,7 @@ try {
     assert(result.batches > 0 && result.batches <= 32); counts.push({ count, lod, triangles: result.triangles, modelTriangles: result.modelTriangles, batches: result.batches });
     if (screenshots && (count === 100 || count === 500)) await page.screenshot({ path: `review/livestock/0${count === 100 ? 3 : 4}-chicken-${count}.png`, fullPage: true });
   }
-  const beforeSeed = (await snap()).seed; await page.getByTestId('livestock-reshuffle').click(); await page.waitForTimeout(200); assert.notEqual((await snap()).seed, beforeSeed);
+  const beforeSeed = (await snap()).seed; await page.getByTestId('livestock-reshuffle').click(); await page.waitForFunction(seed => window.__LIVESTOCK_REVIEW__?.snapshot().seed !== seed, beforeSeed); assert.notEqual((await snap()).seed, beforeSeed);
   await page.getByLabel('家畜日常混合').uncheck(); await page.getByTestId('livestock-motion-walk').click(); await page.waitForTimeout(200); assert.equal((await snap()).mixed, false);
   await page.getByTestId('livestock-play').click(); await setPhase(.37);
   const beforeNav = await snap(); await page.getByTestId('animal-mode-horse').click(); await page.waitForURL(url => url.searchParams.get('lab') === 'mount'); await page.waitForFunction(() => !!window.__MOUNT_REVIEW__);
