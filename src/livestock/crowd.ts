@@ -51,8 +51,9 @@ export function createCrowd(definition: LivestockDefinition, material: MeshStand
           mesh.geometry = cache.get(motion.id, phase); mesh.visible = true;
         }
         let x = item.x, z = item.z, yaw = item.yaw;
-        if (motion.id === 'walk' || motion.id === 'run') {
-          const running = motion.id === 'run', angle = (time / (running ? 3 : 9) + item.offset) * Math.PI * 2, radius = running ? .225 : .25;
+        // 统一动作是原地检查。只有9秒混合观察周期演示移动，避免短动作回绕时世界位置跳变。
+        if (options.mixed && (motion.id === 'walk' || motion.id === 'run')) {
+          const running = motion.id === 'run', angle = (time / (running ? 3 : MIXED_DURATION) + item.offset) * Math.PI * 2, radius = running ? .225 : .25;
           x += Math.cos(angle) * radius; z += Math.sin(angle) * radius; yaw = -angle;
         }
         position.set(x, 0, z); rotation.setFromAxisAngle(up, yaw); scale.setScalar(item.scale);

@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { Vector3 } from 'three';
+import { Vector3, type InstancedMesh } from 'three';
 import { LIVESTOCK } from '../src/livestock/catalog';
 import { createAnimalActor } from '../src/livestock/actor';
-import { createCrowd, makePlacements, PHASE_COHORTS } from '../src/livestock/crowd';
+import { createCrowd, makePlacements, PHASE_COHORTS, MIXED_DURATION } from '../src/livestock/crowd';
 import { createPoseCache } from '../src/livestock/pose-cache';
 import { CROWD_COUNTS } from '../src/livestock/types';
 import { authorChickenPose } from '../src/chicken/animation';
@@ -66,14 +66,23 @@ for (const count of CROWD_COUNTS) {
   crowd.setLayout(count, 731); assert.equal(crowd.placements.length, count);
   for (const mixed of [false, true]) for (const motion of definition.motions) {
     crowd.update(.37, { mixed, motion: motion.id, loop: true });
-    assert.equal(crowd.group.children.reduce((sum, mesh: any) => sum + mesh.count, 0), count);
+    assert.equal(crowd.group.children.reduce((sum, mesh) => sum + (mesh as InstancedMesh).count, 0), count);
     assert(crowd.batchCount <= definition.motions.length * PHASE_COHORTS);
   }
 }
+const matrices = () => crowd.group.children.flatMap(child => { const mesh = child as InstancedMesh; return mesh.visible ? [...mesh.instanceMatrix.array.slice(0, mesh.count * 16)] : []; });
+for (const motion of definition.motions) {
+  crowd.update(0, { mixed: false, motion: motion.id, loop: true }); const start = matrices();
+  crowd.update(motion.duration * .99, { mixed: false, motion: motion.id, loop: true }); assert.deepEqual(matrices(), start, '统一动作应原地检查，不随短动作回绕跳动');
+}
+crowd.update(0, { mixed: true, motion: 'walk', loop: true }); const mixedStart = matrices();
+crowd.update(MIXED_DURATION, { mixed: true, motion: 'walk', loop: true }); const mixedEnd = matrices();
+assert.equal(mixedStart.length, mixedEnd.length);
+mixedStart.forEach((value, i) => assert(Math.abs(value - mixedEnd[i]) < 1e-5, '混合观察周期的世界变换必须首尾连续'));
 const cachedPoses = crowd.cachedPoses;
 for (let i = 0; i < 60; i++) crowd.update(i / 30, { mixed: true, motion: 'walk', loop: true });
 assert.equal(crowd.cachedPoses, cachedPoses, '播放不新增姿态几何');
 crowd.dispose(); crowd.dispose(); actor.dispose(); actor.dispose();
-const result = { sha: process.env.REVIEW_HEAD_SHA ?? 'local', triangles: 140, logicalVertices: 100, renderVertices: 420, bones: 8, weights: 1, poses, minFoot, minBeak, cachedPoses, counts: CROWD_COUNTS, result: 'passed' };
+const result = { sha: process.env.REVIEW_HEAD_SHA ?? 'local', triangles: 140, logicalVertices: 100, renderVertices: 420, bones: 8, weights: 1, poses, minFoot, minBeak, cachedPoses, worldLoopSeams: 'passed', counts: CROWD_COUNTS, result: 'passed' };
 const dir = process.env.LIVESTOCK_CHECK_DIR ?? '/tmp/wanhu-livestock-checks'; mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/numeric.json`, JSON.stringify(result, null, 2));
 console.log(JSON.stringify(result, null, 2));

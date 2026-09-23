@@ -57,7 +57,10 @@ try {
   await page.getByLabel('家畜日常混合').uncheck(); await page.getByTestId('livestock-motion-walk').click(); await page.waitForTimeout(200); assert.equal((await snap()).mixed, false);
   await page.getByTestId('livestock-play').click(); await setPhase(.37);
   const beforeNav = await snap();
-  await page.getByTestId('animal-mode-horse').click(); await page.waitForURL('**lab=mount**'); await page.getByTestId('animal-mode-livestock').click(); await ready();
+  await page.getByTestId('animal-mode-horse').click();
+  await page.waitForURL(url => url.searchParams.get('lab') === 'mount');
+  await page.waitForFunction(() => !!window.__MOUNT_REVIEW__);
+  await page.getByTestId('animal-mode-livestock').click(); await ready();
   const resumed = await snap(); assert.equal(resumed.count, 500); assert.equal(resumed.motion, 'walk'); assert.equal(resumed.playing, false); assert(Math.abs(resumed.phase - beforeNav.phase) < .003);
   for (const axis of ['position', 'target']) resumed.camera[axis].forEach((value, i) => assert(Math.abs(value - beforeNav.camera[axis][i]) < 1e-8));
   assert(Math.abs(resumed.camera.zoom - beforeNav.camera.zoom) < 1e-8);

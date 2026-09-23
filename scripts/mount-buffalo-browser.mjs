@@ -15,7 +15,7 @@ export async function checkBuffaloBrowser(page, base, checks) {
   await page.waitForFunction(() => window.__MOUNT_REVIEW__?.mountId() === 'buffalo_water');
   const first = await body(); assert.equal(first.stats.bones, 28); assert.equal(first.stats.triangles, 2056); near(first.status.duration, 2.0); near(first.status.phase, .375);
   assert.equal(await page.getByTestId('mount-stage-name').innerText(), '水牛');
-  assert.equal(await page.locator('.mount-selector select').count(), 2); assert.equal(await page.locator('.animal-mode-switcher a').count(), 2); assert.equal(await page.locator('canvas').count(), 1);
+  assert.equal(await page.locator('.mount-selector select').count(), 2); assert.deepEqual(await page.locator('.animal-mode-switcher a').allTextContents(), ['坐骑本体', '骑乘试衣', '家畜']); assert.equal(await page.locator('canvas').count(), 1);
   for (const [clip, duration] of [['Buffalo_Idle', 5.8], ['Buffalo_Walk', 2.0], ['Buffalo_Run', 1.15], ['Buffalo_Eat', 7.2]]) {
     await page.getByTestId(clip).click(); await pause('horse-play');
     for (const p of [0, .25, .5, .75, 1]) { await page.evaluate(phase => window.__MOUNT_REVIEW__.seek(phase), p); const s = await body(); assert(s.finite); near(s.status.duration, duration); assert.equal(s.geometry, first.geometry); }
@@ -23,7 +23,7 @@ export async function checkBuffaloBrowser(page, base, checks) {
   for (const saddle of ['simple', 'travel', 'none']) { await page.getByTestId('mount-saddle').selectOption(saddle); assert.equal((await body()).geometry, first.geometry); }
   await page.getByTestId('animal-mode-riding').click(); await page.waitForFunction(() => window.__RIDING_REVIEW__?.mountId() === 'buffalo_water');
   let s = await riding(); assert.equal(s.saddle.id, 'none'); assert(!s.saddle.riderVisible && !s.saddle.reinsVisible); assert(await page.getByTestId('riding-play').isDisabled());
-  checks.push('buffalo native URL and four independent clips; 2056 triangles/28 bones; two fields/two modes/one canvas; no-saddle body-to-riding does not auto-equip');
+  checks.push('buffalo native URL and four independent clips; 2056 triangles/28 bones; two fields/three animal sections/one canvas; no-saddle body-to-riding does not auto-equip');
   await page.getByTestId('mount-saddle').selectOption('simple'); await pause('riding-play');
   await page.getByTestId('Rider_Walk').click(); await pause('riding-play');
   await page.evaluate(() => window.__RIDING_REVIEW__.seek(.375)); await page.getByTestId('riding-view-left').click();

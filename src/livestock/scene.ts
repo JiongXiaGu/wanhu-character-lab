@@ -36,7 +36,7 @@ export function createLivestockScene(host: HTMLElement, definition: LivestockDef
     const actor = createAnimalActor(definition); scene.add(actor.mesh, actor.helper); cleanup.push(() => actor.dispose());
     let crowd: ReturnType<typeof createCrowd> | undefined;
     cleanup.push(() => crowd?.dispose());
-    let options = current.current, previous = { ...options }, first = true, alive = true, frameId = 0, previousTime = performance.now(), lastReport = -Infinity;
+    let options = current.current, previous = { ...options }, first = true, alive = true, frameId = 0, previousTime = performance.now(), lastReport = -Infinity, wasFinished = false;
     let duration = previewDuration(definition, options), clock = createClipClock(duration, options.loop); clock.seek(options.phase);
     let half = layoutHalf(options.count), aspect = 1;
     const cameraSnapshot = (): CameraSnapshot => ({ position: camera.position.toArray(), target: controls.target.toArray(), zoom: camera.zoom });
@@ -91,8 +91,9 @@ export function createLivestockScene(host: HTMLElement, definition: LivestockDef
       if (crowd) crowd.group.visible = options.count > 1;
       if (options.count === 1) actor.sample(options.motion, clock.phase); else crowd!.update(clock.time, options);
       controls.update(); renderer.render(scene, camera);
-      if (now - lastReport >= 150 || clock.finished || first) { report(stats(), playback()); lastReport = now; }
-      previous = { ...options }; first = false; frameId = requestAnimationFrame(frame);
+      // 拖动后立即回报，末帧只在进入结束时即时回报，不持续触发逐帧React更新。
+      if (now - lastReport >= 150 || seeking || (clock.finished && !wasFinished) || first) { report(stats(), playback()); lastReport = now; }
+      wasFinished = clock.finished; previous = { ...options }; first = false; frameId = requestAnimationFrame(frame);
     }
     frameId = requestAnimationFrame(frame);
     return { camera: cameraSnapshot, dispose() { while (cleanup.length) cleanup.pop()!(); } };
