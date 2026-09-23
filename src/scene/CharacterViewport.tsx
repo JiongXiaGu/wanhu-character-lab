@@ -5,21 +5,21 @@ import { makeCharacter } from '../character/v3/outfit';
 import { makeActor, type Actor } from '../character/v3/rig';
 import { triCount } from '../character/v3/cage';
 import { BODY_HEIGHT, type Recipe } from '../character/v3/types';
-import { createMixamoPlayer, loadMixamo, type MixamoPlayer, type MixamoStatus } from '../character/mixamo/player';
+import {createMotionPlayer,loadMotion,type MotionPlayer,type MotionStatus} from '../character/motion/player';
 import type { MotionSelection } from '../character/motion/catalog';
 
-export interface PlaybackStatus { phase:number; stage:string; finished:boolean; mixamo?:MixamoStatus; loading?:boolean; loadError?:string }
+export interface PlaybackStatus { phase:number; stage:string; finished:boolean; motion?:MotionStatus; loading?:boolean; loadError?:string }
 export type View = 'free' | 'front' | 'side' | 'back' | 'top' | 'three';
 export type Display = 'beauty' | 'cage' | 'triangles' | 'clay' | 'unlit';
 export interface Stats { triangles:number; bodyTriangles:number; vertices:number; gpuVertices:number; bones:number; replaced:number }
 export interface ViewOptions {
-  recipe:Recipe; mixamo:MotionSelection; compareSource:boolean; headAxes:boolean; restart:number;
+  recipe:Recipe; motion:MotionSelection; compareSource:boolean; headAxes:boolean; restart:number;
   playing:boolean; speed:number; phase:number; loop:boolean; view:View; viewRevision:number;
   orthographic:boolean; display:Display; skeleton:boolean; grid:boolean;
 }
 interface Props { options:ViewOptions; onStats:(v:Stats)=>void; onPlayback:(v:PlaybackStatus)=>void; onError:(message:string)=>void }
 interface Runtime {
-  renderer:T.WebGLRenderer; scene:T.Scene; actor:Actor; mixamo?:MixamoPlayer;
+  renderer:T.WebGLRenderer; scene:T.Scene; actor:Actor; motion?:MotionPlayer;
   selection:MotionSelection; generation:number; loading:boolean; loadError:string; desiredPhase:number; restart:number;
   builtRecipe:Recipe; pairPerspective:T.PerspectiveCamera; pairOrtho:T.OrthographicCamera;
   controls:OrbitControls; camera:T.Camera; perspective:T.PerspectiveCamera; ortho:T.OrthographicCamera; views:T.OrthographicCamera[];
@@ -67,8 +67,8 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
       if(!rt)return;
       const w=Math.max(1,el.clientWidth), h=Math.max(1,el.clientHeight), aspect=w/h;
       renderer.setSize(w,h,false); p.aspect=aspect; p.updateProjectionMatrix();
-      const extent=rt.mixamo?.bake.bounds.getSize(new T.Vector3());
-      const effectiveAspect=latest.current.compareSource&&rt.mixamo&&latest.current.view!=='three'?aspect/2:aspect;
+      const extent=rt.motion?.bake.bounds.getSize(new T.Vector3());
+      const effectiveAspect=latest.current.compareSource&&rt.motion&&latest.current.view!=='three'?aspect/2:aspect;
       const width=extent?Math.max(extent.x,extent.z)*.56:BODY_HEIGHT[latest.current.recipe.bodyType]*.43;
       const half=Math.max(BODY_HEIGHT[latest.current.recipe.bodyType]*.67,extent?extent.y*.56:0,width/effectiveAspect);
       o.left=-half*aspect; o.right=half*aspect; o.top=half; o.bottom=-half; o.updateProjectionMatrix();
@@ -80,13 +80,13 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     const render=()=>{
       if(!rt)return;
       const w=el.clientWidth,h=el.clientHeight;
-      if(latest.current.compareSource&&rt.mixamo&&latest.current.view!=='three'){
+      if(latest.current.compareSource&&rt.motion&&latest.current.view!=='three'){
         const pair=rt.camera instanceof T.OrthographicCamera?rt.pairOrtho.copy(rt.camera):rt.pairPerspective.copy(rt.camera as T.PerspectiveCamera);
         if(pair instanceof T.OrthographicCamera){pair.left/=2;pair.right/=2;}else pair.aspect/=2;
         pair.updateProjectionMatrix(); renderer.setScissorTest(true);
         for(let i=0;i<2;i++){
           const x=Math.floor(w*i/2),width=Math.floor(w*(i+1)/2)-x;
-          renderer.setViewport(x,0,width,h);renderer.setScissor(x,0,width,h);renderer.render(i===0?rt.mixamo.sourceScene:scene,pair);
+          renderer.setViewport(x,0,width,h);renderer.setScissor(x,0,width,h);renderer.render(i===0?rt.motion.sourceScene:scene,pair);
         }
       } else if(latest.current.view==='three'){
         renderer.setScissorTest(true);
@@ -97,7 +97,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     };
     rt={renderer,scene,actor,selection:'none',generation:0,loading:false,loadError:'',desiredPhase:options.phase,restart:options.restart,
       pairPerspective:p.clone(),pairOrtho:o.clone(),builtRecipe:latest.current.recipe,controls,camera,perspective:p,ortho:o,views,resize,render,grid,
-      disposePlayer(){if(!rt)return;rt.generation++;rt.mixamo?.dispose();rt.mixamo=undefined;},
+      disposePlayer(){if(!rt)return;rt.generation++;rt.motion?.dispose();rt.motion=undefined;},
       disposeActor(){if(!rt)return;rt.disposePlayer();scene.remove(rt.actor.mesh,rt.actor.wire,rt.actor.skeletonHelper);rt.actor.dispose();}};
     runtime.current=rt; applyCamera(rt,latest.current); applyDisplay(rt,latest.current);
     const stats=actorStats(actor);statsRef.current(stats);
@@ -127,7 +127,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     const animate=(now:number)=>{
       if(disposed||!rt)return;
       const dt=Math.min(.05,(now-last)/1000);last=now;rt.controls.update();
-      if(rt.mixamo)rt.mixamo.update(latest.current.playing?dt*latest.current.speed:0);else rt.actor.update(0);
+      if(rt.motion)rt.motion.update(latest.current.playing?dt*latest.current.speed:0);else rt.actor.update(0);
       if(now-lastReport>80){playbackRef.current(playback(rt));lastReport=now;}
       render();frame=requestAnimationFrame(animate);
     };frame=requestAnimationFrame(animate);
@@ -136,7 +136,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     window.__WANHU_EXPORT_MOTION__=()=>rt?.mixamo?.export();
     window.__WANHU_CAPTURE__=()=>{render();renderer.domElement.toBlob(blob=>{
       if(!blob)return;const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;
-      link.download=`wanhu-${latest.current.recipe.bodyType}-${latest.current.mixamo==='none'?'bind':latest.current.mixamo}.png`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+      link.download=`wanhu-${latest.current.recipe.bodyType}-${latest.current.motion==='none'?'bind':latest.current.motion}.png`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     });};
     return()=>{
       disposed=true;cancelAnimationFrame(frame);observer.disconnect();rt?.controls.dispose();rt?.disposeActor();
@@ -148,7 +148,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
   },[]);
   useEffect(()=>{
     const r=runtime.current;if(!r)return;
-    const recipeChanged=r.builtRecipe!==options.recipe, selectionChanged=r.selection!==options.mixamo, restarted=r.restart!==options.restart;
+    const recipeChanged=r.builtRecipe!==options.recipe, selectionChanged=r.selection!==options.motion, restarted=r.restart!==options.restart;
     const keepCamera=recipeChanged && r.builtRecipe.bodyType===options.recipe.bodyType;
     r.restart=options.restart;
     if(!recipeChanged&&!selectionChanged&&!(restarted&&r.loadError)){
@@ -160,23 +160,23 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     try{
       if(recipeChanged){r.disposeActor();r.actor=makeActor(makeCharacter(options.recipe));r.builtRecipe=options.recipe;r.scene.add(r.actor.mesh,r.actor.wire,r.actor.skeletonHelper);}
       else {r.disposePlayer();r.actor.resetBindPose();}
-      r.selection=options.mixamo;r.desiredPhase=phase;r.loading=options.mixamo!=='none';r.loadError='';
+      r.selection=options.motion;r.desiredPhase=phase;r.loading=options.motion!=='none';r.loadError='';
       applyDisplay(r,options);if(!keepCamera)applyCamera(r,options);r.resize();
       const stats=actorStats(r.actor);statsRef.current(stats);if(window.__WANHU_REVIEW__)window.__WANHU_REVIEW__.stats=stats;
       playbackRef.current(playback(r));
-      if(options.mixamo!=='none'){
+      if(options.motion!=='none'){
         const generation=r.generation,actor=r.actor;
-        loadMixamo(options.mixamo).then(source=>{
+        loadMotion(options.motion).then(source=>{
           if(runtime.current!==r||r.generation!==generation)return;
-          r.mixamo=createMixamoPlayer(actor,source);r.mixamo.setLoop(latest.current.loop);r.scene.add(r.mixamo.targetDebug);r.loading=false;
+          r.mixamo=createMotionPlayer(actor,source);r.mixamo.setLoop(latest.current.loop);r.scene.add(r.mixamo.targetDebug);r.loading=false;
           r.mixamo.seek(r.desiredPhase);applyDisplay(r,latest.current);if(!keepCamera)applyCamera(r,latest.current);r.resize();playbackRef.current(playback(r));
         }).catch(error=>{if(runtime.current!==r||r.generation!==generation)return;r.loading=false;r.loadError=String(error);playbackRef.current(playback(r));});
       }
     }catch(error){errorRef.current(String(error));}
-  },[options.recipe,options.mixamo,options.restart]);
+  },[options.recipe,options.motion,options.restart]);
   useEffect(()=>{const r=runtime.current;if(r&&!options.playing)seek(r,options.phase);},[options.phase]);
   useEffect(()=>{const r=runtime.current;if(r?.mixamo){r.mixamo.setLoop(options.loop);playbackRef.current(playback(r));}},[options.loop]);
-  useEffect(()=>{const r=runtime.current;if(r){applyCamera(r,options);r.resize();}},[options.view,options.viewRevision,options.orthographic,options.mixamo,options.compareSource]);
+  useEffect(()=>{const r=runtime.current;if(r){applyCamera(r,options);r.resize();}},[options.view,options.viewRevision,options.orthographic,options.motion,options.compareSource]);
   useEffect(()=>{const r=runtime.current;if(r)applyDisplay(r,options);},[options.display,options.skeleton,options.grid,options.headAxes]);
   return <div ref={host} className="character-viewport" data-testid="viewport"/>;
 }
@@ -200,7 +200,7 @@ function applyCamera(r:Runtime,o:ViewOptions){
   r.views.forEach((c,i)=>{c.position.set(...(i===0?[0,0,4]:i===1?[4,0,0]:[0,0,-4]) as [number,number,number]);c.position.add(target);c.lookAt(target);});
 }
 function playback(r:Runtime):PlaybackStatus{
-  if(r.mixamo){const status=r.mixamo.status();return {...status,mixamo:status};}
-  return {phase:r.loading?r.desiredPhase:0,stage:r.loading?'正在载入 FBX 动画':r.loadError?'动画载入失败':'静态绑定姿态',loading:r.loading,loadError:r.loadError,finished:false};
+  if(r.mixamo){const status=r.mixamo.status();return {...status,motion:status};}
+  return {phase:r.loading?r.desiredPhase:0,stage:r.loading?'正在载入外部动作':r.loadError?'动画载入失败':'静态绑定姿态',loading:r.loading,loadError:r.loadError,finished:false};
 }
 function seek(r:Runtime,phase:number){r.desiredPhase=T.MathUtils.clamp(Number.isFinite(phase)?phase:0,0,1);r.mixamo?.seek(r.desiredPhase);r.render();}

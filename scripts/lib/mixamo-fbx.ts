@@ -2,14 +2,14 @@ import * as T from 'three';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { MIXAMO_SCHEMA, SAMPLE_BONES, SAMPLE_PARENTS, type MixamoMotionData, validateMixamoData } from '../../src/character/mixamo/data';
+import { MOTION_SCHEMA, SAMPLE_BONES, SAMPLE_PARENTS, type HumanoidMotionData, validateMotionData } from '../../src/character/motion/data';
 import { mixamoFilename, type MixamoId } from '../../src/character/mixamo/catalog';
 
 /** 动画提取不下载/保留图片或外部人物几何。 */
 class NoTexture extends T.TextureLoader { override load(): T.Texture { return new T.Texture(); } }
 function semantic(name: string) { return name.replace(/^.*mixamorig[:_]?/i, ''); }
 const rounded = (value: number) => +value.toFixed(7);
-export function extractMixamo(id: MixamoId, directory = '动画参考'): MixamoMotionData {
+export function extractMixamo(id: MixamoId, directory = '动画参考'): HumanoidMotionData {
   const file = mixamoFilename(id), bytes = readFileSync(`${directory}/${file}`);
   const manager = new T.LoadingManager(); manager.addHandler(/.*/, new NoTexture());
   const globals = globalThis as unknown as Record<string, unknown>, oldWindow = globals.window;
@@ -91,8 +91,8 @@ export function extractMixamo(id: MixamoId, directory = '动画参考'): MixamoM
   for (const material of materials) { for (const value of Object.values(material)) if (value instanceof T.Texture) value.dispose(); material.dispose(); }
   geometries.forEach(g => g.dispose()); skeletons.forEach(s => s.dispose()); root.clear(); fbx.clear();
   const data: MixamoMotionData = {
-    schema: MIXAMO_SCHEMA, id, source: { provider: 'Mixamo', file, sha256: createHash('sha256').update(bytes).digest('hex'), clipName: sourceClip.name, uniqueBones: primary.size, rawBoneNodes: raw.length, tracks: clip.tracks.length, threeVersion: T.REVISION, axisConversion: 'source anatomical frame → +X right / +Y up / +Z forward; rotation conjugation; cm → m' },
+    schema: MOTION_SCHEMA, id, source: { provider: 'Mixamo', format: 'fbx', profile: 'mixamo-fbx-v2', file, sha256: createHash('sha256').update(bytes).digest('hex'), clipName: sourceClip.name, uniqueBones: primary.size, rawBoneNodes: raw.length, tracks: clip.tracks.length, threeVersion: T.REVISION, extractorVersion: 'mixamo-fbx-v2', axisConversion: 'source anatomical frame → +X right / +Y up / +Z forward; rotation conjugation; cm → m' },
     duration: clip.duration, fps, times, names: [...SAMPLE_BONES], parents: [...SAMPLE_PARENTS], bindPositions, worldDeltas: deltas, positions,
   };
-  validateMixamoData(data, id); return data;
+  validateMotionData(data, id); return data;
 }
