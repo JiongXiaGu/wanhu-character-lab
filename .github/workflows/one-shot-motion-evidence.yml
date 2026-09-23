@@ -42,10 +42,10 @@ jobs:
           await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().motion?.ready,{timeout:30000});
           await page.evaluate(()=>window.__WANHU_REVIEW__.seek(.35));
           await page.waitForTimeout(300);
-          await page.screenshot({path:'motion-evidence/xinbaodao-b-source-target.png'});
+          await page.screenshot({path:'motion-evidence/xinbaodao-b-hybrid-source-target.png'});
           await page.getByLabel('源骨架同步对照',{exact:true}).uncheck();
           await page.waitForTimeout(150);
-          await page.screenshot({path:'motion-evidence/xinbaodao-b-target.png'});
+          await page.screenshot({path:'motion-evidence/xinbaodao-b-hybrid-target.png'});
           const status=await page.evaluate(()=>window.__WANHU_REVIEW__.getStatus());
           if(errors.length)throw new Error(errors.join('\n'));
           console.log(JSON.stringify(status));
