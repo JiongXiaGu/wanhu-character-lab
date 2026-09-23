@@ -14,6 +14,8 @@ import type { AnimalMeshData, LivestockLodId } from '../src/livestock/types';
 const area = (a: Vector3, b: Vector3, c: Vector3) => b.clone().sub(a).cross(c.clone().sub(a)).length();
 function topology(data: AnimalMeshData, lod: LivestockLodId) {
   const main = data.parts.find(p => p.name === 'BodyNeckHeadBill'); assert(main);
+  assert(!data.parts.some(p => p.name.startsWith('Wing')), `${lod}不得恢复可见Wing部件`);
+  assert(!data.bones.some(bone => bone === B.WingL || bone === B.WingR), `${lod}不得给兼容Wing骨分配可见几何`);
   const edges = new Map<string, [number,number]>(), links = new Map<number, Set<number>>();
   let mainFaces = 0, volume = 0;
   for (let i=0;i<data.indices.length;i+=3) {
