@@ -52,7 +52,7 @@ export function buildDuckMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
     const start = data.positions.length, bone = side < 0 ? B.WingL : B.WingR;
     // 明确可读的长侧翅：覆盖身体中后段侧面，从肩后顺躯干向后收拢。
     // 不再是侧边小提示片；仍保持零厚度并顺着Body侧表面折线贴附。
-    const points: Point[] = [[side*.13123,.2612,.0812],[side*.17457,.2312,-.0237],[side*.16632,.2238,-.1438],[side*.16307,.2538,-.0838]];
+    const points: Point[] = [[side*.13148,.2612,.0812],[side*.17482,.2312,-.0237],[side*.16657,.2238,-.1438],[side*.16332,.2538,-.0838]];
     points.forEach(p => vertex(p, bone, '#8b704d'));
     for (const face of [[0,1,3],[1,2,3]]) {
       const [a,b,c] = side > 0 ? face : [face[0],face[2],face[1]];
