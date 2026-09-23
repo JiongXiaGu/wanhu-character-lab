@@ -1,0 +1,23 @@
+{
+  "schema": "wanhu-bvh-inventory-v1",
+  "totalFiles": 1,
+  "prepared": 1,
+  "clips": [
+    {
+      "id": "bvh-a-b8271bd5",
+      "label": "简单跳舞 A",
+      "file": "简单跳舞_A",
+      "filename": "简单跳舞_A.bvh",
+      "category": "BVH验证",
+      "loop": false,
+      "ground": true,
+      "source": "bvh",
+      "duration": 7.8999999999999995,
+      "frames": 238,
+      "fps": 30,
+      "bytes": 372414,
+      "headCorrection": "none"
+    }
+  ],
+  "failures": []
+}
