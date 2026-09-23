@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs';
 
 /** 复用同一个桌面浏览器，保留鸡原回归；只在显式审图时捕获鸭的关键证据。 */
 export async function checkDuckBrowser(page, base, dir, screenshots, setPhase) {
-  const animal='duck_domestic_brown', cases=[], images=[], comparisons=[], budgets=[['lod0',126,81],['lod1',60,36],['lod2',36,24]];
+  const animal='duck_domestic_brown', cases=[], images=[], comparisons=[], budgets=[['lod0',118,69],['lod1',60,36],['lod2',36,24]];
   const snap=()=>page.evaluate(()=>window.__LIVESTOCK_REVIEW__.snapshot());
   const pause=async()=>{if((await page.getByTestId('livestock-play').innerText()).includes('暂停'))await page.getByTestId('livestock-play').click();};
   const ready=async()=>{await page.waitForFunction(()=>!!window.__LIVESTOCK_REVIEW__);await page.waitForTimeout(220);};
