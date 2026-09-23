@@ -1,50 +1,54 @@
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { chromium } from 'playwright';
+import { captureLodComparison } from './check-livestock-lod-comparison.mjs';
 
-/** 在正式家畜页取图，模型、镜头和动画均走运行时路径；只在测试页排版真实截图。 */
-export async function checkConnectedLodBrowser(page, base, screenshots) {
-  const snapshots = [], images = { idle: [], peck: [] };
-  const snap = () => page.evaluate(() => window.__LIVESTOCK_REVIEW__.snapshot());
-  const budgets = [['lod0', 140], ['lod1', 56], ['lod2', 28]];
-  for (const [motion, phase, view] of [['idle', .15, 'three'], ['peck', .45, 'left']]) {
-    let camera, crop;
-    for (const [lod, triangles] of budgets) {
-      await page.goto(`${base}/?lab=livestock&count=1&paused=1&view=${view}&clip=${motion}&phase=${phase}&lod=${lod}`, { waitUntil: 'networkidle' });
-      await page.waitForFunction(([id, t]) => { const s = window.__LIVESTOCK_REVIEW__?.snapshot(); return s?.lod === id && s.triangles === t; }, [lod, triangles]);
-      await page.waitForTimeout(220);
-      const state = await snap();
-      assert.equal(state.motion, motion); assert.equal(state.playing, false); assert(Math.abs(state.phase - phase) < 1e-8);
-      if (camera) assert.deepEqual(state.camera, camera, 'LOD对照镜头/缩放不一致'); else camera = state.camera;
-      const id = state.geometryId;
-      // 固定LOD往返只换已创建资产，暂停时间与相机不变。
-      for (const other of [lod === 'lod2' ? 'lod1' : 'lod2', lod]) {
-        await page.getByTestId(`livestock-lod-${other}`).click();
-        await page.waitForFunction(value => window.__LIVESTOCK_REVIEW__.snapshot().lod === value, other);
-        const switched = await snap(); assert(Math.abs(switched.phase - phase) < 1e-8); assert.equal(switched.playing, false); assert.deepEqual(switched.camera, camera);
+// 显式补充低档近景证据；不改原浏览器回归和截图矩阵。依赖此模块完成后才启动原检查。
+const screenshots = process.argv.includes('--screenshots');
+const dir = process.env.LIVESTOCK_CHECK_DIR ?? '/tmp/wanhu-livestock-checks', base = 'http://127.0.0.1:4188';
+mkdirSync(dir, { recursive: true }); if (screenshots) mkdirSync('review/livestock', { recursive: true });
+const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', '4188', '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'] });
+let log = '', browser, page;
+server.stdout.on('data', d => { log += d; }); server.stderr.on('data', d => { log += d; });
+try {
+  let ready = false;
+  for (let i = 0; i < 100; i++) { if (server.exitCode !== null) throw new Error(log); try { if ((await fetch(base)).ok) { ready = true; break; } } catch {} await new Promise(resolve => setTimeout(resolve, 200)); }
+  assert(ready, 'LOD检查页面未启动');
+  browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 1 });
+  const errors = [], cases = [], images = [];
+  page.on('pageerror', e => errors.push(String(e))); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  const snapshot = () => page.evaluate(() => window.__LIVESTOCK_REVIEW__.snapshot());
+  for (const [lod, triangles, logicalVertices] of [['lod1', 72, 46], ['lod2', 36, 26]]) {
+    for (const motion of ['idle', 'walk', 'run', 'peck']) {
+      const phase = motion === 'idle' ? .15 : .45, view = motion === 'peck' ? 'left' : 'three';
+      await page.goto(`${base}/?lab=livestock&count=1&lod=${lod}&clip=${motion}&phase=${phase}&paused=1&view=${view}`, { waitUntil: 'networkidle' });
+      await page.waitForFunction(id => window.__LIVESTOCK_REVIEW__?.snapshot().lod === id, lod); await page.waitForTimeout(200);
+      const before = await snapshot();
+      assert.equal(before.triangles, triangles); assert.equal(before.logicalVertices, logicalVertices); assert.equal(before.motion, motion); assert.equal(before.playing, false);
+      assert(Math.abs(before.phase - phase) < 1e-6); assert.equal(await page.locator('canvas').count(), 1);
+      // 真实切换档位，确保不会重置暂停相位、动作和相机；返回时重用相同几何。
+      await page.getByTestId('livestock-lod-lod0').click(); await page.waitForFunction(() => window.__LIVESTOCK_REVIEW__.snapshot().lod === 'lod0');
+      await page.getByTestId(`livestock-lod-${lod}`).click(); await page.waitForFunction(id => window.__LIVESTOCK_REVIEW__.snapshot().lod === id, lod);
+      const after = await snapshot();
+      assert.equal(after.geometryId, before.geometryId); assert.equal(after.phase, before.phase); assert.equal(after.motion, before.motion); assert.deepEqual(after.camera, before.camera);
+      if (screenshots && (motion === 'idle' || motion === 'peck')) {
+        const index = lod === 'lod1' ? (motion === 'idle' ? '05' : '06') : (motion === 'idle' ? '07' : '08');
+        const name = `${index}-${lod}-${motion === 'idle' ? 'single' : 'peck'}.png`;
+        await page.locator('.livestock-viewport').screenshot({ path: `review/livestock/${name}` });
+        images.push({ name, lod, motion, phase, triangles, camera: after.camera });
       }
-      assert.equal((await snap()).geometryId, id, '固定档往返重建了几何');
-      await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(200);
-      const box = await page.locator('[data-testid="livestock-viewport"] canvas').boundingBox(); assert(box);
-      const width = Math.min(560, Math.floor(box.width)), height = Math.min(460, Math.floor(box.height));
-      const clip = { x: Math.round(box.x + (box.width - width) / 2), y: Math.round(box.y + (box.height - height) / 2), width, height };
-      if (crop) assert.deepEqual(clip, crop, '对照截图裁切尺度不一致'); else crop = clip;
-      snapshots.push({ motion, phase, view, lod, triangles, camera, crop: clip });
-      if (screenshots) images[motion].push(await page.screenshot({ clip }));
+      cases.push({ lod, motion, triangles, logicalVertices, phase });
     }
   }
-  if (screenshots) {
-    const sheet = await page.context().newPage(); await sheet.setViewportSize({ width: 1600, height: 640 });
-    try {
-      for (const [motion, title, filename] of [['idle', '停驻 · 三档同角度对照', '05-chicken-lod-comparison.png'], ['peck', '啄食最低点 · 三档侧面对照', '06-chicken-lod-peck-comparison.png']]) {
-        await sheet.setContent(`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><style>
-          *{box-sizing:border-box}body{margin:0;background:#19292c;color:#e7e3d8;font-family:'Noto Sans CJK SC','Noto Sans SC',sans-serif;padding:26px 24px}
-          h1{font-size:24px;font-weight:500;margin:0 0 8px}p{font-size:12px;color:#aebcb8;margin:0 0 22px}.row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-          article{border:1px solid #526157;border-radius:8px;overflow:hidden;background:#23363a}header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center}b{font-size:18px;font-weight:500;color:#dfc89f}span{font-size:12px;color:#c9cdbd}
-          img{display:block;width:100%;height:auto}footer{font-size:12px;color:#aebcb8;margin-top:17px}
-          </style></head><body><h1>${title}</h1><p>同一正式运行时 · 同相机、同相位、同一裁切尺度 · LOD0 保持原样</p><div class="row">${budgets.map(([lod, triangles], i) => `<article><header><b>${lod.toUpperCase()}</b><span>${triangles} tris · ${i === 0 ? '原版基准' : i === 1 ? '保留脖子，删眼睛与肉垂' : '连续头颈，取消头部附件'}</span></header><img src="data:image/png;base64,${images[motion][i].toString('base64')}" alt="${lod}"></article>`).join('')}</div><footer>LOD1 / LOD2 的头、颈、身体由共用顶点和连接面组成，不依赖独立小壳碰巧重叠。</footer></body></html>`);
-        await sheet.waitForFunction(() => [...document.images].every(image => image.complete && image.naturalWidth > 0));
-        await sheet.screenshot({ path: `review/livestock/${filename}`, fullPage: true });
-      }
-    } finally { await sheet.close(); }
-  }
-  return snapshots;
-}
+  const comparisons = screenshots ? await captureLodComparison(page, base) : [];
+  assert.deepEqual(errors, []);
+  const result = { result: 'passed', sourceSHA: process.env.REVIEW_HEAD_SHA ?? 'local', viewport: '1600x1000', cases, images, comparisons, errors };
+  writeFileSync(`${dir}/lod-browser.json`, JSON.stringify(result, null, 2));
+  if (screenshots) writeFileSync('review/livestock/lod-evidence.json', JSON.stringify(result, null, 2));
+  console.log(JSON.stringify(result, null, 2));
+} catch (error) {
+  if (screenshots && page && !page.isClosed()) await page.screenshot({ path: 'review/livestock/lod-failure.png', fullPage: true }).catch(() => {});
+  writeFileSync(`${dir}/lod-browser-failure.txt`, `${error.stack ?? error}\n${log}`); throw error;
+} finally { await browser?.close(); server.kill('SIGTERM'); }

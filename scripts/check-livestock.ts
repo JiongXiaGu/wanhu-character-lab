@@ -1,3 +1,4 @@
+import './check-livestock-lod';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { Vector3 } from 'three';
@@ -8,7 +9,6 @@ import { selectLivestockLod } from '../src/livestock/lod';
 import { createPoseCache } from '../src/livestock/pose-cache';
 import { CROWD_COUNTS, LIVESTOCK_LOD_IDS } from '../src/livestock/types';
 import { authorChickenPose } from '../src/chicken/animation';
-import { checkConnectedLods } from './check-livestock-lod';
 
 const definition = LIVESTOCK[0], point = new Vector3();
 function validateTopology(lod, triangles, logicalVertices) {
@@ -88,7 +88,6 @@ const cachedPoses = crowd.cachedPoses;
 for (let i = 0; i < 60; i++) crowd.update(i / 30, { mixed: true, motion: 'walk', loop: true }, 'lod2');
 assert.equal(crowd.cachedPoses, cachedPoses, '播放不新增姿态几何');
 crowd.dispose(); crowd.dispose(); actor.dispose(); actor.dispose();
-const connectedLods = checkConnectedLods();
-const result = { sha: process.env.REVIEW_HEAD_SHA ?? 'local', lods: Object.fromEntries(definition.lods.map(lod => [lod.id, { triangles: lod.triangles, logicalVertices: lod.logicalVertices }])), bones: 8, weights: 1, poses, minFoot, minBeak, cachedPoses, counts: CROWD_COUNTS, connectedLods, result: 'passed' };
+const result = { sha: process.env.REVIEW_HEAD_SHA ?? 'local', lods: Object.fromEntries(definition.lods.map(lod => [lod.id, { triangles: lod.triangles, logicalVertices: lod.logicalVertices }])), bones: 8, weights: 1, poses, minFoot, minBeak, cachedPoses, counts: CROWD_COUNTS, result: 'passed' };
 const dir = process.env.LIVESTOCK_CHECK_DIR ?? '/tmp/wanhu-livestock-checks'; mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/numeric.json`, JSON.stringify(result, null, 2));
 console.log(JSON.stringify(result, null, 2));

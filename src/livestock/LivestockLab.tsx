@@ -26,7 +26,12 @@ export default function LivestockLab() {
   }, []);
   const chooseMotion = (motion: string) => setOptions(value => ({ ...value, motion, mixed: false, playing: true, phase: 0, seekRevision: value.seekRevision + 1 }));
   const chooseCount = (count: CrowdCount) => setOptions(value => ({ ...value, count, mixed: count > 1 && value.count === 1 ? true : value.mixed, view: count > 1 ? 'farm' : 'three', viewRevision: value.viewRevision + 1 }));
-  const seek = (phase: number) => setOptions(value => ({ ...value, playing: false, phase: clampPhase(phase), seekRevision: value.seekRevision + 1 }));
+  const seek = (phase: number) => {
+    const target = clampPhase(phase);
+    // 受控滑杆必须在同一输入事件中确认值，不能等下一帧报告再恢复到旧值。
+    setPlayback(value => ({ ...value, phase: target, time: target * value.duration, finished: !options.loop && target >= 1 }));
+    setOptions(value => ({ ...value, playing: false, phase: target, seekRevision: value.seekRevision + 1 }));
+  };
   const replay = () => setOptions(value => ({ ...value, playing: true, phase: 0, seekRevision: value.seekRevision + 1 }));
   const save = () => saveLivestockSession(options, playback.phase, window.__LIVESTOCK_REVIEW__?.camera());
   return <main className="horse-lab livestock-lab">
@@ -43,7 +48,7 @@ export default function LivestockLab() {
             <label className="horse-loop"><input aria-label="家畜循环播放" type="checkbox" checked={options.loop} onChange={event => setOptions(value => ({ ...value, loop: event.target.checked }))}/>循环播放</label>
             <label className="horse-speed">速度<select aria-label="家畜播放速度" value={options.speed} onChange={event => setOptions(value => ({ ...value, speed: Number(event.target.value) }))}>{[.25, .5, 1, 1.5, 2].map(value => <option key={value} value={value}>{value}×</option>)}</select></label>
           </div>
-          <label className="horse-timeline"><span>{mixed ? '观察时间' : '动作相位'}</span><input aria-label="家畜动画相位" type="range" min="0" max="1" step=".001" value={playback.phase} onChange={event => seek(Number(event.target.value))}/><output>{(playback.phase * 100).toFixed(1)}%</output></label>
+          <label className="horse-timeline"><span>{mixed ? '观察时间' : '动作相位'}</span><input aria-label="家畜动画相位" type="range" min="0" max="1" step=".001" value={Number(playback.phase.toFixed(3))} onChange={event => seek(Number(event.target.value))}/><output>{(playback.phase * 100).toFixed(1)}%</output></label>
           <div className="horse-time" data-testid="livestock-time">{playback.time.toFixed(2)} / {playback.duration.toFixed(2)} 秒<span>{playback.finished ? '结束保持' : mixed ? '混合动作 · 共用观察时钟' : options.loop ? '循环播放' : '单次播放'}</span></div>
         </section>
       </section>

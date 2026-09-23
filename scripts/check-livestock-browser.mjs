@@ -1,8 +1,8 @@
+import './check-livestock-lod-browser.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
-import { checkConnectedLodBrowser } from './check-livestock-lod-browser.mjs';
 
 const screenshots = process.argv.includes('--screenshots');
 const base = 'http://127.0.0.1:4187', dir = process.env.LIVESTOCK_CHECK_DIR ?? '/tmp/wanhu-livestock-checks';
@@ -20,14 +20,27 @@ try {
   const setPhase = async value => {
     const slider = page.getByLabel('家畜动画相位', { exact: true });
     await slider.scrollIntoViewIfNeeded(); const box = await slider.boundingBox(); assert(box);
-    await slider.click({ position: { x: 8 + (box.width - 16) * value, y: box.height / 2 } }); await page.waitForTimeout(220);
-    for (let i = 0; i < 30; i++) { const actual = Number(await slider.inputValue()); if (Math.abs(actual - value) < .0005) break; await slider.press(actual < value ? 'ArrowRight' : 'ArrowLeft'); await page.waitForTimeout(180); }
+    await slider.click({ position: { x: 8 + (box.width - 16) * value, y: box.height / 2 } });
+    // 等待每次真实输入被时钟和受控控件共同确认，不用固定延时猜测React/软件WebGL是否已经处理。
+    await page.waitForFunction(() => {
+      const state = window.__LIVESTOCK_REVIEW__.snapshot(), input = document.querySelector('input[aria-label="家畜动画相位"]');
+      return !state.playing && Math.abs(Number(input.value) - state.phase) < .0005;
+    });
+    for (let i = 0; i < 120; i++) {
+      const actual = Number(await slider.inputValue()); if (Math.abs(actual - value) < .0005) break;
+      const direction = actual < value ? 1 : -1, next = Number((actual + direction * .001).toFixed(3));
+      await slider.press(direction > 0 ? 'ArrowRight' : 'ArrowLeft');
+      await page.waitForFunction(expected => {
+        const state = window.__LIVESTOCK_REVIEW__.snapshot(), input = document.querySelector('input[aria-label="家畜动画相位"]');
+        return Math.abs(state.phase - expected) < .0005 && Math.abs(Number(input.value) - expected) < .0005;
+      }, next);
+    }
     await page.waitForFunction(target => Math.abs(window.__LIVESTOCK_REVIEW__.snapshot().phase - target) < .001, value);
   };
   await page.goto(`${base}/?lab=livestock&paused=1`, { waitUntil: 'networkidle' }); await ready();
   const initial = await snap(); assert.equal(initial.count, 1); assert.equal(initial.bones, 8); assert.equal(initial.playing, false); assert.equal(initial.lod, 'lod0'); assert.equal(initial.triangles, 140);
   assert.equal(await page.locator('.animal-mode-switcher a').count(), 3); assert.equal(await page.locator('canvas').count(), 1);
-  for (const [lod, tris] of [['lod0', 140], ['lod1', 56], ['lod2', 28]]) {
+  for (const [lod, tris] of [['lod0', 140], ['lod1', 72], ['lod2', 36]]) {
     await page.getByTestId(`livestock-lod-${lod}`).click(); await page.waitForFunction(([id, count]) => { const s = window.__LIVESTOCK_REVIEW__.snapshot(); return s.lod === id && s.triangles === count; }, [lod, tris]);
     assert.equal((await snap()).modelTriangles, tris);
   }
@@ -44,7 +57,7 @@ try {
   if (screenshots) await page.screenshot({ path: 'review/livestock/01-chicken-single.png', fullPage: true });
   await page.getByTestId('livestock-motion-peck').click(); await page.getByTestId('livestock-play').click(); await setPhase(.45); await page.getByTestId('livestock-view-left').click();
   if (screenshots) await page.screenshot({ path: 'review/livestock/02-chicken-peck.png', fullPage: true });
-  const expected = { 10: ['lod1', 56], 50: ['lod2', 28], 100: ['lod2', 28], 500: ['lod2', 28] }, counts = [];
+  const expected = { 10: ['lod1', 72], 50: ['lod2', 36], 100: ['lod2', 36], 500: ['lod2', 36] }, counts = [];
   for (const count of [10, 50, 100, 500]) {
     await page.getByTestId(`livestock-count-${count}`).click(); await page.waitForFunction(n => window.__LIVESTOCK_REVIEW__?.snapshot().count === n, count); await page.waitForTimeout(500);
     const result = await snap(), [lod, tris] = expected[count]; assert.equal(result.lod, lod); assert.equal(result.triangles, tris); assert.equal(result.modelTriangles, tris * count);
@@ -59,14 +72,12 @@ try {
   const resumed = await snap(); assert.equal(resumed.count, 500); assert.equal(resumed.motion, 'walk'); assert.equal(resumed.playing, false); assert.equal(resumed.lod, beforeNav.lod); assert(Math.abs(resumed.phase - beforeNav.phase) < .003);
   for (const axis of ['position', 'target']) resumed.camera[axis].forEach((value, i) => assert(Math.abs(value - beforeNav.camera[axis][i]) < 1e-8)); assert(Math.abs(resumed.camera.zoom - beforeNav.camera.zoom) < 1e-8);
   await page.getByTestId('livestock-count-1').click(); await page.getByTestId('livestock-lod-lod2').click(); await page.locator('.livestock-inspection summary').click(); await page.getByLabel('家畜骨架', { exact: true }).check(); await page.getByRole('button', { name: '线框', exact: true }).click(); await page.waitForTimeout(200);
-  assert.equal((await snap()).lod, 'lod2'); assert.equal((await snap()).triangles, 28); assert.equal(await page.locator('canvas').count(), 1);
+  assert.equal((await snap()).lod, 'lod2'); assert.equal((await snap()).triangles, 36); assert.equal(await page.locator('canvas').count(), 1);
   await page.evaluate(() => sessionStorage.setItem('wanhu.livestock.preview.v1', '{invalid'));
   await page.goto(`${base}/?lab=livestock&preview=resume&count=NaN&clip=unknown&view=unknown&lod=unknown&phase=Infinity&paused=1`, { waitUntil: 'networkidle' }); await ready();
   assert.equal((await snap()).count, 1); assert.equal((await snap()).motion, 'idle'); assert.equal((await snap()).phase, 0); assert.equal((await snap()).lod, 'lod0');
-  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, '桌面横向溢出');
-  const comparisons = await checkConnectedLodBrowser(page, base, screenshots);
-  assert.deepEqual(errors, []);
-  const result = { sha: process.env.REVIEW_HEAD_SHA ?? 'local', result: 'passed', viewport: '1600x1000', lods: { lod0: 140, lod1: 56, lod2: 28 }, counts, comparisons, screenshots, errors };
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, '桌面横向溢出'); assert.deepEqual(errors, []);
+  const result = { sha: process.env.REVIEW_HEAD_SHA ?? 'local', result: 'passed', viewport: '1600x1000', lods: { lod0: 140, lod1: 72, lod2: 36 }, counts, screenshots, errors };
   writeFileSync(`${dir}/browser.json`, JSON.stringify(result, null, 2)); if (screenshots) writeFileSync('review/livestock/evidence.json', JSON.stringify(result, null, 2)); console.log(JSON.stringify(result, null, 2));
 } catch (error) {
   if (screenshots && page && !page.isClosed()) await page.screenshot({ path: 'review/livestock/failure.png', fullPage: true }).catch(() => {});
