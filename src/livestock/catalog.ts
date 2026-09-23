@@ -10,7 +10,7 @@ export const LIVESTOCK: readonly LivestockDefinition[] = [{
   description: '面向经营俯视的成年母鸡：低档优先保留身体、颈部与短喙的连续轮廓；三档作者LOD，不可骑乘。',
   joints: CHICKEN_JOINTS, motions: CHICKEN_MOTIONS, buildMesh: buildChickenMesh,
   lods: [
-    { id: 'lod0', label: 'LOD0', description: '近景检查', triangles: 140, logicalVertices: 100, buildMesh: buildChickenMesh },
+    { id: 'lod0', label: 'LOD0', description: '近景检查 · 大侧面翼区', triangles: 140, logicalVertices: 102, buildMesh: buildChickenMesh },
     { id: 'lod1', label: 'LOD1', description: '连续头颈 · 简化细节', triangles: 72, logicalVertices: 46, buildMesh: buildChickenLod1Mesh },
     { id: 'lod2', label: 'LOD2', description: '完整轮廓 · 无头部配件', triangles: 36, logicalVertices: 26, buildMesh: buildChickenLod2Mesh },
   ],
