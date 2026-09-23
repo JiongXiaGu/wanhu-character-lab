@@ -30,7 +30,7 @@ export function buildChickenMesh(): AnimalMeshData {
     const p: Point[] = [-halfWidth, halfWidth].flatMap(x => yz.map(([y, z]) => [x, y, z] as Point));
     part(name, p, [[0, 1, 2], [3, 4, 5], [0, 1, 4, 3], [1, 2, 5, 4], [2, 0, 3, 5]], bone, color);
   }
-  const bodyRows =  const bodyRows = [[-.185, .245, .055, .060], [-.095, .250, .130, .108], [.065, .270, .120, .130], [.160, .300, .058, .075]];
+  const bodyRows = [[-.185, .245, .055, .060], [-.095, .250, .130, .108], [.065, .270, .120, .130], [.160, .300, .058, .075]];
   rings('Body', bodyRows.map(([z, y, rx, ry]) => Array.from({ length: 6 }, (_, i) => {
     const a = Math.PI / 6 + i * Math.PI / 3; return [Math.cos(a) * rx, y + Math.sin(a) * ry, z] as Point;
   })), B.Body, '#aa6b39');
