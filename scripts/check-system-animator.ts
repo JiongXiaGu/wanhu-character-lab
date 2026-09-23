@@ -14,6 +14,8 @@ for(const def of SYSTEM_ANIMATOR_CLIPS){
  const source=JSON.parse(readFileSync(`public/system-animator/${def.id}.json`,'utf8')) as HumanoidMotionData;
  validateMotionData(source,def.id);assert.equal(source.source.provider,'XR Animator');assert.equal(source.source.format,'glb');assert.equal(source.source.profile,'system-animator-glb-v1');
  assert(source.bindPositions[4]>.7&&source.bindPositions[4]<1.2,`${def.id}: Hips Bind 高度异常 ${source.bindPositions[4]}`);
+ assert(source.bindPositions[9*3]>source.bindPositions[13*3],`${def.id}: 规范化后 +X 必须指向角色右侧。`);
+ assert(Math.abs(source.positions[4]-source.bindPositions[4])<.3,`${def.id}: 首帧 Hips 相对 Bind 高度异常，疑似重复叠加 Bind translation。`);
  assert(source.times.length>=390&&source.times.length<=400,`${def.id}: 30fps 采样帧数异常 ${source.times.length}`);
  assert(Math.abs(source.fps-30)<1e-6);assert(source.diagnostics?.sourceFootMinY);
  for(const bodyType of BODY_TYPES){
