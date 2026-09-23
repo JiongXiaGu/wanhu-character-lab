@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { captureLodComparison } from './check-livestock-lod-comparison.mjs';
 
 // 显式补充低档近景证据；不改原浏览器回归和截图矩阵。依赖此模块完成后才启动原检查。
 const screenshots = process.argv.includes('--screenshots');
@@ -41,8 +42,9 @@ try {
       cases.push({ lod, motion, triangles, logicalVertices, phase });
     }
   }
+  const comparisons = screenshots ? await captureLodComparison(page, base) : [];
   assert.deepEqual(errors, []);
-  const result = { result: 'passed', sourceSHA: process.env.REVIEW_HEAD_SHA ?? 'local', viewport: '1600x1000', cases, images, errors };
+  const result = { result: 'passed', sourceSHA: process.env.REVIEW_HEAD_SHA ?? 'local', viewport: '1600x1000', cases, images, comparisons, errors };
   writeFileSync(`${dir}/lod-browser.json`, JSON.stringify(result, null, 2));
   if (screenshots) writeFileSync('review/livestock/lod-evidence.json', JSON.stringify(result, null, 2));
   console.log(JSON.stringify(result, null, 2));
