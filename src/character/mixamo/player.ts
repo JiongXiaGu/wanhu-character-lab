@@ -23,7 +23,7 @@ export interface MixamoStatus {
   phase: number; stage: string; finished: boolean;
 }
 export interface MixamoPlayer {
-  id: MixamoId; sourceScene: T.Scene; targetDebug: T.LineSegments; bake: RetargetBake;
+  id: MotionId; sourceScene: T.Scene; targetDebug: T.LineSegments; bake: RetargetBake;
   update: (delta: number) => void; seek: (phase: number) => void; replay: () => void; setLoop: (value: boolean) => void;
   setHeadAxes: (visible: boolean) => void;
   status: () => MixamoStatus; export: () => ReturnType<typeof exportTargetMotion>; dispose: () => void;
