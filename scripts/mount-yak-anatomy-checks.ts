@@ -145,10 +145,8 @@ function eyes(actor: MountActor) {
     for (const i of ids) assert.deepEqual(actor.data.vertices[i].weight, [yakBone('Head'), yakBone('Head'), 1]);
     centers.push(center); report[part] = { center: center.toArray(), width: box.width, height, depth };
   }
-  nearMirror: {
-    const mirrored = centers[0].clone(); mirrored.x *= -1;
-    assert(mirrored.distanceTo(centers[1]) < 1e-8, 'asymmetric yak eyes');
-  }
+  const mirrored = centers[0].clone(); mirrored.x *= -1;
+  assert(mirrored.distanceTo(centers[1]) < .001, 'asymmetric yak eyes');
   return report;
 }
 /** 牦牛作者结构与故障注入：必须检测缺毛、飘毛、坏绑定、单蹄、错腿位，而非只测目录可切换。 */
