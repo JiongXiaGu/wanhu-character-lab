@@ -11,7 +11,7 @@ export function calibration(joints:Joint[],source:HumanoidMotionData):T.Quaterni
   return new T.Quaternion().setFromUnitVectors(direction.normalize(),sourceDirection);});
 }
 export function retargetMotion(data:CharacterData,source:HumanoidMotionData):RetargetBake{
- validateMotionData(source,source.id);const joints=data.joints,def=motionDefinition(source.id),count=source.times.length,correct=calibration(joints,source),scale=joints[1].p[1]/source.bindPositions[4];
+ validateMotionData(source,source.id);const joints=data.joints,def=motionDefinition(source.id),count=source.times.length,isBindDelta=source.source.provider==='SystemAnimator',correct=isBindDelta?joints.map(()=>new T.Quaternion()):calibration(joints,source),scale=joints[1].p[1]/source.bindPositions[4];
  const localBind=joints.map(j=>v(j.p,0).sub(j.parent<0?new T.Vector3():v(joints[j.parent].p,0))),globalQ=joints.map(()=>new T.Quaternion()),globalP=joints.map(()=>new T.Vector3());
  const swing=new T.Quaternion(),spineDirection=v(joints[3].p,0).sub(v(joints[2].p,0)).normalize(),q=new T.Quaternion(),previous=joints.map(()=>new T.Quaternion());
  const rotations=joints.map(()=>[] as number[]),hips:number[]=[],rootTrajectory:number[]=[],minYs:number[]=[],sourcePositions=new Float32Array(count*SAMPLE_BONE_COUNT*3),bounds=new T.Box3();
@@ -19,7 +19,7 @@ export function retargetMotion(data:CharacterData,source:HumanoidMotionData):Ret
  for(let f=0;f<count;f++){
   const phase=source.times[f]/source.duration;trend.lerpVectors(sourceStart,sourceEnd,phase);root.copy(v(source.positions,f*SAMPLE_BONE_COUNT*3+3)).sub(v(source.bindPositions,3)).multiplyScalar(scale);
   root.x=(source.positions[f*SAMPLE_BONE_COUNT*3+3]-trend.x)*scale;root.z=(source.positions[f*SAMPLE_BONE_COUNT*3+5]-trend.z)*scale;root.add(localBind[1]);rootTrajectory.push((trend.x-sourceStart.x)*scale,0,(trend.z-sourceStart.z)*scale);
-  for(let i=0;i<20;i++){globalQ[i].fromArray(source.worldDeltas,(f*20+i)*4).multiply(correct[i]).normalize();
+  for(let i=0;i<20;i++){globalQ[i].fromArray(source.worldDeltas,(f*20+i)*4);if(!isBindDelta)globalQ[i].multiply(correct[i]);globalQ[i].normalize();
    if(source.source.provider==='Mixamo'&&i===2){const expected=v(source.positions,(f*SAMPLE_BONE_COUNT+3)*3).sub(v(source.positions,(f*SAMPLE_BONE_COUNT+2)*3)).normalize();swing.setFromUnitVectors(spineDirection.clone().applyQuaternion(globalQ[i]),expected);globalQ[i].premultiply(swing).normalize();}
    const parent=joints[i].parent;q.copy(parent<0?globalQ[i]:globalQ[parent]).invert().multiply(globalQ[i]);if(parent<0)q.copy(globalQ[i]);q.normalize();if(f&&q.dot(previous[i])<0)q.set(-q.x,-q.y,-q.z,-q.w);previous[i].copy(q);rotations[i].push(q.x,q.y,q.z,q.w);
    if(i===1)globalP[i].copy(root);else if(parent<0)globalP[i].copy(localBind[i]);else globalP[i].copy(localBind[i]).applyQuaternion(globalQ[parent]).add(globalP[parent]);}
@@ -33,6 +33,6 @@ export function retargetMotion(data:CharacterData,source:HumanoidMotionData):Ret
  return{clip:new T.AnimationClip(`motion:${source.id}`,source.duration,tracks),rotations,hips,sourcePositions,scale,groundLift,rootTrajectory,seamDegrees,loop,bounds};
 }
 export function exportTargetMotion(data:CharacterData,source:HumanoidMotionData,bake:RetargetBake){return{schema:'wanhu-target-motion',version:2,retargetVersion:RETARGET_VERSION,skeletonVersion:'wanhu-20-v1',
- calibrationProfile:{id:data.recipe.bodyType==='female'?'female-anatomical-v1':'male-anatomical-v2',head:'source-world-bind-delta; neutral-face-forward-+Z'},coordinateSystem:'+X character-right / +Y up / +Z forward; quaternion xyzw',
+ calibrationProfile:{id:data.recipe.bodyType==='female'?'female-anatomical-v1':'male-anatomical-v2',head:'source-world-bind-delta; neutral-face-forward-+Z',sourcePolicy:source.source.provider==='SystemAnimator'?'bind-delta-world; no static source-bind direction calibration':'mixamo-anatomical-direction-calibration'},coordinateSystem:'+X character-right / +Y up / +Z forward; quaternion xyzw',
  source:source.source,clipId:source.id,duration:source.duration,loop:bake.loop,times:source.times,rootMotionPolicy:'remove-linear-planar-trajectory; preserve-local-sway-and-height',groundPolicy:source.source.provider==='SystemAnimator'?'fixed-baseline-p10':'per-frame-safety-lift',
  bodyProfile:{id:data.recipe.bodyType,version:BODY_PROFILE_VERSION},bones:data.joints.map((joint,i)=>({id:i,name:joint.name,parent:joint.parent,bindLocalPosition:v(joint.p,0).sub(joint.parent<0?new T.Vector3():v(data.joints[joint.parent].p,0)).toArray(),bindLocalRotation:[0,0,0,1],rotations:bake.rotations[i],...(i===1?{positions:bake.hips}:{})})),rootTrajectory:bake.rootTrajectory,events:[],props:[],limitations:['No fingers/toes','No authored prop or gameplay event tracks','Not a Unity runtime package','No foot lock/IK in G1']};}

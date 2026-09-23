@@ -38,7 +38,7 @@ jobs:
             all=true; : > /tmp/changed-files.txt
           else
             if [[ "$EVENT_NAME" == "pull_request" ]]; then BASE="$PR_BASE_SHA"; else BASE="$PUSH_BEFORE_SHA"; if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then BASE="$(git rev-parse HEAD^)"; fi; fi
-            git diff --name-only "$BASE" HEAD | tee /tmp/changed-files.txt
+            git -c core.quotepath=false diff --name-only "$BASE" HEAD | tee /tmp/changed-files.txt
           fi
           while IFS= read -r path; do
             case "$path" in .github/workflows/*|package.json|package-lock.json|scripts/review-local.mjs) all=true ;; esac
@@ -138,7 +138,7 @@ jobs:
             if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then BASE="$(git rev-parse HEAD^)"; fi
             while IFS= read -r path; do
               case "$path" in src/livestock/*|src/chicken/*|src/duck/*|src/ui/AnimalModeSwitcher*|src/ui/animal-mode-switcher*|src/ui/WorkspaceSwitcher*|src/horse/horse.css|src/main.tsx|src/styles.css|src/animation/clip-clock.ts|scripts/check-livestock*|package.json|package-lock.json|.github/workflows/*) required=true ;; esac
-            done < <(git diff --name-only "$BASE" HEAD)
+            done < <(git -c core.quotepath=false diff --name-only "$BASE" HEAD)
           fi
           echo "required=$required" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v4

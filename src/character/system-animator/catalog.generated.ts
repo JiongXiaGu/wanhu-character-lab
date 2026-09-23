@@ -1,10 +1,10 @@
 /** 自动生成；勿手写。来源：动画参考_glb/。 */
 export const GENERATED_SYSTEM_ANIMATOR_CLIPS=[
   {
-    "id": "xr-a-1bb6737f",
-    "label": "新宝岛 A",
-    "file": "新宝岛_A",
-    "filename": "新宝岛_A.glb",
+    "id": "xr-b-ccae4e25",
+    "label": "新宝岛 B",
+    "file": "新宝岛_B",
+    "filename": "新宝岛_B.glb",
     "category": "XR Animator",
     "loop": false,
     "ground": true,
