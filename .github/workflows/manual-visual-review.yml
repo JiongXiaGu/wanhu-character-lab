@@ -1,7 +1,5 @@
 name: Manual Visual Review
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       scope:
@@ -31,7 +29,6 @@ concurrency:
   cancel-in-progress: true
 jobs:
   review:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[visual-system-animator]')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
@@ -54,8 +51,8 @@ jobs:
       - name: Generate requested visual evidence
         shell: bash
         env:
-          SCOPE: ${{ github.event_name == 'workflow_dispatch' && inputs.scope || 'system-animator' }}
-          FULL: ${{ github.event_name == 'workflow_dispatch' && inputs.full || false }}
+          SCOPE: ${{ inputs.scope }}
+          FULL: ${{ inputs.full }}
         run: |
           set -euo pipefail
           : > manual-visual-review.log
