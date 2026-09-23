@@ -3,8 +3,8 @@ import { HorseMeshBuilder, type Section } from '../horse/geometry/builder';
 import type { HorseWeight, Point3 } from '../horse/types';
 import { weight } from './rig';
 
-export const BUFFALO_MESH_VERSION = 'wanhu-buffalo-mesh-m8-v1';
-const COAT = '#535b5b', PALE = '#646967', SHADE = '#434a49', NOSE = '#303b3c', HOOF = '#343b39';
+export const BUFFALO_MESH_VERSION = 'wanhu-buffalo-mesh-m8-v2';
+const COAT = '#535b5b', PALE = '#646967', SHADE = '#434a49', NOSE = '#303b3c', HOOF = '#343b39', EYE_ZONE = '#606765', EYE = '#151b1b';
 interface SweepSection { p: Point3; u: number; v: number; color?: string }
 /** 只供水牛横耳和弯角使用的作者壳：截面随三维切线，不能用两根直锥冒充牛角。 */
 function sweep(b: HorseMeshBuilder, part: string, rows: readonly SweepSection[], skin: HorseWeight, color: string) {
@@ -80,6 +80,11 @@ export function buildBuffaloMesh() {
     { p: [0, .835, 1.64], width: .225, depth: .11, skin: weight('Head') },
     { p: [0, .80, 1.695], width: .205, depth: .10, skin: weight('Head') },
   ], 12, COAT);
+  // M8补丁：不增加额外眼眶壳，只抬高现有眼区切面的明度，避免深灰头壳吞掉眼睛。
+  for (const face of b.data.triangles.filter(face => face.part === 'Head')) {
+    const center = face.indices.reduce((sum, i) => sum.add(new Vector3(...b.data.vertices[i].position)), new Vector3()).multiplyScalar(1 / 3);
+    if (Math.abs(center.x) > .18 && center.y > 1.035 && center.y < 1.16 && center.z > 1.20 && center.z < 1.36) face.color = EYE_ZONE;
+  }
   b.loft('NoseMirror', [
     { p: [0, .825, 1.643], width: .218, depth: .11, skin: weight('Head') },
     { p: [0, .799, 1.697], width: .211, depth: .098, skin: weight('Head') },
@@ -102,7 +107,8 @@ export function buildBuffaloMesh() {
       { p: [sign * .555, 1.035, 1.225], u: .045, v: .095, color: '#77746c' },
       { p: [sign * .608, 1.03, 1.246], u: .009, v: .018 },
     ], weight(`${side}Ear`), COAT);
-    detail(b, `${side}Eye`, 'Head', [sign * .25, 1.124, 1.245], [.017, .018, .015], '#222c2b');
+    // 更大的圆钝短椭圆眼略向外、向前并下移；保持纯深色豆豆眼，不引入白眼球或写实虹膜。
+    detail(b, `${side}Eye`, 'Head', [sign * .265, 1.10, 1.285], [.028, .026, .021], EYE);
     detail(b, `${side}Nostril`, 'NoseMirror', [sign * .155, .821, 1.764], [.020, .010, .008], '#202a2b');
     for (const front of [true, false]) {
       const name = `${front ? 'Front' : 'Back'}${side}`, x = sign * (front ? .375 : .385);

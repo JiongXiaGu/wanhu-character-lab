@@ -87,6 +87,25 @@ function noseMirror(actor: MountActor) {
   const contact = Math.min(...ids.map(i => distanceTo(actor, 'Head', new Vector3(...actor.data.vertices[i].position))));
   assert(contact < .008, `floating nose mirror: ${contact}`); assert(bounds(actor, 'NoseMirror').width > .40); return contact;
 }
+function eyes(actor: MountActor) {
+  const report: Record<string, unknown> = {}, centers: Vector3[] = [];
+  for (const side of ['Left', 'Right'] as const) {
+    const part = `${side}Eye`, ids = idsFor(actor, part); assert.equal(ids.length, 6, `${part}: missing low-poly eye`);
+    const box = bounds(actor, part), center = ids.reduce((sum, i) => sum.add(new Vector3(...actor.data.vertices[i].position)), new Vector3()).multiplyScalar(1 / ids.length);
+    const height = box.max[1] - box.min[1], depth = box.max[2] - box.min[2];
+    assert(box.width > .052 && box.width < .062, `${part}: eye width no longer readable (${box.width})`);
+    assert(height > .048 && height < .058, `${part}: eye height no longer rounded (${height})`);
+    assert(depth > .038 && depth < .048, `${part}: eye depth no longer readable (${depth})`);
+    assert(center.y > 1.02 && center.y < 1.18, `${part}: eye drifted vertically on the long head`);
+    assert(center.z > 1.22 && center.z < 1.36, `${part}: eye must stay forward-readable in three-quarter view`);
+    assert(Math.abs(center.x) > .20 && Math.abs(center.x) < .31, `${part}: eye must remain on the side of the head`);
+    for (const i of ids) assert.deepEqual(actor.data.vertices[i].weight, [buffaloBone('Head'), buffaloBone('Head'), 1]);
+    centers.push(center); report[part] = { center: center.toArray(), width: box.width, height, depth };
+  }
+  const mirrored = centers[0].clone(); mirrored.x *= -1;
+  assert(mirrored.distanceTo(centers[1]) < .001, 'asymmetric buffalo eyes');
+  return report;
+}
 /** 水牛识别特征和真正会失败的反例；闭合性/姿态/地面仍走原有严格公共检查。 */
 export function checkBuffaloAnatomy(actor: MountActor) {
   assert.notStrictEqual(BUFFALO_JOINTS, CATTLE_JOINTS);
@@ -107,7 +126,7 @@ export function checkBuffaloAnatomy(actor: MountActor) {
   for (const prefix of ['Front', 'Back']) for (const part of ['Upper', 'Middle', 'Lower', 'Foot']) {
     const left = actor.bones[buffaloBone(`${prefix}Left${part}`)].getWorldPosition(new Vector3()), right = actor.bones[buffaloBone(`${prefix}Right${part}`)].getWorldPosition(new Vector3()); left.x *= -1; assert(left.distanceTo(right) < 1e-8, 'asymmetric buffalo stance');
   }
-  const hornReport = horns(actor), hoofGaps = hooves(actor), noseContact = noseMirror(actor), legs = legPlacement(actor); dewlap(actor);
+  const hornReport = horns(actor), hoofGaps = hooves(actor), noseContact = noseMirror(actor), eyeReadability = eyes(actor), legs = legPlacement(actor); dewlap(actor);
   let faults = 0;
   const hornIds = idsFor(actor, 'LeftHorn'), horn = actor.data.vertices[hornIds[0]], savedWeight = [...horn.weight] as [number, number, number];
   horn.weight = [buffaloBone('Neck'), buffaloBone('Neck'), 1]; assert.throws(() => horns(actor)); horn.weight = savedWeight; faults++;
@@ -119,6 +138,10 @@ export function checkBuffaloAnatomy(actor: MountActor) {
   const d = actor.data.vertices[idsFor(actor, 'Dewlap')[0]], dw = [...d.weight] as [number, number, number]; d.weight = [buffaloBone('Head'), buffaloBone('Head'), 1]; assert.throws(() => dewlap(actor)); d.weight = dw; faults++;
   const nose = idsFor(actor, 'NoseMirror'), saved = nose.map(i => actor.data.vertices[i].position[2]);
   nose.forEach(i => { actor.data.vertices[i].position[2] += .10; }); assert.throws(() => noseMirror(actor)); nose.forEach((i, j) => { actor.data.vertices[i].position[2] = saved[j]; }); faults++;
+  const eyeIds = idsFor(actor, 'LeftEye'), eyeSaved = eyeIds.map(i => [...actor.data.vertices[i].position] as [number, number, number]);
+  const eyeCenter = eyeIds.reduce((sum, i) => sum.add(new Vector3(...actor.data.vertices[i].position)), new Vector3()).multiplyScalar(1 / eyeIds.length);
+  eyeIds.forEach(i => { actor.data.vertices[i].position = new Vector3(...actor.data.vertices[i].position).sub(eyeCenter).multiplyScalar(.45).add(eyeCenter).toArray() as [number, number, number]; });
+  assert.throws(() => eyes(actor)); eyeIds.forEach((i, j) => { actor.data.vertices[i].position = eyeSaved[j]; }); faults++;
   const frontFoot = actor.bones[buffaloBone('FrontLeftFoot')], frontZ = frontFoot.position.z;
   frontFoot.position.z += .08; actor.bones[0].updateMatrixWorld(true); assert.throws(() => legPlacement(actor)); frontFoot.position.z = frontZ; actor.bones[0].updateMatrixWorld(true); faults++;
   const backUpper = actor.bones[buffaloBone('BackLeftUpper')], backZ = backUpper.position.z;
@@ -140,5 +163,5 @@ export function checkBuffaloAnatomy(actor: MountActor) {
   const outerIds = idsFor(actor, 'FrontLeftOuterHoof'), outerX = outerIds.map(i => actor.data.vertices[i].position[0]);
   try { outerIds.forEach(i => { actor.data.vertices[i].position[0] += .014; }); assert.throws(() => hooves(actor), /no real split hoof/); faults++; }
   finally { outerIds.forEach((i, j) => { actor.data.vertices[i].position[0] = outerX[j]; }); }
-  return { body, head, neck, horns: hornReport, splitHooves: 8, hoofGaps, noseContact, legs, faults };
+  return { body, head, neck, horns: hornReport, splitHooves: 8, hoofGaps, noseContact, eyeReadability, legs, faults };
 }
