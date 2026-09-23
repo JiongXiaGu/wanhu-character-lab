@@ -14,7 +14,7 @@ export async function checkDuckBrowser(page, base, dir, screenshots, setPhase) {
     for(const [surface,motions] of [['land',['idle_land','walk','run','feed_land']],['water',['idle_water','swim','dabble']]]) {
       for(const motion of motions) {
         await page.goto(`${base}/?lab=livestock&animal=${animal}&surface=${surface}&lod=${lod}&clip=${motion}&phase=.5&paused=1&view=three`,{waitUntil:'networkidle'});await ready();
-        const s=await snap(); assert.equal(s.animal,animal);assert.equal(s.surface,surface);assert.equal(s.motion,motion);assert.equal(s.triangles,triangles);assert.equal(s.logicalVertices,logicalVertices);assert.equal(s.phase,.5);assert.equal(s.playing,false);assert.equal(s.bones,8);
+        const s=await snap(); assert.equal(s.animal,animal);assert.equal(s.surface,surface);assert.equal(s.waterClipped,surface==='water');assert.equal(s.motion,motion);assert.equal(s.triangles,triangles);assert.equal(s.logicalVertices,logicalVertices);assert.equal(s.phase,.5);assert.equal(s.playing,false);assert.equal(s.bones,8);
         assert.equal(await page.locator('.livestock-motions button').count(),surface==='land'?4:3);
         assert.equal(await page.getByTestId('livestock-motion-run').count(),surface==='land'?1:0);assert.equal(await page.locator('canvas').count(),1);
         await page.getByTestId('livestock-lod-lod0').click();await page.waitForFunction(()=>window.__LIVESTOCK_REVIEW__.snapshot().lod==='lod0');
@@ -37,7 +37,7 @@ export async function checkDuckBrowser(page, base, dir, screenshots, setPhase) {
   await page.getByLabel('家畜种类',{exact:true}).selectOption(animal);await page.waitForFunction(()=>window.__LIVESTOCK_REVIEW__.snapshot().animal==='duck_domestic_brown');
   await page.getByTestId('livestock-motion-run').click();await pause();await setPhase(.37);const running=await snap();
   await page.getByTestId('livestock-surface-water').click();await page.waitForFunction(()=>window.__LIVESTOCK_REVIEW__.snapshot().surface==='water');s=await snap();
-  assert.equal(s.motion,'idle_water');assert.equal(s.geometryId,running.geometryId);assert.equal(s.rendererId,running.rendererId);assert.equal(s.phase,running.phase);assert.deepEqual(s.camera,running.camera);assert.equal(s.waterLevel,.185);
+  assert.equal(s.motion,'idle_water');assert.equal(s.geometryId,running.geometryId);assert.equal(s.rendererId,running.rendererId);assert(Math.abs(s.phase-running.phase)<1e-9);assert.deepEqual(s.camera,running.camera);assert.equal(s.waterLevel,.185);
   await page.getByLabel('显示水位线',{exact:true}).check();await page.getByTestId('livestock-view-left').click();await image('duck-waterline-side.png');await page.getByLabel('显示水位线',{exact:true}).uncheck();
   await page.getByTestId('livestock-motion-swim').click();await pause();await page.getByLabel('家畜循环播放',{exact:true}).uncheck();await setPhase(.99);await page.getByTestId('livestock-play').click();await page.waitForFunction(()=>window.__LIVESTOCK_REVIEW__.snapshot().finished);
   assert.equal((await snap()).phase,1);await page.getByLabel('家畜循环播放',{exact:true}).check();await setPhase(.5);

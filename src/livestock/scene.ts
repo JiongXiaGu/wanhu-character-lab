@@ -1,4 +1,4 @@
-import { ACESFilmicToneMapping, CircleGeometry, DirectionalLight, GridHelper, HemisphereLight, Mesh, MeshBasicMaterial, MeshStandardMaterial, OrthographicCamera, Scene, SRGBColorSpace, Vector3, WebGLRenderer } from 'three';
+import { ACESFilmicToneMapping, CircleGeometry, DirectionalLight, GridHelper, HemisphereLight, Mesh, MeshBasicMaterial, MeshStandardMaterial, OrthographicCamera, Plane, Scene, SRGBColorSpace, Vector3, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { createClipClock } from '../animation/clip-clock';
 import { createAnimalActor } from './actor';
@@ -10,7 +10,7 @@ import { LIVESTOCK_REFERENCE_HEIGHT, selectLivestockLod } from './lod';
 import type { CameraSnapshot, LabOptions, LabStats, LivestockDefinition, LivestockLodId, Playback } from './types';
 
 export interface LivestockReviewHook {
-  snapshot(): LabStats & Playback & { animal: string; surface: string; waterLevel: number; rendererId: string; motion: string; mixed: boolean; playing: boolean; seed: number; geometries: number; calls: number; geometryId: number; camera: CameraSnapshot };
+  snapshot(): LabStats & Playback & { animal: string; surface: string; waterLevel: number; waterClipped: boolean; rendererId: string; motion: string; mixed: boolean; playing: boolean; seed: number; geometries: number; calls: number; geometryId: number; camera: CameraSnapshot };
   camera(): CameraSnapshot;
 }
 declare global { interface Window { __LIVESTOCK_REVIEW__?: LivestockReviewHook } }
@@ -22,6 +22,7 @@ export function createLivestockScene(host: HTMLElement, initialDefinition: Lives
     const renderer = new WebGLRenderer({ antialias: true, alpha: true }); cleanup.push(() => { renderer.dispose(); renderer.domElement.remove(); });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.outputColorSpace = SRGBColorSpace;
     renderer.toneMapping = ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+    renderer.localClippingEnabled = true;
     renderer.setClearColor(0, 0); host.appendChild(renderer.domElement);
     const scene = new Scene(), camera = new OrthographicCamera(-1, 1, 1, -1, .01, 1000);
     const controls = new OrbitControls(camera, renderer.domElement); cleanup.push(() => controls.dispose());
@@ -47,6 +48,8 @@ export function createLivestockScene(host: HTMLElement, initialDefinition: Lives
     let definition = initialDefinition, actors = makeActors(definition);
     for (const actor of actors.values()) scene.add(actor.mesh, actor.helper);
     cleanup.push(() => { for (const actor of actors.values()) actor.dispose(); actors.clear(); });
+    // 有限水盘只展示水面；共用水位裁切防止低视角看到水盘边缘下露出的蹼足，不改作者网格。
+    const waterClip = new Plane(new Vector3(0, 1, 0), 0), waterClips = [waterClip];
     const water = createPreviewWater(); scene.add(water.mesh, water.ripple); cleanup.push(() => water.dispose());
     let crowd: ReturnType<typeof createCrowd> | undefined;
     cleanup.push(() => crowd?.dispose());
@@ -85,7 +88,7 @@ export function createLivestockScene(host: HTMLElement, initialDefinition: Lives
     const hook: LivestockReviewHook = {
       snapshot: () => {
         const lod = resolvedLod(), actor = actors.get(lod)!;
-        return { ...stats(), ...playback(), animal: definition.id, surface: options.surface, waterLevel: habitatDefinition(definition, options.surface).waterline ?? 0, rendererId: renderer.domElement.dataset.rendererId!, motion: options.motion, mixed: options.count > 1 && options.mixed, playing: options.playing, seed: options.seed,
+        return { ...stats(), ...playback(), animal: definition.id, surface: options.surface, waterLevel: habitatDefinition(definition, options.surface).waterline ?? 0, waterClipped: !!actor.material.clippingPlanes?.length, rendererId: renderer.domElement.dataset.rendererId!, motion: options.motion, mixed: options.count > 1 && options.mixed, playing: options.playing, seed: options.seed,
           geometries: renderer.info.memory.geometries, calls: renderer.info.render.calls, geometryId: actor.geometry.id, camera: cameraSnapshot() };
       },
       camera: cameraSnapshot,
@@ -133,6 +136,10 @@ export function createLivestockScene(host: HTMLElement, initialDefinition: Lives
       }
       const profile = habitatDefinition(definition, options.surface), onWater = profile.id === 'water';
       const waterY = profile.waterline ?? 0, radius = options.count === 1 ? .49 : layoutHalf(options.count) * Math.SQRT2;
+      waterClip.constant = -waterY;
+      if (first || changedSpecies || options.surface !== previous.surface) {
+        for (const candidate of actors.values()) { candidate.material.clippingPlanes = onWater ? waterClips : null; candidate.material.needsUpdate = true; }
+      }
       water.update(onWater, waterY, radius, clock.phase * 6, options.count === 1);
       floor.visible = !onWater; shadow.visible = !onWater && options.count === 1;
       grid.position.y = (onWater ? waterY : 0) + .002;
