@@ -1,7 +1,7 @@
 import { DynamicDrawUsage, Group, InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three';
 import type { MeshStandardMaterial } from 'three';
 import { createPoseCache } from './pose-cache';
-import type { LabOptions, LivestockDefinition } from './types';
+import type { LabOptions, LivestockDefinition, LivestockLodId } from './types';
 
 export const PHASE_COHORTS = 8;
 export const MIXED_DURATION = 9;
@@ -26,32 +26,37 @@ export function previewDuration(definition: LivestockDefinition, options: Pick<L
   return options.count > 1 && options.mixed ? MIXED_DURATION : definition.motions.find(m => m.id === options.motion)!.duration;
 }
 export function createCrowd(definition: LivestockDefinition, material: MeshStandardMaterial) {
-  const cache = createPoseCache(definition), group = new Group(), batches = new Map<string, InstancedMesh>();
-  for (const motion of definition.motions) for (let cohort = 0; cohort < PHASE_COHORTS; cohort++) {
-    const mesh = new InstancedMesh(cache.get(motion.id, 0), material, 500);
-    mesh.instanceMatrix.setUsage(DynamicDrawUsage); mesh.count = 0; mesh.visible = false;
-    // 这是整群布局预览，不冒称逐只可见性剔除；边界外的骨骼姿态不会被错误裁切。
-    mesh.frustumCulled = false; mesh.name = `${motion.id}/${cohort}`; group.add(mesh); batches.set(mesh.name, mesh);
+  const group = new Group(), caches = new Map<LivestockLodId, ReturnType<typeof createPoseCache>>(), batches = new Map<string, InstancedMesh>();
+  function ensureLod(lod: LivestockLodId) {
+    let cache = caches.get(lod);
+    if (cache) return cache;
+    cache = createPoseCache(definition, lod); caches.set(lod, cache);
+    for (const motion of definition.motions) for (let cohort = 0; cohort < PHASE_COHORTS; cohort++) {
+      const mesh = new InstancedMesh(cache.get(motion.id, 0), material, 500);
+      mesh.instanceMatrix.setUsage(DynamicDrawUsage); mesh.count = 0; mesh.visible = false; mesh.frustumCulled = false;
+      mesh.name = `${lod}/${motion.id}/${cohort}`; group.add(mesh); batches.set(mesh.name, mesh);
+    }
+    return cache;
   }
   let placements: Placement[] = [], disposed = false;
   const matrix = new Matrix4(), rotation = new Quaternion(), position = new Vector3(), scale = new Vector3(), up = new Vector3(0, 1, 0);
   return {
-    group, get cachedPoses() { return cache.size; }, get placements() { return placements; },
+    group, get cachedPoses() { return [...caches.values()].reduce((sum, cache) => sum + cache.size, 0); }, get placements() { return placements; },
     get batchCount() { return [...batches.values()].filter(mesh => mesh.visible).length; },
     setLayout(count: number, seed: number) { placements = makePlacements(count, seed); },
-    update(time: number, options: Pick<LabOptions, 'motion' | 'mixed' | 'loop'>) {
+    update(time: number, options: Pick<LabOptions, 'motion' | 'mixed' | 'loop'>, lod: LivestockLodId) {
+      const cache = ensureLod(lod);
       for (const mesh of batches.values()) { mesh.count = 0; mesh.visible = false; }
       for (const item of placements) {
         const motionId = options.mixed ? item.motion : options.motion;
         const motion = definition.motions.find(m => m.id === motionId) ?? definition.motions[0];
         const cohort = options.loop || options.mixed ? item.cohort : 0;
-        const mesh = batches.get(`${motion.id}/${cohort}`)!;
+        const mesh = batches.get(`${lod}/${motion.id}/${cohort}`)!;
         if (!mesh.visible) {
           const phase = options.loop || options.mixed ? (time / motion.duration + cohort / PHASE_COHORTS) % 1 : Math.min(1, time / motion.duration);
           mesh.geometry = cache.get(motion.id, phase); mesh.visible = true;
         }
         let x = item.x, z = item.z, yaw = item.yaw;
-        // 统一动作是原地检查。只有9秒混合观察周期演示移动，避免短动作回绕时世界位置跳变。
         if (options.mixed && (motion.id === 'walk' || motion.id === 'run')) {
           const running = motion.id === 'run', angle = (time / (running ? 3 : MIXED_DURATION) + item.offset) * Math.PI * 2, radius = running ? .225 : .25;
           x += Math.cos(angle) * radius; z += Math.sin(angle) * radius; yaw = -angle;
@@ -61,6 +66,10 @@ export function createCrowd(definition: LivestockDefinition, material: MeshStand
       }
       for (const mesh of batches.values()) if (mesh.visible) mesh.instanceMatrix.needsUpdate = true;
     },
-    dispose() { if (disposed) return; disposed = true; group.removeFromParent(); for (const mesh of batches.values()) mesh.dispose(); group.clear(); cache.dispose(); batches.clear(); placements = []; },
+    dispose() {
+      if (disposed) return; disposed = true; group.removeFromParent();
+      for (const mesh of batches.values()) mesh.dispose(); group.clear(); batches.clear();
+      for (const cache of caches.values()) cache.dispose(); caches.clear(); placements = [];
+    },
   };
 }

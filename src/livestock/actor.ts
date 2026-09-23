@@ -1,9 +1,11 @@
 import { AnimationMixer, Bone, BufferGeometry, Color, Float32BufferAttribute, LoopOnce, MeshStandardMaterial, Skeleton, SkeletonHelper, SkinnedMesh, Uint16BufferAttribute } from 'three';
-import type { AnimalActor, LivestockDefinition } from './types';
+import type { AnimalActor, LivestockDefinition, LivestockLodId } from './types';
 
-/** 单只精确检查路径；群体烘焙也使用相同的真实绑定，而非另一套变形公式。 */
-export function createAnimalActor(definition: LivestockDefinition): AnimalActor {
-  const data = definition.buildMesh(), geometry = new BufferGeometry();
+/** 单只精确检查路径；三档LOD共用同一骨骼语义与动作，不在运行时删面。 */
+export function createAnimalActor(definition: LivestockDefinition, lod: LivestockLodId = 'lod0'): AnimalActor {
+  const lodDefinition = definition.lods.find(value => value.id === lod);
+  if (!lodDefinition) throw new Error(`未知家畜LOD：${lod}`);
+  const data = lodDefinition.buildMesh(), geometry = new BufferGeometry();
   const positions: number[] = [], colors: number[] = [], skinIndices: number[] = [], weights: number[] = [];
   for (const index of data.indices) {
     positions.push(...data.positions[index]); colors.push(...new Color(data.colors[index]).toArray());
@@ -21,7 +23,7 @@ export function createAnimalActor(definition: LivestockDefinition): AnimalActor 
     bones[index].position.set(...joint.position.map((value, axis) => value - parent[axis]) as [number, number, number]);
     if (joint.parent < 0) mesh.add(bones[index]); else bones[joint.parent].add(bones[index]);
   });
-  mesh.name = definition.id; mesh.frustumCulled = false;
+  mesh.name = `${definition.id}/${lod}`; mesh.frustumCulled = false;
   mesh.updateMatrixWorld(true);
   const skeleton = new Skeleton(bones); mesh.bind(skeleton);
   const helper = new SkeletonHelper(mesh), mixer = new AnimationMixer(mesh);

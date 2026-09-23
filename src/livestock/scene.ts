@@ -3,7 +3,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { createClipClock } from '../animation/clip-clock';
 import { createAnimalActor } from './actor';
 import { createCrowd, layoutHalf, previewDuration } from './crowd';
-import type { CameraSnapshot, LabOptions, LabStats, LivestockDefinition, Playback } from './types';
+import { LIVESTOCK_REFERENCE_HEIGHT, selectLivestockLod } from './lod';
+import type { CameraSnapshot, LabOptions, LabStats, LivestockDefinition, LivestockLodId, Playback } from './types';
 
 export interface LivestockReviewHook {
   snapshot(): LabStats & Playback & { motion: string; mixed: boolean; playing: boolean; seed: number; geometries: number; calls: number; geometryId: number; camera: CameraSnapshot };
@@ -11,7 +12,7 @@ export interface LivestockReviewHook {
 }
 declare global { interface Window { __LIVESTOCK_REVIEW__?: LivestockReviewHook } }
 
-/** 一个页面只有一个RAF与一个时间游标；换动作、数量和材质都不重建Renderer。 */
+/** 一个页面只有一个RAF与一个时间游标；LOD切换只换作者几何/姿态缓存，不重建Renderer。 */
 export function createLivestockScene(host: HTMLElement, definition: LivestockDefinition, current: { current: LabOptions }, report: (stats: LabStats, playback: Playback) => void, initialCamera?: CameraSnapshot) {
   const cleanup: (() => void)[] = [];
   try {
@@ -33,9 +34,16 @@ export function createLivestockScene(host: HTMLElement, definition: LivestockDef
     cleanup.push(() => { shadowGeometry.dispose(); shadowMaterial.dispose(); });
     const grid = new GridHelper(2, 20, '#b6b09a', '#a6a28d'); grid.position.y = .002; scene.add(grid);
     cleanup.push(() => { grid.geometry.dispose(); const material = grid.material; if (Array.isArray(material)) material.forEach(m => m.dispose()); else material.dispose(); });
-    const actor = createAnimalActor(definition); scene.add(actor.mesh, actor.helper); cleanup.push(() => actor.dispose());
+
+    const actors = new Map<LivestockLodId, ReturnType<typeof createAnimalActor>>();
+    for (const lod of definition.lods) {
+      const actor = createAnimalActor(definition, lod.id); actors.set(lod.id, actor); scene.add(actor.mesh, actor.helper);
+    }
+    cleanup.push(() => { for (const actor of actors.values()) actor.dispose(); actors.clear(); });
+    const crowdMaterial = actors.get('lod0')!.material;
     let crowd: ReturnType<typeof createCrowd> | undefined;
     cleanup.push(() => crowd?.dispose());
+
     let options = current.current, previous = { ...options }, first = true, alive = true, frameId = 0, previousTime = performance.now(), lastReport = -Infinity, wasFinished = false;
     let duration = previewDuration(definition, options), clock = createClipClock(duration, options.loop); clock.seek(options.phase);
     let half = layoutHalf(options.count), aspect = 1;
@@ -52,20 +60,33 @@ export function createLivestockScene(host: HTMLElement, definition: LivestockDef
       controls.target.set(0, options.count === 1 ? .24 : 0, 0); camera.position.copy(controls.target).addScaledVector(direction, half * 4 + 2);
       camera.zoom = 1; camera.lookAt(controls.target); controls.update(); resize();
     }
+    function pixelHeight() {
+      const visibleWorldHeight = Math.max(.001, (camera.top - camera.bottom) / Math.max(.001, camera.zoom));
+      return Math.max(0, host.clientHeight) * LIVESTOCK_REFERENCE_HEIGHT / visibleWorldHeight;
+    }
+    function resolvedLod() { return selectLivestockLod(options.lod, pixelHeight()); }
     fit();
     if (initialCamera) { camera.position.fromArray(initialCamera.position); controls.target.fromArray(initialCamera.target); camera.zoom = initialCamera.zoom; camera.updateProjectionMatrix(); controls.update(); }
     const observer = new ResizeObserver(resize); observer.observe(host); cleanup.push(() => observer.disconnect());
-    const stats = (): LabStats => ({ triangles: actor.data.indices.length / 3, logicalVertices: actor.data.positions.length, bones: actor.bones.length, count: options.count,
-      modelTriangles: actor.data.indices.length / 3 * options.count, batches: options.count === 1 ? 1 : crowd?.batchCount ?? 0, cachedPoses: crowd?.cachedPoses ?? 0 });
+    const stats = (): LabStats => {
+      const lod = resolvedLod(), actor = actors.get(lod)!;
+      return { triangles: actor.data.indices.length / 3, logicalVertices: actor.data.positions.length, bones: actor.bones.length, count: options.count,
+        modelTriangles: actor.data.indices.length / 3 * options.count, batches: options.count === 1 ? 1 : crowd?.batchCount ?? 0, cachedPoses: crowd?.cachedPoses ?? 0,
+        lod, pixelHeight: pixelHeight() };
+    };
     const playback = (): Playback => ({ phase: clock.phase, time: clock.time, duration, finished: clock.finished });
     const hook: LivestockReviewHook = {
-      snapshot: () => ({ ...stats(), ...playback(), motion: options.motion, mixed: options.count > 1 && options.mixed, playing: options.playing, seed: options.seed,
-        geometries: renderer.info.memory.geometries, calls: renderer.info.render.calls, geometryId: actor.geometry.id, camera: cameraSnapshot() }),
+      snapshot: () => {
+        const lod = resolvedLod(), actor = actors.get(lod)!;
+        return { ...stats(), ...playback(), motion: options.motion, mixed: options.count > 1 && options.mixed, playing: options.playing, seed: options.seed,
+          geometries: renderer.info.memory.geometries, calls: renderer.info.render.calls, geometryId: actor.geometry.id, camera: cameraSnapshot() };
+      },
       camera: cameraSnapshot,
     };
     window.__LIVESTOCK_REVIEW__ = hook;
     cleanup.push(() => { if (window.__LIVESTOCK_REVIEW__ === hook) delete window.__LIVESTOCK_REVIEW__; });
     cleanup.push(() => { alive = false; cancelAnimationFrame(frameId); scene.clear(); });
+
     function frame(now: number) {
       if (!alive) return;
       options = current.current;
@@ -77,22 +98,27 @@ export function createLivestockScene(host: HTMLElement, definition: LivestockDef
       if (options.playing && !seeking) clock.advance(Math.min(.1, Math.max(0, (now - previousTime) / 1000)) * options.speed);
       previousTime = now;
       if (first || options.count !== previous.count || options.seed !== previous.seed) {
-        if (options.count > 1) { if (!crowd) { crowd = createCrowd(definition, actor.material); scene.add(crowd.group); } crowd.setLayout(options.count, options.seed); }
+        if (options.count > 1) { if (!crowd) { crowd = createCrowd(definition, crowdMaterial); scene.add(crowd.group); } crowd.setLayout(options.count, options.seed); }
         const radius = options.count === 1 ? .49 : layoutHalf(options.count) * Math.SQRT2;
         floor.scale.setScalar(radius); grid.scale.setScalar(options.count === 1 ? .5 : layoutHalf(options.count));
       }
       if (options.count !== previous.count || options.viewRevision !== previous.viewRevision) fit();
       if (first || options.display !== previous.display) {
-        actor.material.vertexColors = options.display === 'beauty'; actor.material.color.set(options.display === 'beauty' ? '#ffffff' : '#dad1b9');
-        actor.material.wireframe = options.display === 'wire'; actor.material.needsUpdate = true;
+        for (const actor of actors.values()) {
+          actor.material.vertexColors = options.display === 'beauty'; actor.material.color.set(options.display === 'beauty' ? '#ffffff' : '#dad1b9');
+          actor.material.wireframe = options.display === 'wire'; actor.material.needsUpdate = true;
+        }
       }
-      actor.mesh.visible = options.count === 1; actor.helper.visible = options.count === 1 && options.skeleton;
+      const lod = resolvedLod(), actor = actors.get(lod)!;
+      for (const [id, candidate] of actors) {
+        candidate.mesh.visible = options.count === 1 && id === lod;
+        candidate.helper.visible = options.count === 1 && options.skeleton && id === lod;
+      }
       shadow.visible = options.count === 1; grid.visible = options.grid;
       if (crowd) crowd.group.visible = options.count > 1;
-      if (options.count === 1) actor.sample(options.motion, clock.phase); else crowd!.update(clock.time, options);
+      if (options.count === 1) actor.sample(options.motion, clock.phase); else crowd!.update(clock.time, options, lod);
       controls.update(); renderer.render(scene, camera);
-      // 拖动后立即回报，末帧只在进入结束时即时回报，不持续触发逐帧React更新。
-      if (now - lastReport >= 150 || seeking || (clock.finished && !wasFinished) || first) { report(stats(), playback()); lastReport = now; }
+      if (now - lastReport >= 150 || seeking || options.lod !== previous.lod || (clock.finished && !wasFinished) || first) { report(stats(), playback()); lastReport = now; }
       wasFinished = clock.finished; previous = { ...options }; first = false; frameId = requestAnimationFrame(frame);
     }
     frameId = requestAnimationFrame(frame);

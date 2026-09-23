@@ -1,11 +1,11 @@
 import { BufferGeometry, Float32BufferAttribute, Vector3 } from 'three';
 import { createAnimalActor } from './actor';
-import type { LivestockDefinition } from './types';
+import type { LivestockDefinition, LivestockLodId } from './types';
 
 export const POSE_FPS = 24;
-/** 页面内共享静态姿态缓存；不把500套Skeleton/Mixer放进渲染循环。不是Unity GPU动画实现。 */
-export function createPoseCache(definition: LivestockDefinition) {
-  const actor = createAnimalActor(definition), entries = new Map<string, BufferGeometry[]>(), point = new Vector3();
+/** 页面内共享静态姿态缓存；每个实际用到的LOD独立懒加载，不把500套Skeleton/Mixer放进渲染循环。 */
+export function createPoseCache(definition: LivestockDefinition, lod: LivestockLodId = 'lod0') {
+  const actor = createAnimalActor(definition, lod), entries = new Map<string, BufferGeometry[]>(), point = new Vector3();
   let disposed = false;
   try {
     for (const motion of definition.motions) {
