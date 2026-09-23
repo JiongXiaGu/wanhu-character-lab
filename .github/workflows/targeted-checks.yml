@@ -105,3 +105,70 @@ jobs:
       - name: No subsystem-specific checks required
         if: steps.scope.outputs.any != 'true'
         run: echo "No targeted numeric checks required for this change set."
+  livestock:
+    name: Livestock mesh, motion and desktop checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      LIVESTOCK_CHECK_DIR: /tmp/wanhu-livestock-checks
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.REVIEW_HEAD_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - id: scope
+        name: Resolve livestock scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$REVIEW_HEAD_SHA"
+          required=false
+          if [[ "$EVENT_NAME" == workflow_dispatch ]]; then
+            required=true
+          else
+            if [[ "$EVENT_NAME" == pull_request ]]; then BASE="$PR_BASE_SHA"; else BASE="$PUSH_BEFORE_SHA"; fi
+            if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then BASE="$(git rev-parse HEAD^)"; fi
+            while IFS= read -r path; do
+              case "$path" in src/livestock/*|src/chicken/*|src/ui/AnimalModeSwitcher*|src/ui/animal-mode-switcher*|src/ui/WorkspaceSwitcher*|src/horse/horse.css|src/main.tsx|src/styles.css|src/animation/clip-clock.ts|scripts/check-livestock*|package.json|package-lock.json|.github/workflows/*) required=true ;; esac
+            done < <(git diff --name-only "$BASE" HEAD)
+          fi
+          echo "required=$required" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v4
+        if: steps.scope.outputs.required == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        if: steps.scope.outputs.required == 'true'
+      - name: Chicken topology, actual skinning and crowd checks
+        if: steps.scope.outputs.required == 'true'
+        run: npm run check:livestock
+      - name: Prepare imports and check TypeScript
+        if: steps.scope.outputs.required == 'true'
+        run: npm run prepare:mixamo && npx tsc --noEmit
+      - name: Install desktop browser
+        if: steps.scope.outputs.required == 'true'
+        run: |
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Desktop interactions and explicitly requested evidence
+        if: steps.scope.outputs.required == 'true'
+        env:
+          CAPTURE_REQUESTED: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[visual]') }}
+        run: |
+          if [[ "$CAPTURE_REQUESTED" == true ]]; then npm run review:livestock; else npm run check:livestock-browser; fi
+      - name: Upload livestock reports and requested screenshots
+        if: always() && steps.scope.outputs.required == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: livestock-l1-${{ env.REVIEW_HEAD_SHA }}
+          path: |
+            /tmp/wanhu-livestock-checks/
+            review/livestock/
+          if-no-files-found: warn
+          retention-days: 14

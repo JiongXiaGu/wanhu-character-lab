@@ -1,0 +1,30 @@
+import type { AnimationClip, Bone, BufferGeometry, MeshStandardMaterial, Skeleton, SkeletonHelper, SkinnedMesh } from 'three';
+
+export type Point = readonly [number, number, number];
+export interface Joint { name: string; parent: number; position: Point }
+export interface MeshPart { name: string; start: number; count: number }
+/** 作者空间为米、+Z前；索引是逻辑顶点，不是硬边展开后的渲染顶点。 */
+export interface AnimalMeshData { positions: Point[]; indices: number[]; bones: number[]; colors: string[]; parts: MeshPart[]; version: string }
+export interface AnimalActor {
+  data: AnimalMeshData; mesh: SkinnedMesh; geometry: BufferGeometry; material: MeshStandardMaterial;
+  bones: Bone[]; skeleton: Skeleton; helper: SkeletonHelper;
+  sample(motion: string, phase: number): void; bind(): void; dispose(): void;
+}
+export interface MotionDefinition { id: string; label: string; description: string; duration: number }
+/** 家畜不继承坐骑：没有鞍具、缰绳、骑姿，也不约束所有物种必须拥有四个动作。 */
+export interface LivestockDefinition {
+  id: string; name: string; description: string; joints: readonly Joint[]; motions: readonly MotionDefinition[];
+  buildMesh(): AnimalMeshData; bakeClips(): Map<string, AnimationClip>;
+}
+export const CROWD_COUNTS = [1, 10, 50, 100, 500] as const;
+export type CrowdCount = typeof CROWD_COUNTS[number];
+export type LivestockView = 'three' | 'front' | 'left' | 'farm';
+export type DisplayMode = 'beauty' | 'clay' | 'wire';
+export interface CameraSnapshot { position: number[]; target: number[]; zoom: number }
+export interface LabOptions {
+  count: CrowdCount; motion: string; mixed: boolean; playing: boolean; loop: boolean; speed: number;
+  phase: number; seekRevision: number; seed: number; view: LivestockView; viewRevision: number;
+  display: DisplayMode; skeleton: boolean; grid: boolean;
+}
+export interface Playback { phase: number; time: number; duration: number; finished: boolean }
+export interface LabStats { triangles: number; logicalVertices: number; bones: number; count: number; modelTriangles: number; batches: number; cachedPoses: number }

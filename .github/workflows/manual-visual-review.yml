@@ -14,6 +14,7 @@ on:
           - skirts
           - mixamo
           - horse
+          - livestock
           - all
       full:
         description: Generate the full screenshot matrix when supported
@@ -60,15 +61,19 @@ jobs:
           run_scope() {
             local scope="$1"
             echo "=== visual scope: $scope ===" | tee -a manual-visual-review.log
-            npm run review:local -- "--$scope" "${extra[@]}" 2>&1 | tee -a manual-visual-review.log
+            if [[ "$scope" == livestock ]]; then
+              npm run review:livestock 2>&1 | tee -a manual-visual-review.log
+            else
+              npm run review:local -- "--$scope" "${extra[@]}" 2>&1 | tee -a manual-visual-review.log
+            fi
           }
 
           case "$SCOPE" in
-            character|wardrobe|lightwear|skirts|mixamo|horse)
+            character|wardrobe|lightwear|skirts|mixamo|horse|livestock)
               run_scope "$SCOPE"
               ;;
             all)
-              for scope in character wardrobe lightwear skirts mixamo horse; do
+              for scope in character wardrobe lightwear skirts mixamo horse livestock; do
                 run_scope "$scope"
               done
               ;;
