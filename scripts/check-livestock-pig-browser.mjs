@@ -30,7 +30,12 @@ export async function checkPigBrowser(page,base,dir,screenshots,setPhase) {
   const snap=()=>page.evaluate(()=>window.__LIVESTOCK_REVIEW__.snapshot());
   const ready=()=>page.waitForFunction(id=>window.__LIVESTOCK_REVIEW__?.snapshot().animal===id,animal);
   const pause=async()=>{if((await snap()).playing){await page.getByTestId('livestock-play').click();await page.waitForFunction(()=>!window.__LIVESTOCK_REVIEW__.snapshot().playing);}};
-  const shot=async name=>{if(!screenshots)return;await page.evaluate(()=>window.scrollTo(0,0));await page.waitForTimeout(150);await page.screenshot({path:`review/livestock/${name}`,fullPage:true});images.push({name,...await snap()});};
+  const shot=async name=>{
+    // 相机fit由场景RAF应用；无截图模式也跨过完整渲染帧，不能依赖截图延时同步。
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+    if(!screenshots)return;
+    await page.evaluate(()=>window.scrollTo(0,0));await page.waitForTimeout(150);await page.screenshot({path:`review/livestock/${name}`,fullPage:true});images.push({name,...await snap()});
+  };
   const wardrobe=await page.evaluate(()=>Object.fromEntries(Object.entries(localStorage).filter(([k])=>k.includes('character'))));
   assert.deepEqual(await page.getByLabel('家畜种类',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value)),['chicken_brown','duck_domestic_brown','goose_domestic_white',animal,'dog_rural_yellow']);
   for(const [lod,triangles,logicalVertices] of budgets) {
