@@ -1,0 +1,29 @@
+name: L5 temporary authoring workspace
+on:
+  push:
+    branches: [feat/l5-black-domestic-pig]
+    paths: [.github/workflows/l5-workspace-transfer.yml]
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Pack source and locked authoring dependencies
+        run: |
+          git rev-parse HEAD > workspace-source-sha.txt
+          tar -czf "$RUNNER_TEMP/l5-workspace.tar.gz" src scripts Documentation .github public AGENTS.md README.md package.json package-lock.json tsconfig*.json vite.config.* index.html node_modules workspace-source-sha.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: l5-authoring-workspace
+          path: ${{ runner.temp }}/l5-workspace.tar.gz
+          retention-days: 1
