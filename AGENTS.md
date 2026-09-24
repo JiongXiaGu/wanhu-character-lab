@@ -1,5 +1,13 @@
 ## S0 军人与甲胄工作流
 
+## A0 动物长期工作流
+
+用户已明确授权后续动物路线：**山羊 → 猴子 → 绵羊 → 鹿 → 兔子 → 鸟类 → 鱼类**。开始任何后续动物任务前先读 `Documentation/动物工作流.md`；下一阶段默认是 A1 山羊。旧文档中“暂不增加其他物种”的历史范围限制对这组明确授权失效，但不会因此授权其它未列出的物种、生态玩法或 Unity 正式运行时。
+
+山羊／绵羊／适合作为饲养动物的兔子优先复用现有家畜公共播放、LOD、Pose Cache 和 Crowd；猴子与鹿视为环境动物，鸟类与鱼类分别在做到对应阶段时建立最小必要的环境／飞行／水生预览能力。不得为了统一强行把飞行动物、鱼类或猴子特殊动作塞进 `src/livestock`，也不得提前建立大而全的通用 AnimalSystem。
+
+每个物种仍独立拥有作者模型、骨架、动作和数值契约；必须保留三档可读性、真实蒙皮检查、浏览器回归与最终 WebGL 看图。继续只有三条正式 Actions；关键截图直接展示给用户，并区分自动检查、AI看图和用户最终认可。
+
 用户已批准建立中国风格军人工作流，固定三种驻地风格：皇宫禁卫、边疆戍卒、城市守军。先读 `Documentation/军人与甲胄工作流.md` 与 `src/soldier/contract.ts`。当前 S0 只建立风格、计划资产 ID、检查与阶段边界；第一件真实资产进入 S1“皇宫禁卫 · 长枪”，不得提前把空占位加入人物 UI 或 Recipe。
 
 军人仍复用固定成年男女、Recipe V5 七槽位、20 骨人物和现有 wardrobe / tailoring / motion 链路；`src/soldier` 不是第二套人物 Renderer。驻地风格、兵种、军阶彼此独立，外观 Recipe 不增加 profession/style/role/rank 字段。旧 `guard_light_armor`、`archer_tunic`、`guard_pants`、`archer_pants`、`loose_trousers`、`boots` 不得恢复。
