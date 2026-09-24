@@ -30,7 +30,7 @@ export async function checkPoultrySleepBrowser(page, base, dir, screenshots, set
     const comparisons = [];
     await page.goto(`${base}/?lab=livestock&animal=${animal}&surface=land&lod=lod0&clip=sleep&phase=.5&paused=1&view=three`, { waitUntil: 'networkidle' }); await ready(animal);
     const initial = await snap(); assert.equal(initial.motion, 'sleep'); assert.equal(initial.playing, false); assert.equal(initial.surface, 'land');
-    assert.equal(await page.getByTestId('livestock-motion-sleep').textContent(), '睡觉');
+    assert.equal(await page.getByTestId('livestock-motion-sleep').locator('strong').textContent(), '睡觉');
     for (let i = 0; i < 3; i++) {
       const lod = `lod${i}`;
       await page.getByTestId(`livestock-lod-${lod}`).click();
