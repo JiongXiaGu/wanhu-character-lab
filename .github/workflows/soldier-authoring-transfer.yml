@@ -19,15 +19,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run prepare:motion
-      - name: Package repository and dependencies for offline authoring
+      - name: Package source and prepared motions without FBX reference binaries
         run: |
           git rev-parse HEAD > /tmp/source-sha.txt
-          git archive --format=tar HEAD > /tmp/soldier-source.tar
-          tar -rf /tmp/soldier-source.tar node_modules public/mixamo public/system-animator
-          gzip /tmp/soldier-source.tar
+          du -sh src scripts public node_modules
+          tar -czf /tmp/soldier-source.tar.gz src scripts public Documentation node_modules .github .gitignore AGENTS.md README.md package.json package-lock.json tsconfig.json vite.config.ts index.html
       - uses: actions/upload-artifact@v4
         with:
-          name: soldier-s1-source
+          name: soldier-s1-source-small
           path: |
             /tmp/source-sha.txt
             /tmp/soldier-source.tar.gz
