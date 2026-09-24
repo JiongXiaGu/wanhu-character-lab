@@ -48,6 +48,8 @@ export function createLivestockScene(host: HTMLElement, initialDefinition: Lives
     let definition = initialDefinition, actors = makeActors(definition);
     for (const actor of actors.values()) scene.add(actor.mesh, actor.helper);
     cleanup.push(() => { for (const actor of actors.values()) actor.dispose(); actors.clear(); });
+    // 只放大超出原鸡鸭构图的物种；固定参考身高不会随低头动作抖动。
+    const singleScale = () => Math.max(1, (definition.referenceHeight ?? 0) / .53);
     // 有限水盘只展示水面；共用水位裁切防止低视角看到水盘边缘下露出的蹼足，不改作者网格。
     const waterClip = new Plane(new Vector3(0, 1, 0), 0), waterClips = [waterClip];
     const water = createPreviewWater(); scene.add(water.mesh, water.ripple); cleanup.push(() => water.dispose());
@@ -64,10 +66,10 @@ export function createLivestockScene(host: HTMLElement, initialDefinition: Lives
       camera.updateProjectionMatrix(); renderer.setSize(width, height, false);
     }
     function fit() {
-      half = layoutHalf(options.count) * (options.view === 'farm' ? 1.10 : 1.2);
+      half = layoutHalf(options.count) * (options.count === 1 ? singleScale() : 1) * (options.view === 'farm' ? 1.10 : 1.2);
       const directions = { three: [1.25, .70, 1.5], front: [0, .2, 2], left: [-2, .18, 0], farm: [.28, 1.85, 1.3] };
       const direction = new Vector3(...directions[options.view] as [number, number, number]).normalize();
-      controls.target.set(0, options.count === 1 ? .24 : 0, 0); camera.position.copy(controls.target).addScaledVector(direction, half * 4 + 2);
+      controls.target.set(0, options.count === 1 ? .24 * singleScale() : 0, 0); camera.position.copy(controls.target).addScaledVector(direction, half * 4 + 2);
       camera.zoom = 1; camera.lookAt(controls.target); controls.update(); resize();
     }
     function pixelHeight() {
@@ -104,11 +106,18 @@ export function createLivestockScene(host: HTMLElement, initialDefinition: Lives
       const changedSpecies = options.animal !== definition.id;
       if (changedSpecies) {
         // 候选完整创建成功后再释放旧物种，不重建Renderer、相机或覆盖旧物种作者数据。
+        const previousScale = singleScale();
         const next = livestockDefinition(options.animal), candidates = makeActors(next);
         crowd?.dispose(); crowd = undefined;
         for (const actor of actors.values()) actor.dispose();
         definition = next; actors = candidates;
         for (const actor of actors.values()) scene.add(actor.mesh, actor.helper);
+        if (options.count === 1 && singleScale() !== previousScale) {
+          // 保留方向、平移偏好与zoom，只补偿物种身高和正交范围；鸡鸭之间仍完全不动相机。
+          const lift = .24 * (singleScale() - previousScale);
+          half *= singleScale() / previousScale;
+          controls.target.y += lift; camera.position.y += lift; controls.update(); resize();
+        }
       }
       const nextDuration = previewDuration(definition, options);
       if (nextDuration !== duration) { const phase = clock.phase; duration = nextDuration; clock = createClipClock(duration, options.loop); clock.seek(phase); }
@@ -119,8 +128,8 @@ export function createLivestockScene(host: HTMLElement, initialDefinition: Lives
       previousTime = now;
       if (first || changedSpecies || options.count !== previous.count || options.seed !== previous.seed) {
         if (options.count > 1) { if (!crowd) { crowd = createCrowd(definition, actors.get('lod0')!.material); scene.add(crowd.group); } crowd.setLayout(options.count, options.seed); }
-        const radius = options.count === 1 ? .49 : layoutHalf(options.count) * Math.SQRT2;
-        floor.scale.setScalar(radius); grid.scale.setScalar(options.count === 1 ? .5 : layoutHalf(options.count));
+        const radius = options.count === 1 ? .49 * singleScale() : layoutHalf(options.count) * Math.SQRT2;
+        floor.scale.setScalar(radius); shadow.scale.setScalar(singleScale()); grid.scale.setScalar(options.count === 1 ? .5 * singleScale() : layoutHalf(options.count));
       }
       if (options.count !== previous.count || options.viewRevision !== previous.viewRevision) fit();
       if (first || changedSpecies || options.display !== previous.display) {
@@ -135,7 +144,7 @@ export function createLivestockScene(host: HTMLElement, initialDefinition: Lives
         candidate.helper.visible = options.count === 1 && options.skeleton && id === lod;
       }
       const profile = habitatDefinition(definition, options.surface), onWater = profile.id === 'water';
-      const waterY = profile.waterline ?? 0, radius = options.count === 1 ? .49 : layoutHalf(options.count) * Math.SQRT2;
+      const waterY = profile.waterline ?? 0, radius = options.count === 1 ? .49 * singleScale() : layoutHalf(options.count) * Math.SQRT2;
       waterClip.constant = -waterY;
       if (first || changedSpecies || options.surface !== previous.surface) {
         for (const candidate of actors.values()) { candidate.material.clippingPlanes = onWater ? waterClips : null; candidate.material.needsUpdate = true; }

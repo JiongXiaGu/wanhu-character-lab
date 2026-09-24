@@ -6,7 +6,7 @@ import { makeActor } from '../src/character/v3/rig';
 import { B, BODY_TYPES, TOP_IDS, createRecipe, type Cage } from '../src/character/v3/types';
 import { edgeKey, triCount, cross, sub, cloneCage } from '../src/character/v3/cage';
 import { BACK_EQUIPMENT_IDS } from '../src/character/wardrobe/back-equipment';
-import { parseRecipeFile, randomizeLook, SLOT_OPTIONS } from '../src/character/wardrobe/catalog';
+import { parseRecipeFile, randomizeCharacter, SLOT_OPTIONS } from '../src/character/wardrobe/catalog';
 import { assertComponentWinding } from './check-components';
 
 const budgets = { bamboo_basket: 380, firewood_bundle: 392, book_case: 284 };
@@ -34,10 +34,14 @@ for(const bodyType of BODY_TYPES)for(const top of TOP_IDS)for(const back of BACK
   const recipe=createRecipe({bodyType,slots:{top,back}}), data=makeCharacter(recipe), mesh=backMesh(data.surface);
   validate(mesh); assert.equal(triCount(mesh),budgets[back]); assert.equal(data.joints.length,20);
   const plain=makeCharacter(createRecipe({...recipe,slots:{...recipe.slots,back:'none'}}));
+  const rearIndices=new Set(plain.surface.faces.filter(f=>f.region==='torso').flatMap(f=>f.v));
+  const rearZ=Math.min(...[...rearIndices].map(i=>plain.surface.vertices[i].p[2]));
+  const frontZ=Math.max(...mesh.vertices.filter(v=>v.id.includes('.Payload.')).map(v=>v.p[2]));
+  assert(Math.abs(rearZ-frontZ-.012*(bodyType==='female'?1.66/1.76:1))<1e-8,'绑定姿态载荷贴背留量');
   assert.deepEqual(data.body,plain.body);assert.deepEqual(data.joints,plain.joints);assert.deepEqual(data.garments,plain.garments);
   assert.deepEqual(data.surface.vertices.filter(v=>!v.id.startsWith('Back.')),plain.surface.vertices,'背具不得改写人体和服装');
   assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);assert.equal(recipe.version,5);assert.equal(Object.keys(recipe).length,6);assert.equal(Object.keys(recipe.slots).length,7);
-  assert.equal(randomizeLook(recipe,421,['back']).slots.back,back);assert(SLOT_OPTIONS.back.some(o=>o.id===back));
+  assert.equal(randomizeCharacter(recipe,421,['back']).slots.back,back);assert(SLOT_OPTIONS.back.some(o=>o.id===back));
   const actor=makeActor(data),positions=actor.mesh.geometry.attributes.position;
   actor.resetBindPose();actor.mesh.updateMatrixWorld(true);actor.skeleton.update();
   const p=new T.Vector3(),bind=new T.Vector3();

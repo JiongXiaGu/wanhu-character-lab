@@ -1,3 +1,4 @@
+import { GOOSE_DEFINITION } from '../goose/definition';
 import { DUCK_DEFINITION } from '../duck/definition';
 import { buildChickenMesh } from '../chicken/geometry';
 import { buildChickenLod1Mesh, buildChickenLod2Mesh } from '../chicken/lod';
@@ -18,7 +19,7 @@ export const LIVESTOCK: readonly LivestockDefinition[] = [{
   habitats: [{ id: 'land', label: '陆地', defaultMotion: 'idle', duration: 9, mixed: [
     { motion: 'peck', weight: .48 }, { motion: 'idle', weight: .28 }, { motion: 'walk', weight: .24, radius: .25, laps: 1 },
   ] }],
-}, DUCK_DEFINITION];
+}, DUCK_DEFINITION, GOOSE_DEFINITION];
 export function livestockDefinition(id: string): LivestockDefinition {
   const definition = LIVESTOCK.find(value => value.id === id);
   if (!definition) throw new Error(`未知家畜：${id}`);

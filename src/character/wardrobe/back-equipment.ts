@@ -114,7 +114,7 @@ function makeHarness(surface:Cage,id:BackEquipmentId,recipe:Recipe,mapRigid:(p:V
     const x=side*.107;
     const path:SurfaceSample[]=[
       anchor([x,1.385,-.203]),radial([x,1.404,-.075]),shoulder(x,-.035),shoulder(x,.025),
-      radial([x,1.394,.082]),radial([x,1.320,.110]),radial([side*.115,1.240,.105]),
+      radial([x,1.394,.082]),radial([x,1.320,.110]),radial([x,1.240,.105]),
       radial([side*.175,1.201,.049]),radial([side*.170,1.192,-.040]),anchor([x,1.181,-.203]),
     ];
     const loops=path.map((s,i)=>{
@@ -136,7 +136,14 @@ export function addBackEquipment(surface:Cage,recipe:Recipe):void {
   const mapRigid=(p:Vec3)=>shapeRigidPoint(p,B.Chest,recipe,baseJoints,targetJoints);
   const payload=makePayload(id,recipe);
   for(const v of payload.vertices)v.p=mapRigid(v.p);
+  // 仅创建时按实际衣面后沿收紧深度；载荷仍是刚体，不变形、不逐帧拟合。
+  const rearIndices=new Set(surface.faces.filter(f=>f.region==='torso').flatMap(f=>f.v));
+  const rearZ=Math.min(...[...rearIndices].map(i=>surface.vertices[i].p[2]));
+  const frontZ=Math.max(...payload.vertices.map(v=>v.p[2]));
+  const shift=rearZ-.012*(recipe.bodyType==='female'?1.66/1.76:1)-frontZ;
+  if(!Number.isFinite(shift))throw new Error('背具缺少可用衣面后沿');
+  for(const v of payload.vertices)v.p[2]+=shift;
   // 肩带采样必须发生在追加背具之前，避免把装备自己误当成衣面。
-  const harness=makeHarness(surface,id,recipe,mapRigid);
+  const harness=makeHarness(surface,id,recipe,p=>add(mapRigid(p),[0,0,shift]));
   append(surface,payload);append(surface,harness);
 }

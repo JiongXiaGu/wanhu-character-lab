@@ -9,7 +9,7 @@ export async function checkDuckBrowser(page, base, dir, screenshots, setPhase) {
   const ready=async()=>{await page.waitForFunction(()=>!!window.__LIVESTOCK_REVIEW__);await page.waitForTimeout(220);};
   const image=async(name,full=true)=>{if(!screenshots)return;await page.evaluate(()=>window.scrollTo(0,0)); await page.screenshot({path:`review/livestock/${name}`,fullPage:full});images.push({name,...await snap()});};
   const wardrobe=await page.evaluate(()=>localStorage.getItem('wanhu.character.wardrobe.v5'));
-  assert.deepEqual(await page.getByLabel('家畜种类',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value)),['chicken_brown',animal]);
+  assert.deepEqual(await page.getByLabel('家畜种类',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value)),['chicken_brown',animal,'goose_domestic_white']);
   for(const [lod,triangles,logicalVertices] of budgets) {
     for(const [surface,motions] of [['land',['idle_land','walk','run','feed_land']],['water',['idle_water','swim','dabble']]]) {
       for(const motion of motions) {

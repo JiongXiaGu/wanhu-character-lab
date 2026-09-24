@@ -6,7 +6,7 @@ import {makeActor} from '../src/character/v3/rig';
 import {BODY_TYPES,createRecipe,patchSlots,HAIR_STYLE_IDS,type Recipe} from '../src/character/v3/types';
 import {cross,sub,triCount} from '../src/character/v3/cage';
 import {BODY_TRIANGLES} from '../src/character/v3/leg-deformation';
-import {WARDROBE_LOOKS,WARDROBE_VERSION,applyLook,parseRecipeFile,randomizeLook,SLOT_OPTIONS} from '../src/character/wardrobe/catalog';
+import {WARDROBE_LOOKS,WARDROBE_VERSION,applyLook,parseRecipeFile,randomizeCharacter,SLOT_OPTIONS} from '../src/character/wardrobe/catalog';
 import {GARMENT_GEOMETRY_VERSION,BODY_HIDE_VERSION} from '../src/character/wardrobe/assembly';
 import {assertComponentWinding} from './check-components';
 import {MIXAMO_CLIPS} from '../src/character/mixamo/catalog';
@@ -47,8 +47,14 @@ for(const bodyType of BODY_TYPES){
  for(const region of['thigh','shin'])assert(trousers.surface.faces.filter(f=>f.region===region).length>=trousers.body.faces.filter(f=>f.region===region).length,'脱裙后腿部未恢复');
 }
 const r=applyLook(createRecipe({bodyType:'female'}),'town-female');
-assert.deepEqual(randomizeLook(r,123),randomizeLook(r,123));assert(new Set(Array.from({length:32},(_,i)=>randomizeLook(r,i).slots.top)).size>=4,'nearby seeds do not explore silhouettes');
-const locked=randomizeLook(r,234,['top','bottom','dyes','hairStyle']);assert.equal(locked.slots.top,r.slots.top);assert.equal(locked.slots.bottom,r.slots.bottom);assert.deepEqual(locked.dyes,r.dyes);assert.equal(locked.hairStyle,r.hairStyle);assert.equal(locked.bodyType,r.bodyType);
+assert.deepEqual(randomizeCharacter(r,123),randomizeCharacter(r,123));
+const randomPeople=Array.from({length:64},(_,i)=>randomizeCharacter(r,i));
+assert.deepEqual(new Set(randomPeople.map(person=>person.bodyType)),new Set(BODY_TYPES),'nearby seeds do not explore both body types');
+assert.deepEqual(new Set(randomPeople.map(person=>person.slots.back)),new Set(SLOT_OPTIONS.back.map(option=>option.id)),'nearby seeds do not explore back equipment');
+assert(new Set(randomPeople.map(person=>person.slots.top)).size>=4,'nearby seeds do not explore silhouettes');
+assert(randomPeople.every(person=>person.hairColor===r.hairColor),'random character changed hair color');
+const locked=randomizeCharacter(r,234,['bodyType','top','bottom','back','dyes','hairStyle']);
+assert.equal(locked.bodyType,r.bodyType);assert.equal(locked.slots.top,r.slots.top);assert.equal(locked.slots.bottom,r.slots.bottom);assert.equal(locked.slots.back,r.slots.back);assert.deepEqual(locked.dyes,r.dyes);assert.equal(locked.hairStyle,r.hairStyle);
 const bads=['null','{}','[]','not json',JSON.stringify({...r,version:9}),JSON.stringify({...r,slots:{...r.slots,top:'unknown'}}),JSON.stringify({...r,height:1.76}),JSON.stringify({...r,version:4}),JSON.stringify({...r,lod:2}),JSON.stringify({...r,slots:{...r.slots,extra:"none"}}),JSON.stringify({...r,dyes:{primary:'#0'}}),JSON.stringify({...r,hairStyle:'unknown'}),' '.repeat(33000)];for(const bad of bads)assert.throws(()=>parseRecipeFile(bad));
 // 对新增服饰逐个 FBX 采样全渲染顶点的关键时刻，不把有限值当作没有穿模。
 let frames=0,vertexSamples=0;

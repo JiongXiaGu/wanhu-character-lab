@@ -37,7 +37,7 @@ try{
   }
   checks.push('three real back assets; none and old quiver retained; V5 save/restore, undo and file roundtrip; one canvas and 20 bones');
   const before=await recipe();await page.getByLabel('导入配方文件',{exact:true}).setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({...before,slots:{...before.slots,back:'bad_back'}}))});await page.waitForTimeout(150);assert.deepEqual(await recipe(),before);
-  await page.getByLabel('锁定背部',{exact:true}).check();await page.getByRole('button',{name:'随机搭配',exact:true}).click();assert.equal((await recipe()).slots.back,'book_case');
+  await page.getByLabel('锁定背部',{exact:true}).check();await page.getByRole('button',{name:'随机人物',exact:true}).click();assert.equal((await recipe()).slots.back,'book_case');
   await page.getByTestId('body-type-female').click();await page.waitForFunction(()=>window.__WANHU_RECIPE__().bodyType==='female');assert.equal((await recipe()).slots.back,'book_case');
   await page.getByLabel('背部',{exact:true}).selectOption('archer_quiver');await changed('archer_quiver');await page.getByLabel('背部',{exact:true}).selectOption('none');await changed('none');
   checks.push('invalid import leaves recipe unchanged; random back lock and gender keep selection; legacy quiver/none still usable');
@@ -51,9 +51,11 @@ try{
   checks.push('real FBX jogging remains paused at same phase through all back assets and gender changes');
   const riderRecipe=await recipe();await page.getByRole('button',{name:'保存装扮',exact:true}).click();
   await page.goto(`${base}/?lab=riding&mount=horse_chestnut&saddle=travel&paused=1&clip=Rider_Walk`);await page.waitForFunction(()=>!!window.__RIDING_REVIEW__);
+  await page.getByTestId('riding-restore').click();
+  await page.waitForFunction(()=>window.__RIDING_REVIEW__.recipe().slots.back==='bamboo_basket');
   const riding=()=>page.evaluate(()=>({recipe:window.__RIDING_REVIEW__.recipe(),ids:window.__RIDING_REVIEW__.geometryIds(),finite:window.__RIDING_REVIEW__.matricesFinite()}));
   assert.equal((await riding()).recipe.slots.back,'bamboo_basket');const riderId=(await riding()).ids.rider;
-  for(const mount of ['donkey_gray','camel_bactrian','cattle_yellow','yak_black','buffalo_water','horse_chestnut']){await page.getByTestId('mount-horse').selectOption(mount);const s=await riding();assert(s.finite);assert.equal(s.ids.rider,riderId);assert.equal(s.recipe.slots.back,'bamboo_basket');}
+  for(const mount of ['donkey_gray','camel_bactrian','cattle_yellow','yak_black','buffalo_water','horse_chestnut']){await page.getByTestId('mount-horse').selectOption(mount);await page.waitForFunction(id=>window.__RIDING_REVIEW__.mountId()===id,mount);const s=await riding();assert(s.finite);assert.equal(s.ids.rider,riderId);assert.equal(s.recipe.slots.back,'bamboo_basket');}
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('wanhu.character.wardrobe.v5'))),riderRecipe);
   checks.push('saved back gear reused by all six mounts without rebuilding rider or overwriting character save');
   assert.deepEqual(errors,[]);writeFileSync(join(output,'report.json'),JSON.stringify({result:'passed',sourceSHA,checks,images,errors,visualApproval:false},null,2));console.log(JSON.stringify({result:'passed',sourceSHA,checks,images}));
