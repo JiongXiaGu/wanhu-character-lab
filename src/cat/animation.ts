@@ -51,8 +51,10 @@ export function authorCatPose(motion: string, phase: number) {
     });
   } else if (motion === 'sniff') {
     const dip = smooth(.06, .32, p) * (1 - smooth(.74, .96, p));
-    rotations[B.Neck][0] = .90 * dip; offsets[B.Neck][1] = -.060 * dip;
-    rotations[B.Head][0] = .10 * dip; rotations[B.Head][1] = .045 * Math.sin(3 * a) * dip;
+    // 低头由躯干、颈、头共同分担，避免把短喉部单个截面压进胸部；四足仍独立接地。
+    rotations[B.Body][0] = .20 * dip; offsets[B.Body][1] = -.020 * dip;
+    rotations[B.Neck][0] = .55 * dip; offsets[B.Neck][1] = -.008 * dip;
+    rotations[B.Head][0] = .20 * dip; rotations[B.Head][1] = .045 * Math.sin(3 * a) * dip;
   } else if (motion === 'groom') {
     const lift = smooth(.10, .32, p) * (1 - smooth(.70, .94, p));
     rotations[B.FrontLegL][0] = -1.04 * lift; rotations[B.FrontLegL][2] = .10 * lift;
