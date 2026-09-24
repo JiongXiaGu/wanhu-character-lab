@@ -1,3 +1,4 @@
+import { makeMilitaryBoots } from './military/boots';
 import { B, rigid, type Cage, type Recipe } from '../../v3/types';
 import { LEG, ring, bridge, face, orient } from '../../v3/cage';
 import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from './contract';
@@ -6,6 +7,7 @@ import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from './contract';
 export function makeFootwear(recipe:Recipe):GarmentPiece|undefined {
   const id=recipe.slots.shoes;
   if(id==='body')return;
+  if(id==='military_boots')return makeMilitaryBoots(recipe);
   const c:Cage={vertices:[],faces:[],anchors:{}},sealedInterfaces:Record<string,number[]>={};
   for(const side of [1,-1]){
     const name=side===1?'Right':'Left',shin=side===1?B.RightShin:B.LeftShin,foot=side===1?B.RightFoot:B.LeftFoot;

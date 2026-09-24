@@ -56,7 +56,8 @@ for(const bodyType of BODY_TYPES){
       assert.equal(p.mesh.anchors.closedHem.length,12);
     }else{
       assertKnees(p.mesh,true);
-      assert.equal(triCount(p.mesh),240);
+      assert.equal(triCount(p.mesh),bottom==='palace_guard_skirt'?360:240);
+      if(bottom==='palace_guard_skirt')assert.equal(p.mesh.vertices.filter(v=>v.id.startsWith('PalaceTasset.')).length,72);
       assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','waist']);
     }
   }
