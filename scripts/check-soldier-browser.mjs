@@ -18,6 +18,8 @@ try{
   const recipe=()=>page.evaluate(()=>window.__WANHU_RECIPE__());
   const state=()=>page.evaluate(()=>({stats:window.__WANHU_REVIEW__.stats,status:window.__WANHU_REVIEW__.getStatus(),geometry:window.__WANHU_REVIEW__.geometryId()}));
   async function sync(){await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));assert.equal((await state()).stats.bones,20);assert.equal(await page.locator('canvas').count(),1);}
+  async function motionReady(id){await page.waitForFunction(id=>{const s=window.__WANHU_REVIEW__?.getStatus().motion;return s?.ready&&s.id===id;},id);await sync();}
+  async function seek(value){await page.evaluate(value=>window.__WANHU_REVIEW__.seek(value),value);await sync();}
   async function shot(name,full=false){await sync();if(!capture)return;await (full?page:page.locator('canvas')).screenshot({path:join(dir,name)});images.push({name,recipe:await recipe(),state:await state()});}
   await page.goto(`${base}/?review=1&pose=bind&paused=1&view=free`);await page.waitForFunction(()=>!!window.__WANHU_REVIEW__&&!!window.__WANHU_RECIPE__);
   const before=await recipe();await page.getByTestId('soldier-palace').click();await page.waitForFunction(()=>window.__WANHU_RECIPE__().slots.top==='palace_guard_armor');await sync();
@@ -37,16 +39,16 @@ try{
   await page.getByTestId('soldier-palace').click();await page.getByTestId('body-type-female').click();await page.waitForFunction(()=>window.__WANHU_RECIPE__().bodyType==='female');assert.equal((await recipe()).slots.headwear,'palace_guard_helmet');
   await page.getByRole('button',{name:'自由',exact:true}).click();await shot('palace-female-three-quarter.png');
   checks.push('V5 save/restore and file roundtrip; undo, strict invalid import, random slot lock and gender swap');
-  await page.goto(`${base}/?review=1&soldier=palace&motion=jogging&paused=1&bodyType=female&rightHand=none&view=free`);await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().motion?.ready);
-  await page.evaluate(()=>window.__WANHU_REVIEW__.seek(.375));await sync();const phase=(await state()).status.phase,geometry=(await state()).geometry;
-  await page.getByLabel('试衣动画',{exact:true}).selectOption('pilot-switches');await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().motion?.ready);assert.equal((await state()).geometry,geometry);
-  await page.evaluate(()=>window.__WANHU_REVIEW__.seek(.5));await shot('palace-seated-fitting.png');
-  await page.getByLabel('试衣动画',{exact:true}).selectOption('jogging');await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().motion?.ready);await page.evaluate(()=>window.__WANHU_REVIEW__.seek(phase));
-  await page.getByTestId('body-type-male').click();await page.waitForFunction(()=>window.__WANHU_RECIPE__().bodyType==='male'&&window.__WANHU_REVIEW__?.getStatus().motion?.ready);assert(Math.abs((await state()).status.phase-phase)<1e-6);
-  await page.getByLabel('头饰',{exact:true}).selectOption('none');await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().motion?.ready);assert(Math.abs((await state()).status.phase-phase)<1e-6);await page.getByLabel('头饰',{exact:true}).selectOption('palace_guard_helmet');await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().motion?.ready);await shot('palace-jogging-fitting.png');
+  await page.goto(`${base}/?review=1&soldier=palace&motion=jogging&paused=1&bodyType=female&rightHand=none&view=free`);await motionReady('jogging');
+  await seek(.375);const phase=(await state()).status.phase,geometry=(await state()).geometry;
+  await page.getByLabel('试衣动画',{exact:true}).selectOption('pilot-switches');await motionReady('pilot-switches');assert.equal((await state()).geometry,geometry);
+  await seek(.5);await shot('palace-seated-fitting.png');
+  await page.getByLabel('试衣动画',{exact:true}).selectOption('jogging');await motionReady('jogging');await seek(phase);
+  await page.getByTestId('body-type-male').click();await page.waitForFunction(()=>window.__WANHU_RECIPE__().bodyType==='male');await motionReady('jogging');assert(Math.abs((await state()).status.phase-phase)<1e-6);
+  await page.getByLabel('头饰',{exact:true}).selectOption('none');await motionReady('jogging');assert(Math.abs((await state()).status.phase-phase)<1e-6);await page.getByLabel('头饰',{exact:true}).selectOption('palace_guard_helmet');await motionReady('jogging');await shot('palace-jogging-fitting.png');
   await page.getByRole('button',{name:'下一帧',exact:true}).click();await sync();assert((await state()).status.phase>phase);
   await page.getByLabel('人物动画循环播放',{exact:true}).uncheck();await page.getByRole('button',{name:'播放',exact:true}).click();await page.waitForTimeout(180);await page.getByRole('button',{name:'暂停',exact:true}).click();await sync();
-  await page.getByLabel('试衣动画',{exact:true}).selectOption('shooting-arrow');await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().motion?.ready);await page.getByLabel('左手',{exact:true}).selectOption('archer_bow');await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().motion?.ready);await page.evaluate(()=>window.__WANHU_REVIEW__.seek(.5));await shot('palace-archery-fitting.png');
+  await page.getByLabel('试衣动画',{exact:true}).selectOption('shooting-arrow');await motionReady('shooting-arrow');await page.getByLabel('左手',{exact:true}).selectOption('archer_bow');await motionReady('shooting-arrow');await seek(.5);await shot('palace-archery-fitting.png');
   checks.push('source motion switch reuses geometry; paused phase retained by gender and helmet changes; step, loop and playback controls; sitting, jogging and archery garment previews do not claim combat spear animation');
   await page.goto(`${base}/?review=1&pose=bind&soldier=palace`);await page.waitForFunction(()=>!!window.__WANHU_RECIPE__);assert.equal((await recipe()).slots.rightHand,'military_spear');await page.getByTestId('look-plain-male').click();assert.equal((await recipe()).slots.top,'rough_tunic');
   assert.deepEqual(errors,[]);writeFileSync(join(dir,'report.json'),JSON.stringify({passed:true,sourceSHA,checks,images,errors,visualApproval:false},null,2));console.log(JSON.stringify({passed:true,sourceSHA,checks,images:images.map(x=>x.name)}));
