@@ -23,6 +23,17 @@ const cameraFaultInjections=(()=>{
   return 4;
 })();
 
+/** 跨物种时长换算允许机器舍入，不允许实际相位漂移；暂停同一时钟仍严格比较。 */
+function assertSamePhase(actual,expected) {
+  assert(Number.isFinite(actual)&&Number.isFinite(expected),'相位必须有限');
+  assert(Math.abs(actual-expected)<=1e-12,'跨物种相位改变');
+}
+const phaseFaultInjections=(()=>{
+  assertSamePhase(.36999999999999994,.37);
+  for(const value of [.37+1e-6,NaN,Infinity])assert.throws(()=>assertSamePhase(value,.37));
+  return 3;
+})();
+
 /** 使用正式家畜UI、真实WebGL和同一Renderer；不提供犬专属测试页面。 */
 export async function checkDogBrowser(page,base,dir,screenshots,setPhase) {
   const animal='dog_rural_yellow',budgets=[['lod0',274,157],['lod1',142,91],['lod2',78,55]];
@@ -82,7 +93,7 @@ export async function checkDogBrowser(page,base,dir,screenshots,setPhase) {
   const before=await snap(),direction=s=>s.camera.position.map((v,i)=>v-s.camera.target[i]);
   for(const id of ['chicken_brown','duck_domestic_brown','goose_domestic_white','pig_domestic_black',animal]) {
     await page.getByLabel('家畜种类',{exact:true}).selectOption(id);await page.waitForFunction(id=>window.__LIVESTOCK_REVIEW__.snapshot().animal===id,id);s=await snap();
-    assert.equal(s.rendererId,before.rendererId);assert.equal(s.phase,before.phase);assert.equal(s.camera.zoom,before.camera.zoom);
+    assert.equal(s.rendererId,before.rendererId);assertSamePhase(s.phase,before.phase);assert.equal(s.camera.zoom,before.camera.zoom);
     direction(s).forEach((v,i)=>assert(Math.abs(v-direction(before)[i])<1e-8));assert.equal(await page.locator('canvas').count(),1);switches.push({animal:id,bones:s.bones,rendererId:s.rendererId});
   }
   assert.equal((await snap()).surface,'land');assert.equal((await snap()).motion,'idle');
@@ -98,7 +109,7 @@ export async function checkDogBrowser(page,base,dir,screenshots,setPhase) {
   const herd=await snap();
   await page.getByLabel('家畜种类',{exact:true}).selectOption('goose_domestic_white');await page.waitForFunction(()=>window.__LIVESTOCK_REVIEW__.snapshot().animal==='goose_domestic_white');
   await page.getByLabel('家畜种类',{exact:true}).selectOption(animal);await ready();s=await snap();
-  assert.equal(s.count,500);assert.equal(s.rendererId,herd.rendererId);assert.deepEqual(s.camera,herd.camera);assert.equal(s.lod,herd.lod);
+  assert.equal(s.count,500);assert.equal(s.rendererId,herd.rendererId);assertSameReviewCamera(s.camera,herd.camera);assert.equal(s.lod,herd.lod);
   for(const [lod,tris] of budgets){await page.getByTestId(`livestock-lod-${lod}`).click();await page.waitForFunction(lod=>window.__LIVESTOCK_REVIEW__.snapshot().lod===lod,lod);assert.equal((await snap()).modelTriangles,tris*500);}
   const warm=await snap();
   for(let i=0;i<3;i++)for(const [lod] of budgets){await page.getByTestId(`livestock-lod-${lod}`).click();await page.waitForFunction(lod=>window.__LIVESTOCK_REVIEW__.snapshot().lod===lod,lod);}
@@ -106,7 +117,7 @@ export async function checkDogBrowser(page,base,dir,screenshots,setPhase) {
   const seed=s.seed;await page.getByTestId('livestock-reshuffle').click();await page.waitForFunction(n=>window.__LIVESTOCK_REVIEW__.snapshot().seed!==n,seed);
   const beforeNav=await snap();await page.getByTestId('animal-mode-horse').click();await page.waitForFunction(()=>!!window.__MOUNT_REVIEW__);
   await page.getByTestId('animal-mode-livestock').click();await ready();s=await snap();
-  for(const key of ['animal','surface','count','motion','phase','playing','seed','lod'])assert.equal(s[key],beforeNav[key]);assert.deepEqual(s.camera,beforeNav.camera);
+  for(const key of ['animal','surface','count','motion','playing','seed','lod'])assert.equal(s[key],beforeNav[key]);assertSamePhase(s.phase,beforeNav.phase);assertSameReviewCamera(s.camera,beforeNav.camera);
   for(const query of ['surface=water&clip=swim','surface=mud&clip=unknown&lod=unknown&phase=Infinity&count=9999']) {
     await page.goto(`${base}/?lab=livestock&animal=${animal}&${query}&paused=1`,{waitUntil:'networkidle'});await ready();s=await snap();
     assert.equal(s.motion,'idle');assert.equal(s.surface,'land');assert.equal(s.phase,0);assert.equal(s.count,1);assert.equal(s.bones,9);assert.equal(s.lod,'lod0');
@@ -123,6 +134,6 @@ export async function checkDogBrowser(page,base,dir,screenshots,setPhase) {
       await sheet.waitForFunction(()=>[...document.images].every(i=>i.complete&&i.naturalWidth>0));await sheet.screenshot({path:'review/livestock/dog-lod-comparison.png',fullPage:true});
     } finally {await context.close();}
   }
-  const result={result:'passed',sourceSHA:process.env.REVIEW_HEAD_SHA??'local',animal,bones:9,cases,counts,switches,images,screenshots,cameraFaultInjections,wardrobeUnchanged:true};
+  const result={result:'passed',sourceSHA:process.env.REVIEW_HEAD_SHA??'local',animal,bones:9,cases,counts,switches,images,screenshots,cameraFaultInjections,phaseFaultInjections,wardrobeUnchanged:true};
   writeFileSync(`${dir}/dog-browser.json`,JSON.stringify(result,null,2));console.log(`Dog desktop checks passed: ${cases.length} LOD/motion cases, 1–500, 9/8/7-bone switching, playback, cache and lifecycle.`);
 }
