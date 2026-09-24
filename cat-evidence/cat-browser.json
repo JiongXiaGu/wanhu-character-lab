@@ -1,0 +1,1640 @@
+{
+  "result": "passed",
+  "sourceSHA": "7fc112f227bb8606331b441a4bbf75f1922a64ff",
+  "animal": "cat_rural_orange",
+  "cases": [
+    {
+      "lod": "lod0",
+      "motion": "idle",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod0",
+      "motion": "walk",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod0",
+      "motion": "run",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod0",
+      "motion": "sniff",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod0",
+      "motion": "groom",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod0",
+      "motion": "sleep",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod1",
+      "motion": "idle",
+      "triangles": 146,
+      "logicalVertices": 93,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod1",
+      "motion": "walk",
+      "triangles": 146,
+      "logicalVertices": 93,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod1",
+      "motion": "run",
+      "triangles": 146,
+      "logicalVertices": 93,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod1",
+      "motion": "sniff",
+      "triangles": 146,
+      "logicalVertices": 93,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod1",
+      "motion": "groom",
+      "triangles": 146,
+      "logicalVertices": 93,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod1",
+      "motion": "sleep",
+      "triangles": 146,
+      "logicalVertices": 93,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod2",
+      "motion": "idle",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod2",
+      "motion": "walk",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod2",
+      "motion": "run",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod2",
+      "motion": "sniff",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod2",
+      "motion": "groom",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "pauseResumeSeekStepLoopEnd": true
+    },
+    {
+      "lod": "lod2",
+      "motion": "sleep",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "pauseResumeSeekStepLoopEnd": true
+    }
+  ],
+  "counts": [
+    {
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.61665,
+      "time": 2.4666,
+      "duration": 4,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "idle",
+      "mixed": false,
+      "playing": true,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 80,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      },
+      "case": "daily"
+    },
+    {
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 80,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      },
+      "case": "sleep"
+    },
+    {
+      "triangles": 146,
+      "logicalVertices": 93,
+      "bones": 9,
+      "count": 10,
+      "modelTriangles": 1460,
+      "batches": 9,
+      "cachedPoses": 398,
+      "lod": "lod1",
+      "pixelHeight": 38.6433734939759,
+      "phase": 0.5,
+      "time": 4,
+      "duration": 8,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": true,
+      "playing": false,
+      "seed": 731,
+      "geometries": 12,
+      "calls": 10,
+      "geometryId": 82,
+      "camera": {
+        "position": [
+          2.4898669535339146,
+          16.45090665727765,
+          11.560096569978889
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      },
+      "case": "daily"
+    },
+    {
+      "triangles": 146,
+      "logicalVertices": 93,
+      "bones": 9,
+      "count": 10,
+      "modelTriangles": 1460,
+      "batches": 5,
+      "cachedPoses": 796,
+      "lod": "lod1",
+      "pixelHeight": 38.6433734939759,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 44,
+      "calls": 6,
+      "geometryId": 82,
+      "camera": {
+        "position": [
+          2.4898669535339146,
+          16.45090665727765,
+          11.560096569978889
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      },
+      "case": "sleep"
+    },
+    {
+      "triangles": 86,
+      "logicalVertices": 59,
+      "bones": 9,
+      "count": 50,
+      "modelTriangles": 4300,
+      "batches": 28,
+      "cachedPoses": 796,
+      "lod": "lod2",
+      "pixelHeight": 20.69290322580645,
+      "phase": 0,
+      "time": 0,
+      "duration": 8,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": true,
+      "playing": false,
+      "seed": 731,
+      "geometries": 63,
+      "calls": 29,
+      "geometryId": 84,
+      "camera": {
+        "position": [
+          4.436534897461713,
+          29.312819858229176,
+          20.598197738215095
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      },
+      "case": "daily"
+    },
+    {
+      "triangles": 86,
+      "logicalVertices": 59,
+      "bones": 9,
+      "count": 50,
+      "modelTriangles": 4300,
+      "batches": 8,
+      "cachedPoses": 796,
+      "lod": "lod2",
+      "pixelHeight": 20.69290322580645,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 103,
+      "calls": 9,
+      "geometryId": 84,
+      "camera": {
+        "position": [
+          4.436534897461713,
+          29.312819858229176,
+          20.598197738215095
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      },
+      "case": "sleep"
+    },
+    {
+      "triangles": 86,
+      "logicalVertices": 59,
+      "bones": 9,
+      "count": 100,
+      "modelTriangles": 8600,
+      "batches": 31,
+      "cachedPoses": 796,
+      "lod": "lod2",
+      "pixelHeight": 16.792670157068063,
+      "phase": 0,
+      "time": 0,
+      "duration": 8,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": true,
+      "playing": false,
+      "seed": 731,
+      "geometries": 106,
+      "calls": 32,
+      "geometryId": 84,
+      "camera": {
+        "position": [
+          5.409868869425614,
+          35.74377645870494,
+          25.117248322333204
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      },
+      "case": "daily"
+    },
+    {
+      "triangles": 86,
+      "logicalVertices": 59,
+      "bones": 9,
+      "count": 100,
+      "modelTriangles": 8600,
+      "batches": 8,
+      "cachedPoses": 796,
+      "lod": "lod2",
+      "pixelHeight": 16.792670157068063,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 114,
+      "calls": 9,
+      "geometryId": 84,
+      "camera": {
+        "position": [
+          5.409868869425614,
+          35.74377645870494,
+          25.117248322333204
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      },
+      "case": "sleep"
+    },
+    {
+      "triangles": 86,
+      "logicalVertices": 59,
+      "bones": 9,
+      "count": 500,
+      "modelTriangles": 43000,
+      "batches": 32,
+      "cachedPoses": 796,
+      "lod": "lod2",
+      "pixelHeight": 7.546823529411764,
+      "phase": 0,
+      "time": 0,
+      "duration": 8,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": true,
+      "playing": false,
+      "seed": 731,
+      "geometries": 115,
+      "calls": 33,
+      "geometryId": 84,
+      "camera": {
+        "position": [
+          11.736539687190962,
+          77.54499436179742,
+          54.49107711910089
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      },
+      "case": "daily"
+    },
+    {
+      "triangles": 86,
+      "logicalVertices": 59,
+      "bones": 9,
+      "count": 500,
+      "modelTriangles": 43000,
+      "batches": 8,
+      "cachedPoses": 796,
+      "lod": "lod2",
+      "pixelHeight": 7.546823529411764,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 131,
+      "calls": 9,
+      "geometryId": 84,
+      "camera": {
+        "position": [
+          11.736539687190962,
+          77.54499436179742,
+          54.49107711910089
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      },
+      "case": "sleep"
+    }
+  ],
+  "switches": [
+    {
+      "animal": "pig_domestic_black",
+      "motion": "idle",
+      "bones": 9
+    },
+    {
+      "animal": "cat_rural_orange",
+      "motion": "idle",
+      "bones": 9
+    },
+    {
+      "animal": "dog_rural_yellow",
+      "motion": "idle",
+      "bones": 9
+    },
+    {
+      "animal": "cat_rural_orange",
+      "motion": "idle",
+      "bones": 9
+    },
+    {
+      "animal": "duck_domestic_brown",
+      "motion": "idle_land",
+      "bones": 8
+    },
+    {
+      "animal": "goose_domestic_white",
+      "motion": "idle_land",
+      "bones": 7
+    },
+    {
+      "animal": "chicken_brown",
+      "motion": "idle",
+      "bones": 8
+    },
+    {
+      "animal": "cat_rural_orange",
+      "motion": "idle",
+      "bones": 9
+    }
+  ],
+  "images": [
+    {
+      "name": "cat-idle-three.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 2,
+      "duration": 4,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "11b3a477-d54a-4840-a59b-98fa05e43029",
+      "motion": "idle",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-walk-three.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 0.4,
+      "duration": 0.8,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "11b3a477-d54a-4840-a59b-98fa05e43029",
+      "motion": "walk",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-walk-left.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 0.4,
+      "duration": 0.8,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "11b3a477-d54a-4840-a59b-98fa05e43029",
+      "motion": "walk",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          -4.236612175251476,
+          0.6317101901122555,
+          2.5941767698252126e-16
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-run-three.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 0.25,
+      "duration": 0.5,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "11b3a477-d54a-4840-a59b-98fa05e43029",
+      "motion": "run",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-run-left.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 0.25,
+      "duration": 0.5,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "11b3a477-d54a-4840-a59b-98fa05e43029",
+      "motion": "run",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          -4.236612175251476,
+          0.6317101901122555,
+          2.5941767698252126e-16
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-sniff-three.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 2,
+      "duration": 4,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "11b3a477-d54a-4840-a59b-98fa05e43029",
+      "motion": "sniff",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-sniff-left.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 2,
+      "duration": 4,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "11b3a477-d54a-4840-a59b-98fa05e43029",
+      "motion": "sniff",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          -4.236612175251476,
+          0.6317101901122555,
+          2.5941767698252126e-16
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-groom-three.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 2,
+      "duration": 4,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "11b3a477-d54a-4840-a59b-98fa05e43029",
+      "motion": "groom",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-groom-left.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 2,
+      "duration": 4,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "11b3a477-d54a-4840-a59b-98fa05e43029",
+      "motion": "groom",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          -4.236612175251476,
+          0.6317101901122555,
+          2.5941767698252126e-16
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-sleep-three.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "11b3a477-d54a-4840-a59b-98fa05e43029",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-sleep-left.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "11b3a477-d54a-4840-a59b-98fa05e43029",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          -4.236612175251476,
+          0.6317101901122555,
+          2.5941767698252126e-16
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-side.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 2,
+      "duration": 4,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "idle",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          -2,
+          0.2500000000000001,
+          1.2246467991473532e-16
+        ],
+        "target": [
+          0,
+          0.25,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-sleep-side.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          -2,
+          0.2500000000000001,
+          1.2246467991473532e-16
+        ],
+        "target": [
+          0,
+          0.25,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-sleep-front.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          0,
+          0.6736776310537008,
+          4.232625367140786
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-front.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 313.0925925925926,
+      "phase": 0.5,
+      "time": 2,
+      "duration": 4,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "idle",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          0,
+          0.6736776310537008,
+          4.232625367140786
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-farm-single.png",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "bones": 9,
+      "count": 1,
+      "modelTriangles": 262,
+      "batches": 1,
+      "cachedPoses": 0,
+      "lod": "lod0",
+      "pixelHeight": 341.55555555555554,
+      "phase": 0.5,
+      "time": 2,
+      "duration": 4,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "idle",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 3,
+      "calls": 3,
+      "geometryId": 18,
+      "camera": {
+        "position": [
+          0.4996846554087777,
+          3.5519029961476183,
+          2.3199644715407537
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-farm-10.png",
+      "triangles": 146,
+      "logicalVertices": 93,
+      "bones": 9,
+      "count": 10,
+      "modelTriangles": 1460,
+      "batches": 9,
+      "cachedPoses": 796,
+      "lod": "lod1",
+      "pixelHeight": 38.6433734939759,
+      "phase": 0.5,
+      "time": 4,
+      "duration": 8,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": true,
+      "playing": false,
+      "seed": 731,
+      "geometries": 21,
+      "calls": 10,
+      "geometryId": 82,
+      "camera": {
+        "position": [
+          2.4898669535339146,
+          16.45090665727765,
+          11.560096569978889
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-sleep-10.png",
+      "triangles": 146,
+      "logicalVertices": 93,
+      "bones": 9,
+      "count": 10,
+      "modelTriangles": 1460,
+      "batches": 5,
+      "cachedPoses": 796,
+      "lod": "lod1",
+      "pixelHeight": 38.6433734939759,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 44,
+      "calls": 6,
+      "geometryId": 82,
+      "camera": {
+        "position": [
+          2.4898669535339146,
+          16.45090665727765,
+          11.560096569978889
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-farm-100.png",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "bones": 9,
+      "count": 100,
+      "modelTriangles": 8600,
+      "batches": 31,
+      "cachedPoses": 796,
+      "lod": "lod2",
+      "pixelHeight": 16.792670157068063,
+      "phase": 0,
+      "time": 0,
+      "duration": 8,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": true,
+      "playing": false,
+      "seed": 731,
+      "geometries": 106,
+      "calls": 32,
+      "geometryId": 84,
+      "camera": {
+        "position": [
+          5.409868869425614,
+          35.74377645870494,
+          25.117248322333204
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-sleep-100.png",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "bones": 9,
+      "count": 100,
+      "modelTriangles": 8600,
+      "batches": 8,
+      "cachedPoses": 796,
+      "lod": "lod2",
+      "pixelHeight": 16.792670157068063,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 114,
+      "calls": 9,
+      "geometryId": 84,
+      "camera": {
+        "position": [
+          5.409868869425614,
+          35.74377645870494,
+          25.117248322333204
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-farm-500.png",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "bones": 9,
+      "count": 500,
+      "modelTriangles": 43000,
+      "batches": 32,
+      "cachedPoses": 796,
+      "lod": "lod2",
+      "pixelHeight": 7.546823529411764,
+      "phase": 0,
+      "time": 0,
+      "duration": 8,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": true,
+      "playing": false,
+      "seed": 731,
+      "geometries": 115,
+      "calls": 33,
+      "geometryId": 84,
+      "camera": {
+        "position": [
+          11.736539687190962,
+          77.54499436179742,
+          54.49107711910089
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      }
+    },
+    {
+      "name": "cat-sleep-500.png",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "bones": 9,
+      "count": 500,
+      "modelTriangles": 43000,
+      "batches": 8,
+      "cachedPoses": 796,
+      "lod": "lod2",
+      "pixelHeight": 7.546823529411764,
+      "phase": 0.5,
+      "time": 1.5,
+      "duration": 3,
+      "finished": false,
+      "animal": "cat_rural_orange",
+      "surface": "land",
+      "waterLevel": 0,
+      "waterClipped": false,
+      "rendererId": "ebac3020-db3d-46b5-8b9d-7d4c510311a1",
+      "motion": "sleep",
+      "mixed": false,
+      "playing": false,
+      "seed": 731,
+      "geometries": 131,
+      "calls": 9,
+      "geometryId": 84,
+      "camera": {
+        "position": [
+          11.736539687190962,
+          77.54499436179742,
+          54.49107711910089
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "zoom": 1
+      }
+    }
+  ],
+  "screenshots": true,
+  "comparedLods": [
+    {
+      "lod": "lod0",
+      "motion": "idle",
+      "triangles": 262,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      },
+      "clip": {
+        "x": 323,
+        "y": 260,
+        "width": 620,
+        "height": 580
+      }
+    },
+    {
+      "lod": "lod0",
+      "motion": "sleep",
+      "triangles": 262,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      },
+      "clip": {
+        "x": 323,
+        "y": 260,
+        "width": 620,
+        "height": 580
+      }
+    },
+    {
+      "lod": "lod1",
+      "motion": "idle",
+      "triangles": 146,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      },
+      "clip": {
+        "x": 323,
+        "y": 260,
+        "width": 620,
+        "height": 580
+      }
+    },
+    {
+      "lod": "lod1",
+      "motion": "sleep",
+      "triangles": 146,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      },
+      "clip": {
+        "x": 323,
+        "y": 260,
+        "width": 620,
+        "height": 580
+      }
+    },
+    {
+      "lod": "lod2",
+      "motion": "idle",
+      "triangles": 86,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      },
+      "clip": {
+        "x": 323,
+        "y": 260,
+        "width": 620,
+        "height": 580
+      }
+    },
+    {
+      "lod": "lod2",
+      "motion": "sleep",
+      "triangles": 86,
+      "camera": {
+        "position": [
+          2.563421903264494,
+          1.685931360167738,
+          3.0761062839173925
+        ],
+        "target": [
+          0,
+          0.25041509433962267,
+          0
+        ],
+        "zoom": 1
+      },
+      "clip": {
+        "x": 323,
+        "y": 260,
+        "width": 620,
+        "height": 580
+      }
+    }
+  ],
+  "wardrobeUnchanged": true,
+  "lifecycleStable": true
+}
