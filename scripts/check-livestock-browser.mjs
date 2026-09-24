@@ -1,3 +1,4 @@
+import { checkPigBrowser } from './check-livestock-pig-browser.mjs';
 import { checkGooseBrowser } from './check-livestock-goose-browser.mjs';
 import { checkDuckBrowser } from './check-livestock-duck-browser.mjs';
 import './check-livestock-lod-browser.mjs';
@@ -81,6 +82,7 @@ try {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, '桌面横向溢出'); assert.deepEqual(errors, []);
   await checkDuckBrowser(page, base, dir, screenshots, setPhase);
   await checkGooseBrowser(page, base, dir, screenshots, setPhase);
+  await checkPigBrowser(page, base, dir, screenshots, setPhase);
   assert.deepEqual(errors, []);
   const result = { sha: process.env.REVIEW_HEAD_SHA ?? 'local', result: 'passed', viewport: '1600x1000', lods: { lod0: 132, lod1: 72, lod2: 36 }, counts, screenshots, errors };
   writeFileSync(`${dir}/browser.json`, JSON.stringify(result, null, 2)); if (screenshots) writeFileSync('review/livestock/evidence.json', JSON.stringify(result, null, 2)); console.log(JSON.stringify(result, null, 2));

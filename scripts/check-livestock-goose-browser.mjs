@@ -9,7 +9,7 @@ export async function checkGooseBrowser(page,base,dir,screenshots,setPhase) {
   const pause=async()=>{if((await snap()).playing){await page.getByTestId('livestock-play').click();await page.waitForFunction(()=>!window.__LIVESTOCK_REVIEW__.snapshot().playing);}};
   const shot=async name=>{if(!screenshots)return;await page.evaluate(()=>window.scrollTo(0,0));await page.waitForTimeout(100);await page.screenshot({path:`review/livestock/${name}`,fullPage:true});images.push({name,...await snap()});};
   const wardrobe=await page.evaluate(()=>localStorage.getItem('wanhu.character.wardrobe.v5'));
-  assert.deepEqual(await page.getByLabel('家畜种类',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value)),['chicken_brown','duck_domestic_brown',animal]);
+  assert.deepEqual(await page.getByLabel('家畜种类',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value)),['chicken_brown','duck_domestic_brown',animal,'pig_domestic_black']);
   for(const [lod,triangles,logicalVertices] of budgets) {
     await page.goto(`${base}/?lab=livestock&animal=${animal}&lod=${lod}&clip=idle_land&phase=.5&paused=1&view=three`,{waitUntil:'networkidle'});await ready();
     const initial=await snap();assert.equal(initial.bones,7);assert.equal(initial.triangles,triangles);assert.equal(initial.logicalVertices,logicalVertices);
