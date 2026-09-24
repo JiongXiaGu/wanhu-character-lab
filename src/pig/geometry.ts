@@ -71,12 +71,12 @@ export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
   const prism=[[0,1,2],[3,5,4],[0,3,4,1],[1,4,5,2],[2,5,3,0]];
   for(const bone of PIG_LEGS) {
     const [x,,z]=PIG_JOINTS[bone].position;
-    // 上粗下窄的整块短腿，脚底不再用贯穿腿身的凹V口；根部略内收而非外撇。
+    // 上粗下窄的整块短腿，脚底不再用贯穿腿身的凹V口；整圈腿根埋入躯干，不能在体侧露出顶盖。
     const sole:Point[]=lod==='lod2'?[[-.043,.006,.052],[.043,.006,.052],[0,.006,-.040]]:[...PIG_SOLE];
     const points:Point[]=sole.map(([px,y,pz])=>[x+px,y,z+pz]);
     const top:Point[]=lod==='lod2'?[[-.072,.365,.046],[.072,.365,.046],[0,.365,-.092]]:
       [[-.072,.365,-.066],[.072,.365,-.066],[.072,.365,.066],[-.072,.365,.066]];
-    points.push(...top.map(([px,y,pz])=>[x+px-Math.sign(x)*(lod==='lod2'?.040:.020),y,z+pz] as Point));
+    points.push(...top.map(([px,y,pz])=>[x+px-Math.sign(x)*.125,y,z+pz+(z<0?.060:-.035)] as Point));
     const n=sole.length,faces:number[][]=[Array.from({length:n},(_,i)=>i),Array.from({length:n},(_,i)=>n+i)];
     for(let i=0;i<n;i++)faces.push([i,(i+1)%n,(i+1)%n+n,i+n]);
     const start=solid(PIG_JOINTS[bone].name,points,faces,bone,skin);

@@ -136,6 +136,9 @@ function attachments(data:AnimalMeshData,points:Vector3[]) {
     assert(witness.indices.length>0,`${witness.name}没有根部`);
     const center=witness.indices.reduce((sum,id)=>sum.add(points[id]),new Vector3()).divideScalar(witness.indices.length);
     assert(inside(center,points,faces),`${witness.name}实际根部离体`);
+    // 腿根中心在体内仍可能让外角顶盖穿出；逐姿态检查整圈根点，而不只查均值。
+    if(PIG_JOINTS.some(j=>j.name===witness.name))for(const id of witness.indices)
+      assert(inside(points[id],points,faces),`${witness.name}腿根顶盖露出躯干：${points[id].toArray()}`);
   }
 }
 function inverseBind(actor:ReturnType<typeof createAnimalActor>) {
@@ -173,7 +176,7 @@ for(const lod of definition.lods) {
   const bodyFaces:{i:number;area:number}[]=[];
   for(let i=0;i<data.indices.length;i+=3)if(data.indices[i]<data.parts[0].count)bodyFaces.push({i,area:bind[i+1].clone().sub(bind[i]).cross(bind[i+2].clone().sub(bind[i])).length()});
   let poses=0,minGround=Infinity,minRootNose=Infinity,minBodyAreaRatio=Infinity,maxHorizontalRadius=0;
-  attachments(data,data.positions.map(p=>new Vector3(...p)));
+  try { attachments(data,data.positions.map(p=>new Vector3(...p))); } catch(error) { throw new Error(`${lod.id}/bind: ${error}`); }
   for(const motion of definition.motions) {
     const first=sample(motion.id,0),last=sample(motion.id,1);
     first.forEach((p,i)=>assert(p.distanceTo(last[i])<1e-5,`${lod.id}/${motion.id}循环首尾`));
