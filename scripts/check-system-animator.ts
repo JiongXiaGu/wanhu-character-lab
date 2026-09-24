@@ -62,10 +62,20 @@ for(const def of GENERATED_SYSTEM_ANIMATOR_CLIPS){
       assert(error<.02,`${def.id}/${bodyType}/frame${frame}/bone${bone}: arm segment differs from source by ${error}°`);
     }
 
-    // Hips 自身不允许静态 46° 倾斜：若第一帧源 Hips Delta 接近 Identity，
-    // 目标 Hips 也必须接近该源 Delta，而不是带 Retarget Pose 倾角。
+    // Hips 自身不允许静态 46° 倾斜：目标必须接近源 Delta，而不是带 Retarget Pose 倾角。
+    // 源 JSON 将分量保留7位小数，angleTo要求单位四元数；先独立验证长度，再按运行时语义归一化。
     const sourceHips=new T.Quaternion().fromArray(source.worldDeltas,4),targetHips=new T.Quaternion().fromArray(bake.rotations[1],0);
-    assert(sourceHips.angleTo(targetHips)*180/Math.PI<.02,'Hips 被错误叠加静态方向校准');
+    const sourceLengthSq=sourceHips.lengthSq(),targetLengthSq=targetHips.lengthSq();
+    const rawHipsErrorDegrees=sourceHips.angleTo(targetHips)*180/Math.PI;
+    assert(Math.abs(sourceLengthSq-1)<1e-6,'源Hips四元数长度超出序列化舍入误差');
+    assert(Math.abs(targetLengthSq-1)<1e-10,'目标Hips四元数未归一化');
+    sourceHips.normalize();targetHips.normalize();
+    const hipsErrorDegrees=sourceHips.angleTo(targetHips)*180/Math.PI;
+    assert(hipsErrorDegrees<.02,`${def.id}/${bodyType}: Hips 被错误叠加静态方向校准 (${hipsErrorDegrees}°)`);
+    // 归一化不是放宽方向门槛：注入0.1°实际偏转后，原0.02°检查仍必须拒绝。
+    const wrongHips=targetHips.clone().multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),.1*Math.PI/180)).normalize();
+    assert.throws(()=>assert(sourceHips.angleTo(wrongHips)*180/Math.PI<.02));
+    console.log(`HIPS ${def.id}/${bodyType}: ${JSON.stringify({sourceLengthSq,targetLengthSq,rawHipsErrorDegrees,hipsErrorDegrees,faultInjections:1})}`);
 
     const head=bake.rotations[5],first=new T.Quaternion().fromArray(head,0);let authored=false;for(let i=4;i<head.length;i+=4)if(first.angleTo(new T.Quaternion().fromArray(head,i))>.01){authored=true;break;}assert(authored,'Head 动画被错误清零');
     console.log(`RETARGET ${def.id}/${bodyType}: worst arm direction ${worstArmDirection.toFixed(6)}°`);
