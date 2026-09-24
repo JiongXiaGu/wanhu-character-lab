@@ -137,7 +137,7 @@ jobs:
             if [[ "$EVENT_NAME" == pull_request ]]; then BASE="$PR_BASE_SHA"; else BASE="$PUSH_BEFORE_SHA"; fi
             if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then BASE="$(git rev-parse HEAD^)"; fi
             while IFS= read -r path; do
-              case "$path" in src/livestock/*|src/chicken/*|src/duck/*|src/goose/*|src/ui/AnimalModeSwitcher*|src/ui/animal-mode-switcher*|src/ui/WorkspaceSwitcher*|src/horse/horse.css|src/main.tsx|src/styles.css|src/animation/clip-clock.ts|scripts/check-livestock*|package.json|package-lock.json|.github/workflows/*) required=true ;; esac
+              case "$path" in src/livestock/*|src/chicken/*|src/duck/*|src/goose/*|src/pig/*|src/ui/AnimalModeSwitcher*|src/ui/animal-mode-switcher*|src/ui/WorkspaceSwitcher*|src/horse/horse.css|src/main.tsx|src/styles.css|src/animation/clip-clock.ts|scripts/check-livestock*|package.json|package-lock.json|.github/workflows/*) required=true ;; esac
             done < <(git -c core.quotepath=false diff --name-only "$BASE" HEAD)
           fi
           echo "required=$required" >> "$GITHUB_OUTPUT"
@@ -148,7 +148,7 @@ jobs:
           cache: npm
       - run: npm ci
         if: steps.scope.outputs.required == 'true'
-      - name: Chicken, duck and goose topology, actual skinning and crowd checks
+      - name: Chicken, duck, goose and pig topology, actual skinning and crowd checks
         if: steps.scope.outputs.required == 'true'
         run: npm run check:livestock
       - name: Prepare imports and check TypeScript

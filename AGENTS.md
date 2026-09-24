@@ -1,3 +1,7 @@
+## L5 黑色家猪
+
+用户已明确授权 `pig_domestic_black` 九骨、五陆地动作、三档LOD、现有家畜工作台与群体预览及正常合入main。先读《家猪.md》和 `src/pig/AGENTS.md`；旧阶段物种限制不阻止本轮，不因此授权狗猫或养殖玩法。猪独立拥有248/114/62三角形、148/73/47逻辑点；不继承坐骑骨架，不修改鸡鸭鹅作者资源。家畜只有land，日常池不加入run。`previewSpacing`缺省保留家禽1.45米，猪2.50米；Actor/缓存/Renderer生命周期不扩职责。完整原回归保留，交付区分自动检查、AI看图、用户美术认可，并直接展示关键图。合并前重读最新main，不覆盖并行人物、动作或服饰提交。
+
 ## XR Animator GLB 人物动作验证
 
 用户已明确停止 BVH 路线并删除 BVH 源资产；不得恢复 BVH 导入、兼容层、脚本或 UI。XR Animator/SystemAnimator 的动作源统一放在 `动画参考_glb/`，当前首个真实样本为 `简单跳舞_A.glb`。GLB 使用 `system-animator-glb-v1` 离线提取真实 Bind World Transform、Quaternion 动画与 Hips 位移，进入 `HumanoidMotionData` 后与 Mixamo FBX 共用 `src/character/motion/` 的播放器和 20 骨重定向。G1 不做动作平滑、Foot IK 或 Foot Lock；固定 Ground Baseline 只处理整体地面基准，脚滑/脚穿地保留为后续动捕清理问题。视觉正确性最终由用户验收。

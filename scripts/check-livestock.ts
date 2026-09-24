@@ -1,3 +1,4 @@
+import './check-livestock-pig';
 import './check-livestock-goose';
 import './check-livestock-duck';
 import './check-livestock-lod';

@@ -32,6 +32,8 @@ export interface LivestockDefinition {
   lods: readonly LivestockLodDefinition[];
   bakeClips(): Map<string, AnimationClip>;
   habitats: readonly HabitatDefinition[]; referenceHeight?: number;
+  /** 固定种子预览格距（米），缺省保持原鸡鸭鹅1.45；不是碰撞半径。 */
+  previewSpacing?: number;
 }
 export const CROWD_COUNTS = [1, 10, 50, 100, 500] as const;
 export type CrowdCount = typeof CROWD_COUNTS[number];

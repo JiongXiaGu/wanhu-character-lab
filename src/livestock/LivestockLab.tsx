@@ -42,7 +42,7 @@ export default function LivestockLab() {
   const replay = () => setOptions(value => ({ ...value, playing: true, phase: 0, seekRevision: value.seekRevision + 1 }));
   const save = () => saveLivestockSession(options, playback.phase, window.__LIVESTOCK_REVIEW__?.camera());
   return <main className="horse-lab livestock-lab">
-    <header className="horse-topbar"><div><p>WANHU / LIVESTOCK STUDY</p><h1>家畜工坊 <span>Livestock Lab</span></h1></div><WorkspaceSwitcher active="animal"/><span className="horse-phase-tag">L3 · 家禽水陆</span></header>
+    <header className="horse-topbar"><div><p>WANHU / LIVESTOCK STUDY</p><h1>家畜工坊 <span>Livestock Lab</span></h1></div><WorkspaceSwitcher active="animal"/><span className="horse-phase-tag">L5 · 家畜预览</span></header>
     <div className="horse-workspace">
       <section className="horse-stage" aria-label="家畜模型与群体预览">
         <div className="horse-stage-title"><p>SMALL ANIMAL / LARGE SCENE</p><h2>{definition.name}</h2><span className="horse-stage-motion">{options.count === 1 ? '单只检查' : `${options.count} 只群体预览`} · {profile.label} · {mixed ? '日常混合' : active.label}{stats ? ` · ${stats.lod.toUpperCase()}` : ''}</span></div>

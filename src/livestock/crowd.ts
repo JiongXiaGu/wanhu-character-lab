@@ -12,17 +12,18 @@ function random(seed: number) {
   return () => { value += 0x6d2b79f5; let t = value; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 }
 /** 稳定种子只在重新散布时使用；每个动物占一个有留量的格位，不是寻路系统。 */
-export function makePlacements(count: number, seed: number): Placement[] {
+export function makePlacements(count: number, seed: number, spacing = 1.45): Placement[] {
   if (!Number.isInteger(count) || count < 1 || count > 500) throw new Error('家畜数量必须为1至500的整数。');
+  if (!Number.isFinite(spacing) || spacing <= 0) throw new Error('家畜预览间距必须为有限正数。');
   const rng = random(seed), columns = Math.ceil(Math.sqrt(count)), rows = Math.ceil(count / columns);
   return Array.from({ length: count }, (_, i) => {
-    const x = (i % columns - (columns - 1) / 2) * 1.45 + (rng() - .5) * .12;
-    const z = (Math.floor(i / columns) - (rows - 1) / 2) * 1.45 + (rng() - .5) * .12;
+    const x = (i % columns - (columns - 1) / 2) * spacing + (rng() - .5) * .12;
+    const z = (Math.floor(i / columns) - (rows - 1) / 2) * spacing + (rng() - .5) * .12;
     const yaw = rng() * Math.PI * 2, scale = .94 + rng() * .12, offset = rng(), pick = rng();
     return { x, z, yaw, scale, offset, pick, cohort: Math.floor(rng() * PHASE_COHORTS) };
   });
 }
-export function layoutHalf(count: number) { return count === 1 ? .45 : Math.ceil(Math.sqrt(count)) * 1.45 / 2 + .55; }
+export function layoutHalf(count: number, spacing = 1.45) { return count === 1 ? .45 : Math.ceil(Math.sqrt(count)) * spacing / 2 + .55; }
 export function previewDuration(definition: LivestockDefinition, options: Pick<LabOptions, 'count' | 'mixed' | 'motion'> & Partial<Pick<LabOptions, 'surface'>>) {
   return options.count > 1 && options.mixed ? habitatDefinition(definition, options.surface ?? motionSurface(definition, options.motion)).duration : definition.motions.find(m => m.id === options.motion)!.duration;
 }
@@ -44,7 +45,7 @@ export function createCrowd(definition: LivestockDefinition, material: MeshStand
   return {
     group, get cachedPoses() { return [...caches.values()].reduce((sum, cache) => sum + cache.size, 0); }, get placements() { return placements; },
     get batchCount() { return [...batches.values()].filter(mesh => mesh.visible).length; },
-    setLayout(count: number, seed: number) { placements = makePlacements(count, seed); },
+    setLayout(count: number, seed: number) { placements = makePlacements(count, seed, definition.previewSpacing); },
     update(time: number, options: Pick<LabOptions, 'motion' | 'mixed' | 'loop'> & Partial<Pick<LabOptions, 'surface'>>, lod: LivestockLodId) {
       const cache = ensureLod(lod), profile = habitatDefinition(definition, options.surface ?? motionSurface(definition, options.motion));
       for (const mesh of batches.values()) { mesh.count = 0; mesh.visible = false; }
