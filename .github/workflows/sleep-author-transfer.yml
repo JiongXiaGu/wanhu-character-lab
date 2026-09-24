@@ -1,0 +1,30 @@
+name: Temporary sleep author transfer
+on:
+  push:
+    branches: [feat/pig-dog-sleep-20260925]
+    paths: [.github/workflows/sleep-author-transfer.yml]
+permissions:
+  contents: read
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci && npm run prepare:motion
+      - name: Archive authoring copy without credentials
+        run: |
+          mkdir -p /tmp/author-transfer
+          tar --exclude=.git --exclude=review --exclude=dist -czf /tmp/author-transfer/source-deps.tgz .
+          git rev-parse HEAD > /tmp/author-transfer/source-sha.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sleep-author-source
+          path: /tmp/author-transfer/
+          retention-days: 1
