@@ -19,7 +19,12 @@ try{
   const state=()=>page.evaluate(()=>({stats:window.__WANHU_REVIEW__.stats,status:window.__WANHU_REVIEW__.getStatus(),geometry:window.__WANHU_REVIEW__.geometryId()}));
   async function sync(){await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));assert.equal((await state()).stats.bones,20);assert.equal(await page.locator('canvas').count(),1);}
   async function motionReady(id){await page.waitForFunction(id=>{const s=window.__WANHU_REVIEW__?.getStatus().motion;return s?.ready&&s.id===id;},id);await sync();}
-  async function seek(value){await page.evaluate(value=>window.__WANHU_REVIEW__.seek(value),value);await sync();}
+  async function seek(value){
+    // 切换动画会自动播放。先操作真实暂停按钮，再检查“暂停换装相位不变”。
+    const pause=page.getByRole('button',{name:'暂停',exact:true});if(await pause.count())await pause.click();
+    await page.evaluate(value=>window.__WANHU_REVIEW__.seek(value),value);await sync();
+    assert(Math.abs((await state()).status.phase-value)<1e-6);
+  }
   async function shot(name,full=false){await sync();if(!capture)return;await (full?page:page.locator('canvas')).screenshot({path:join(dir,name)});images.push({name,recipe:await recipe(),state:await state()});}
   await page.goto(`${base}/?review=1&pose=bind&paused=1&view=free`);await page.waitForFunction(()=>!!window.__WANHU_REVIEW__&&!!window.__WANHU_RECIPE__);
   const before=await recipe();await page.getByTestId('soldier-palace').click();await page.waitForFunction(()=>window.__WANHU_RECIPE__().slots.top==='palace_guard_armor');await sync();
