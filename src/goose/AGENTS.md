@@ -1,13 +1,15 @@
 # 白鹅作者资源
 
-用户已批准白色家鹅 goose_domestic_white、水陆八动作与三档LOD。先读 Documentation/白鹅与长颈动作.md。只做家畜模型与预览，不扩展骑乘、产蛋、受惊AI、追逐、岸线或养殖玩法。
+用户已授权新增陆地sleep（三秒卧伏呼吸），详见 `Documentation/家禽睡觉动作.md`。所有原动作、网格、绑定与日常池保持，不增加水上睡眠或翅膀。
+
+用户已批准白色家鹅 goose_domestic_white、水陆九动作与三档LOD。先读 Documentation/白鹅与长颈动作.md。只做家畜模型与预览，不扩展骑乘、产蛋、受惊AI、追逐、岸线或养殖玩法。
 
 独立七骨 Root / Body / NeckBase / NeckTip / Head / LegL / LegR；没有Wing骨、翅膀几何或翼区颜色。不得为对齐旧鸡鸭8骨而增加空骨。鸡鸭原绑定与可见翅膀删除结果保持。每点一个权重、一份不透明FrontSide顶点色材质。
 
 三档154/82/44三角形、87/47/28逻辑点；尾、身、两段长颈、头、窄长喙是同一个共享接口的闭合主壳。不得删脖子、以相交小壳替代连续颈部、复制鸭网格后scale、使用双面材质掩盖破面。低档不增加眼睛或额瘤附件。
 
-八动作在作者阶段烘焙30fps局部轨道。陆地 idle_land / walk / run / graze / threat；水面 idle_water / swim / feed_water。威吓只有压颈前探，不等于攻击或受惊AI。日常混合池不包含run/threat。水位0.235米；蹼足必须真实在水下，裁切不豁免数值检查。
+九动作在作者阶段烘焙30fps局部轨道。陆地 idle_land / walk / run / graze / threat / sleep；水面 idle_water / swim / feed_water。威吓只有压颈前探，不等于攻击或受惊AI。日常混合池不包含run/threat/sleep。水位0.235米；蹼足必须真实在水下，裁切不豁免数值检查。
 
-接入原LivestockDefinition、Actor、姿态缓存和工作台，不做PoultryBase或WaterfowlSystem。三档同骨序同动作，自动LOD仍用70/26px，固定参考高度0.86米。新物种不改变旧鸡鸭阈值或灯光。检查包含三档×八动作×241相位的真实蒙皮、接地、觅食、颈部不塌缩、闭合连通、缓存和交互。
+接入原LivestockDefinition、Actor、姿态缓存和工作台，不做PoultryBase或WaterfowlSystem。三档同骨序同动作，自动LOD仍用70/26px，固定参考高度0.86米。新物种不改变旧鸡鸭阈值或灯光。检查包含三档×九动作×241相位的真实蒙皮、接地、觅食、颈部不塌缩、闭合连通、缓存和交互。
 
 沿用三条正式Actions，不增加永久工作流。交付列实际受测SHA，并展示真实WebGL关键截图；数值检查、AI看图与用户美术认可分开说明。修改前重读main，禁止覆盖并行人物或坐骑提交。

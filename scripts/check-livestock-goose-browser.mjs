@@ -26,7 +26,7 @@ export async function checkGooseBrowser(page,base,dir,screenshots,setPhase) {
       const clip={x:Math.round(box.x+(box.width-width)/2),y:Math.round(box.y+(box.height-height)/2),width,height};
       comparisons.push({lod,triangles,camera:(await snap()).camera,clip,png:await page.screenshot({clip})});
     }
-    for(const [surface,motions] of [['land',['idle_land','walk','run','graze','threat']],['water',['idle_water','swim','feed_water']]]) {
+    for(const [surface,motions] of [['land',['idle_land','walk','run','graze','threat','sleep']],['water',['idle_water','swim','feed_water']]]) {
       await page.getByTestId(`livestock-surface-${surface}`).click();await page.waitForFunction(s=>window.__LIVESTOCK_REVIEW__.snapshot().surface===s,surface);
       assert.equal(await page.locator('.livestock-motions button').count(),motions.length);
       for(const motion of motions) {

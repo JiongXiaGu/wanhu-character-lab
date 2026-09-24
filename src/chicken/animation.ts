@@ -2,12 +2,13 @@ import { AnimationClip, Euler, Quaternion, QuaternionKeyframeTrack, VectorKeyfra
 import type { MotionDefinition, Point } from '../livestock/types';
 import { CHICKEN_BONES as B, CHICKEN_JOINTS, FOOT_POINTS } from './rig';
 
-export const CHICKEN_ANIMATION_VERSION = 'wanhu-chicken-motion-v3';
+export const CHICKEN_ANIMATION_VERSION = 'wanhu-chicken-motion-v4';
 export const CHICKEN_MOTIONS: readonly MotionDefinition[] = [
   { id: 'idle', label: '停驻', description: '轻轻转头，短暂停留。', duration: 3 },
   { id: 'walk', label: '行走', description: '交替迈步，头颈前后点动。', duration: .9 },
   { id: 'run', label: '奔跑', description: '身体前倾，小步快跑。', duration: .6 },
   { id: 'peck', label: '啄食', description: '观察地面，低头啄一下。', duration: 1.5 },
+  { id: 'sleep', label: '睡觉', description: '低伏收颈，保持卧姿缓慢呼吸。', duration: 3, surface: 'land' },
 ];
 export function authorChickenPose(motion: string, phase: number) {
   if (!CHICKEN_MOTIONS.some(m => m.id === motion)) throw new Error(`未知鸡动作：${motion}`);
@@ -32,6 +33,22 @@ export function authorChickenPose(motion: string, phase: number) {
       rotations[bone][0] = angle;
       const minY = Math.min(...FOOT_POINTS.map(([, y, fz]) => (y - .175) * Math.cos(angle) - fz * Math.sin(angle)));
       offsets[bone][1] = .004 + lift - (.175 + minY);
+    }
+  } else if (motion === 'sleep') {
+    // 保持卧伏的独立循环，不在每轮呼吸时重新站起；只用现有八骨。
+    const breath = .5 - .5 * Math.cos(a);
+    offsets[B.Body][1] = -.118 + .002 * breath;
+    offsets[B.Neck][1] = -.065;
+    offsets[B.Neck][2] = -.020;
+    rotations[B.Neck][0] = -.65 + .008 * breath;
+    rotations[B.Head][0] = .90 - .008 * breath;
+    rotations[B.Head][1] = 0;
+    // 身体低伏包住腿根，脚保持近水平支撑；三档共用轨道不依赖LOD0长趾才能接地。
+    for (const bone of [B.LegL, B.LegR]) {
+      const angle = .06;
+      rotations[bone][0] = angle;
+      const minY = Math.min(...FOOT_POINTS.map(([, y, z]) => .175 + (y - .175) * Math.cos(angle) - z * Math.sin(angle)));
+      offsets[bone][1] = .005 - minY;
     }
   } else if (motion === 'peck') {
     const t = Math.max(0, Math.min(1, (p - .24) / .42)), dip = Math.pow(Math.sin(Math.PI * t), 4);

@@ -1,3 +1,4 @@
+import { checkPoultrySleepBrowser } from './check-livestock-sleep-browser.mjs';
 import { checkDogBrowser } from './check-livestock-dog-browser.mjs';
 import { checkPigBrowser } from './check-livestock-pig-browser.mjs';
 import { checkGooseBrowser } from './check-livestock-goose-browser.mjs';
@@ -50,7 +51,7 @@ try {
   }
   await page.getByTestId('livestock-lod-auto').click(); await page.waitForFunction(() => window.__LIVESTOCK_REVIEW__.snapshot().lod === 'lod0');
   const geometryId = (await snap()).geometryId;
-  for (const motion of ['idle', 'walk', 'run', 'peck']) {
+  for (const motion of ['idle', 'walk', 'run', 'peck', 'sleep']) {
     await page.getByTestId(`livestock-motion-${motion}`).click(); await page.waitForTimeout(220); await page.getByTestId('livestock-play').click(); await setPhase(.45);
     const result = await snap(); assert.equal(result.motion, motion); assert.equal(result.geometryId, geometryId); assert(Math.abs(result.phase - .45) < .003, `seek失败：${JSON.stringify(result)}`);
     const phase = result.phase; await page.waitForTimeout(220); assert.equal((await snap()).phase, phase);
@@ -81,6 +82,7 @@ try {
   await page.goto(`${base}/?lab=livestock&preview=resume&count=NaN&clip=unknown&view=unknown&lod=unknown&phase=Infinity&paused=1`, { waitUntil: 'networkidle' }); await ready();
   assert.equal((await snap()).count, 1); assert.equal((await snap()).motion, 'idle'); assert.equal((await snap()).phase, 0); assert.equal((await snap()).lod, 'lod0');
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, '桌面横向溢出'); assert.deepEqual(errors, []);
+  await checkPoultrySleepBrowser(page, base, dir, screenshots, setPhase);
   await checkDuckBrowser(page, base, dir, screenshots, setPhase);
   await checkGooseBrowser(page, base, dir, screenshots, setPhase);
   await checkPigBrowser(page, base, dir, screenshots, setPhase);
