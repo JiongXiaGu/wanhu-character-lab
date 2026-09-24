@@ -6,9 +6,10 @@ on:
 permissions:
   contents: read
 jobs:
-  export:
+  diagnose:
+    if: github.event.pull_request.head.ref == 'feat/l7-rural-cat'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,23 +20,43 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Export separate archives below attachment limits
+      - name: Sample author poses without changing production assets or assertions
         run: |
-          git rev-parse HEAD > /tmp/cat-source-sha.txt
-          tar --exclude=.git --exclude=node_modules -czf /tmp/cat-source.tar.gz .
-          tar -czf /tmp/cat-deps.tar.gz node_modules
-          ls -lh /tmp/cat-*.tar.gz
+          cat > scripts/tmp-cat-pose-probe.ts <<'TS'
+          import { Euler, Vector3 } from 'three';
+          import { CAT_DEFINITION as d } from '../src/cat/definition';
+          import { CAT_JOINTS as J, CAT_BONES as B } from '../src/cat/rig';
+          import { authorCatPose } from '../src/cat/animation';
+          import { createAnimalActor } from '../src/livestock/actor';
+          import { readSkinnedPoints, assertClosedSkinnedMesh } from './check-livestock-mesh-shared';
+          const actors=d.lods.map(l=>{const actor=createAnimalActor(d,l.id);actor.bind();return {actor,bind:readSkinnedPoints(actor),lod:l.id}});
+          function check(motion:string,neck:number,ny:number,head:number,hy:number,frames:number){
+            try{for(const {actor,bind,lod} of actors)for(let f=0;f<=frames;f++){
+              const phase=f/frames,p=authorCatPose(motion,phase);
+              const strength=motion==='groom'?-p.rotations[B.FrontLegL][0]/1.04:1;
+              p.rotations[B.Neck][0]=neck*strength;p.offsets[B.Neck][1]=ny*strength;
+              p.rotations[B.Head][0]=head*strength;p.rotations[B.Head][1]=hy*strength;
+              J.forEach((j,i)=>{const parent=j.parent<0?[0,0,0]:J[j.parent].position;actor.bones[i].position.set(...j.position.map((v,a)=>v-parent[a]+p.offsets[i][a]) as [number,number,number]);actor.bones[i].quaternion.setFromEuler(new Euler(...p.rotations[i] as [number,number,number]));});
+              const points=readSkinnedPoints(actor);const min=Math.min(...points.map(p=>p.y));if(min<-.002)throw new Error(`${lod}/${f} ground ${min}`);
+              assertClosedSkinnedMesh(actor,points,bind);
+            }return 'PASS'}catch(e){return String(e)}
+          }
+          for(const motion of ['groom','sleep']){
+            console.log('MOTION',motion,'baseline',check(motion,motion==='groom'?.42:.50,motion==='groom'?-.020:-.055,motion==='groom'?.385:-.25,motion==='groom'?-.22:0,12));
+            let passes=0;const failures=new Map<string,number>();
+            outer:for(const neck of [ .40,.30,.50,.20,.60])for(const ny of [-.008,0,-.015,-.025])for(const head of (motion==='groom'?[.10,.05,.15,.20]:[-.15,-.25,0,.10]))for(const hy of (motion==='groom'?[-.10,-.05,-.15]:[0])){
+              const result=check(motion,neck,ny,head,hy,12);
+              if(result==='PASS'){const full=check(motion,neck,ny,head,hy,240); console.log('CANDIDATE',JSON.stringify({motion,neck,ny,head,hy,full}));if(full==='PASS'&&++passes===3)break outer;}
+              else failures.set(result,(failures.get(result)||0)+1);
+            }
+            console.log('FAILURE_SUMMARY',motion,JSON.stringify([...failures].sort((a,b)=>b[1]-a[1]).slice(0,10)));
+          }
+          actors.forEach(({actor})=>actor.dispose());
+          TS
+          npx tsx scripts/tmp-cat-pose-probe.ts | tee /tmp/cat-pose-diagnostic.txt
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: cat-source-recovery
-          path: |
-            /tmp/cat-source.tar.gz
-            /tmp/cat-source-sha.txt
+          name: cat-pose-diagnostic
+          path: /tmp/cat-pose-diagnostic.txt
           retention-days: 1
-          compression-level: 0
-      - uses: actions/upload-artifact@v4
-        with:
-          name: cat-deps-recovery
-          path: /tmp/cat-deps.tar.gz
-          retention-days: 1
-          compression-level: 0
