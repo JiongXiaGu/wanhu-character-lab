@@ -4,30 +4,42 @@ on:
     branches: [feat/soldier-palace-s1]
     paths: [.github/workflows/soldier-authoring-transfer.yml]
 permissions:
-  contents: read
+  contents: write
 jobs:
-  bundle:
+  author:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          ref: feat/soldier-palace-s1
+      - name: Apply reviewed integration edits and remove temporary authoring files
+        run: |
+          set -euo pipefail
+          python .github/soldier-authoring.py
+          git rm .github/soldier-authoring.py .github/workflows/soldier-authoring-transfer.yml
+          git add src scripts
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(soldier): integrate palace armor with shared wardrobe and exact regressions'
+          git push origin HEAD:feat/soldier-palace-s1
+          echo "REVIEW_HEAD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run prepare:motion
-      - name: Package source and prepared motions without FBX reference binaries
-        run: |
-          git rev-parse HEAD > /tmp/source-sha.txt
-          du -sh src scripts public node_modules
-          tar -czf /tmp/soldier-source.tar.gz src scripts public Documentation node_modules .github .gitignore AGENTS.md README.md package.json package-lock.json tsconfig.json vite.config.ts index.html
+      - run: npm run prepare:motion && npx tsc --noEmit
+      - run: npm run check:core && npm run check:lightwear && npm run check:intersections
+      - run: npx playwright install --with-deps chromium && sudo apt-get install -y fonts-noto-cjk
+      - name: Explicit first candidate WebGL evidence
+        run: node scripts/check-soldier-browser.mjs --screenshots
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: soldier-s1-source-small
+          name: soldier-s1-first-${{ env.REVIEW_HEAD_SHA }}
           path: |
-            /tmp/source-sha.txt
-            /tmp/soldier-source.tar.gz
-          retention-days: 1
+            review/soldier/
+            review-tailoring-v2/intersections.json
+          if-no-files-found: warn
+          retention-days: 3
