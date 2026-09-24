@@ -17,14 +17,14 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci && npm run prepare:motion
-      - name: Archive authoring copy without credentials
+      - run: npm ci
+      - name: Archive dependencies for local author checks
         run: |
           mkdir -p /tmp/author-transfer
-          tar --exclude=.git --exclude=review --exclude=dist -czf /tmp/author-transfer/source-deps.tgz .
+          tar -czf /tmp/author-transfer/dependencies.tgz node_modules
           git rev-parse HEAD > /tmp/author-transfer/source-sha.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: sleep-author-source
+          name: sleep-author-dependencies
           path: /tmp/author-transfer/
           retention-days: 1
