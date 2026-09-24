@@ -50,16 +50,19 @@ export function applyLook(recipe:Recipe,id:string):Recipe {
   if(!look)return recipe;
   return createRecipe({...recipe,slots:{...look.slots},dyes:{...look.dyes},hairStyle:look.hairStyle});
 }
-export type RandomLock = keyof CharacterSlots | 'dyes' | 'hairStyle';
-/** 同一种子可复现；仅随机外观，不改变身体、配色以外的身份参数。 */
-export function randomizeLook(recipe:Recipe,seed:number,locks:readonly RandomLock[]=[]):Recipe {
+export type RandomLock = keyof CharacterSlots | 'bodyType' | 'dyes' | 'hairStyle';
+/** 同一种子、输入配方和锁定项可复现完整人物外观。 */
+export function randomizeCharacter(recipe:Recipe,seed:number,locks:readonly RandomLock[]=[]):Recipe {
   let n=Number.isFinite(seed)?seed>>>0:1;
   const random=()=>{n=(n+0x6d2b79f5)>>>0;let t=Math.imul(n^(n>>>15),1|n);t^=t+Math.imul(t^(t>>>7),61|t);return ((t^(t>>>14))>>>0)/4294967296;};
-  const candidates=WARDROBE_LOOKS.filter(x=>x.suggestedBody===recipe.bodyType);
-  const next=applyLook(recipe,candidates[Math.floor(random()*candidates.length)].id);
+  const bodyType=locks.includes('bodyType')?recipe.bodyType:(random()<.5?'male':'female');
+  const candidates=WARDROBE_LOOKS.filter(x=>x.suggestedBody===bodyType);
+  const next=applyLook(createRecipe({...recipe,bodyType}),candidates[Math.floor(random()*candidates.length)].id);
   next.dyes=dyes(Math.floor(random()*DYE_PALETTES.length));
   next.slots.headwear=(['none','cloth_wrap','scholar_cap','jade_pin'] as const)[Math.floor(random()*4)];
+  next.slots.back=BACK_IDS[Math.floor(random()*BACK_IDS.length)];
   for(const key of locks){
+    if(key==='bodyType')continue;
     if(key==='dyes')next.dyes={...recipe.dyes};
     else if(key==='hairStyle')next.hairStyle=recipe.hairStyle;
     else (next.slots as unknown as Record<string,string>)[key]=recipe.slots[key];

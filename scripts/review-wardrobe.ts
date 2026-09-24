@@ -37,9 +37,9 @@ try{
  let before=await recipe();
  await page.getByLabel('头饰',{exact:true}).selectOption('farmer_straw_hat');await page.waitForFunction(()=>window.__WANHU_REVIEW__?.getStatus().mixamo?.ready);
  assert.equal((await recipe()).slots.top,before.slots.top);assert(Math.abs((await page.evaluate(()=>window.__WANHU_REVIEW__!.getStatus())).phase-.45)<1e-6);
- await page.getByLabel('锁定头饰',{exact:true}).check();await page.getByLabel('锁定染色',{exact:true}).check();
- before=await recipe();await page.getByLabel('搭配种子',{exact:true}).fill('123');await page.getByRole('button',{name:'随机搭配',exact:true}).click();
- let after=await recipe();assert.equal(after.slots.headwear,before.slots.headwear);assert.deepEqual(after.dyes,before.dyes);assert.equal(after.bodyType,before.bodyType);await shot('random-locked');
+ await page.getByLabel('锁定头饰',{exact:true}).check();await page.getByLabel('锁定染色',{exact:true}).check();await page.getByLabel('锁定性别',{exact:true}).check();await page.getByLabel('锁定背部',{exact:true}).check();
+ before=await recipe();await page.getByLabel('人物种子',{exact:true}).fill('123');await page.getByRole('button',{name:'随机人物',exact:true}).click();
+ let after=await recipe();assert.equal(after.slots.headwear,before.slots.headwear);assert.equal(after.slots.back,before.slots.back);assert.deepEqual(after.dyes,before.dyes);assert.equal(after.bodyType,before.bodyType);await shot('random-locked');
  await page.getByRole('button',{name:'撤销',exact:true}).click();assert.deepEqual(await recipe(),before);
  await page.getByRole('button',{name:'保存装扮',exact:true}).click();await page.getByLabel('上衣',{exact:true}).selectOption('rough_tunic');await page.getByRole('button',{name:'恢复装扮',exact:true}).click();assert.deepEqual(await recipe(),before);
  const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'导出配方',exact:true}).click()]);
