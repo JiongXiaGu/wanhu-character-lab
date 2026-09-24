@@ -31,5 +31,9 @@ jobs:
         run: npm run check:retired
       - name: Core mesh and data checks
         run: npm run check:core
+      - name: Back equipment topology, bind and Recipe V5 checks
+        run: npx tsx scripts/check-back-equipment.ts
       - name: TypeScript and production build
         run: npm run build
+      - name: Back equipment source-key animation and riding checks
+        run: npx tsx scripts/check-back-equipment.ts --motion

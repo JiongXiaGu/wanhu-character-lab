@@ -1,3 +1,4 @@
+import { addBackEquipment } from '../wardrobe/back-equipment';
 import { applyHeadwearClearance } from "../wardrobe/headwear-fit";
 import { addWardrobeHeadwear, finishHair } from "../wardrobe/adornments";
 import {
@@ -601,6 +602,7 @@ export function makeCharacter(input: RecipeInput): CharacterData {
     v.p = i < rigidStart ? shapePoint(v.p,recipe) : shapeRigidPoint(v.p,v.w[0],recipe,baseJoints,joints);
   });
   for (const v of body.vertices) v.p = shapePoint(v.p, recipe);
+  addBackEquipment(c, recipe);
 
   return {
     body,
