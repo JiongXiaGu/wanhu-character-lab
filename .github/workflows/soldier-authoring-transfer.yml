@@ -1,0 +1,34 @@
+name: Temporary Soldier Authoring Bundle
+on:
+  push:
+    branches: [feat/soldier-palace-s1]
+    paths: [.github/workflows/soldier-authoring-transfer.yml]
+permissions:
+  contents: read
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run prepare:motion
+      - name: Package repository and dependencies for offline authoring
+        run: |
+          git rev-parse HEAD > /tmp/source-sha.txt
+          git archive --format=tar HEAD > /tmp/soldier-source.tar
+          tar -rf /tmp/soldier-source.tar node_modules public/mixamo public/system-animator
+          gzip /tmp/soldier-source.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: soldier-s1-source
+          path: |
+            /tmp/source-sha.txt
+            /tmp/soldier-source.tar.gz
+          retention-days: 1
