@@ -67,8 +67,9 @@ export async function checkLivestockSleepBrowser(page, base, dir, screenshots, s
     if (screenshots) strips.push({ animal, label, comparisons });
     // 睡眠与旧动作双向切换，不遗留混合池或上一动作的Pose。
     const beforeAction = await snap();
-    await page.getByTestId('livestock-motion-idle').click();
-    await page.waitForFunction(() => { const s = window.__LIVESTOCK_REVIEW__.snapshot(); return s.motion === 'idle' && s.playing; });
+    const idle = animal === 'duck_domestic_brown' || animal === 'goose_domestic_white' ? 'idle_land' : 'idle';
+    await page.getByTestId(`livestock-motion-${idle}`).click();
+    await page.waitForFunction(id => { const s = window.__LIVESTOCK_REVIEW__.snapshot(); return s.motion === id && s.playing; }, idle);
     await selectSleep(); const afterAction = await snap();
     assert.equal(afterAction.geometryId, beforeAction.geometryId); assert.equal(afterAction.rendererId, beforeAction.rendererId);
     // 暂停、定位、逐帧、继续播放、跨过循环端点和单次末帧均通过真实控件完成。
