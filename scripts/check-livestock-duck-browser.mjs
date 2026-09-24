@@ -15,7 +15,7 @@ export async function checkDuckBrowser(page, base, dir, screenshots, setPhase) {
       for(const motion of motions) {
         await page.goto(`${base}/?lab=livestock&animal=${animal}&surface=${surface}&lod=${lod}&clip=${motion}&phase=.5&paused=1&view=three`,{waitUntil:'networkidle'});await ready();
         const s=await snap(); assert.equal(s.animal,animal);assert.equal(s.surface,surface);assert.equal(s.waterClipped,surface==='water');assert.equal(s.motion,motion);assert.equal(s.triangles,triangles);assert.equal(s.logicalVertices,logicalVertices);assert.equal(s.phase,.5);assert.equal(s.playing,false);assert.equal(s.bones,8);
-        assert.equal(await page.locator('.livestock-motions button').count(),surface==='land'?4:3);
+        assert.equal(await page.locator('.livestock-motions button').count(),motions.length);
         assert.equal(await page.getByTestId('livestock-motion-run').count(),surface==='land'?1:0);assert.equal(await page.locator('canvas').count(),1);
         await page.getByTestId('livestock-lod-lod0').click();await page.waitForFunction(()=>window.__LIVESTOCK_REVIEW__.snapshot().lod==='lod0');
         await page.getByTestId(`livestock-lod-${lod}`).click();await page.waitForFunction(id=>window.__LIVESTOCK_REVIEW__.snapshot().lod===id,lod);

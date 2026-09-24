@@ -67,7 +67,11 @@ export async function checkPoultrySleepBrowser(page, base, dir, screenshots, set
       assert(s.batches > 0 && s.batches <= 8); counts.push({ animal, count, lod: s.lod, modelTriangles: s.modelTriangles, batches: s.batches });
       if (count === 100) { await page.getByTestId('livestock-view-farm').click(); await shot(`${animal}-sleep-100.png`); }
     }
-    const warm = await snap();
+    const beforeWarm = await snap();
+    // GPU几何统计在首次绘制时才登记；先显示待测帧，再重复同一组真实控件输入检查平台期。
+    // CPU姿态缓存从首次访问LOD即完整创建，因此两轮都不允许继续增加。
+    for (const phase of [.1, .4, .7]) await setPhase(phase);
+    const warm = await snap(); assert.equal(warm.cachedPoses, beforeWarm.cachedPoses);
     for (const phase of [.1, .4, .7]) await setPhase(phase);
     const stable = await snap(); assert.equal(stable.cachedPoses, warm.cachedPoses); assert.equal(stable.geometries, warm.geometries); assert.equal(stable.rendererId, warm.rendererId);
     // 显式睡眠的栏目往返恢复，不应回到日常混合。
