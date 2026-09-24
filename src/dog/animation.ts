@@ -20,11 +20,15 @@ export function authorDogPose(motion:string,phase:number) {
   rotations[B.Tail][1]=.10*Math.sin(a);rotations[B.Tail][2]=.035*Math.sin(a);
   if(motion==='sleep') {
     // 胸腹低伏，前腿前伸、后腿收向腹下；用原单段腿，不新增脚掌或脊柱骨。
-    // 头部落在前足之间，尾巴安静保持；足端不随呼吸滑动。
+    // 头部落在前足之间，弯尾后放收低；足端不随呼吸滑动。
     const drop=.284;
     offsets[B.Body][1]=-drop+.0012*(1-Math.cos(a));
     rotations[B.Neck][0]=.50;offsets[B.Neck][1]=-.125;
-    rotations[B.Head][0]=-.22;rotations[B.Tail]=[0,0,0];
+    rotations[B.Head][0]=-.22;rotations[B.Tail]=[-1.45,0,.16];
+    // 绕实际嵌入尾根收尾，不让低档尾根跟随骨枢轴旋转后露出主壳。
+    const tailRoot=new Vector3(0,.565,-.360).sub(new Vector3(...DOG_JOINTS[B.Tail].position));
+    const tailRotation=new Quaternion().setFromEuler(new Euler(...rotations[B.Tail] as [number,number,number]));
+    offsets[B.Tail]=tailRoot.clone().sub(tailRoot.clone().applyQuaternion(tailRotation)).toArray();
     for(const bone of DOG_LEGS) {
       const joint=new Vector3(...DOG_JOINTS[bone].position),front=bone<=B.FrontLegR,side=Math.sign(joint.x);
       const anchor=new Vector3(side*(front?.070:.055),front?.535:.520,front?.125:-.235);

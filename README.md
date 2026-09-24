@@ -2,17 +2,19 @@
 
 《万户天工》3D玩家／居民换装、FBX试衣与坐骑Web Demo。固定成年男女、一档低模精度；当前坐骑是栗色马、灰驴、双峰骆驼、黄牛、牦牛和水牛。界面只选择种类与整体鞍具，正式玩法仍留在Unity。
 
-## 鸡、鸭、鹅睡觉动作
+## 家畜睡觉动作
 
-三种家禽新增陆地 `sleep`（睡觉）：原地卧伏、三秒缓慢呼吸，沿用原网格、8／8／7骨与三档LOD。不进入日常混合池；在家畜动作区点击睡觉可检查单只及1至500只群体。入口 `?lab=livestock&animal=goose_domestic_white&clip=sleep&paused=1&phase=.5`。范围、生命周期与检查见[家禽睡觉动作](Documentation/家禽睡觉动作.md)。猪犬、人物及坐骑保持。
+鸡、鸭、鹅、黑色家猪与中国田园犬均支持正式陆地 `sleep`（睡觉）：三秒原地低伏呼吸，沿用原网格、骨架与三档LOD，不进入日常混合池。在家畜动作区点击睡觉可检查单只及1至500只群体，复用暂停、单步、相位定位、循环和末帧控制。
+
+猪入口 `?lab=livestock&animal=pig_domestic_black&clip=sleep&paused=1&phase=.5`，犬使用 `dog_rural_yellow`。两者均为九骨六动作；没有入睡／起床过渡、闭眼材质、音效、睡眠地点或AI。范围、生命周期与检查集中在[家畜睡觉动作](Documentation/家畜睡觉动作.md)。人物及坐骑不改。
 
 ## L6：中国田园犬与五种家畜
 
-动物工坊→家畜现有鸡、鸭、鹅、黑色家猪和黄褐色中国田园犬。犬独立拥有九骨、三档作者LOD与idle/walk/run/sniff/bark五个陆地动作；使用现有工作台和1/10/50/100/500群体预览，不可骑乘，不新增宠物页面或看门AI。三档为274/142/78三角形、157/91/55逻辑点，数据所有权与边界见[中国田园犬](Documentation/中国田园犬.md)。
+动物工坊→家畜现有鸡、鸭、鹅、黑色家猪和黄褐色中国田园犬。犬独立拥有九骨、三档作者LOD与idle/walk/run/sniff/bark/sleep六个陆地动作；使用现有工作台和1/10/50/100/500群体预览，不可骑乘，不新增宠物页面或看门AI。三档为274/142/78三角形、157/91/55逻辑点，数据所有权与边界见[中国田园犬](Documentation/中国田园犬.md)。
 
-犬入口 `?lab=livestock&animal=dog_rural_yellow`；闻地加 `&clip=sniff&phase=.5&paused=1&view=left`，吠叫改为 `clip=bark`；百只经营俯视加 `&count=100&mixed=1&view=farm`。日常池为idle35%、walk30%、sniff20%、bark15%，run只显式预览。
+犬入口 `?lab=livestock&animal=dog_rural_yellow`；闻地加 `&clip=sniff&phase=.5&paused=1&view=left`，吠叫改为 `clip=bark`；百只经营俯视加 `&count=100&mixed=1&view=farm`。日常池为idle35%、walk30%、sniff20%、bark15%，run和sleep只显式预览。
 
-黑色家猪本轮只改眼体：去掉亮色外圈，使用接近牛马的小型嵌入闭合眼睛。保留已修正的完整短腿、小无孔鼻盘、九骨五动作和日常池；当前三档216/138/82三角形、128/89/57逻辑点。猪入口 `?lab=livestock&animal=pig_domestic_black`，边界见[家猪](Documentation/家猪.md)。
+黑色家猪的眼体收敛版：去掉亮色外圈，使用接近牛马的小型嵌入闭合眼睛。保留已修正的完整短腿、小无孔鼻盘、九骨和日常池，动作追加sleep后为六个；当前三档216/138/82三角形、128/89/57逻辑点。猪入口 `?lab=livestock&animal=pig_domestic_black`，边界见[家猪](Documentation/家猪.md)。
 
 `check:livestock`与桌面入口保留鸡鸭鹅猪完整回归并追加犬；显式 `review:livestock`生成真实WebGL关键图。自动检查、AI看图与用户美术认可分别记录，不把有限采样写成连续时间零穿插。
 

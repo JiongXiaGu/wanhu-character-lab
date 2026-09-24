@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { InstancedMesh, Matrix4, Vector3 } from 'three';
+import { InstancedMesh, Matrix4, Quaternion, Ray, Vector3 } from 'three';
 import { LIVESTOCK } from '../src/livestock/catalog';
 import { createAnimalActor } from '../src/livestock/actor';
 import { createPoseCache, POSE_FPS } from '../src/livestock/pose-cache';
@@ -13,6 +13,8 @@ const specs = [
   { id: 'chicken_brown', bones: 8, drop: .118, headDrop: .12, headReach: .30 },
   { id: 'duck_domestic_brown', bones: 8, drop: .087, headDrop: .10, headReach: .32 },
   { id: 'goose_domestic_white', bones: 7, drop: .115, headDrop: .30, headReach: .40 },
+  { id: 'pig_domestic_black', bones: 9, drop: .118, headDrop: .12, headReach: .64 },
+  { id: 'dog_rural_yellow', bones: 9, drop: .284, headDrop: .40, headReach: .60 },
 ] as const;
 const readPoints = (actor: AnimalActor) => {
   actor.mesh.updateMatrixWorld(true); actor.skeleton.update();
@@ -20,6 +22,50 @@ const readPoints = (actor: AnimalActor) => {
   return Array.from({ length: source.count }, (_, i) => actor.mesh.applyBoneTransform(i, new Vector3().fromBufferAttribute(source, i)));
 };
 const mean = (points: Vector3[], indices: number[]) => indices.reduce((sum, i) => sum.add(points[i]), new Vector3()).divideScalar(indices.length);
+/** 直接检查当前渲染三角形；硬边展开后按同一壳的实际位置焊接，不以预算或名字代替拓扑。 */
+function closedSleepMesh(actor: AnimalActor, points: Vector3[], bind: Vector3[]) {
+  const data = actor.data, skin = actor.geometry.getAttribute('skinIndex'), weight = actor.geometry.getAttribute('skinWeight');
+  const start = actor.geometry.drawRange.start, end = Math.min(points.length, start + actor.geometry.drawRange.count);
+  const rotations = actor.bones.map(b => b.getWorldQuaternion(new Quaternion()));
+  data.indices.forEach((id, i) => {
+    assert.equal(skin.getX(i), data.bones[id], '睡眠实际逐点骨骼绑定不变');
+    assert.equal(weight.getX(i), 1); assert.equal(weight.getY(i) + weight.getZ(i) + weight.getW(i), 0);
+  });
+  for (const part of data.parts) {
+    const edges = new Map<string, number>(), directions = new Map<string, number>(); let volume = 0;
+    for (let i = start; i + 2 < end; i += 3) {
+      if (data.indices[i] < part.start || data.indices[i] >= part.start + part.count) continue;
+      const [a, b, c] = points.slice(i, i + 3), normal = b.clone().sub(a).cross(c.clone().sub(a));
+      const original = bind[i + 1].clone().sub(bind[i]).cross(bind[i + 2].clone().sub(bind[i]));
+      assert(normal.length() > 1e-8 && normal.length() / original.length() > .20, '睡眠面不能退化或严重塌缩');
+      const guide = [0, 1, 2].reduce((sum, j) => sum.add(original.clone().applyQuaternion(rotations[data.bones[data.indices[i + j]]])), new Vector3());
+      assert(normal.dot(guide) > 0, '睡眠三角形相对骨骼旋转发生翻面');
+      volume += a.dot(b.clone().cross(c)) / 6;
+      const keys = [a, b, c].map(p => p.toArray().map(n => n.toFixed(7)).join('/'));
+      for (let j = 0; j < 3; j++) {
+        const a = keys[j], b = keys[(j + 1) % 3], key = a < b ? `${a}|${b}` : `${b}|${a}`;
+        edges.set(key, (edges.get(key) ?? 0) + 1); directions.set(key, (directions.get(key) ?? 0) + (a < b ? 1 : -1));
+      }
+    }
+    assert(edges.size > 0 && [...edges.values()].every(n => n === 2), `${part.name}睡眠实际网格开放边`);
+    assert([...directions.values()].every(n => n === 0) && volume > 1e-10, `${part.name}睡眠网格绕序错误`);
+  }
+  // 直接射线测试变形后的主壳，四腿整圈根点与尾根仍在内部。
+  const logical: Vector3[] = []; data.indices.forEach((id, i) => { logical[id] = points[i]; });
+  const bodyFaces = Array.from({ length: data.indices.length / 3 }, (_, i) => data.indices.slice(i * 3, i * 3 + 3)).filter(ids => ids[0] < data.parts[0].count);
+  const inside = (point: Vector3) => {
+    const ray = new Ray(point, new Vector3(.923, .181, .339).normalize()), hit = new Vector3(); let hits = 0;
+    for (const ids of bodyFaces) if (ray.intersectTriangle(logical[ids[0]], logical[ids[1]], logical[ids[2]], false, hit) && hit.distanceTo(point) > 1e-8) hits++;
+    return hits % 2 === 1;
+  };
+  for (const part of data.parts.slice(1)) {
+    if (part.name === 'Tail') assert(inside(logical[part.count === 4 ? part.start : part.start + part.count - 2]), '睡眠尾根离体');
+    if (part.name.includes('Leg')) {
+      const ids = Array.from({ length: part.count }, (_, i) => part.start + i), top = Math.max(...ids.map(i => data.positions[i][1]));
+      for (const id of ids.filter(i => Math.abs(data.positions[i][1] - top) < 1e-8)) assert(inside(logical[id]), '睡眠腿根离体');
+    }
+  }
+}
 const reports: object[] = [];
 let totalPoses = 0, totalFaults = 0;
 for (const spec of specs) {
@@ -36,7 +82,8 @@ for (const spec of specs) {
     const actor = createAnimalActor(definition, lod.id), data = actor.data;
     assert.equal(actor.bones.length, spec.bones);
     const index = (name: string) => definition.joints.findIndex(j => j.name === name);
-    const body = index('Body'), head = index('Head'), root = index('Root'), legs = [index('LegL'), index('LegR')];
+    const body = index('Body'), head = index('Head'), root = index('Root');
+    const legs = (spec.bones === 9 ? ['FrontLegL', 'FrontLegR', 'RearLegL', 'RearLegR'] : ['LegL', 'LegR']).map(index);
     const headIds = data.indices.map((id, i) => data.bones[id] === head ? i : -1).filter(i => i >= 0);
     const soles = legs.map(b => data.indices.map((id, i) => data.bones[id] === b && data.positions[id][1] < .01 ? i : -1).filter(i => i >= 0));
     assert(soles.every(ids => ids.length > 0));
@@ -66,6 +113,7 @@ for (const spec of specs) {
         const area = points[i + 1].clone().sub(points[i]).cross(points[i + 2].clone().sub(points[i])).length();
         assert(area > 1e-8, '睡姿不能压成退化面');
       }
+      if (spec.bones === 9) closedSleepMesh(actor, points, bindPoints);
       return points;
     };
     actor.sample('sleep', 0); const first = validateRest(), firstFeet = soles.flat().map(i => first[i].clone());
@@ -119,12 +167,30 @@ for (const spec of specs) {
     actor.bind(); actor.skeleton.boneInverses[head].premultiply(new Matrix4().makeTranslation(.3, 0, 0));
     assert.throws(() => readPoints(actor).forEach((p, i) => assert(p.distanceTo(new Vector3(...data.positions[data.indices[i]])) < 1e-6, '错误inverse bind改变实际蒙皮'))); faults++;
     actor.skeleton.boneInverses[head].copy(inverse);
+    const faultKinds = ['standing-substitute', 'floating-body', 'body-underground', 'leg-underground', 'head-detached', 'root-drift', 'bone-scale', 'leg-misbound', 'inverse-bind'];
+    if (spec.bones === 9) {
+      reject(() => { actor.bones[head].position.y = NaN; }); faultKinds.push('non-finite-sleep-pose');
+      reject(() => { data.indices.forEach((id, i) => { if (data.bones[id] === head) skin.setX(i, body); }); });
+      saved.forEach((v, i) => { skin.array[i] = v; }); faultKinds.push('head-misbound');
+      reject(() => { actor.bones[index('Tail')].position.x += .8; }); faultKinds.push('tail-detached');
+      const position = actor.geometry.getAttribute('position'), original = Array.from(position.array);
+      const restorePosition = () => original.forEach((v, i) => { position.array[i] = v; });
+      // 修改真正送往WebGL的非索引顶点和drawRange；不是只修改作者预算或动作名称。
+      reject(() => { const b = new Vector3().fromBufferAttribute(position, 1), c = new Vector3().fromBufferAttribute(position, 2); position.setXYZ(1, c.x, c.y, c.z); position.setXYZ(2, b.x, b.y, b.z); });
+      restorePosition(); faultKinds.push('inverted-render-triangle');
+      reject(() => { position.setXYZ(1, position.getX(0), position.getY(0), position.getZ(0)); });
+      restorePosition(); faultKinds.push('degenerate-render-triangle');
+      reject(() => { actor.geometry.setDrawRange(3, position.count - 3); });
+      actor.geometry.setDrawRange(0, Infinity); faultKinds.push('open-render-edge');
+      actor.sample('sleep', .5); validateRest(); // 故障恢复后必须重新通过，防止相邻反例污染。
+    }
+    assert.equal(faults, faultKinds.length);
     totalFaults += faults;
-    reports.push({ animal: definition.id, lod: lod.id, bones: spec.bones, triangles: lod.triangles, logicalVertices: lod.logicalVertices, poses: 241, cacheFrames: frames + 1, minY, maxBreath, faults });
+    reports.push({ animal: definition.id, lod: lod.id, bones: spec.bones, triangles: lod.triangles, logicalVertices: lod.logicalVertices, poses: 241, cacheFrames: frames + 1, minY, maxBreath, faults, faultKinds });
     actor.dispose(); actor.dispose();
   }
 }
-for (const id of ['pig_domestic_black', 'dog_rural_yellow']) assert(!LIVESTOCK.find(d => d.id === id)!.motions.some(m => m.id === 'sleep'), '本轮只修改家禽');
+assert.equal(totalPoses, 5 * 3 * 241, '五种家畜全部三档睡眠矩阵');
 const dir = process.env.LIVESTOCK_CHECK_DIR ?? '/tmp/wanhu-livestock-checks'; mkdirSync(dir, { recursive: true });
 const report = { result: 'passed', sourceSHA: process.env.REVIEW_HEAD_SHA ?? 'local', totalPoses, totalFaults, reports };
-writeFileSync(`${dir}/poultry-sleep-numeric.json`, JSON.stringify(report, null, 2)); console.log(JSON.stringify(report, null, 2));
+writeFileSync(`${dir}/livestock-sleep-numeric.json`, JSON.stringify(report, null, 2)); console.log(JSON.stringify(report, null, 2));
