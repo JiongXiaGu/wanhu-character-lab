@@ -115,7 +115,7 @@ jobs:
   livestock:
     name: Livestock mesh, motion and desktop checks
     runs-on: ubuntu-latest
-    # 五种家畜完整浏览器矩阵加睡眠专项，保留500只、多LOD与证据上传余量。
+    # 六种家畜完整浏览器矩阵加睡眠专项，保留500只、多LOD与证据上传余量。
     timeout-minutes: 25
     env:
       REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -142,7 +142,7 @@ jobs:
             if [[ "$EVENT_NAME" == pull_request ]]; then BASE="$PR_BASE_SHA"; else BASE="$PUSH_BEFORE_SHA"; fi
             if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then BASE="$(git rev-parse HEAD^)"; fi
             while IFS= read -r path; do
-              case "$path" in src/livestock/*|src/chicken/*|src/duck/*|src/goose/*|src/pig/*|src/dog/*|src/ui/AnimalModeSwitcher*|src/ui/animal-mode-switcher*|src/ui/WorkspaceSwitcher*|src/horse/horse.css|src/main.tsx|src/styles.css|src/animation/clip-clock.ts|scripts/check-livestock*|package.json|package-lock.json|.github/workflows/*) required=true ;; esac
+              case "$path" in src/livestock/*|src/chicken/*|src/duck/*|src/goose/*|src/pig/*|src/dog/*|src/cat/*|src/ui/AnimalModeSwitcher*|src/ui/animal-mode-switcher*|src/ui/WorkspaceSwitcher*|src/horse/horse.css|src/main.tsx|src/styles.css|src/animation/clip-clock.ts|scripts/check-livestock*|package.json|package-lock.json|.github/workflows/*) required=true ;; esac
             done < <(git -c core.quotepath=false diff --name-only "$BASE" HEAD)
           fi
           echo "required=$required" >> "$GITHUB_OUTPUT"
@@ -153,7 +153,7 @@ jobs:
           cache: npm
       - run: npm ci
         if: steps.scope.outputs.required == 'true'
-      - name: Chicken, duck, goose, pig and dog topology, actual skinning and crowd checks
+      - name: Chicken, duck, goose, pig, dog and cat topology, actual skinning and crowd checks
         if: steps.scope.outputs.required == 'true'
         run: npm run check:livestock
       - name: Prepare imports and check TypeScript
