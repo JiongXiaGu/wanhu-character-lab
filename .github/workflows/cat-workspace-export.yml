@@ -1,0 +1,32 @@
+name: Temporary cat validation workspace
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  export:
+    if: github.head_ref == 'feat/l7-rural-cat'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Package source and locked dependencies for offline local validation
+        run: |
+          git rev-parse HEAD > /tmp/workspace-head.txt
+          tar --exclude='./.git' -czf /tmp/cat-validation-workspace.tgz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cat-validation-workspace
+          path: |
+            /tmp/cat-validation-workspace.tgz
+            /tmp/workspace-head.txt
+          retention-days: 1
