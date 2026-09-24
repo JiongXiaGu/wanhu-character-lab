@@ -1,0 +1,43 @@
+{
+  "result": "passed",
+  "sourceSHA": "96bb65e09a7522b9b822824bd6599c2d30f41ceb",
+  "species": "duck_domestic_brown",
+  "bones": 8,
+  "reports": [
+    {
+      "lod": "lod0",
+      "triangles": 118,
+      "logicalVertices": 69,
+      "poses": 1928,
+      "minFoot": 0.005783448742176456,
+      "landBill": 0.027147761146603944,
+      "waterBill": 0.07459289677560157,
+      "minRatio": 0.3578428234888422,
+      "faultInjections": 2
+    },
+    {
+      "lod": "lod1",
+      "triangles": 60,
+      "logicalVertices": 36,
+      "poses": 1928,
+      "minFoot": 0.005783448742176456,
+      "landBill": 0.02659351818945721,
+      "waterBill": 0.07379421605220965,
+      "minRatio": 0.1030078068548537,
+      "faultInjections": 2
+    },
+    {
+      "lod": "lod2",
+      "triangles": 36,
+      "logicalVertices": 24,
+      "poses": 1928,
+      "minFoot": 0.005783448742176456,
+      "landBill": 0.028533364410047335,
+      "waterBill": 0.07658959263345835,
+      "minRatio": 0.23174305859888897,
+      "faultInjections": 2
+    }
+  ],
+  "totalPoses": 5784,
+  "cachedPoses": 1179
+}

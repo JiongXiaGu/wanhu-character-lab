@@ -1,0 +1,56 @@
+{
+  "result": "passed",
+  "sourceSHA": "96bb65e09a7522b9b822824bd6599c2d30f41ceb",
+  "animal": "cat_rural_orange",
+  "bones": 9,
+  "totalPoses": 4338,
+  "totalFaultInjections": 45,
+  "counts": [
+    1,
+    10,
+    50,
+    100,
+    500
+  ],
+  "reports": [
+    {
+      "lod": "lod0",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "closedShells": 10,
+      "poses": 1446,
+      "faults": 15,
+      "minGround": 0.005756527048134286,
+      "minSniffNose": 0.10397946823146545,
+      "maxRadius": 0.461374578469014,
+      "minSpacing": 1.687296400910993,
+      "cachedPoses": 398
+    },
+    {
+      "lod": "lod1",
+      "triangles": 146,
+      "logicalVertices": 93,
+      "closedShells": 10,
+      "poses": 1446,
+      "faults": 15,
+      "minGround": 0.005756527048134286,
+      "minSniffNose": 0.10824393450897779,
+      "maxRadius": 0.46012227068092726,
+      "minSpacing": 1.687296400910993,
+      "cachedPoses": 398
+    },
+    {
+      "lod": "lod2",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "closedShells": 8,
+      "poses": 1446,
+      "faults": 15,
+      "minGround": 0.005756527048134286,
+      "minSniffNose": 0.10824393450897779,
+      "maxRadius": 0.4463711115630612,
+      "minSpacing": 1.687296400910993,
+      "cachedPoses": 398
+    }
+  ]
+}

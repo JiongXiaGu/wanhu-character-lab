@@ -1,0 +1,1 @@
+Cat desktop checks passed: 18 action/LOD cases, 10 daily/sleep crowd cases through 500, loop/end/seek/step, species and workspace lifecycle.

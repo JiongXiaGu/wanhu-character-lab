@@ -1,0 +1,796 @@
+
+> wanhu-character-lab@0.3.0 check:livestock
+> tsx scripts/check-livestock.ts
+
+{
+  "result": "passed",
+  "sourceSHA": "96bb65e09a7522b9b822824bd6599c2d30f41ceb",
+  "animal": "cat_rural_orange",
+  "bones": 9,
+  "totalPoses": 4338,
+  "totalFaultInjections": 45,
+  "counts": [
+    1,
+    10,
+    50,
+    100,
+    500
+  ],
+  "reports": [
+    {
+      "lod": "lod0",
+      "triangles": 262,
+      "logicalVertices": 151,
+      "closedShells": 10,
+      "poses": 1446,
+      "faults": 15,
+      "minGround": 0.005756527048134286,
+      "minSniffNose": 0.10397946823146545,
+      "maxRadius": 0.461374578469014,
+      "minSpacing": 1.687296400910993,
+      "cachedPoses": 398
+    },
+    {
+      "lod": "lod1",
+      "triangles": 146,
+      "logicalVertices": 93,
+      "closedShells": 10,
+      "poses": 1446,
+      "faults": 15,
+      "minGround": 0.005756527048134286,
+      "minSniffNose": 0.10824393450897779,
+      "maxRadius": 0.46012227068092726,
+      "minSpacing": 1.687296400910993,
+      "cachedPoses": 398
+    },
+    {
+      "lod": "lod2",
+      "triangles": 86,
+      "logicalVertices": 59,
+      "closedShells": 8,
+      "poses": 1446,
+      "faults": 15,
+      "minGround": 0.005756527048134286,
+      "minSniffNose": 0.10824393450897779,
+      "maxRadius": 0.4463711115630612,
+      "minSpacing": 1.687296400910993,
+      "cachedPoses": 398
+    }
+  ]
+}
+{
+  "result": "passed",
+  "sourceSHA": "96bb65e09a7522b9b822824bd6599c2d30f41ceb",
+  "totalPoses": 4338,
+  "totalFaults": 216,
+  "reports": [
+    {
+      "animal": "chicken_brown",
+      "lod": "lod0",
+      "bones": 8,
+      "triangles": 132,
+      "logicalVertices": 92,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.004999999417156311,
+      "maxBreath": 0.0024837674775159083,
+      "faults": 9,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind"
+      ]
+    },
+    {
+      "animal": "chicken_brown",
+      "lod": "lod1",
+      "bones": 8,
+      "triangles": 72,
+      "logicalVertices": 46,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.007758343715795219,
+      "maxBreath": 0.0025919849334574635,
+      "faults": 9,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind"
+      ]
+    },
+    {
+      "animal": "chicken_brown",
+      "lod": "lod2",
+      "bones": 8,
+      "triangles": 36,
+      "logicalVertices": 26,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.007758343715795219,
+      "maxBreath": 0.002483764014120081,
+      "faults": 9,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind"
+      ]
+    },
+    {
+      "animal": "duck_domestic_brown",
+      "lod": "lod0",
+      "bones": 8,
+      "triangles": 118,
+      "logicalVertices": 69,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.006000007015646524,
+      "maxBreath": 0.0025466431761055506,
+      "faults": 9,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind"
+      ]
+    },
+    {
+      "animal": "duck_domestic_brown",
+      "lod": "lod1",
+      "bones": 8,
+      "triangles": 60,
+      "logicalVertices": 36,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.006000007015646524,
+      "maxBreath": 0.002523159990542754,
+      "faults": 9,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind"
+      ]
+    },
+    {
+      "animal": "duck_domestic_brown",
+      "lod": "lod2",
+      "bones": 8,
+      "triangles": 36,
+      "logicalVertices": 24,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.006000007015646524,
+      "maxBreath": 0.002239427485040827,
+      "faults": 9,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind"
+      ]
+    },
+    {
+      "animal": "goose_domestic_white",
+      "lod": "lod0",
+      "bones": 7,
+      "triangles": 154,
+      "logicalVertices": 87,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.006000007293427506,
+      "maxBreath": 0.004568177007059885,
+      "faults": 9,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind"
+      ]
+    },
+    {
+      "animal": "goose_domestic_white",
+      "lod": "lod1",
+      "bones": 7,
+      "triangles": 82,
+      "logicalVertices": 47,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.006000007293427506,
+      "maxBreath": 0.004568176357138712,
+      "faults": 9,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind"
+      ]
+    },
+    {
+      "animal": "goose_domestic_white",
+      "lod": "lod2",
+      "bones": 7,
+      "triangles": 44,
+      "logicalVertices": 28,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.006000007293427506,
+      "maxBreath": 0.004568176357138859,
+      "faults": 9,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind"
+      ]
+    },
+    {
+      "animal": "pig_domestic_black",
+      "lod": "lod0",
+      "bones": 9,
+      "triangles": 216,
+      "logicalVertices": 128,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.005999983447129431,
+      "maxBreath": 0.0020000040531158447,
+      "faults": 15,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind",
+        "non-finite-sleep-pose",
+        "head-misbound",
+        "tail-detached",
+        "inverted-render-triangle",
+        "degenerate-render-triangle",
+        "open-render-edge"
+      ]
+    },
+    {
+      "animal": "pig_domestic_black",
+      "lod": "lod1",
+      "bones": 9,
+      "triangles": 138,
+      "logicalVertices": 89,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.003999995291233072,
+      "maxBreath": 0.0020000040531158447,
+      "faults": 15,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind",
+        "non-finite-sleep-pose",
+        "head-misbound",
+        "tail-detached",
+        "inverted-render-triangle",
+        "degenerate-render-triangle",
+        "open-render-edge"
+      ]
+    },
+    {
+      "animal": "pig_domestic_black",
+      "lod": "lod2",
+      "bones": 9,
+      "triangles": 82,
+      "logicalVertices": 57,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.003999995291233072,
+      "maxBreath": 0.0020000040531158447,
+      "faults": 15,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind",
+        "non-finite-sleep-pose",
+        "head-misbound",
+        "tail-detached",
+        "inverted-render-triangle",
+        "degenerate-render-triangle",
+        "open-render-edge"
+      ]
+    },
+    {
+      "animal": "dog_rural_yellow",
+      "lod": "lod0",
+      "bones": 9,
+      "triangles": 274,
+      "logicalVertices": 157,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.005999998688697827,
+      "maxBreath": 0.0023999959230422974,
+      "faults": 15,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind",
+        "non-finite-sleep-pose",
+        "head-misbound",
+        "tail-detached",
+        "inverted-render-triangle",
+        "degenerate-render-triangle",
+        "open-render-edge"
+      ]
+    },
+    {
+      "animal": "dog_rural_yellow",
+      "lod": "lod1",
+      "bones": 9,
+      "triangles": 142,
+      "logicalVertices": 91,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.005999998688697827,
+      "maxBreath": 0.0023999959230422974,
+      "faults": 15,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind",
+        "non-finite-sleep-pose",
+        "head-misbound",
+        "tail-detached",
+        "inverted-render-triangle",
+        "degenerate-render-triangle",
+        "open-render-edge"
+      ]
+    },
+    {
+      "animal": "dog_rural_yellow",
+      "lod": "lod2",
+      "bones": 9,
+      "triangles": 78,
+      "logicalVertices": 55,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.005999998688697827,
+      "maxBreath": 0.0023999959230422974,
+      "faults": 15,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind",
+        "non-finite-sleep-pose",
+        "head-misbound",
+        "tail-detached",
+        "inverted-render-triangle",
+        "degenerate-render-triangle",
+        "open-render-edge"
+      ]
+    },
+    {
+      "animal": "cat_rural_orange",
+      "lod": "lod0",
+      "bones": 9,
+      "triangles": 262,
+      "logicalVertices": 151,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.006000004893249616,
+      "maxBreath": 0.0015999972820281982,
+      "faults": 15,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind",
+        "non-finite-sleep-pose",
+        "head-misbound",
+        "tail-detached",
+        "inverted-render-triangle",
+        "degenerate-render-triangle",
+        "open-render-edge"
+      ]
+    },
+    {
+      "animal": "cat_rural_orange",
+      "lod": "lod1",
+      "bones": 9,
+      "triangles": 146,
+      "logicalVertices": 93,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.006000004893249616,
+      "maxBreath": 0.0015999972820281982,
+      "faults": 15,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind",
+        "non-finite-sleep-pose",
+        "head-misbound",
+        "tail-detached",
+        "inverted-render-triangle",
+        "degenerate-render-triangle",
+        "open-render-edge"
+      ]
+    },
+    {
+      "animal": "cat_rural_orange",
+      "lod": "lod2",
+      "bones": 9,
+      "triangles": 86,
+      "logicalVertices": 59,
+      "poses": 241,
+      "cacheFrames": 73,
+      "minY": 0.006000004893249616,
+      "maxBreath": 0.0015999972820281982,
+      "faults": 15,
+      "faultKinds": [
+        "standing-substitute",
+        "floating-body",
+        "body-underground",
+        "leg-underground",
+        "head-detached",
+        "root-drift",
+        "bone-scale",
+        "leg-misbound",
+        "inverse-bind",
+        "non-finite-sleep-pose",
+        "head-misbound",
+        "tail-detached",
+        "inverted-render-triangle",
+        "degenerate-render-triangle",
+        "open-render-edge"
+      ]
+    }
+  ]
+}
+{
+  "result": "passed",
+  "sourceSHA": "96bb65e09a7522b9b822824bd6599c2d30f41ceb",
+  "animal": "dog_rural_yellow",
+  "bones": 9,
+  "weights": 1,
+  "totalPoses": 4338,
+  "totalFaultInjections": 55,
+  "reports": [
+    {
+      "lod": "lod0",
+      "triangles": 274,
+      "logicalVertices": 157,
+      "closedShells": 10,
+      "poses": 1446,
+      "minGround": 0.005999998688697827,
+      "minSniffNose": 0.09869342976921824,
+      "maxBarkNose": 0.6939032883846661,
+      "minBodyAreaRatio": 0.21171174665570133,
+      "maxHorizontalRadius": 0.6628471374986722,
+      "minimumSpacing": 2.1370964077956227,
+      "cachedPoses": 350,
+      "faultInjections": 19
+    },
+    {
+      "lod": "lod1",
+      "triangles": 142,
+      "logicalVertices": 91,
+      "closedShells": 10,
+      "poses": 1446,
+      "minGround": 0.005999998688697827,
+      "minSniffNose": 0.09869342976921824,
+      "maxBarkNose": 0.6939032883846661,
+      "minBodyAreaRatio": 0.24688567918221763,
+      "maxHorizontalRadius": 0.6628471374986722,
+      "minimumSpacing": 2.1370964077956227,
+      "cachedPoses": 350,
+      "faultInjections": 19
+    },
+    {
+      "lod": "lod2",
+      "triangles": 78,
+      "logicalVertices": 55,
+      "closedShells": 8,
+      "poses": 1446,
+      "minGround": 0.005999998688697827,
+      "minSniffNose": 0.10170502150754568,
+      "maxBarkNose": 0.6939032883846661,
+      "minBodyAreaRatio": 0.40162067356733944,
+      "maxHorizontalRadius": 0.6554657318297176,
+      "minimumSpacing": 2.1370964077956227,
+      "cachedPoses": 350,
+      "faultInjections": 17
+    }
+  ]
+}
+{
+  "result": "passed",
+  "sourceSHA": "96bb65e09a7522b9b822824bd6599c2d30f41ceb",
+  "animal": "pig_domestic_black",
+  "bones": 9,
+  "weights": 1,
+  "totalPoses": 4338,
+  "totalFaultInjections": 53,
+  "reports": [
+    {
+      "lod": "lod0",
+      "triangles": 216,
+      "logicalVertices": 128,
+      "closedShells": 10,
+      "poses": 1446,
+      "minGround": 0.00581077315709605,
+      "minRootNose": 0.019634523186558228,
+      "minBodyAreaRatio": 0.3780008996546504,
+      "maxHorizontalRadius": 0.6380661809240397,
+      "minimumSpacing": 2.387017876029173,
+      "cachedPoses": 434,
+      "faultInjections": 19
+    },
+    {
+      "lod": "lod1",
+      "triangles": 138,
+      "logicalVertices": 89,
+      "closedShells": 10,
+      "poses": 1446,
+      "minGround": 0.003999995291233072,
+      "minRootNose": 0.019634523186558228,
+      "minBodyAreaRatio": 0.51886072858784,
+      "maxHorizontalRadius": 0.636547060037288,
+      "minimumSpacing": 2.387017876029173,
+      "cachedPoses": 434,
+      "faultInjections": 19
+    },
+    {
+      "lod": "lod2",
+      "triangles": 82,
+      "logicalVertices": 57,
+      "closedShells": 8,
+      "poses": 1446,
+      "minGround": 0.003999995291233072,
+      "minRootNose": 0.019634523186558228,
+      "minBodyAreaRatio": 0.5708376986960356,
+      "maxHorizontalRadius": 0.636547060037288,
+      "minimumSpacing": 2.387017876029173,
+      "cachedPoses": 434,
+      "faultInjections": 15
+    }
+  ]
+}
+{
+  "result": "passed",
+  "sourceSHA": "96bb65e09a7522b9b822824bd6599c2d30f41ceb",
+  "animal": "goose_domestic_white",
+  "bones": 7,
+  "weights": 1,
+  "totalPoses": 6507,
+  "reports": [
+    {
+      "lod": "lod0",
+      "triangles": 154,
+      "logicalVertices": 87,
+      "poses": 2169,
+      "minFoot": 0.00574967569147038,
+      "minGraze": 0.00789794750403075,
+      "minWaterFeed": 0.1876540719769738,
+      "minNeckRatio": 0.2016325493925644,
+      "maxWaterFoot": 0.21298419329922003,
+      "cachedPoses": 497,
+      "faultInjections": 4
+    },
+    {
+      "lod": "lod1",
+      "triangles": 82,
+      "logicalVertices": 47,
+      "poses": 2169,
+      "minFoot": 0.00574967569147038,
+      "minGraze": 0.009837801477265873,
+      "minWaterFeed": 0.19169734989128173,
+      "minNeckRatio": 0.37841999256784103,
+      "maxWaterFoot": 0.21298419329922003,
+      "cachedPoses": 497,
+      "faultInjections": 4
+    },
+    {
+      "lod": "lod2",
+      "triangles": 44,
+      "logicalVertices": 28,
+      "poses": 2169,
+      "minFoot": 0.00574967569147038,
+      "minGraze": 0.009837801477265873,
+      "minWaterFeed": 0.19169734989128173,
+      "minNeckRatio": 0.2745378512223648,
+      "maxWaterFoot": 0.21298419329922003,
+      "cachedPoses": 497,
+      "faultInjections": 4
+    }
+  ]
+}
+{
+  "result": "passed",
+  "sourceSHA": "96bb65e09a7522b9b822824bd6599c2d30f41ceb",
+  "species": "duck_domestic_brown",
+  "bones": 8,
+  "reports": [
+    {
+      "lod": "lod0",
+      "triangles": 118,
+      "logicalVertices": 69,
+      "poses": 1928,
+      "minFoot": 0.005783448742176456,
+      "landBill": 0.027147761146603944,
+      "waterBill": 0.07459289677560157,
+      "minRatio": 0.3578428234888422,
+      "faultInjections": 2
+    },
+    {
+      "lod": "lod1",
+      "triangles": 60,
+      "logicalVertices": 36,
+      "poses": 1928,
+      "minFoot": 0.005783448742176456,
+      "landBill": 0.02659351818945721,
+      "waterBill": 0.07379421605220965,
+      "minRatio": 0.1030078068548537,
+      "faultInjections": 2
+    },
+    {
+      "lod": "lod2",
+      "triangles": 36,
+      "logicalVertices": 24,
+      "poses": 1928,
+      "minFoot": 0.005783448742176456,
+      "landBill": 0.028533364410047335,
+      "waterBill": 0.07658959263345835,
+      "minRatio": 0.23174305859888897,
+      "faultInjections": 2
+    }
+  ],
+  "totalPoses": 5784,
+  "cachedPoses": 1179
+}
+{
+  "result": "passed",
+  "sourceSHA": "96bb65e09a7522b9b822824bd6599c2d30f41ceb",
+  "reports": [
+    {
+      "lod": "lod1",
+      "triangles": 72,
+      "logicalVertices": 46,
+      "mainTriangles": 48,
+      "poses": 1205,
+      "minFoot": 0.004080307459009593,
+      "minBeak": 0.012099051840248232,
+      "minAreaRatio": 0.27516936187637275,
+      "faultInjections": 3
+    },
+    {
+      "lod": "lod2",
+      "triangles": 36,
+      "logicalVertices": 26,
+      "mainTriangles": 24,
+      "poses": 1205,
+      "minFoot": 0.004080307459009593,
+      "minBeak": 0.012099051840248232,
+      "minAreaRatio": 0.34493613714572413,
+      "faultInjections": 3
+    }
+  ]
+}
+{
+  "sha": "96bb65e09a7522b9b822824bd6599c2d30f41ceb",
+  "lods": {
+    "lod0": {
+      "triangles": 132,
+      "logicalVertices": 92
+    },
+    "lod1": {
+      "triangles": 72,
+      "logicalVertices": 46
+    },
+    "lod2": {
+      "triangles": 36,
+      "logicalVertices": 26
+    }
+  },
+  "bones": 8,
+  "weights": 1,
+  "poses": 1205,
+  "minFoot": 0.003774894089631862,
+  "minBeak": 0.012099051840248232,
+  "cachedPoses": 666,
+  "counts": [
+    1,
+    10,
+    50,
+    100,
+    500
+  ],
+  "result": "passed"
+}
