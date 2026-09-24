@@ -142,7 +142,7 @@ function inverseBind(actor:ReturnType<typeof createAnimalActor>) {
 assert.equal(livestockDefinition(definition.id),definition);
 assert.deepEqual(DOG_JOINTS.map(j=>j.name),['Root','Body','Neck','Head','Tail','FrontLegL','FrontLegR','RearLegL','RearLegR']);
 assert.deepEqual(DOG_JOINTS.map(j=>j.parent),[-1,0,1,2,1,0,0,0,0]);
-assert.deepEqual(definition.motions.map(m=>m.id),['idle','walk','run','sniff','bark']);
+assert.deepEqual(definition.motions.map(m=>m.id),['idle','walk','run','sniff','bark','sleep']);
 assert.deepEqual(definition.habitats.map(h=>h.id),['land']);
 assert.deepEqual(definition.habitats[0].mixed.map(m=>[m.motion,m.weight]),[['idle',.35],['walk',.30],['sniff',.20],['bark',.15]]);
 assert.equal(resolveHabitat(definition,'water','swim').motion,'idle');
@@ -210,7 +210,7 @@ for(const lod of definition.lods) {
       crowd.update(.37,{motion:motion.id,surface:'land',mixed,loop:true},lod.id);
       assert.equal(crowd.group.children.reduce((sum,mesh)=>sum+(mesh as any).count,0),count);
       assert(crowd.batchCount>0&&crowd.batchCount<=(mixed?4:1)*PHASE_COHORTS);
-      if(mixed)assert(crowd.group.children.filter(m=>m.visible).every(m=>!m.name.includes('/run/')));
+      if(mixed)assert(crowd.group.children.filter(m=>m.visible).every(m=>!m.name.includes('/run/')&&!m.name.includes('/sleep/')));
     }
   }
   assert(minimumSpacing>2*(maxHorizontalRadius*1.06+.24),'种子格距不足以容纳任意朝向和混合移动');
@@ -245,6 +245,7 @@ for(const lod of definition.lods) {
   skinIndices.setX(data.indices.findIndex(id=>data.bones[id]===B.Tail),B.Head);
   fails(()=>{for(let i=0;i<skinIndices.count;i++)assert.equal(skinIndices.getX(i),data.bones[data.indices[i]]);});
   actor.dispose();actor.dispose();
+  assert.equal(poses,6*241,'每档六动作完整241相位');
   reports.push({lod:lod.id,triangles:lod.triangles,logicalVertices:lod.logicalVertices,closedShells:data.parts.length,poses,minGround,minSniffNose,maxBarkNose,minBodyAreaRatio,maxHorizontalRadius,minimumSpacing,cachedPoses,faultInjections:faults});
 }
 // 缺省格距必须与原物种逐点相同，不能把犬的配置反向套给家禽。
@@ -253,5 +254,5 @@ for(const id of ['chicken_brown','duck_domestic_brown','goose_domestic_white'])a
 for(const item of definition.habitats[0].mixed){const duration=definition.motions.find(m=>m.id===item.motion)!.duration;assert(Number.isInteger(definition.habitats[0].duration/duration));}
 assert.throws(()=>makePlacements(100,731,NaN));assert.throws(()=>makePlacements(100,731,0));
 const dir=process.env.LIVESTOCK_CHECK_DIR??'/tmp/wanhu-livestock-checks';mkdirSync(dir,{recursive:true});
-const report={result:'passed',sourceSHA:process.env.REVIEW_HEAD_SHA??'local',animal:definition.id,bones:9,weights:1,totalPoses:3*5*241,totalFaultInjections:reports.reduce((sum,r)=>sum+r.faultInjections,0),reports};
+const report={result:'passed',sourceSHA:process.env.REVIEW_HEAD_SHA??'local',animal:definition.id,bones:9,weights:1,totalPoses:reports.reduce((sum,row)=>sum+row.poses,0),totalFaultInjections:reports.reduce((sum,r)=>sum+r.faultInjections,0),reports};
 writeFileSync(`${dir}/dog-numeric.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));

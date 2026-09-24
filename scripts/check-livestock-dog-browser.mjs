@@ -48,7 +48,7 @@ export async function checkDogBrowser(page,base,dir,screenshots,setPhase) {
     await page.goto(`${base}/?lab=livestock&animal=${animal}&lod=${lod}&clip=idle&phase=.5&paused=1&view=three`,{waitUntil:'networkidle'});await ready();
     const initial=await snap();assert.equal(initial.bones,9);assert.equal(initial.triangles,triangles);assert.equal(initial.logicalVertices,logicalVertices);
     assert.equal(initial.surface,'land');assert.equal(initial.waterClipped,false);assert.equal(await page.getByTestId('livestock-environment').count(),0);
-    assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('.livestock-motions button').count(),5);
+    assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('.livestock-motions button').count(),6);
     if(lod==='lod0') {
       await shot('dog-three.png');
       if(screenshots) {
@@ -64,7 +64,7 @@ export async function checkDogBrowser(page,base,dir,screenshots,setPhase) {
       const clip={x:Math.round(box.x+(box.width-width)/2),y:Math.round(box.y+(box.height-height)/2),width,height};
       comparisons.push({lod,triangles,logicalVertices,camera:(await snap()).camera,clip,png:await page.screenshot({clip})});
     }
-    for(const motion of ['idle','walk','run','sniff','bark']) {
+    for(const motion of ['idle','walk','run','sniff','bark','sleep']) {
       await page.getByTestId(`livestock-motion-${motion}`).click();
       await page.waitForFunction(m=>{const s=window.__LIVESTOCK_REVIEW__.snapshot();return s.motion===m&&s.playing&&s.time>.02;},motion);
       await pause();await setPhase(.5);const s=await snap();
@@ -130,7 +130,7 @@ export async function checkDogBrowser(page,base,dir,screenshots,setPhase) {
     assert.equal(comparisons.length,3);for(const c of comparisons){assertSameReviewCamera(c.camera,comparisons[0].camera);assert.deepEqual(c.clip,comparisons[0].clip);}
     const context=await page.context().browser().newContext({viewport:{width:1940,height:750},deviceScaleFactor:1});
     try {
-      const sheet=await context.newPage();await sheet.setContent(`<!doctype html><html lang="zh"><meta charset="utf-8"><style>body{margin:0;padding:24px;background:#19292c;color:#e7e3d8;font-family:'Noto Sans CJK SC',sans-serif}h1{font-size:26px;font-weight:500;margin:0 0 10px}p{font-size:15px;color:#abbfb6}.row{display:flex;gap:12px}.card{flex:1;min-width:0;border:1px solid #53645c;border-radius:8px;overflow:hidden}.card header{padding:14px;background:#243639;color:#ddc49c}.card img{width:100%;display:block}</style><h1>中国田园犬 · 三档作者LOD</h1><p>同相机、同相位、同裁切尺度 · 真实WebGL截图 · 九骨共用五个陆地动作</p><div class="row">${comparisons.map(c=>`<div class="card"><header>${c.lod.toUpperCase()} · ${c.triangles} tris / ${c.logicalVertices} 逻辑点</header><img src="data:image/png;base64,${c.png.toString('base64')}"></div>`).join('')}</div></html>`);
+      const sheet=await context.newPage();await sheet.setContent(`<!doctype html><html lang="zh"><meta charset="utf-8"><style>body{margin:0;padding:24px;background:#19292c;color:#e7e3d8;font-family:'Noto Sans CJK SC',sans-serif}h1{font-size:26px;font-weight:500;margin:0 0 10px}p{font-size:15px;color:#abbfb6}.row{display:flex;gap:12px}.card{flex:1;min-width:0;border:1px solid #53645c;border-radius:8px;overflow:hidden}.card header{padding:14px;background:#243639;color:#ddc49c}.card img{width:100%;display:block}</style><h1>中国田园犬 · 三档作者LOD</h1><p>同相机、同相位、同裁切尺度 · 真实WebGL截图 · 九骨共用六个陆地动作</p><div class="row">${comparisons.map(c=>`<div class="card"><header>${c.lod.toUpperCase()} · ${c.triangles} tris / ${c.logicalVertices} 逻辑点</header><img src="data:image/png;base64,${c.png.toString('base64')}"></div>`).join('')}</div></html>`);
       await sheet.waitForFunction(()=>[...document.images].every(i=>i.complete&&i.naturalWidth>0));await sheet.screenshot({path:'review/livestock/dog-lod-comparison.png',fullPage:true});
     } finally {await context.close();}
   }

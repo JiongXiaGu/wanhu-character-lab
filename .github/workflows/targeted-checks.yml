@@ -111,8 +111,8 @@ jobs:
   livestock:
     name: Livestock mesh, motion and desktop checks
     runs-on: ubuntu-latest
-    # 完整家畜浏览器矩阵加睡眠专项约10分钟，保留安装与证据上传余量。
-    timeout-minutes: 18
+    # 五种家畜完整浏览器矩阵加睡眠专项，保留500只、多LOD与证据上传余量。
+    timeout-minutes: 25
     env:
       REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       LIVESTOCK_CHECK_DIR: /tmp/wanhu-livestock-checks
