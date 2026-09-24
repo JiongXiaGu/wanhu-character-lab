@@ -4,59 +4,109 @@ on:
     paths:
       - .github/workflows/tmp-cat-workspace.yml
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: temporary-cat-authoring
+  cancel-in-progress: false
 jobs:
-  diagnose:
-    if: github.event.pull_request.head.ref == 'feat/l7-rural-cat'
+  integrate:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'feat/l7-rural-cat'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
+    env:
+      EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+      LIVESTOCK_CHECK_DIR: /tmp/cat-integration-checks
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          persist-credentials: false
+          persist-credentials: true
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Sample author poses without changing production assets or assertions
+      - name: Apply guarded integration and save only to cat branch
         run: |
-          cat > scripts/tmp-cat-pose-probe.ts <<'TS'
-          import { Euler, Vector3 } from 'three';
-          import { CAT_DEFINITION as d } from '../src/cat/definition';
-          import { CAT_JOINTS as J, CAT_BONES as B } from '../src/cat/rig';
-          import { authorCatPose } from '../src/cat/animation';
-          import { createAnimalActor } from '../src/livestock/actor';
-          import { readSkinnedPoints, assertClosedSkinnedMesh } from './check-livestock-mesh-shared';
-          const actors=d.lods.map(l=>{const actor=createAnimalActor(d,l.id);actor.bind();return {actor,bind:readSkinnedPoints(actor),lod:l.id}});
-          function check(motion:string,neck:number,ny:number,head:number,hy:number,frames:number){
-            try{for(const {actor,bind,lod} of actors)for(let f=0;f<=frames;f++){
-              const phase=f/frames,p=authorCatPose(motion,phase);
-              const strength=motion==='groom'?-p.rotations[B.FrontLegL][0]/1.04:1;
-              p.rotations[B.Neck][0]=neck*strength;p.offsets[B.Neck][1]=ny*strength;
-              p.rotations[B.Head][0]=head*strength;p.rotations[B.Head][1]=hy*strength;
-              J.forEach((j,i)=>{const parent=j.parent<0?[0,0,0]:J[j.parent].position;actor.bones[i].position.set(...j.position.map((v,a)=>v-parent[a]+p.offsets[i][a]) as [number,number,number]);actor.bones[i].quaternion.setFromEuler(new Euler(...p.rotations[i] as [number,number,number]));});
-              const points=readSkinnedPoints(actor);const min=Math.min(...points.map(p=>p.y));if(min<-.002)throw new Error(`${lod}/${f} ground ${min}`);
-              assertClosedSkinnedMesh(actor,points,bind);
-            }return 'PASS'}catch(e){return String(e)}
-          }
-          for(const motion of ['groom','sleep']){
-            console.log('MOTION',motion,'baseline',check(motion,motion==='groom'?.42:.50,motion==='groom'?-.020:-.055,motion==='groom'?.385:-.25,motion==='groom'?-.22:0,12));
-            let passes=0;const failures=new Map<string,number>();
-            outer:for(const neck of [ .40,.30,.50,.20,.60])for(const ny of [-.008,0,-.015,-.025])for(const head of (motion==='groom'?[.10,.05,.15,.20]:[-.15,-.25,0,.10]))for(const hy of (motion==='groom'?[-.10,-.05,-.15]:[0])){
-              const result=check(motion,neck,ny,head,hy,12);
-              if(result==='PASS'){const full=check(motion,neck,ny,head,hy,240); console.log('CANDIDATE',JSON.stringify({motion,neck,ny,head,hy,full}));if(full==='PASS'&&++passes===3)break outer;}
-              else failures.set(result,(failures.get(result)||0)+1);
-            }
-            console.log('FAILURE_SUMMARY',motion,JSON.stringify([...failures].sort((a,b)=>b[1]-a[1]).slice(0,10)));
-          }
-          actors.forEach(({actor})=>actor.dispose());
-          TS
-          npx tsx scripts/tmp-cat-pose-probe.ts | tee /tmp/cat-pose-diagnostic.txt
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          git fetch origin feat/l7-rural-cat
+          test "$(git rev-parse FETCH_HEAD)" = "$EXPECTED_SHA"
+          python3 scripts/tmp-cat-integration.py
+          git diff --check
+          # Workflow scope is applied through the connector separately; do not push workflow changes with the job token.
+          cp .github/workflows/targeted-checks.yml /tmp/cat-targeted-checks.yml
+          git restore .github/workflows/targeted-checks.yml
+          git add scripts/check-livestock* README.md AGENTS.md Documentation/田园猫.md Documentation/家畜睡觉动作.md Documentation/工作交接.md
+          git rm scripts/tmp-cat-integration.py
+          git config user.name 'wanhu-authoring'
+          git config user.email 'wanhu-authoring@users.noreply.github.com'
+          git commit -m 'feat(cat): integrate shared sleep, catalogue regression and authoring contracts'
+          git push origin HEAD:refs/heads/feat/l7-rural-cat
+          echo "REVIEW_HEAD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          git rev-parse HEAD | tee /tmp/cat-reviewed-source.txt
+      - name: Complete livestock numeric matrix
+        continue-on-error: true
+        run: set -o pipefail; npm run check:livestock 2>&1 | tee /tmp/cat-numeric-log.txt
+      - name: Prepare assets and TypeScript
+        run: npm run prepare:motion && npx tsc --noEmit
+      - name: Install browser
+        run: |
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Cat desktop controls and exact-source screenshots
+        continue-on-error: true
+        run: |
+          cat > scripts/tmp-cat-browser.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import { spawn } from 'node:child_process';
+          import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+          import assert from 'node:assert/strict';
+          import { checkCatBrowser } from './check-livestock-cat-browser.mjs';
+          const base='http://127.0.0.1:4187', dir=process.env.LIVESTOCK_CHECK_DIR;
+          mkdirSync(dir,{recursive:true});mkdirSync('review/livestock',{recursive:true});
+          const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1','--port','4187','--strictPort'],{stdio:'ignore'});
+          let browser;
+          try {
+            for(let i=0;i<100;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(r=>setTimeout(r,200));if(i===99)throw Error('Vite not ready');}
+            browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+            const page=await browser.newPage({viewport:{width:1600,height:1000},deviceScaleFactor:1});
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+            // Reuse the exact production browser suite's real-control phase helper.
+            const suite=readFileSync('scripts/check-livestock-browser.mjs','utf8');
+            const begin=suite.indexOf('const setPhase = async value =>');
+            const end=suite.indexOf('  await page.goto',begin);
+            assert(begin>=0&&end>begin);
+            const setPhase=new Function('page','assert',suite.slice(begin,end)+'\nreturn setPhase;')(page,assert);
+            await checkCatBrowser(page,base,dir,true,setPhase);
+            assert.deepEqual(errors,[]);
+          } finally {await browser?.close();server.kill();}
+          JS
+          set -o pipefail
+          node scripts/tmp-cat-browser.mjs 2>&1 | tee /tmp/cat-browser-log.txt
+      - name: Publish isolated review evidence without adding images to product branch
+        if: always()
+        run: |
+          set -euo pipefail
+          test -n "${REVIEW_HEAD_SHA:-}"
+          mkdir -p /tmp/cat-evidence
+          cp /tmp/cat-reviewed-source.txt /tmp/cat-evidence/source-sha.txt
+          cp /tmp/cat-numeric-log.txt /tmp/cat-evidence/ 2>/dev/null || true
+          cp /tmp/cat-browser-log.txt /tmp/cat-evidence/ 2>/dev/null || true
+          cp /tmp/cat-integration-checks/*.json /tmp/cat-evidence/ 2>/dev/null || true
+          cp review/livestock/cat*.png /tmp/cat-evidence/ 2>/dev/null || true
+          branch="review/cat-l7-${REVIEW_HEAD_SHA:0:10}"
+          git switch --orphan "$branch"
+          git rm -r --cached . >/dev/null 2>&1 || true
+          mkdir -p cat-evidence
+          cp /tmp/cat-evidence/* cat-evidence/
+          git add -f cat-evidence
+          git commit -m "review(cat): exact-source diagnostic evidence $REVIEW_HEAD_SHA; not user approval"
+          git push origin HEAD:"refs/heads/$branch"
+          echo "CAT_EVIDENCE_BRANCH=$branch"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: cat-pose-diagnostic
-          path: /tmp/cat-pose-diagnostic.txt
-          retention-days: 1
+          name: cat-integration-evidence
+          path: /tmp/cat-evidence/
+          retention-days: 7
