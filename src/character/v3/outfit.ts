@@ -1,3 +1,5 @@
+import { appendBackHarness } from '../wardrobe/assets/back-harness';
+import { appendBackAccessory } from '../wardrobe/assets/back-accessories';
 import { applyHeadwearClearance } from "../wardrobe/headwear-fit";
 import { addWardrobeHeadwear, finishHair } from "../wardrobe/adornments";
 import {
@@ -587,12 +589,15 @@ export function makeCharacter(input: RecipeInput): CharacterData {
     );
   }
 
+  appendBackHarness(c, recipe);
+
   const female = recipe.bodyType === "female";
   faceDetails(c, female);
   finishHair(c,recipe);
   const rigidStart = c.vertices.length;
   headwear(c, recipe.slots.headwear, recipe);
   addBack(c, recipe.slots.back);
+  appendBackAccessory(c, recipe);
   addLeftHand(c, recipe.slots.leftHand);
   addRightHand(c, recipe.slots.rightHand);
   const joints = makeJoints(recipe);

@@ -47,7 +47,7 @@ export type BottomId =
   | "true_short_skirt"
   | "long_skirt";
 export type ShoesId = "body" | "cloth_shoes";
-export type BackId = "none" | "archer_quiver";
+export type BackId = "none" | "archer_quiver" | "bamboo_basket" | "firewood_bundle" | "book_case";
 export type LeftHandId = "none" | "guard_shield" | "archer_bow";
 export type RightHandId = "none" | "farmer_hoe" | "guard_sword";
 
@@ -138,6 +138,9 @@ export const SHOES_IDS = [
 export const BACK_IDS = [
   "none",
   "archer_quiver",
+  "bamboo_basket",
+  "firewood_bundle",
+  "book_case",
 ] as const satisfies readonly BackId[];
 
 export const LEFT_HAND_IDS = [

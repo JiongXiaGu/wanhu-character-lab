@@ -16,6 +16,7 @@ on:
           - system-animator
           - horse
           - livestock
+          - back-accessories
           - all
       full:
         description: Generate the full screenshot matrix when supported
@@ -62,7 +63,9 @@ jobs:
           run_scope() {
             local scope="$1"
             echo "=== visual scope: $scope ===" | tee -a manual-visual-review.log
-            if [[ "$scope" == livestock ]]; then
+            if [[ "$scope" == back-accessories ]]; then
+              node scripts/check-back-accessories-browser.mjs --screenshots 2>&1 | tee -a manual-visual-review.log
+            elif [[ "$scope" == livestock ]]; then
               npm run review:livestock 2>&1 | tee -a manual-visual-review.log
             elif [[ "$scope" == system-animator ]]; then
               npm run review:local -- --system-animator 2>&1 | tee -a manual-visual-review.log
@@ -72,11 +75,11 @@ jobs:
           }
 
           case "$SCOPE" in
-            character|wardrobe|lightwear|skirts|motion|system-animator|horse|livestock)
+            character|wardrobe|lightwear|skirts|motion|system-animator|horse|livestock|back-accessories)
               run_scope "$SCOPE"
               ;;
             all)
-              for scope in character wardrobe lightwear skirts motion horse livestock; do
+              for scope in character wardrobe lightwear skirts motion horse livestock back-accessories; do
                 run_scope "$scope"
               done
               ;;
@@ -107,5 +110,6 @@ jobs:
             review-deformation/
             review-wardrobe-batch/
             manual-visual-review.log
+            /tmp/wanhu-back-checks/
           if-no-files-found: ignore
           retention-days: 14
