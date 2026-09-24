@@ -1,0 +1,31 @@
+name: Poultry Sleep Authoring Workbench
+on:
+  push:
+    branches: [poultry-sleep-20260924]
+    paths: [.github/workflows/poultry-sleep-workbench.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Package exact authoring sources and installed dependencies
+        run: |
+          mkdir -p /tmp/poultry-workbench
+          git rev-parse HEAD > /tmp/poultry-workbench/source-sha.txt
+          git archive --format=tar HEAD | gzip > /tmp/poultry-workbench/source.tar.gz
+          tar -czf /tmp/poultry-workbench/dependencies.tar.gz node_modules
+      - uses: actions/upload-artifact@v4
+        with:
+          name: poultry-authoring-workbench
+          path: /tmp/poultry-workbench/
+          retention-days: 1
