@@ -1,9 +1,31 @@
 import assert from 'node:assert/strict';
 import { writeFileSync } from 'node:fs';
 
+/** OrbitControls重复球坐标换算会产生机器舍入误差；这里只比较截图机位，不修改模型容差。 */
+function assertSameReviewCamera(actual,expected) {
+  for(const field of ['position','target']) {
+    assert.equal(actual[field].length,3);assert.equal(expected[field].length,3);
+    actual[field].forEach((value,i)=>{
+      assert(Number.isFinite(value)&&Number.isFinite(expected[field][i]),'截图机位必须有限');
+      assert(Math.abs(value-expected[field][i])<=1e-10,`截图${field}[${i}]不一致`);
+    });
+  }
+  assert(Number.isFinite(actual.zoom)&&Number.isFinite(expected.zoom),'截图缩放必须有限');
+  assert(Math.abs(actual.zoom-expected.zoom)<=1e-10,'截图缩放不一致');
+}
+const cameraFaultInjections=(()=>{
+  const reference={position:[2.6960456261614674,1.7846534751787233,3.235254751393761],target:[0,.27486792452830183,0],zoom:1};
+  const rounded=structuredClone(reference);rounded.position=[2.6960456261614687,1.7846534751787222,3.235254751393762];
+  assertSameReviewCamera(rounded,reference);
+  for(const change of [c=>{c.position[0]+=1e-6;},c=>{c.target[1]+=1e-6;},c=>{c.zoom+=1e-6;},c=>{c.position[0]=NaN;}]) {
+    const broken=structuredClone(reference);change(broken);assert.throws(()=>assertSameReviewCamera(broken,reference));
+  }
+  return 4;
+})();
+
 /** 使用正式家畜UI、真实WebGL和同一Renderer；不提供猪专属测试页面。 */
 export async function checkPigBrowser(page,base,dir,screenshots,setPhase) {
-  const animal='pig_domestic_black',budgets=[['lod0',248,148],['lod1',114,73],['lod2',62,47]];
+  const animal='pig_domestic_black',budgets=[['lod0',248,144],['lod1',138,89],['lod2',82,57]];
   const cases=[],counts=[],images=[],comparisons=[],switches=[];
   const snap=()=>page.evaluate(()=>window.__LIVESTOCK_REVIEW__.snapshot());
   const ready=()=>page.waitForFunction(id=>window.__LIVESTOCK_REVIEW__?.snapshot().animal===id,animal);
@@ -16,7 +38,15 @@ export async function checkPigBrowser(page,base,dir,screenshots,setPhase) {
     const initial=await snap();assert.equal(initial.bones,9);assert.equal(initial.triangles,triangles);assert.equal(initial.logicalVertices,logicalVertices);
     assert.equal(initial.surface,'land');assert.equal(initial.waterClipped,false);assert.equal(await page.getByTestId('livestock-environment').count(),0);
     assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('.livestock-motions button').count(),5);
-    if(lod==='lod0')await shot('pig-three.png');
+    if(lod==='lod0') {
+      await shot('pig-three.png');
+      if(screenshots) {
+        await page.getByTestId('livestock-view-front').click();await shot('pig-front.png');
+        await page.getByTestId('livestock-view-farm').click();await shot('pig-farm-single.png');
+        await page.getByTestId('livestock-view-three').click();
+        await page.waitForFunction(()=>{const c=window.__LIVESTOCK_REVIEW__.snapshot().camera;const d=c.position.map((v,i)=>v-c.target[i]);return Math.abs(d[0]/d[2]-1.25/1.5)<1e-6;});
+      }
+    }
     if(screenshots) {
       await page.evaluate(()=>window.scrollTo(0,0));const box=await page.locator('.livestock-viewport canvas').boundingBox();assert(box);
       const width=Math.min(620,Math.floor(box.width)),height=Math.min(580,Math.floor(box.height));
@@ -85,13 +115,13 @@ export async function checkPigBrowser(page,base,dir,screenshots,setPhase) {
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await page.evaluate(value=>value===null?sessionStorage.removeItem('wanhu.livestock.preview.v1'):sessionStorage.setItem('wanhu.livestock.preview.v1',value),stored);
   if(screenshots) {
-    assert.equal(comparisons.length,3);for(const c of comparisons){assert.deepEqual(c.camera,comparisons[0].camera);assert.deepEqual(c.clip,comparisons[0].clip);}
+    assert.equal(comparisons.length,3);for(const c of comparisons){assertSameReviewCamera(c.camera,comparisons[0].camera);assert.deepEqual(c.clip,comparisons[0].clip);}
     const context=await page.context().browser().newContext({viewport:{width:1940,height:750},deviceScaleFactor:1});
     try {
       const sheet=await context.newPage();await sheet.setContent(`<!doctype html><html lang="zh"><meta charset="utf-8"><style>body{margin:0;padding:24px;background:#19292c;color:#e7e3d8;font-family:'Noto Sans CJK SC',sans-serif}h1{font-size:26px;font-weight:500;margin:0 0 10px}p{font-size:15px;color:#abbfb6}.row{display:flex;gap:12px}.card{flex:1;min-width:0;border:1px solid #53645c;border-radius:8px;overflow:hidden}.card header{padding:14px;background:#243639;color:#ddc49c}.card img{width:100%;display:block}</style><h1>黑色家猪 · 三档作者LOD</h1><p>同相机、同相位、同裁切尺度 · 真实WebGL截图 · 九骨共用五个陆地动作</p><div class="row">${comparisons.map(c=>`<div class="card"><header>${c.lod.toUpperCase()} · ${c.triangles} tris / ${c.logicalVertices} 逻辑点</header><img src="data:image/png;base64,${c.png.toString('base64')}"></div>`).join('')}</div></html>`);
       await sheet.waitForFunction(()=>[...document.images].every(i=>i.complete&&i.naturalWidth>0));await sheet.screenshot({path:'review/livestock/pig-lod-comparison.png',fullPage:true});
     } finally {await context.close();}
   }
-  const result={result:'passed',sourceSHA:process.env.REVIEW_HEAD_SHA??'local',animal,bones:9,cases,counts,switches,images,screenshots,wardrobeUnchanged:true};
+  const result={result:'passed',sourceSHA:process.env.REVIEW_HEAD_SHA??'local',animal,bones:9,cases,counts,switches,images,screenshots,cameraFaultInjections,wardrobeUnchanged:true};
   writeFileSync(`${dir}/pig-browser.json`,JSON.stringify(result,null,2));console.log(`Pig desktop checks passed: ${cases.length} LOD/motion cases, 1–500, 9/8/7-bone switching, playback, cache and lifecycle.`);
 }
