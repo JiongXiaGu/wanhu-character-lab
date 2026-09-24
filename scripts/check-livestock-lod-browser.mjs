@@ -21,7 +21,7 @@ try {
   page.on('pageerror', e => errors.push(String(e))); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   const snapshot = () => page.evaluate(() => window.__LIVESTOCK_REVIEW__.snapshot());
   for (const [lod, triangles, logicalVertices] of [['lod1', 72, 46], ['lod2', 36, 26]]) {
-    for (const motion of ['idle', 'walk', 'run', 'peck']) {
+    for (const motion of ['idle', 'walk', 'run', 'peck', 'sleep']) {
       const phase = motion === 'idle' ? .15 : .45, view = motion === 'peck' ? 'left' : 'three';
       await page.goto(`${base}/?lab=livestock&count=1&lod=${lod}&clip=${motion}&phase=${phase}&paused=1&view=${view}`, { waitUntil: 'networkidle' });
       await page.waitForFunction(id => window.__LIVESTOCK_REVIEW__?.snapshot().lod === id, lod); await page.waitForTimeout(200);

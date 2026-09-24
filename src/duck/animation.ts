@@ -2,7 +2,7 @@ import { AnimationClip, Euler, Quaternion, QuaternionKeyframeTrack, VectorKeyfra
 import type { MotionDefinition } from '../livestock/types';
 import { DUCK_BONES as B, DUCK_JOINTS, DUCK_SOLE } from './rig';
 
-export const DUCK_ANIMATION_VERSION = 'wanhu-duck-motion-v3';
+export const DUCK_ANIMATION_VERSION = 'wanhu-duck-motion-v4';
 export const DUCK_MOTIONS: readonly MotionDefinition[] = [
   { id: 'idle_land', label: '停驻', description: '陆地观察，短颈轻轻转动。', duration: 3, surface: 'land' },
   { id: 'walk', label: '摇摆行走', description: '短步交替，身体左右轻摆。', duration: 1.2, surface: 'land' },
@@ -11,6 +11,7 @@ export const DUCK_MOTIONS: readonly MotionDefinition[] = [
   { id: 'idle_water', label: '漂浮', description: '身体轻浮，腿在水下收拢。', duration: 3, surface: 'water' },
   { id: 'swim', label: '游泳', description: '身体平稳，双脚交替划水。', duration: 1.2, surface: 'water' },
   { id: 'dabble', label: '浅扎水觅食', description: '喙与头浅入水，尾部微抬。', duration: 2, surface: 'water' },
+  { id: 'sleep', label: '睡觉', description: '陆地卧伏，短颈收拢并缓慢呼吸。', duration: 3, surface: 'land' },
 ];
 /** 作者姿态烘焙为原8骨局部轨道；不复用鸡动作，不做运行时浮力或IK。 */
 export function authorDuckPose(motion: string, phase: number) {
@@ -33,6 +34,21 @@ export function authorDuckPose(motion: string, phase: number) {
       rotations[bone][0] = angle;
       const minY = Math.min(...DUCK_SOLE.map(([,y,z]) => .152+(y-.152)*Math.cos(angle)-(z+.060)*Math.sin(angle)));
       offsets[bone][1] = .006 + (swing ? Math.sin(Math.PI*u)*(running ? .042 : .025) : 0) - minY;
+    }
+  } else if (motion === 'sleep') {
+    // 陆地睡眠保持卧姿；水面不提供此动作，也不进入日常活动池。
+    const breath = .5 - .5 * Math.cos(a);
+    offsets[B.Body][1] = -.087 + .002 * breath;
+    offsets[B.Neck][1] = -.075;
+    offsets[B.Neck][2] = -.035;
+    rotations[B.Neck][0] = -.55 + .008 * breath;
+    rotations[B.Head][0] = .80 - .008 * breath;
+    rotations[B.Head][1] = 0;
+    for (const bone of [B.LegL, B.LegR]) {
+      const angle = 1.15;
+      rotations[bone][0] = angle;
+      const minY = Math.min(...DUCK_SOLE.map(([,y,z]) => .152 + (y-.152)*Math.cos(angle) - (z+.060)*Math.sin(angle)));
+      offsets[bone][1] = .006 - minY;
     }
   } else if (motion === 'feed_land') {
     const t = Math.max(0, Math.min(1, (p-.18)/.64)), dip = Math.sin(Math.PI*t)**4;

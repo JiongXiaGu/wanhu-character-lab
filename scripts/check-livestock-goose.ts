@@ -50,7 +50,7 @@ function validate(data: AnimalMeshData, lod: LivestockLodDefinition) {
 }
 assert.equal(livestockDefinition(definition.id),definition);
 assert.deepEqual(GOOSE_JOINTS.map(j=>j.name),['Root','Body','NeckBase','NeckTip','Head','LegL','LegR']);
-assert.equal(definition.motions.length,8);assert.equal(GOOSE_JOINTS[B.NeckTip].parent,B.NeckBase);
+assert.equal(definition.motions.length,9);assert.equal(GOOSE_JOINTS[B.NeckTip].parent,B.NeckBase);
 assert(!GOOSE_JOINTS.some(j=>/wing/i.test(j.name)));
 const reports: object[]=[];
 for(const lod of definition.lods) {
@@ -127,5 +127,5 @@ const water=definition.habitats.find(p=>p.id==='water')!;
 for(const scale of [.94,1,1.06])assert(Math.abs(GOOSE_WATERLINE*scale+surfaceOffset(water,scale)-GOOSE_WATERLINE)<1e-9);
 assert.equal(resolveHabitat(definition,'water','run').motion,'idle_water');
 const dir=process.env.LIVESTOCK_CHECK_DIR??'/tmp/wanhu-livestock-checks';mkdirSync(dir,{recursive:true});
-const report={result:'passed',sourceSHA:process.env.REVIEW_HEAD_SHA??'local',animal:definition.id,bones:7,weights:1,totalPoses:reports.length*8*241,reports};
+const report={result:'passed',sourceSHA:process.env.REVIEW_HEAD_SHA??'local',animal:definition.id,bones:7,weights:1,totalPoses:reports.length*definition.motions.length*241,reports};
 writeFileSync(`${dir}/goose-numeric.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));

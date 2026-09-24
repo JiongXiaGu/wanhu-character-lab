@@ -2,7 +2,7 @@ import { AnimationClip, Euler, Quaternion, QuaternionKeyframeTrack, VectorKeyfra
 import type { MotionDefinition } from '../livestock/types';
 import { GOOSE_BONES as B, GOOSE_JOINTS, GOOSE_SOLE } from './rig';
 
-export const GOOSE_ANIMATION_VERSION = 'wanhu-goose-motion-v1';
+export const GOOSE_ANIMATION_VERSION = 'wanhu-goose-motion-v2';
 export const GOOSE_MOTIONS: readonly MotionDefinition[] = [
   {id:'idle_land',label:'停驻',description:'挺颈观察，头部轻轻转动。',duration:3,surface:'land'},
   {id:'walk',label:'行走',description:'交替跨步，长颈相对稳定。',duration:1.2,surface:'land'},
@@ -12,6 +12,7 @@ export const GOOSE_MOTIONS: readonly MotionDefinition[] = [
   {id:'idle_water',label:'漂浮',description:'身体轻浮，蹼足收于水下。',duration:3,surface:'water'},
   {id:'swim',label:'游泳',description:'挺颈平稳前望，水下交替划蹼。',duration:1.5,surface:'water'},
   {id:'feed_water',label:'水面觅食',description:'长颈低探，喙浅入水面后抬起。',duration:3,surface:'water'},
+  {id:'sleep',label:'睡觉',description:'陆地卧伏，长颈回收、头靠背侧并缓慢呼吸。',duration:3,surface:'land'},
 ];
 /** 制作时烘焙七骨轨道；不调用鸡鸭的作者函数，没有运行时IK、浮力或状态AI。 */
 export function authorGoosePose(motion: string, phase: number) {
@@ -36,6 +37,20 @@ export function authorGoosePose(motion: string, phase: number) {
       rotations[bone][0]=angle;
       const minY=Math.min(...GOOSE_SOLE.map(([,y,z])=>.220+(y-.220)*Math.cos(angle)-(z+.040)*Math.sin(angle)));
       offsets[bone][1]=.006+(swing?Math.sin(Math.PI*u)*(running?.052:.032):0)-minY;
+    }
+  } else if(motion==='sleep') {
+    // 双段长颈向后收拢，头保持正向朝上的回望姿态；不新增颈骨或翅膀。
+    const breath=.5-.5*Math.cos(a);
+    offsets[B.Body][1]=-.115+.0025*breath;
+    rotations[B.NeckBase][0]=-.85+.006*breath;
+    rotations[B.NeckTip][0]=-1.50;
+    rotations[B.Head][0]=2.35-.006*breath;
+    rotations[B.Head][1]=Math.PI;
+    for(const bone of [B.LegL,B.LegR]) {
+      const angle=1.15;
+      rotations[bone][0]=angle;
+      const minY=Math.min(...GOOSE_SOLE.map(([,y,z])=>.220+(y-.220)*Math.cos(angle)-(z+.040)*Math.sin(angle)));
+      offsets[bone][1]=.006-minY;
     }
   } else if(motion==='graze'||motion==='feed_water') {
     const t=Math.max(0,Math.min(1,(p-.12)/.76)), dip=Math.sin(Math.PI*t)**2, land=motion==='graze';

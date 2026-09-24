@@ -1,5 +1,7 @@
 # 白鹅作者资源
 
+用户已授权新增陆地sleep（三秒卧伏呼吸），详见 `Documentation/家禽睡觉动作.md`。下文旧动作数量不限制此次扩展；所有原动作、网格、绑定与日常池保持，不增加水上睡眠或翅膀。
+
 用户已批准白色家鹅 goose_domestic_white、水陆八动作与三档LOD。先读 Documentation/白鹅与长颈动作.md。只做家畜模型与预览，不扩展骑乘、产蛋、受惊AI、追逐、岸线或养殖玩法。
 
 独立七骨 Root / Body / NeckBase / NeckTip / Head / LegL / LegR；没有Wing骨、翅膀几何或翼区颜色。不得为对齐旧鸡鸭8骨而增加空骨。鸡鸭原绑定与可见翅膀删除结果保持。每点一个权重、一份不透明FrontSide顶点色材质。
