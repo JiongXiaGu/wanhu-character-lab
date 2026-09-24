@@ -29,7 +29,7 @@ export async function checkCatBrowser(page, base, dir, screenshots, setPhase) {
   const stored = await page.evaluate(() => sessionStorage.getItem('wanhu.livestock.preview.v1'));
   await page.goto(`${base}/?lab=livestock&animal=${animal}&clip=idle&paused=1&lod=lod0&phase=.5&view=three`, { waitUntil: 'networkidle' }); await ready(); await frame();
   assert.deepEqual(await page.getByLabel('家畜种类', { exact: true }).locator('option').evaluateAll(nodes => nodes.map(n => n.value)), ['chicken_brown', 'duck_domestic_brown', 'goose_domestic_white', 'pig_domestic_black', 'dog_rural_yellow', animal]);
-  assert.deepEqual(await page.locator('.livestock-motions button').evaluateAll(nodes => nodes.map(n => n.textContent)), ['停驻', '行走', '奔跑', '闻地', '理毛', '睡觉']);
+  assert.deepEqual(await page.locator('.livestock-motions button strong').evaluateAll(nodes => nodes.map(n => n.textContent)), ['停驻', '行走', '奔跑', '闻地', '理毛', '睡觉']);
   assert.equal(await page.getByTestId('livestock-environment').count(), 0);
   const initial = await snap(); assert.equal(initial.bones, 9); assert.equal(initial.waterClipped, false); assert.equal(await page.locator('canvas').count(), 1);
   for (const [lod, triangles, logicalVertices] of budgets) {

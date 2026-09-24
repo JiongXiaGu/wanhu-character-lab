@@ -9,6 +9,7 @@ export async function checkLivestockSleepBrowser(page, base, dir, screenshots, s
     ['goose_domestic_white', '鹅', 7, [154, 82, 44]],
     ['pig_domestic_black', '黑色家猪', 9, [216, 138, 82]],
     ['dog_rural_yellow', '中国田园犬', 9, [274, 142, 78]],
+    ['cat_rural_orange', '橘色田园猫', 9, [262, 146, 86]],
   ];
   const snap = () => page.evaluate(() => window.__LIVESTOCK_REVIEW__.snapshot());
   const ready = id => page.waitForFunction(animal => window.__LIVESTOCK_REVIEW__?.snapshot().animal === animal, id);
@@ -121,7 +122,7 @@ export async function checkLivestockSleepBrowser(page, base, dir, screenshots, s
       assert.equal((await snap()).motion, 'idle_water'); assert.equal(await page.getByTestId('livestock-motion-sleep').count(), 0);
     }
   }
-  // 五种家畜保留共同sleep语义，使用各自真实骨架；猪→狗→猪往返不能复用错误Pose。
+  // 六种家畜保留共同sleep语义，使用各自真实骨架；猪→狗→猪往返不能复用错误Pose。
   await page.goto(`${base}/?lab=livestock&animal=chicken_brown&clip=sleep&paused=1&phase=.37`, { waitUntil: 'networkidle' }); await ready('chicken_brown');
   const renderer = (await snap()).rendererId;
   for (const [animal] of species) {
@@ -131,10 +132,10 @@ export async function checkLivestockSleepBrowser(page, base, dir, screenshots, s
   await page.getByTestId('livestock-count-100').click(); await page.waitForFunction(() => window.__LIVESTOCK_REVIEW__.snapshot().count === 100);
   await selectSleep(); await page.getByTestId('livestock-lod-lod1').click(); await page.waitForFunction(() => window.__LIVESTOCK_REVIEW__.snapshot().lod === 'lod1');
   const warmSpecies = new Map();
-  for (let round = 0; round < 3; round++) for (const animal of ['pig_domestic_black', 'dog_rural_yellow', 'pig_domestic_black']) {
+  for (let round = 0; round < 3; round++) for (const animal of ['pig_domestic_black', 'dog_rural_yellow', 'pig_domestic_black', 'cat_rural_orange', 'dog_rural_yellow', 'cat_rural_orange', 'pig_domestic_black']) {
     await page.getByLabel('家畜种类', { exact: true }).selectOption(animal); await ready(animal); await page.waitForTimeout(100);
     const s = await snap(); assert.equal(s.motion, 'sleep'); assert.equal(s.mixed, false); assert.equal(s.count, 100); assert.equal(s.rendererId, renderer); assert.equal(s.bones, 9);
-    assert(Math.abs(s.phase - .5) < 1e-6); assert.equal(s.triangles, animal === 'pig_domestic_black' ? 138 : 142); assert.equal(await page.locator('canvas').count(), 1);
+    assert(Math.abs(s.phase - .5) < 1e-6); assert.equal(s.triangles, ({ pig_domestic_black: 138, dog_rural_yellow: 142, cat_rural_orange: 146 })[animal]); assert.equal(await page.locator('canvas').count(), 1);
     if (warmSpecies.has(animal)) { const warm = warmSpecies.get(animal); assert.equal(s.cachedPoses, warm.cachedPoses); assert.equal(s.geometries, warm.geometries); }
     warmSpecies.set(animal, s); switches.push({ round, animal, rendererId: s.rendererId, cachedPoses: s.cachedPoses, geometries: s.geometries });
   }

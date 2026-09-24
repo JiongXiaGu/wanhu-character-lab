@@ -6,6 +6,13 @@
 
 `npm run check:soldier` 已进入 Targeted Numeric Checks；仍只保留 Build & Core Checks、Targeted Numeric Checks、Manual Visual Review 三条正式 Actions，不新增第四条永久军人 workflow。S1 有首件可见甲胄后再接入 soldier 视觉 scope。关键截图仍须实际打开并直接展示给用户，自动通过、AI看图和用户美术认可分开记录。
 
+
+## L7：田园猫作者边界
+
+用户已明确授权新增猫。继续前读 `Documentation/田园猫.md` 和 `src/cat/AGENTS.md`；`cat_rural_orange`独立拥有九骨、三档作者网格及六个陆地动作，沿用家畜运行时与现有工作台。不可借机增加页面、通用四足框架、捕鼠或宠物AI。run／sleep不进入默认日常池。
+
+保留所有并行人物、军人工作流、服饰、背具、MediaPipe、Mixamo／GLB和坐骑提交。猫加入原Targeted作用域、全部旧家畜回归和统一睡眠检查；仍仅保留三条正式Actions。自动通过、AI实际看图、用户美术认可分别记录，未通过不得写成完成。
+
 ## 家畜睡觉动作
 
 用户已授权在鸡鸭鹅sleep基础上，为猪与犬增加正式陆地睡眠。先读 `Documentation/家畜睡觉动作.md` 与对应物种专篇。各自九骨、bind、三档网格和旧动作保持；猪犬目前均六动作，sleep仅显式选择，默认日常池不变。猪动作v3、犬v2，不新增骨骼、睡眠mesh／页面／Renderer或通用框架。
