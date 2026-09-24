@@ -2,11 +2,15 @@
 
 《万户天工》3D玩家／居民换装、FBX试衣与坐骑Web Demo。固定成年男女、一档低模精度；当前坐骑是栗色马、灰驴、双峰骆驼、黄牛、牦牛和水牛。界面只选择种类与整体鞍具，正式玩法仍留在Unity。
 
-## L5：黑色家猪与四种家畜
+## L6：中国田园犬与五种家畜
 
-动物工坊→家畜现有鸡、鸭、鹅、黑色家猪。猪是独立九骨、不可骑乘的四足家畜，三档248/138/82三角形、144/89/57逻辑点；五个陆地动作是停驻、行走、奔跑、拱地觅食和闻嗅。已按视觉反馈改为完整粗根短腿、较小的无孔鼻盘、可读眼睛和闭合短卷尾，不做毛发或养殖玩法。
+动物工坊→家畜现有鸡、鸭、鹅、黑色家猪和黄褐色中国田园犬。犬独立拥有九骨、三档作者LOD与idle/walk/run/sniff/bark五个陆地动作；使用现有工作台和1/10/50/100/500群体预览，不可骑乘，不新增宠物页面或看门AI。三档为274/142/78三角形、157/91/55逻辑点，数据所有权与边界见[中国田园犬](Documentation/中国田园犬.md)。
 
-入口 `?lab=livestock&animal=pig_domestic_black`；拱地加 `&clip=root&phase=.5&paused=1&view=left`；百只经营俯视加 `&count=100&mixed=1&view=farm`。沿用现有数量、相机、固定／自动LOD和播放控制，猪没有水面模式。`check:livestock`与桌面检查保留鸡鸭鹅完整回归，显式 `review:livestock`生成关键图。边界与视觉验收说明见[家猪](Documentation/家猪.md)。
+犬入口 `?lab=livestock&animal=dog_rural_yellow`；闻地加 `&clip=sniff&phase=.5&paused=1&view=left`，吠叫改为 `clip=bark`；百只经营俯视加 `&count=100&mixed=1&view=farm`。日常池为idle35%、walk30%、sniff20%、bark15%，run只显式预览。
+
+黑色家猪本轮只改眼体：去掉亮色外圈，使用接近牛马的小型嵌入闭合眼睛。保留已修正的完整短腿、小无孔鼻盘、九骨五动作和日常池；当前三档216/138/82三角形、128/89/57逻辑点。猪入口 `?lab=livestock&animal=pig_domestic_black`，边界见[家猪](Documentation/家猪.md)。
+
+`check:livestock`与桌面入口保留鸡鸭鹅猪完整回归并追加犬；显式 `review:livestock`生成真实WebGL关键图。自动检查、AI看图与用户美术认可分别记录，不把有限采样写成连续时间零穿插。
 
 ## 拉取与运行
 
