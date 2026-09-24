@@ -9,7 +9,7 @@ export const PIG_DEFINITION: LivestockDefinition = {
   joints:PIG_JOINTS,motions:PIG_MOTIONS,bakeClips:bakePigClips,buildMesh:()=>buildPigMesh('lod0'),
   referenceHeight:.607,previewSpacing:2.50,
   lods:[
-    {id:'lod0',label:'LOD0',description:'厚身体 · 小鼻盘 · 完整短腿',triangles:248,logicalVertices:144,buildMesh:()=>buildPigMesh('lod0')},
+    {id:'lod0',label:'LOD0',description:'厚身体 · 小鼻盘 · 完整短腿',triangles:216,logicalVertices:128,buildMesh:()=>buildPigMesh('lod0')},
     {id:'lod1',label:'LOD1',description:'简化眼睛 · 整蹄短腿',triangles:138,logicalVertices:89,buildMesh:()=>buildPigMesh('lod1')},
     {id:'lod2',label:'LOD2',description:'长厚身 · 短腿 · 前伸猪鼻',triangles:82,logicalVertices:57,buildMesh:()=>buildPigMesh('lod2')},
   ],

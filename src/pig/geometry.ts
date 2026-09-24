@@ -2,7 +2,7 @@ import { Ray, Vector3 } from 'three';
 import type { AnimalMeshData, LivestockLodId, Point } from '../livestock/types';
 import { PIG_BONES as B, PIG_BODY_DROP, PIG_JOINTS, PIG_LEGS, PIG_SOLE } from './rig';
 
-export const PIG_MESH_VERSION = 'wanhu-black-domestic-pig-mesh-v2';
+export const PIG_MESH_VERSION = 'wanhu-black-domestic-pig-mesh-v3';
 const skin = '#373a38', belly = '#50483f', nose = '#61514b', hoof = '#292b29';
 interface Ring { z: number; y: number; rx: number; ry: number; sides: number; bone: number; color: string }
 /** 三档独立截面；厚身、粗颈、低头、鼻梁和宽鼻盘共享一张闭合主壳。 */
@@ -82,7 +82,7 @@ export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
     const start=solid(PIG_JOINTS[bone].name,points,faces,bone,skin);
     for(let i=0;i<n;i++)data.colors[start+i]=hoof;
   }
-  // 眼睛单独贴合真实头面：细灰褐眼缘承托一块深色眼面，不再是浅色菱形中的黑针尖。
+  // 眼睛沿用牛马的小型嵌入眼体语言：深色扁八面体，只有上缘一处低对比暖灰，不做亮色外圈。
   function makeEye(side:number,suffix:string) {
     const headFaces:number[][]=[];
     for(let i=0;i<data.indices.length;i+=3) {
@@ -108,26 +108,15 @@ export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
       const desired=contact.clone().addScaledVector(forward,horizontal).addScaledVector(up,vertical);
       return hit(desired.clone().addScaledVector(normal,.15),normal.clone().negate()).point.addScaledVector(normal,height);
     };
+    // 六个点形成一个闭合扁八面体；内点埋入头面，外点只高出6毫米。
+    // 两档共用眼裂比例，不用高对比环带或独立突出的眼框换取可读性。
     const points:Point[]=[contact.clone().addScaledVector(normal,-.008).toArray()];
+    for(const [u,v] of [[-.031,0],[0,-.018],[.031,0],[0,.018]])points.push(onFace(u,v,.001).toArray());
+    points.push(contact.clone().addScaledVector(normal,.006).toArray());
     const faces:number[][]=[];
-    if(lod==='lod0') {
-      for(const [scale,height] of [[1,.002],[.72,.007]])for(let i=0;i<6;i++) {
-        const a=i*2*Math.PI/6;
-        points.push(onFace(Math.cos(a)*.032*scale,Math.sin(a)*.025*scale,height).toArray());
-      }
-      points.push(contact.clone().addScaledVector(normal,.008).toArray());
-      for(let i=0;i<6;i++) {
-        const a=1+i,b=1+(i+1)%6;
-        faces.push([0,b,a],[a,b,b+6,a+6],[13,a+6,b+6]);
-      }
-    } else {
-      for(const [u,v] of [[-.031,0],[0,-.023],[.031,0],[0,.023]])points.push(onFace(u,v,.002).toArray());
-      points.push(contact.clone().addScaledVector(normal,.008).toArray());
-      for(let i=0;i<4;i++){const a=1+i,b=1+(i+1)%4;faces.push([0,b,a],[5,a,b]);}
-    }
-    const start=solid('Eye'+suffix,points,faces,B.Head,'#898271');
-    if(lod==='lod0')for(let i=7;i<14;i++)data.colors[start+i]='#101714';
-    else data.colors[start+5]='#101714';
+    for(let i=0;i<4;i++){const a=1+i,b=1+(i+1)%4;faces.push([0,b,a],[5,a,b]);}
+    const start=solid('Eye'+suffix,points,faces,B.Head,'#131b17');
+    data.colors[start+4]='#696252';
   }
   for(const side of [-1,1]) {
     const suffix=side<0?'L':'R';
