@@ -20,7 +20,8 @@ export function authorCatPose(motion: string, phase: number) {
   if (motion === 'sleep') {
     const drop = .130;
     offsets[B.Body][1] = -drop + .0008 * (1 - Math.cos(a));
-    rotations[B.Neck][0] = .50; offsets[B.Neck][1] = -.055; rotations[B.Head][0] = -.25;
+    // 放松头颈但不把短喉部压进胸腔，三档共用同一姿势。
+    rotations[B.Neck][0] = .40; offsets[B.Neck][1] = -.008; rotations[B.Head][0] = -.15;
     rotations[B.Tail] = [-1.50, .55, .10];
     // 绕真实埋入点放松长尾，根点不随枢轴误差离开躯干。
     const root = new Vector3(...CAT_TAIL_ROOT).sub(new Vector3(...CAT_JOINTS[B.Tail].position));
@@ -59,8 +60,8 @@ export function authorCatPose(motion: string, phase: number) {
     const lift = smooth(.10, .32, p) * (1 - smooth(.70, .94, p));
     rotations[B.FrontLegL][0] = -1.04 * lift; rotations[B.FrontLegL][2] = .10 * lift;
     offsets[B.FrontLegL][1] = .020 * lift; offsets[B.FrontLegL][2] = -.030 * lift;
-    rotations[B.Neck][0] = .42 * lift; offsets[B.Neck][1] = -.020 * lift;
-    rotations[B.Head][0] = (.35 + .035 * Math.sin(4 * a)) * lift; rotations[B.Head][1] = -.22 * lift;
+    rotations[B.Neck][0] = .40 * lift; offsets[B.Neck][1] = -.008 * lift;
+    rotations[B.Head][0] = .10 * lift; rotations[B.Head][1] = -.10 * lift;
     rotations[B.Tail][1] = .05 * Math.sin(a);
   } else {
     offsets[B.Body][1] = .0013 * Math.sin(a); rotations[B.Neck][0] = .008 * Math.sin(a);
