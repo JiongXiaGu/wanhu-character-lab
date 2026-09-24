@@ -5,7 +5,7 @@ import { GOOSE_MOTIONS, bakeGooseClips } from './animation';
 
 export const GOOSE_DEFINITION: LivestockDefinition = {
   id: 'goose_domestic_white', name: '白色家鹅',
-  description: '暖白厚身、挺立双段长颈、窄长橙喙与蹼足；没有可见翅膀，水陆八动作独立制作。',
+  description: '暖白厚身、挺立双段长颈、窄长橙喙与蹼足；没有可见翅膀，水陆动作独立制作，睡觉仅限陆地。',
   joints: GOOSE_JOINTS, motions: GOOSE_MOTIONS, bakeClips: bakeGooseClips, buildMesh: () => buildGooseMesh('lod0'),
   referenceHeight: .86,
   lods: [

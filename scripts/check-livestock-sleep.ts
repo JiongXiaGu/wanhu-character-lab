@@ -57,12 +57,10 @@ for (const spec of specs) {
       assert(bindHead.y - headCenter.y > spec.headDrop, '睡眠头部必须收低');
       const bodyPosition = actor.bones[body].getWorldPosition(new Vector3());
       assert(headCenter.distanceTo(bodyPosition) < spec.headReach, '头颈不能脱离身体');
-      // 鸡低档已省略长趾，使用共用轨道折收时脚底藏在腹下；不为补脚趾改变旧LOD。
-      const soleCeiling = spec.id === 'chicken_brown' && lod.id !== 'lod0' ? .055 : .008;
       assert(Math.min(...points.map(p => p.y)) <= .04, '卧伏的支撑面不能悬空');
       for (const ids of soles) {
         const y = Math.min(...ids.map(i => points[i].y));
-        assert(y >= .003 && y <= soleCeiling, `${spec.id}/${lod.id}折收足底仍须接地：${y}`);
+        assert(y >= .003 && y <= .008, `${spec.id}/${lod.id}折收足底仍须接地：${y}`);
       }
       for (let i = 0; i < points.length; i += 3) {
         const area = points[i + 1].clone().sub(points[i]).cross(points[i + 2].clone().sub(points[i])).length();

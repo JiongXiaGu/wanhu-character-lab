@@ -43,9 +43,9 @@ export function authorChickenPose(motion: string, phase: number) {
     rotations[B.Neck][0] = -.65 + .008 * breath;
     rotations[B.Head][0] = .90 - .008 * breath;
     rotations[B.Head][1] = 0;
-    // 单段腿折收于腹下，作者阶段按原足底校正接地；没有缩腿或运行时IK。
+    // 身体低伏包住腿根，脚保持近水平支撑；三档共用轨道不依赖LOD0长趾才能接地。
     for (const bone of [B.LegL, B.LegR]) {
-      const angle = 1.18;
+      const angle = .06;
       rotations[bone][0] = angle;
       const minY = Math.min(...FOOT_POINTS.map(([, y, z]) => .175 + (y - .175) * Math.cos(angle) - z * Math.sin(angle)));
       offsets[bone][1] = .005 - minY;
