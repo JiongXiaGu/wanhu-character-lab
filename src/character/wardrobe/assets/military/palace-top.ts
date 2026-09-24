@@ -5,10 +5,13 @@ import { armBones, finishTop, sewSleeve, sewTorso, solidBand, torsoChest, torsoN
 export function makePalaceTop(recipe:Recipe) {
   const {primary:cloth,secondary:iron,accent:bronze}=recipe.dyes;
   const cuts=[-.060,-.012,.012,.060] as const;
+  const tone=(hex:string,k:number)=>'#'+[1,3,5].map(i=>Math.min(255,Math.round(parseInt(hex.slice(i,i+2),16)*k)).toString(16).padStart(2,'0')).join('');
+  const seam=tone(iron,.70),plate=tone(iron,1.22),dark=tone(iron,.90);
+  const band=(color:string)=>[color,color,seam,color,color,color];
   const rows:TorsoRow[]=[
     ['Hem',1.035,.170,.110,cuts,torsoWaist],
-    ['Belt',1.080,.171,.112,cuts,torsoWaist],
-    ['BeltTop',1.107,.177,.117,cuts,torsoWaist],
+    ['Belt',1.080,.171,.112,[-.065,-.039,.039,.065],torsoWaist],
+    ['BeltTop',1.107,.177,.117,[-.065,-.039,.039,.065],torsoWaist],
     ['Rib',1.180,.195,.135,cuts,torsoRib],
     ['Plate',1.241,.212,.143,cuts,[B.Spine,B.Chest,.14]],
     ['Chest',1.300,.225,.143,cuts,torsoChest],
@@ -17,9 +20,8 @@ export function makePalaceTop(recipe:Recipe) {
     ['Neck',1.465,.067,.063,[-.030,-.010,.010,.030],torsoNeck],
   ];
   const torso=sewTorso(rows,[
-    solidBand(iron),[iron,iron,bronze,iron,iron,iron],
-    solidBand(iron),[iron,iron,bronze,iron,iron,iron],
-    solidBand(iron),solidBand(iron),[iron,cloth,cloth,cloth,iron,iron],solidBand(cloth),
+    band(dark),[cloth,cloth,bronze,cloth,cloth,cloth],
+    band(plate),band(dark),band(plate),band(iron),[iron,cloth,cloth,cloth,iron,iron],solidBand(cloth),
   ]);
   const cuffs:Record<string,number[]>={};
   for(const side of [1,-1] as const){

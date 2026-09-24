@@ -7,13 +7,13 @@ export function makePalaceSkirt(recipe:Recipe) {
   const piece=makeTrouserShell(recipe,{thigh:1,knee:1,calf:1,hem:.095,trim:false});
   const c=piece.mesh;
   // 内衬可见区使用主布；封口仍由原下装入口使用secondary封闭。
-  for(const f of c.faces)f.color=f.region==='pelvis'?recipe.dyes.secondary:recipe.dyes.primary;
+  for(const f of c.faces)f.color=f.region==='pelvis'||f.v.every(i=>/\.(Root|Thigh)\./.test(c.vertices[i].id))?recipe.dyes.secondary:recipe.dyes.primary;
   for(const side of [1,-1] as const){
     const thigh=side===1?B.RightThigh:B.LeftThigh,name=side===1?'Right':'Left';
     for(const [panel,angle] of [['Front',0],['Outer',Math.PI/2],['Back',Math.PI]] as const){
       const rows:number[][]=[];
       const rear=panel==='Back';
-      const heights=rear?[.89,.855,.825]:panel==='Outer'?[.928,.805,.635]:[.80,.72,.635],radii=rear?[.119,.118,.116]:[.119,.113,.092],widths=rear?[.067,.068,.070]:[.067,.071,.061];
+      const heights=rear?[.89,.855,.825]:panel==='Outer'?[.928,.805,.635]:[.80,.72,.635],radii=rear?[.116,.113,.110]:panel==='Outer'?[.101,.100,.085]:[.103,.099,.083],widths=rear?[.067,.068,.070]:[.067,.071,.061];
       const weights:Weight[]=[[thigh,thigh,1],[thigh,thigh,1],[thigh,thigh,1]];
       const normal:Vec3=[side*Math.sin(angle),0,Math.cos(angle)];
       const tangent:Vec3=[side*Math.cos(angle),0,-Math.sin(angle)];
