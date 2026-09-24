@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 /** 从正式家畜页取图；三档相机、相位和裁切必须一致，测试页仅排版真实WebGL截图。 */
 export async function captureLodComparison(page, base) {
   const snapshots = [], images = { idle: [], peck: [] };
-  const budgets = [['lod0', 140, 102], ['lod1', 72, 46], ['lod2', 36, 26]];
+  const budgets = [['lod0', 132, 92], ['lod1', 72, 46], ['lod2', 36, 26]];
   for (const [motion, phase, view] of [['idle', .15, 'three'], ['peck', .45, 'left']]) {
     let camera, crop;
     for (const [lod, triangles, logicalVertices] of budgets) {
@@ -34,7 +34,7 @@ export async function captureLodComparison(page, base) {
         h1{font-size:24px;font-weight:500;margin:0 0 8px}p{font-size:12px;color:#aebcb8;margin:0 0 22px}.row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
         article{border:1px solid #526157;border-radius:8px;overflow:hidden;background:#23363a}header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center}b{font-size:18px;font-weight:500;color:#dfc89f}span{font-size:12px;color:#c9cdbd}
         img{display:block;width:100%;height:auto}footer{font-size:12px;color:#aebcb8;margin-top:17px}
-        </style></head><body><h1>${title}</h1><p>同一正式运行时 · 同相机、同相位、同一裁切尺度 · LOD0 为当前大侧面翼区作者版</p><div class="row">${budgets.map(([lod, triangles], i) => `<article><header><b>${lod.toUpperCase()}</b><span>${triangles} tris · ${i === 0 ? '大侧面翼区' : i === 1 ? '连续头颈，简化头部细节' : '连续主体，无头部附件'}</span></header><img src="data:image/png;base64,${images[motion][i].toString('base64')}" alt="${lod}"></article>`).join('')}</div><footer>低档的身体、脖子、头与喙是一个共用接口顶点的闭合主体，不是悬空小块。</footer></body></html>`);
+        </style></head><body><h1>${title}</h1><p>同一正式运行时 · 同相机、同相位、同一裁切尺度 · LOD0 为当前无独立翅膀作者版</p><div class="row">${budgets.map(([lod, triangles], i) => `<article><header><b>${lod.toUpperCase()}</b><span>${triangles} tris · ${i === 0 ? '无独立翅膀' : i === 1 ? '连续头颈，简化头部细节' : '连续主体，无头部附件'}</span></header><img src="data:image/png;base64,${images[motion][i].toString('base64')}" alt="${lod}"></article>`).join('')}</div><footer>低档的身体、脖子、头与喙是一个共用接口顶点的闭合主体，不是悬空小块。</footer></body></html>`);
       await sheet.waitForFunction(() => [...document.images].every(image => image.complete && image.naturalWidth > 0));
       await sheet.screenshot({ path: `review/livestock/${filename}`, fullPage: true });
     }

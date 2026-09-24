@@ -1,5 +1,4 @@
 import { checkDuckBrowser } from './check-livestock-duck-browser.mjs';
-import { capturePoultryWings } from './check-livestock-wings-browser.mjs';
 import './check-livestock-lod-browser.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
@@ -40,9 +39,9 @@ try {
     await page.waitForFunction(target => Math.abs(window.__LIVESTOCK_REVIEW__.snapshot().phase - target) < .001, value);
   };
   await page.goto(`${base}/?lab=livestock&paused=1`, { waitUntil: 'networkidle' }); await ready();
-  const initial = await snap(); assert.equal(initial.count, 1); assert.equal(initial.bones, 8); assert.equal(initial.playing, false); assert.equal(initial.lod, 'lod0'); assert.equal(initial.triangles, 140);
+  const initial = await snap(); assert.equal(initial.count, 1); assert.equal(initial.bones, 8); assert.equal(initial.playing, false); assert.equal(initial.lod, 'lod0'); assert.equal(initial.triangles, 132);
   assert.equal(await page.locator('.animal-mode-switcher a').count(), 3); assert.equal(await page.locator('canvas').count(), 1);
-  for (const [lod, tris] of [['lod0', 140], ['lod1', 72], ['lod2', 36]]) {
+  for (const [lod, tris] of [['lod0', 132], ['lod1', 72], ['lod2', 36]]) {
     await page.getByTestId(`livestock-lod-${lod}`).click(); await page.waitForFunction(([id, count]) => { const s = window.__LIVESTOCK_REVIEW__.snapshot(); return s.lod === id && s.triangles === count; }, [lod, tris]);
     assert.equal((await snap()).modelTriangles, tris);
   }
@@ -80,9 +79,8 @@ try {
   assert.equal((await snap()).count, 1); assert.equal((await snap()).motion, 'idle'); assert.equal((await snap()).phase, 0); assert.equal((await snap()).lod, 'lod0');
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, '桌面横向溢出'); assert.deepEqual(errors, []);
   await checkDuckBrowser(page, base, dir, screenshots, setPhase);
-  await capturePoultryWings(page, base, dir, screenshots);
   assert.deepEqual(errors, []);
-  const result = { sha: process.env.REVIEW_HEAD_SHA ?? 'local', result: 'passed', viewport: '1600x1000', lods: { lod0: 140, lod1: 72, lod2: 36 }, counts, screenshots, errors };
+  const result = { sha: process.env.REVIEW_HEAD_SHA ?? 'local', result: 'passed', viewport: '1600x1000', lods: { lod0: 132, lod1: 72, lod2: 36 }, counts, screenshots, errors };
   writeFileSync(`${dir}/browser.json`, JSON.stringify(result, null, 2)); if (screenshots) writeFileSync('review/livestock/evidence.json', JSON.stringify(result, null, 2)); console.log(JSON.stringify(result, null, 2));
 } catch (error) {
   if (screenshots && page && !page.isClosed()) await page.screenshot({ path: 'review/livestock/failure.png', fullPage: true }).catch(() => {});
