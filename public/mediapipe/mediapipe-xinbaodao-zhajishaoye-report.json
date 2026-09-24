@@ -1,0 +1,38 @@
+{
+  "schema": "wanhu-mediapipe-clip-diagnostics-v1",
+  "source": "新宝岛 炸鸡少爷.mp4",
+  "videoSha256": "ceff98eb073523ce940fba4763da9d6f8f75a4314be396714ddba501a94e2584",
+  "poseSha256": "2a6908d2e7d5e790ce2452d7cf92e52623588671136b6cc22e1e795271fd578e",
+  "modelSha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b",
+  "sourceStartSeconds": 34.0,
+  "sourceEndSeconds": 48.0,
+  "frameCount": 421,
+  "missingCriticalFrames": 0,
+  "missingCriticalIntervals": [],
+  "filledDerivedIntervals": [],
+  "limitedRotations": [
+    {
+      "frame": 3,
+      "bone": 13,
+      "observedDegrees": 85.84,
+      "limitedDegrees": 75
+    }
+  ],
+  "torsoForwardCorrections": [],
+  "lowVisibilityFrames": 157,
+  "confidencePolicy": "低置信度仅作标记；坐标连续时照常使用",
+  "derivedRotationPolicy": "上臂轴向缓慢校正，前臂在时间连续性与上臂轴向之间选择同向姿态；前臂单帧旋转不超过 89°，其余骨骼不超过 75°；头颈沿躯干水平朝向；双脚限制偏航和俯仰并保持鞋面朝上",
+  "repairedPoints": [
+    {
+      "frame": 31,
+      "landmark": 19,
+      "reason": "isolated_world_jump"
+    }
+  ],
+  "remainingLimitations": [
+    "MediaPipe world 坐标逐帧以髋部为原点；不推断真实世界水平位移",
+    "头部只跟随躯干水平朝向，不补造独立头部动作",
+    "脚掌方向含视觉约束，不代表真实脚掌姿态",
+    "遮挡时 world 深度可能不准确"
+  ]
+}

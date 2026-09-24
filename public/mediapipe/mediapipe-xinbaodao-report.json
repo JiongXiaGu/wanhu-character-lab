@@ -1,0 +1,46 @@
+{
+  "schema": "wanhu-mediapipe-clip-diagnostics-v1",
+  "source": "虾不咕的抖音 - 抖音.mp4",
+  "videoSha256": "1fdcbd66402e302ddabf5cd3c14e0c898c487451661233306bb90a211bbcf651",
+  "poseSha256": "a3517b22c6ba209e0600cfed30d19905f592ac49c34184b2485f0192d7a6cd0c",
+  "modelSha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b",
+  "sourceStartSeconds": 23,
+  "sourceEndSeconds": 45,
+  "frameCount": 661,
+  "lowVisibilityFrames": 312,
+  "confidencePolicy": "低置信度仅作标记；坐标连续时照常使用",
+  "derivedRotationPolicy": "手臂轴向缓慢校正；头颈沿躯干水平朝向；双脚限制偏航和俯仰并保持鞋面朝上",
+  "repairedPoints": [
+    {
+      "frame": 133,
+      "landmark": 27,
+      "reason": "isolated_world_jump"
+    },
+    {
+      "frame": 133,
+      "landmark": 29,
+      "reason": "isolated_world_jump"
+    },
+    {
+      "frame": 133,
+      "landmark": 30,
+      "reason": "isolated_world_jump"
+    },
+    {
+      "frame": 133,
+      "landmark": 31,
+      "reason": "isolated_world_jump"
+    },
+    {
+      "frame": 133,
+      "landmark": 32,
+      "reason": "isolated_world_jump"
+    }
+  ],
+  "remainingLimitations": [
+    "MediaPipe world 坐标逐帧以髋部为原点；不推断真实世界水平位移",
+    "头部只跟随躯干水平朝向，不补造独立头部动作",
+    "脚掌方向含视觉约束，不代表真实脚掌姿态",
+    "遮挡时 world 深度可能不准确"
+  ]
+}
