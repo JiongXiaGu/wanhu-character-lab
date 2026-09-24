@@ -1,0 +1,26 @@
+name: Temporary Soldier Finish Integration
+on:
+  push:
+    branches: [feat/soldier-palace-s1]
+    paths: [.github/workflows/soldier-authoring-transfer.yml]
+permissions:
+  contents: write
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/soldier-palace-s1
+      - name: Integrate reviewed edits and remove temporary author files
+        run: |
+          set -euo pipefail
+          python .github/soldier-finish.py
+          git rm .github/soldier-finish.py .github/workflows/soldier-authoring-transfer.yml
+          git add src scripts package.json Documentation README.md AGENTS.md .github/workflows
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(soldier): refine palace plates and wire permanent validation and documentation'
+          git push origin HEAD:feat/soldier-palace-s1
+          git rev-parse HEAD
