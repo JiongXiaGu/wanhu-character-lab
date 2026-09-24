@@ -1,0 +1,41 @@
+name: Temporary cat workspace recovery
+on:
+  pull_request:
+    paths:
+      - .github/workflows/tmp-cat-workspace.yml
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Export separate archives below attachment limits
+        run: |
+          git rev-parse HEAD > /tmp/cat-source-sha.txt
+          tar --exclude=.git --exclude=node_modules -czf /tmp/cat-source.tar.gz .
+          tar -czf /tmp/cat-deps.tar.gz node_modules
+          ls -lh /tmp/cat-*.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cat-source-recovery
+          path: |
+            /tmp/cat-source.tar.gz
+            /tmp/cat-source-sha.txt
+          retention-days: 1
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cat-deps-recovery
+          path: /tmp/cat-deps.tar.gz
+          retention-days: 1
+          compression-level: 0
