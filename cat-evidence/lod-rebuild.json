@@ -1,0 +1,28 @@
+{
+  "result": "passed",
+  "sourceSHA": "caef340ef0eedeb92f01b7af604d57820e0cbe33",
+  "reports": [
+    {
+      "lod": "lod1",
+      "triangles": 72,
+      "logicalVertices": 46,
+      "mainTriangles": 48,
+      "poses": 1205,
+      "minFoot": 0.004080307459009593,
+      "minBeak": 0.012099051840248232,
+      "minAreaRatio": 0.27516936187637275,
+      "faultInjections": 3
+    },
+    {
+      "lod": "lod2",
+      "triangles": 36,
+      "logicalVertices": 26,
+      "mainTriangles": 24,
+      "poses": 1205,
+      "minFoot": 0.004080307459009593,
+      "minBeak": 0.012099051840248232,
+      "minAreaRatio": 0.34493613714572413,
+      "faultInjections": 3
+    }
+  ]
+}

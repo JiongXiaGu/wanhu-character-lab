@@ -1,0 +1,11 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.evaluate: SecurityError: Failed to read the 'localStorage' property from 'Window': Access is denied for this document.
+    at UtilityScript.evaluate (<anonymous>:293:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at checkCatBrowser (/home/runner/work/wanhu-character-lab/wanhu-character-lab/scripts/check-livestock-cat-browser.mjs:28:31)
+    at /home/runner/work/wanhu-character-lab/wanhu-character-lab/scripts/tmp-cat-browser.mjs:21:9
+
+Node.js v22.23.2

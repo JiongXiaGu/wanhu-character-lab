@@ -1,0 +1,49 @@
+{
+  "result": "passed",
+  "sourceSHA": "caef340ef0eedeb92f01b7af604d57820e0cbe33",
+  "animal": "goose_domestic_white",
+  "bones": 7,
+  "weights": 1,
+  "totalPoses": 6507,
+  "reports": [
+    {
+      "lod": "lod0",
+      "triangles": 154,
+      "logicalVertices": 87,
+      "poses": 2169,
+      "minFoot": 0.00574967569147038,
+      "minGraze": 0.00789794750403075,
+      "minWaterFeed": 0.1876540719769738,
+      "minNeckRatio": 0.2016325493925644,
+      "maxWaterFoot": 0.21298419329922003,
+      "cachedPoses": 497,
+      "faultInjections": 4
+    },
+    {
+      "lod": "lod1",
+      "triangles": 82,
+      "logicalVertices": 47,
+      "poses": 2169,
+      "minFoot": 0.00574967569147038,
+      "minGraze": 0.009837801477265873,
+      "minWaterFeed": 0.19169734989128173,
+      "minNeckRatio": 0.37841999256784103,
+      "maxWaterFoot": 0.21298419329922003,
+      "cachedPoses": 497,
+      "faultInjections": 4
+    },
+    {
+      "lod": "lod2",
+      "triangles": 44,
+      "logicalVertices": 28,
+      "poses": 2169,
+      "minFoot": 0.00574967569147038,
+      "minGraze": 0.009837801477265873,
+      "minWaterFeed": 0.19169734989128173,
+      "minNeckRatio": 0.2745378512223648,
+      "maxWaterFoot": 0.21298419329922003,
+      "cachedPoses": 497,
+      "faultInjections": 4
+    }
+  ]
+}

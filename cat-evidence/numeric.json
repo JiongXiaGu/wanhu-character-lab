@@ -1,0 +1,31 @@
+{
+  "sha": "caef340ef0eedeb92f01b7af604d57820e0cbe33",
+  "lods": {
+    "lod0": {
+      "triangles": 132,
+      "logicalVertices": 92
+    },
+    "lod1": {
+      "triangles": 72,
+      "logicalVertices": 46
+    },
+    "lod2": {
+      "triangles": 36,
+      "logicalVertices": 26
+    }
+  },
+  "bones": 8,
+  "weights": 1,
+  "poses": 1205,
+  "minFoot": 0.003774894089631862,
+  "minBeak": 0.012099051840248232,
+  "cachedPoses": 666,
+  "counts": [
+    1,
+    10,
+    50,
+    100,
+    500
+  ],
+  "result": "passed"
+}

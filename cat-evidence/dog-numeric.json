@@ -1,0 +1,56 @@
+{
+  "result": "passed",
+  "sourceSHA": "caef340ef0eedeb92f01b7af604d57820e0cbe33",
+  "animal": "dog_rural_yellow",
+  "bones": 9,
+  "weights": 1,
+  "totalPoses": 4338,
+  "totalFaultInjections": 55,
+  "reports": [
+    {
+      "lod": "lod0",
+      "triangles": 274,
+      "logicalVertices": 157,
+      "closedShells": 10,
+      "poses": 1446,
+      "minGround": 0.005999998688697827,
+      "minSniffNose": 0.09869342976921824,
+      "maxBarkNose": 0.6939032883846661,
+      "minBodyAreaRatio": 0.21171174665570133,
+      "maxHorizontalRadius": 0.6628471374986722,
+      "minimumSpacing": 2.1370964077956227,
+      "cachedPoses": 350,
+      "faultInjections": 19
+    },
+    {
+      "lod": "lod1",
+      "triangles": 142,
+      "logicalVertices": 91,
+      "closedShells": 10,
+      "poses": 1446,
+      "minGround": 0.005999998688697827,
+      "minSniffNose": 0.09869342976921824,
+      "maxBarkNose": 0.6939032883846661,
+      "minBodyAreaRatio": 0.24688567918221763,
+      "maxHorizontalRadius": 0.6628471374986722,
+      "minimumSpacing": 2.1370964077956227,
+      "cachedPoses": 350,
+      "faultInjections": 19
+    },
+    {
+      "lod": "lod2",
+      "triangles": 78,
+      "logicalVertices": 55,
+      "closedShells": 8,
+      "poses": 1446,
+      "minGround": 0.005999998688697827,
+      "minSniffNose": 0.10170502150754568,
+      "maxBarkNose": 0.6939032883846661,
+      "minBodyAreaRatio": 0.40162067356733944,
+      "maxHorizontalRadius": 0.6554657318297176,
+      "minimumSpacing": 2.1370964077956227,
+      "cachedPoses": 350,
+      "faultInjections": 17
+    }
+  ]
+}

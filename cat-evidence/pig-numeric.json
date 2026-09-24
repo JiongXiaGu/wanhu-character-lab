@@ -1,0 +1,53 @@
+{
+  "result": "passed",
+  "sourceSHA": "caef340ef0eedeb92f01b7af604d57820e0cbe33",
+  "animal": "pig_domestic_black",
+  "bones": 9,
+  "weights": 1,
+  "totalPoses": 4338,
+  "totalFaultInjections": 53,
+  "reports": [
+    {
+      "lod": "lod0",
+      "triangles": 216,
+      "logicalVertices": 128,
+      "closedShells": 10,
+      "poses": 1446,
+      "minGround": 0.00581077315709605,
+      "minRootNose": 0.019634523186558228,
+      "minBodyAreaRatio": 0.3780008996546504,
+      "maxHorizontalRadius": 0.6380661809240397,
+      "minimumSpacing": 2.387017876029173,
+      "cachedPoses": 434,
+      "faultInjections": 19
+    },
+    {
+      "lod": "lod1",
+      "triangles": 138,
+      "logicalVertices": 89,
+      "closedShells": 10,
+      "poses": 1446,
+      "minGround": 0.003999995291233072,
+      "minRootNose": 0.019634523186558228,
+      "minBodyAreaRatio": 0.51886072858784,
+      "maxHorizontalRadius": 0.636547060037288,
+      "minimumSpacing": 2.387017876029173,
+      "cachedPoses": 434,
+      "faultInjections": 19
+    },
+    {
+      "lod": "lod2",
+      "triangles": 82,
+      "logicalVertices": 57,
+      "closedShells": 8,
+      "poses": 1446,
+      "minGround": 0.003999995291233072,
+      "minRootNose": 0.019634523186558228,
+      "minBodyAreaRatio": 0.5708376986960356,
+      "maxHorizontalRadius": 0.636547060037288,
+      "minimumSpacing": 2.387017876029173,
+      "cachedPoses": 434,
+      "faultInjections": 15
+    }
+  ]
+}
