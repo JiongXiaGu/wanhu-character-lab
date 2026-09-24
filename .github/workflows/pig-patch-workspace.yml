@@ -1,0 +1,33 @@
+name: Pig patch temporary workspace
+on:
+  push:
+    branches: [fix/l5-pig-domestic-silhouette]
+    paths: [.github/workflows/pig-patch-workspace.yml]
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run prepare:motion
+      - name: Pack exact source and locked dependencies without credentials
+        run: |
+          git rev-parse HEAD > workspace-source-sha.txt
+          tar --exclude=.git --exclude=node_modules --exclude=review -czf "$RUNNER_TEMP/pig-source.tar.gz" .
+          tar -czf "$RUNNER_TEMP/pig-dependencies.tar.gz" node_modules
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pig-patch-workspace
+          path: |
+            ${{ runner.temp }}/pig-source.tar.gz
+            ${{ runner.temp }}/pig-dependencies.tar.gz
+          retention-days: 1
