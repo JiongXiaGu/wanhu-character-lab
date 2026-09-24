@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 jobs:
-  transfer:
+  preview:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -17,14 +17,34 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - name: Archive dependencies for local author checks
+      - run: npm ci && npm run prepare:motion
+      - run: npx playwright install --with-deps chromium && sudo apt-get install -y fonts-noto-cjk
+      - name: Real WebGL author preview
         run: |
-          mkdir -p /tmp/author-transfer
-          tar -czf /tmp/author-transfer/dependencies.tgz node_modules
-          git rev-parse HEAD > /tmp/author-transfer/source-sha.txt
+          mkdir -p /tmp/sleep-preview
+          node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4187 > /tmp/sleep-preview/vite.log 2>&1 &
+          node --input-type=module <<'JS'
+          import {chromium} from 'playwright';
+          import {writeFileSync} from 'node:fs';
+          const browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+          const page=await browser.newPage({viewport:{width:1600,height:1000}});
+          const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+          for(const animal of ['pig_domestic_black','dog_rural_yellow']) {
+            for(const lod of ['lod0','lod1','lod2']) {
+              await page.goto(`http://127.0.0.1:4187/?lab=livestock&animal=${animal}&lod=${lod}&clip=sleep&phase=.5&paused=1&view=three`,{waitUntil:'networkidle'});
+              await page.waitForFunction(()=>window.__LIVESTOCK_REVIEW__?.snapshot().motion==='sleep');
+              await page.screenshot({path:`/tmp/sleep-preview/${animal}-${lod}.png`,fullPage:true});
+            }
+            await page.evaluate(id=>sessionStorage.setItem('wanhu.livestock.preview.v1',JSON.stringify({version:1,animal:id,count:1,surface:'land',motion:'sleep',playing:false,loop:true,lod:'lod0',phase:.5,seed:731,view:'left',camera:{position:[-3,.22,0],target:[0,.22,0],zoom:1}})),animal);
+            await page.goto('http://127.0.0.1:4187/?lab=livestock&preview=resume',{waitUntil:'networkidle'});
+            await page.waitForFunction(()=>window.__LIVESTOCK_REVIEW__?.snapshot().motion==='sleep');
+            await page.screenshot({path:`/tmp/sleep-preview/${animal}-side.png`,fullPage:true});
+          }
+          writeFileSync('/tmp/sleep-preview/errors.json',JSON.stringify(errors));await browser.close();if(errors.length)process.exit(1);
+          JS
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: sleep-author-dependencies
-          path: /tmp/author-transfer/
+          name: sleep-author-preview
+          path: /tmp/sleep-preview/
           retention-days: 1

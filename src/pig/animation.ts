@@ -1,14 +1,15 @@
-import { AnimationClip, Euler, Quaternion, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three';
+import { AnimationClip, Euler, Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from 'three';
 import type { MotionDefinition } from '../livestock/types';
 import { PIG_BONES as B, PIG_JOINTS, PIG_LEGS, PIG_SOLE } from './rig';
 
-export const PIG_ANIMATION_VERSION = 'wanhu-domestic-pig-motion-v2';
+export const PIG_ANIMATION_VERSION = 'wanhu-domestic-pig-motion-v3';
 export const PIG_MOTIONS: readonly MotionDefinition[] = [
   {id:'idle',label:'停驻',description:'厚身体轻微呼吸，头尾小范围活动。',duration:4,surface:'land'},
   {id:'walk',label:'行走',description:'四条短腿交错迈步，身体少量起伏。',duration:1.2,surface:'land'},
   {id:'run',label:'奔跑',description:'短步快跑，略向前倾；不加入日常混合。',duration:.6,surface:'land'},
   {id:'root',label:'拱地觅食',description:'低头让鼻盘接近地面，左右轻拱再抬头。',duration:6,surface:'land'},
   {id:'sniff',label:'闻嗅',description:'鼻部轻探，头部小幅闻嗅，四脚不动。',duration:3,surface:'land'},
+  {id:'sleep',label:'睡觉',description:'低伏收腿、头部放低，原地缓慢呼吸；仅显式预览。',duration:3,surface:'land'},
 ];
 const smooth=(a:number,b:number,p:number)=>{const x=Math.max(0,Math.min(1,(p-a)/(b-a)));return x*x*(3-2*x);};
 /** 猪专用作者姿态；校正只在30fps轨道创建时执行，不增加运行时IK或根位移。 */
@@ -17,7 +18,23 @@ export function authorPigPose(motion:string,phase:number) {
   const p=Math.max(0,Math.min(1,Number.isFinite(phase)?phase:0)),a=2*Math.PI*p;
   const rotations=PIG_JOINTS.map(()=>[0,0,0]),offsets=PIG_JOINTS.map(()=>[0,0,0]);
   rotations[B.Tail][1]=.04*Math.sin(a);rotations[B.Tail][2]=.018*Math.sin(a);
-  if(motion==='walk'||motion==='run') {
+  if(motion==='sleep') {
+    // 厚腹低伏；腿绕自身根部折收，足底补偿只在创建轨道时烘焙。
+    // 四腿挂Root，不复制Body的毫米级呼吸，也不改变骨数、bind或缩放。
+    const drop=.118;
+    offsets[B.Body][1]=-drop+.001*(1-Math.cos(a));
+    rotations[B.Neck][0]=.06;offsets[B.Neck][1]=-.008;
+    rotations[B.Head][0]=.08;rotations[B.Tail]=[0,0,0];
+    for(const bone of PIG_LEGS) {
+      const joint=new Vector3(...PIG_JOINTS[bone].position),front=bone<=B.FrontLegR;
+      const anchor=new Vector3(joint.x-Math.sign(joint.x)*.125,.365,joint.z+(front?-.035:.060));
+      const angle=front?.90:-.90,q=new Quaternion().setFromEuler(new Euler(angle,0,0));
+      const target=joint.clone().sub(anchor).applyQuaternion(q).add(anchor);target.y-=drop;
+      const sole=PIG_SOLE.map(([x,y,z])=>new Vector3(joint.x+x,y,joint.z+z).sub(joint).applyQuaternion(q).add(target));
+      target.y+=.006-Math.min(...sole.map(p=>p.y));
+      rotations[bone][0]=angle;offsets[bone]=target.sub(joint).toArray();
+    }
+  } else if(motion==='walk'||motion==='run') {
     const running=motion==='run',stride=running?.20:.11,stance=running?.54:.64;
     rotations[B.Body][0]=running?.045:.008;rotations[B.Body][2]=(running?.015:.008)*Math.sin(a);
     offsets[B.Body][1]=(running?.005:.002)*Math.sin(2*a);

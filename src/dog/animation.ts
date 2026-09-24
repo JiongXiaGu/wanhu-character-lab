@@ -1,14 +1,15 @@
-import { AnimationClip, Euler, Quaternion, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three';
+import { AnimationClip, Euler, Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from 'three';
 import type { MotionDefinition } from '../livestock/types';
 import { DOG_BONES as B, DOG_JOINTS, DOG_LEGS, dogSole } from './rig';
 
-export const DOG_ANIMATION_VERSION='wanhu-rural-dog-motion-v1';
+export const DOG_ANIMATION_VERSION='wanhu-rural-dog-motion-v2';
 export const DOG_MOTIONS: readonly MotionDefinition[] = [
   {id:'idle',label:'停驻',description:'站立观察，轻微呼吸、侧顾和摆尾。',duration:4,surface:'land'},
   {id:'walk',label:'行走',description:'轻快四拍短步，支撑脚后扫、摆动脚前送。',duration:.8,surface:'land'},
   {id:'run',label:'奔跑',description:'微错相对角快跑，低起伏，不加入日常混合。',duration:.5,surface:'land'},
   {id:'sniff',label:'闻地',description:'降颈低头近地闻嗅，四脚留在原位。',duration:4,surface:'land'},
   {id:'bark',label:'警戒吠叫',description:'抬头、颈部与胸部短促发力，不做下巴骨或音效。',duration:2,surface:'land'},
+  {id:'sleep',label:'睡觉',description:'低伏收腿、头部放低，原地缓慢呼吸；仅显式预览。',duration:3,surface:'land'},
 ];
 const smooth=(a:number,b:number,p:number)=>{const t=Math.max(0,Math.min(1,(p-a)/(b-a)));return t*t*(3-2*t);};
 /** 犬自己的作者曲线。单段腿的足底补偿只在轨道创建时烘焙，不是运行时腿IK。 */
@@ -17,7 +18,23 @@ export function authorDogPose(motion:string,phase:number) {
   const p=Math.max(0,Math.min(1,Number.isFinite(phase)?phase:0)),a=p*Math.PI*2;
   const rotations=DOG_JOINTS.map(()=>[0,0,0]),offsets=DOG_JOINTS.map(()=>[0,0,0]);
   rotations[B.Tail][1]=.10*Math.sin(a);rotations[B.Tail][2]=.035*Math.sin(a);
-  if(motion==='walk'||motion==='run') {
+  if(motion==='sleep') {
+    // 胸腹低伏，前腿前伸、后腿收向腹下；用原单段腿，不新增脚掌或脊柱骨。
+    // 头部落在前足之间，尾巴安静保持；足端不随呼吸滑动。
+    const drop=.284;
+    offsets[B.Body][1]=-drop+.0012*(1-Math.cos(a));
+    rotations[B.Neck][0]=.50;offsets[B.Neck][1]=-.125;
+    rotations[B.Head][0]=-.22;rotations[B.Tail]=[0,0,0];
+    for(const bone of DOG_LEGS) {
+      const joint=new Vector3(...DOG_JOINTS[bone].position),front=bone<=B.FrontLegR,side=Math.sign(joint.x);
+      const anchor=new Vector3(side*(front?.070:.055),front?.535:.520,front?.125:-.235);
+      const angle=front?-1.04:-1.29,q=new Quaternion().setFromEuler(new Euler(angle,0,0));
+      const target=joint.clone().sub(anchor).applyQuaternion(q).add(anchor);target.y-=drop;
+      const sole=dogSole(bone).map(p=>new Vector3(...p).sub(joint).applyQuaternion(q).add(target));
+      target.y+=.007-Math.min(...sole.map(p=>p.y));
+      rotations[bone][0]=angle;offsets[bone]=target.sub(joint).toArray();
+    }
+  } else if(motion==='walk'||motion==='run') {
     const run=motion==='run',stride=run?.30:.18,stance=run?.54:.64;
     rotations[B.Body][0]=run?.024:.008;rotations[B.Body][2]=(run?.012:.007)*Math.sin(a);
     offsets[B.Body][1]=(run?.005:.002)*Math.sin(2*a);
