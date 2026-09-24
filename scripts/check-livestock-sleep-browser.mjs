@@ -16,7 +16,12 @@ export async function checkPoultrySleepBrowser(page, base, dir, screenshots, set
   };
   const selectSleep = async () => {
     await page.getByTestId('livestock-motion-sleep').click();
-    await page.waitForFunction(() => { const s = window.__LIVESTOCK_REVIEW__.snapshot(); return s.motion === 'sleep' && !s.mixed; });
+    // 重选同一个sleep也会重新播放。只等motion会命中上一帧的暂停快照，
+    // 导致pause漏点按钮；必须等本次点击的播放状态实际进入场景后再暂停。
+    await page.waitForFunction(() => {
+      const s = window.__LIVESTOCK_REVIEW__.snapshot();
+      return s.motion === 'sleep' && !s.mixed && s.playing && !s.finished;
+    });
     await pause(); await setPhase(.5);
   };
   const images = [], cases = [], counts = [], strips = [];
