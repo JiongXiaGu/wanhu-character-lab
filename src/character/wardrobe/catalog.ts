@@ -34,7 +34,7 @@ export const SLOT_OPTIONS: { [K in keyof CharacterSlots]: readonly {id:Character
   top:[{id:'work_vest',name:'干活背心'},{id:'short_work_jacket',name:'短打短褂'},{id:'rough_tunic',name:'劳作短衣'},{id:'cross_jacket',name:'交领常服'},{id:'layered_vest',name:'半臂配内衬'},{id:'ceremony_robe',name:'滚边礼衣'},{id:'farmer_tunic',name:'农户短衣'},{id:'body',name:'无上衣'}],
   bottom:[{id:'short_trousers',name:'封口短裤'},{id:'true_short_skirt',name:'日常短裙'},{id:'long_skirt',name:'素面长裙'},{id:'work_pants',name:'劳动直裤'},{id:'work_wrap',name:'劳作束脚裤'},{id:'body',name:'无下装'}],
   shoes:[{id:'cloth_shoes',name:'布鞋'}],
-  back:[{id:'none',name:'无背部装备'},{id:'archer_quiver',name:'箭袋'}],
+  back:[{id:'none',name:'无背部装备'},{id:'bamboo_basket',name:'竹背篓'},{id:'firewood_bundle',name:'柴捆'},{id:'book_case',name:'书笈'},{id:'archer_quiver',name:'箭袋'}],
   leftHand:[{id:'none',name:'左手空'},{id:'guard_shield',name:'盾牌'},{id:'archer_bow',name:'短弓'}],
   rightHand:[{id:'none',name:'右手空'},{id:'farmer_hoe',name:'锄头'},{id:'guard_sword',name:'短剑'}],
 };
