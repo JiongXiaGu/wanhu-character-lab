@@ -7,7 +7,7 @@ export const PIG_DEFINITION: LivestockDefinition = {
   id:'pig_domestic_black',name:'黑色家猪',
   description:'深炭褐厚身、垂腹短腿、宽鼻盘、前垂耳与短卷尾；独立九骨陆地家畜，不可骑乘。',
   joints:PIG_JOINTS,motions:PIG_MOTIONS,bakeClips:bakePigClips,buildMesh:()=>buildPigMesh('lod0'),
-  referenceHeight:.657,previewSpacing:2.50,
+  referenceHeight:.607,previewSpacing:2.50,
   lods:[
     {id:'lod0',label:'LOD0',description:'厚身体 · 宽鼻盘 · 浅分趾',triangles:248,logicalVertices:148,buildMesh:()=>buildPigMesh('lod0')},
     {id:'lod1',label:'LOD1',description:'保留鼻盘 · 合并蹄体',triangles:114,logicalVertices:73,buildMesh:()=>buildPigMesh('lod1')},

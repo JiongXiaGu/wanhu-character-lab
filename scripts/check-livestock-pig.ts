@@ -60,12 +60,12 @@ function validate(data:AnimalMeshData,lod:LivestockLodDefinition) {
   assert.equal(data.bones.length,data.positions.length);assert.equal(data.colors.length,data.positions.length);
   assert(data.indices.every(i=>Number.isInteger(i)&&i>=0&&i<data.positions.length));
   topology(data);weights(data);
-  const main=data.positions.slice(0,data.parts[0].count),nose=main.filter(p=>p[2]>.65);
+  const main=data.positions.slice(0,data.parts[0].count),nose=main.filter(p=>p[2]>.59);
   assert.equal(data.parts[0].name,'BodyNeckHeadSnout');
   assert(Math.max(...main.map(p=>p[2]))<.75,'鼻盘脱离／异常拉长');
   assert(nose.length>=3&&Math.max(...nose.map(p=>p[0]))-Math.min(...nose.map(p=>p[0]))>.19,'鼻盘不能消失或变尖');
   assert(Math.max(...main.map(p=>p[0]))-Math.min(...main.map(p=>p[0]))>.50,'身体不够厚');
-  assert(Math.max(...main.map(p=>p[1]))>=.65&&Math.min(...main.filter(p=>Math.abs(p[2])<.31).map(p=>p[1]))<.20,'背部／垂腹轮廓');
+  assert(Math.max(...main.map(p=>p[1]))>=.60&&Math.min(...main.filter(p=>Math.abs(p[2])<.31).map(p=>p[1]))<.20,'背部／垂腹轮廓');
   for(const point of data.positions)assert(data.positions.some(p=>Math.hypot(p[0]+point[0],p[1]-point[1],p[2]-point[2])<.001),'左右结构异常');
   for(const bone of PIG_LEGS){const [x,,z]=PIG_JOINTS[bone].position;assert(Math.abs(x)>.15);assert(bone<=B.FrontLegR?z>.20:z<-.28,'肩臀腿位');}
 }
@@ -134,7 +134,7 @@ for(const lod of definition.lods) {
   const logical=(points:Vector3[])=>logicalToRender.map(i=>points[i]);
   const sample=(motion:string,phase:number)=>{actor.sample(motion,phase);return bind.map((point,i)=>actor.mesh.applyBoneTransform(i,point.clone()));};
   const soles=PIG_LEGS.map(b=>data.indices.map((id,i)=>data.bones[id]===b&&data.positions[id][1]<.01?i:-1).filter(i=>i>=0));
-  const nose=data.indices.map((id,i)=>id<data.parts[0].count&&data.positions[id][2]>.69?i:-1).filter(i=>i>=0);
+  const nose=data.indices.map((id,i)=>id<data.parts[0].count&&data.positions[id][2]>.64?i:-1).filter(i=>i>=0);
   const bodyFaces:{i:number;area:number}[]=[];
   for(let i=0;i<data.indices.length;i+=3)if(data.indices[i]<data.parts[0].count)bodyFaces.push({i,area:bind[i+1].clone().sub(bind[i]).cross(bind[i+2].clone().sub(bind[i])).length()});
   let poses=0,minGround=Infinity,minRootNose=Infinity,minBodyAreaRatio=Infinity,maxHorizontalRadius=0;
@@ -189,7 +189,7 @@ for(const lod of definition.lods) {
   let faults=0;const fails=(fn:()=>void)=>{assert.throws(fn);faults++;};const clone=()=>structuredClone(data);
   let broken=clone();broken.bones[broken.parts[1].start]=B.Head;fails(()=>weights(broken));
   broken=clone();broken.bones=broken.bones.map(b=>b===B.FrontLegL?B.RearLegR:b);fails(()=>weights(broken));
-  broken=clone();broken.positions=broken.positions.map(p=>p[2]>.65?[p[0],p[1],p[2]+.4] as Point:p);fails(()=>validate(broken,lod));
+  broken=clone();broken.positions=broken.positions.map(p=>p[2]>.59?[p[0],p[1],p[2]+.4] as Point:p);fails(()=>validate(broken,lod));
   broken=clone();[broken.indices[0],broken.indices[1]]=[broken.indices[1],broken.indices[0]];fails(()=>topology(broken));
   broken=clone();const cross=Array.from({length:broken.indices.length/3},(_,i)=>i*3).find(i=>new Set(broken.indices.slice(i,i+3).map(id=>broken.bones[id])).size>1)!;broken.indices.splice(cross,3);fails(()=>topology(broken));
   broken=clone();broken.positions[broken.indices[1]]=[...broken.positions[broken.indices[0]]];fails(()=>topology(broken));

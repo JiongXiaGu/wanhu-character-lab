@@ -1,9 +1,9 @@
 import { Ray, Vector3 } from 'three';
 import type { AnimalMeshData, LivestockLodId, Point } from '../livestock/types';
-import { PIG_BONES as B, PIG_JOINTS, PIG_LEGS, PIG_SOLE } from './rig';
+import { PIG_BONES as B, PIG_BODY_DROP, PIG_JOINTS, PIG_LEGS, PIG_SOLE } from './rig';
 
 export const PIG_MESH_VERSION = 'wanhu-black-domestic-pig-mesh-v1';
-const skin = '#504a46', belly = '#67574d', nose = '#776058', hoof = '#292b29';
+const skin = '#373a38', belly = '#50483f', nose = '#61514b', hoof = '#292b29';
 interface Ring { z: number; y: number; rx: number; ry: number; sides: number; bone: number; color: string }
 /** 三档独立截面；厚身、粗颈、低头、鼻梁和宽鼻盘共享一张闭合主壳。 */
 export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
@@ -15,21 +15,35 @@ export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
   const row = (z: number, y: number, rx: number, ry: number, sides: number, bone: number = B.Body, color = skin): Ring => ({z,y,rx,ry,sides,bone,color});
   const rows = lod === 'lod0' ? [
     row(-.455,.414,.158,.200,6), row(-.295,.421,.263,.236,8), row(-.045,.415,.273,.239,8),
-    row(.208,.399,.234,.223,8), row(.330,.366,.180,.172,6,B.Neck), row(.453,.344,.150,.143,6,B.Head),
-    row(.595,.285,.085,.078,6,B.Head), row(.666,.264,.120,.073,6,B.Head,nose), row(.706,.264,.120,.073,6,B.Head,nose),
+    row(.208,.399,.234,.223,8), row(.330,.390,.180,.188,6,B.Neck), row(.453,.360,.165,.165,6,B.Head),
+    row(.565,.296,.098,.084,6,B.Head), row(.601,.290,.120,.073,6,B.Head,nose), row(.650,.290,.120,.073,6,B.Head,nose),
   ] : lod === 'lod1' ? [
-    row(-.295,.421,.303,.236,6), row(.150,.408,.298,.236,6), row(.330,.366,.180,.172,4,B.Neck),
-    row(.453,.344,.150,.143,4,B.Head), row(.595,.285,.085,.078,4,B.Head),
-    row(.666,.264,.112,.073,4,B.Head,nose), row(.706,.264,.112,.073,4,B.Head,nose),
+    row(-.295,.421,.273,.236,6), row(.150,.408,.263,.236,6), row(.330,.390,.180,.188,4,B.Neck),
+    row(.453,.360,.165,.165,4,B.Head), row(.565,.296,.098,.084,4,B.Head),
+    row(.601,.290,.120,.073,4,B.Head,nose), row(.650,.290,.120,.073,4,B.Head,nose),
   ] : [
-    row(-.290,.421,.273,.236,4), row(.155,.408,.258,.236,4), row(.330,.366,.180,.172,4,B.Neck),
-    row(.483,.327,.170,.136,3,B.Head), row(.706,.240,.142,.100,3,B.Head,nose),
+    row(-.290,.421,.273,.236,4), row(.155,.408,.258,.236,4), row(.330,.390,.180,.188,4,B.Neck),
+    row(.483,.345,.180,.155,3,B.Head), row(.650,.263,.142,.100,3,B.Head,nose),
   ];
   const rings = rows.map(r => Array.from({length:r.sides},(_,i) => {
-    const angle = Math.PI/2+i*2*Math.PI/r.sides;
-    return vertex([Math.cos(angle)*r.rx,r.y+Math.sin(angle)*r.ry,r.z],r.bone,r.color===skin&&Math.sin(angle)<-.3?belly:r.color);
+    // 身体截面保留宽的腹底，不让四条短腿在尖腹两侧显得过高；三档最高点保持一致。
+    const body = r.bone === B.Body, start = Math.PI/2 - (body ? Math.PI/r.sides : 0);
+    const angle = start+i*2*Math.PI/r.sides;
+    const angles = Array.from({length:r.sides},(_,j)=>start+j*2*Math.PI/r.sides);
+    const sx = body ? Math.max(...angles.map(a=>Math.abs(Math.cos(a)))) : 1;
+    const sy = body ? Math.max(...angles.map(a=>Math.abs(Math.sin(a)))) : 1;
+    return vertex([Math.cos(angle)*r.rx/sx,r.y+Math.sin(angle)*r.ry/sy,r.z],r.bone,r.color===skin&&Math.sin(angle)<-.3?belly:r.color);
   }));
   const connect = (a: number[], b: number[]) => {
+    // 同边数截面左右镜像选择对角线，避免非共面头面造成左右眼贴面位置不一致。
+    if (a.length === b.length && a.length % 2 === 0) {
+      for (let i=0;i<a.length;i++) {
+        const j=(i+1)%a.length, x=data.positions[a[i]][0]+data.positions[a[j]][0];
+        if(x>=0)data.indices.push(a[i],a[j],b[i],a[j],b[j],b[i]);
+        else data.indices.push(a[i],a[j],b[j],a[i],b[j],b[i]);
+      }
+      return;
+    }
     let i=0,j=0;
     while(i<a.length||j<b.length) {
       if(j===b.length||(i<a.length&&(i+1)*b.length<=(j+1)*a.length)) {data.indices.push(a[i%a.length],a[(i+1)%a.length],b[j%b.length]);i++;}
@@ -76,11 +90,11 @@ export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
   for(const side of [-1,1]) {
     const suffix=side<0?'L':'R';
     if(lod==='lod0') {
-      const ear:Point[]=[[side*.070,.417,.488],[side*.070,.445,.453],[side*.220,.358,.546]];
-      const start=solid('Ear'+suffix,[...ear,...ear.map(([x,y,z])=>[x,y-.018,z] as Point)],prism,B.Head,skin);
-      data.colors[start+2]='#756056';data.colors[start+5]='#68534a';
+      const ear:Point[]=[[side*.045,.440,.395],[side*.045,.430,.470],[side*.205,.342,.485]];
+      const start=solid('Ear'+suffix,[...ear,...ear.map(([x,y,z])=>[x,y-.024,z] as Point)],prism,B.Head,skin);
+      data.colors[start+2]='#655449';data.colors[start+5]='#584940';
       // 在本档真实头面上定位眼睛；内极嵌入、外极只高出7mm，避免悬空眼球。
-      const ray=new Ray(new Vector3(side*.5,.400,.484),new Vector3(-side,0,0));
+      const ray=new Ray(new Vector3(side*.5,.410,.505),new Vector3(-side,0,0));
       const contact=new Vector3(), normal=new Vector3();let found=false;
       for(let i=0;i<data.indices.length;i+=3) {
         const ids=data.indices.slice(i,i+3);if(!ids.every(id=>id<data.parts[0].count&&data.bones[id]===B.Head))continue;
@@ -95,9 +109,9 @@ export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
       const e=solid('Eye'+suffix,eye,[[0,2,4],[0,4,3],[0,3,5],[0,5,2],[1,4,2],[1,3,4],[1,5,3],[1,2,5]],B.Head,'#8b7b68');
       data.colors[e+1]='#111916';
       const x=side*.042;
-      solid('Nostril'+suffix,[[x-.011,.257,.700],[x+.011,.257,.700],[x,.281,.700],[x,.268,.708]],tetra,B.Head,'#282424');
+      solid('Nostril'+suffix,[[x-.011,.283,.644],[x+.011,.283,.644],[x,.307,.644],[x,.294,.652]],tetra,B.Head,'#282424');
     } else {
-      solid('Ear'+suffix,[[side*.025,.390,.475],[side*.020,.420,.470],[side*.045,.382,.500],[side*.213,.358,.546]],tetra,B.Head,skin);
+      solid('Ear'+suffix,[[side*.025,.400,.420],[side*.020,.445,.415],[side*.045,.382,.450],[side*.205,.342,.485]],tetra,B.Head,skin);
     }
   }
   if(lod==='lod2') {
@@ -117,5 +131,7 @@ export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
     for(let i=from;i<data.indices.length;i+=3)[data.indices[i+1],data.indices[i+2]]=[data.indices[i+2],data.indices[i+1]];
     data.parts.push({name:'Tail',start,count:data.positions.length-start});
   }
+  // 厚躯干整体下沉50mm；四脚与Root腿骨的地面契约不变，绑定空间同步使用相同落差。
+  data.positions = data.positions.map(([x,y,z],i)=>[x,y-(data.bones[i] < B.FrontLegL ? PIG_BODY_DROP : 0),z]);
   return data;
 }
