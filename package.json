@@ -46,6 +46,7 @@
     "check:mounts": "tsx scripts/check-mounts.ts",
     "check:mounts-browser": "node scripts/check-mounts-browser.mjs",
     "check:livestock": "tsx scripts/check-livestock.ts",
+    "check:soldier": "tsx scripts/check-soldier.ts",
     "check:livestock-browser": "node scripts/check-livestock-browser.mjs",
     "review:livestock": "node scripts/check-livestock-browser.mjs --screenshots",
     "check:core": "tsx scripts/check-v3.ts && tsx scripts/check-body-profiles.ts && tsx scripts/check-garment-assets.ts && npm run check:deformation",

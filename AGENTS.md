@@ -1,3 +1,11 @@
+## S0 军人与甲胄工作流
+
+用户已批准建立中国风格军人工作流，固定三种驻地风格：皇宫禁卫、边疆戍卒、城市守军。先读 `Documentation/军人与甲胄工作流.md` 与 `src/soldier/contract.ts`。当前 S0 只建立风格、计划资产 ID、检查与阶段边界；第一件真实资产进入 S1“皇宫禁卫 · 长枪”，不得提前把空占位加入人物 UI 或 Recipe。
+
+军人仍复用固定成年男女、Recipe V5 七槽位、20 骨人物和现有 wardrobe / tailoring / motion 链路；`src/soldier` 不是第二套人物 Renderer。驻地风格、兵种、军阶彼此独立，外观 Recipe 不增加 profession/style/role/rank 字段。旧 `guard_light_armor`、`archer_tunic`、`guard_pants`、`archer_pants`、`loose_trousers`、`boots` 不得恢复。
+
+`npm run check:soldier` 已进入 Targeted Numeric Checks；仍只保留 Build & Core Checks、Targeted Numeric Checks、Manual Visual Review 三条正式 Actions，不新增第四条永久军人 workflow。S1 有首件可见甲胄后再接入 soldier 视觉 scope。关键截图仍须实际打开并直接展示给用户，自动通过、AI看图和用户美术认可分开记录。
+
 ## 家畜睡觉动作
 
 用户已授权在鸡鸭鹅sleep基础上，为猪与犬增加正式陆地睡眠。先读 `Documentation/家畜睡觉动作.md` 与对应物种专篇。各自九骨、bind、三档网格和旧动作保持；猪犬目前均六动作，sleep仅显式选择，默认日常池不变。猪动作v3、犬v2，不新增骨骼、睡眠mesh／页面／Renderer或通用框架。
