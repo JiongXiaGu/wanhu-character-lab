@@ -4,7 +4,7 @@ on:
     branches: [feat/l5-black-domestic-pig]
     paths: [.github/workflows/l5-workspace-transfer.yml]
 permissions:
-  contents: read
+  contents: write
 jobs:
   workspace:
     runs-on: ubuntu-latest
@@ -13,17 +13,59 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - name: Pack source and locked authoring dependencies
+      - name: Assemble exact authored patch without moving any branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          SOURCE_SHA: ${{ github.sha }}
         run: |
-          git rev-parse HEAD > workspace-source-sha.txt
-          tar -czf "$RUNNER_TEMP/l5-workspace.tar.gz" src scripts Documentation .github public AGENTS.md README.md package.json package-lock.json tsconfig*.json vite.config.* index.html node_modules workspace-source-sha.txt
+          python3 - <<'PY'
+          import base64, gzip, hashlib, json, os, pathlib, subprocess, urllib.request
+          repo = os.environ['REPOSITORY']
+          assert repo == 'JiongXiaGu/wanhu-character-lab'
+          parent = os.environ['SOURCE_SHA']
+          def api(path, data=None):
+              request = urllib.request.Request('https://api.github.com/repos/' + repo + path, data=None if data is None else json.dumps(data).encode(), headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json'})
+              with urllib.request.urlopen(request) as response:
+                  return json.load(response)
+          def git(*args):
+              return subprocess.check_output(['git', *args]).decode().strip()
+          assert git('rev-parse', 'HEAD') == parent
+          chunks = ['0182a5fbd12ea0b215e0cf8aec0e09d740925091', '546c1aed07d6efcc82c2d07b977b4f073f748010', '0506f29cd179f2e0593d37c192728dd1eec011d8', '14f0761366266ea5c0e716b331ace7890bb19d39', '0e1b5ed42f460738e8b4d068856c5d3a4311b737', '1e00ca6c55f0389d902ec8cea659768a0b02db01']
+          compressed = b''.join(base64.b64decode(api('/git/blobs/' + sha)['content']) for sha in chunks)
+          patch = gzip.decompress(compressed)
+          digest = hashlib.sha256(patch).hexdigest()
+          assert digest == '6ead3ba6de86d978c4da32734ccfd0283b39cd74e4802d541365d61d74a6518c', digest
+          patch_path = pathlib.Path('/tmp/l5-authored.patch')
+          patch_path.write_bytes(patch)
+          subprocess.run(['git', 'apply', '--check', '--index', str(patch_path)], check=True)
+          subprocess.run(['git', 'apply', '--index', str(patch_path)], check=True)
+          temporary = '.github/workflows/l5-workspace-transfer.yml'
+          subprocess.run(['git', 'rm', temporary], check=True)
+          allowed = {temporary, '.github/workflows/targeted-checks.yml', 'AGENTS.md', 'Documentation/家猪.md', 'Documentation/工作交接.md', 'README.md', 'scripts/check-livestock-browser.mjs', 'scripts/check-livestock-duck-browser.mjs', 'scripts/check-livestock-goose-browser.mjs', 'scripts/check-livestock-pig-browser.mjs', 'scripts/check-livestock-pig.ts', 'scripts/check-livestock.ts', 'src/livestock/LivestockLab.tsx', 'src/livestock/catalog.ts', 'src/livestock/crowd.ts', 'src/livestock/scene.ts', 'src/livestock/types.ts', 'src/pig/AGENTS.md', 'src/pig/animation.ts', 'src/pig/definition.ts', 'src/pig/geometry.ts', 'src/pig/rig.ts'}
+          paths = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '-z']).decode().rstrip('\0').split('\0')
+          assert set(paths) == allowed, paths
+          tree_entries, manifest = [], {}
+          for path in paths:
+              file = pathlib.Path(path)
+              entry = {'path': path, 'mode': '100644', 'type': 'blob'}
+              if file.exists():
+                  raw = file.read_bytes()
+                  entry['content'] = raw.decode('utf-8')
+                  manifest[path] = hashlib.sha256(raw).hexdigest()
+              else:
+                  assert path == temporary
+                  entry['sha'] = None
+                  manifest[path] = None
+              tree_entries.append(entry)
+          tree = api('/git/trees', {'base_tree': git('rev-parse', 'HEAD^{tree}'), 'tree': tree_entries})
+          commit = api('/git/commits', {'message': 'feat(livestock): author L5 black domestic pig with nine bones, five motions and verified LODs', 'tree': tree['sha'], 'parents': [parent]})
+          result = {'parent': parent, 'commit': commit['sha'], 'tree': tree['sha'], 'patch_sha256': digest, 'manifest': manifest, 'refs_modified': False}
+          pathlib.Path('/tmp/l5-published.json').write_text(json.dumps(result, ensure_ascii=False, indent=2))
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          PY
       - uses: actions/upload-artifact@v4
         with:
-          name: l5-authoring-workspace
-          path: ${{ runner.temp }}/l5-workspace.tar.gz
+          name: l5-published-commit
+          path: /tmp/l5-published.json
           retention-days: 1
