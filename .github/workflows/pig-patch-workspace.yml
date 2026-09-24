@@ -4,30 +4,68 @@ on:
     branches: [fix/l5-pig-domestic-silhouette]
     paths: [.github/workflows/pig-patch-workspace.yml]
 permissions:
-  contents: read
+  contents: write
 jobs:
-  workspace:
+  assemble:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run prepare:motion
-      - name: Pack exact source and locked dependencies without credentials
+      - name: Assemble verified local changes without updating refs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          SOURCE_SHA: ${{ github.sha }}
         run: |
-          git rev-parse HEAD > workspace-source-sha.txt
-          tar --exclude=.git --exclude=node_modules --exclude=review -czf "$RUNNER_TEMP/pig-source.tar.gz" .
-          tar -czf "$RUNNER_TEMP/pig-dependencies.tar.gz" node_modules
+          python3 - <<'PY'
+          import base64, gzip, hashlib, json, os, pathlib, subprocess, urllib.request
+          repo = os.environ['REPOSITORY']
+          assert repo == 'JiongXiaGu/wanhu-character-lab'
+          parent = os.environ['SOURCE_SHA']
+          def api(path, data=None):
+              req = urllib.request.Request('https://api.github.com/repos/' + repo + path, data=None if data is None else json.dumps(data).encode(), headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json'})
+              with urllib.request.urlopen(req) as response:
+                  return json.load(response)
+          def git(*args):
+              return subprocess.check_output(['git', *args]).decode().strip()
+          assert git('rev-parse', 'HEAD') == parent
+          chunks = ['c06c02b938c06631a3661f9a37304d9c7400e24f', '307346a29f9eb34fd2cdb4e3824e99b608bb412a']
+          patch = gzip.decompress(b''.join(base64.b64decode(api('/git/blobs/' + sha)['content']) for sha in chunks))
+          digest = hashlib.sha256(patch).hexdigest()
+          assert digest == 'bbf60071baf249936d8255e802e333058c9b9ed914cfff12025184b62a6ed24f', digest
+          patch_path = pathlib.Path('/tmp/pig-authored.patch')
+          patch_path.write_bytes(patch)
+          subprocess.run(['git', 'apply', '--check', '--index', str(patch_path)], check=True)
+          subprocess.run(['git', 'apply', '--index', str(patch_path)], check=True)
+          temporary = '.github/workflows/pig-patch-workspace.yml'
+          subprocess.run(['git', 'rm', temporary], check=True)
+          expected = {'AGENTS.md': 'de4bf6dcd35a03b5d6c501eb96eccd6c92675e33a2cb9385e50d5f5efca11d08', 'Documentation/家猪.md': '7bc2528a9fef3c294a7633be3c301ad5e338623a470995a11f8fd9889f2267bc', 'Documentation/工作交接.md': '3306bfd902d53e7b20e26a20a36aaed0e2562375c4f86ad684cb2dd55e2d1c86', 'README.md': 'e8d970cadce1295046f8d096177e2cdd5b85bb4e44be6bb9bc186d07670bac7b', 'scripts/check-livestock-pig-browser.mjs': '13c7721e157985d38f16c1b249ca98e079c8a74e6103a9e08d77ff7ae1c2f761', 'scripts/check-livestock-pig.ts': '1b6346723daf57eec1e584ba6bf964fd60f25d36657a1cd2a28b711b597a7115', 'src/pig/AGENTS.md': '01406fa817995a3a30ddf83ad1ef1511b966d66e0a32ff26b01a8423f02e8835', 'src/pig/animation.ts': '9feed6e27921f51143bf77ee844a52f9be9dc38b1bfd99a10c9716598a0b04bb', 'src/pig/definition.ts': '9287eb0098bd6202179a8ad56da5cc60e01dfcc8f221fb24f8a4ae0d2e71ff4f', 'src/pig/geometry.ts': 'd27da69ea687794786aa73bd0ec69d69460c20c27b8beb092f15d0e8437f0ad2', 'src/pig/rig.ts': '490249caa6709ce1c6a28750692e1ef79bb54b6dd293dee241e85dc02b94f732', temporary: None}
+          paths = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '-z']).decode().rstrip('\0').split('\0')
+          assert set(paths) == set(expected), paths
+          entries, manifest = [], {}
+          for path in paths:
+              file = pathlib.Path(path)
+              entry = {'path': path, 'mode': '100644', 'type': 'blob'}
+              if file.exists():
+                  raw = file.read_bytes()
+                  entry['content'] = raw.decode('utf-8')
+                  manifest[path] = hashlib.sha256(raw).hexdigest()
+              else:
+                  assert path == temporary
+                  entry['sha'] = None
+                  manifest[path] = None
+              assert manifest[path] == expected[path], path
+              entries.append(entry)
+          tree = api('/git/trees', {'base_tree': git('rev-parse', 'HEAD^{tree}'), 'tree': entries})
+          commit = api('/git/commits', {'message': 'fix(pig): replace split legs, reduce plain snout and improve visible eyes across author LODs', 'tree': tree['sha'], 'parents': [parent]})
+          result = {'parent': parent, 'commit': commit['sha'], 'tree': tree['sha'], 'patch_sha256': digest, 'manifest': manifest, 'refs_modified': False}
+          pathlib.Path('/tmp/pig-published.json').write_text(json.dumps(result, ensure_ascii=False, indent=2))
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          PY
       - uses: actions/upload-artifact@v4
         with:
-          name: pig-patch-workspace
-          path: |
-            ${{ runner.temp }}/pig-source.tar.gz
-            ${{ runner.temp }}/pig-dependencies.tar.gz
+          name: pig-published-commit
+          path: /tmp/pig-published.json
           retention-days: 1
