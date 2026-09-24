@@ -9,12 +9,12 @@ concurrency:
   group: temporary-cat-authoring
   cancel-in-progress: false
 jobs:
-  integrate:
+  review:
     if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'feat/l7-rural-cat'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+      REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       LIVESTOCK_CHECK_DIR: /tmp/cat-integration-checks
     steps:
       - uses: actions/checkout@v4
@@ -26,27 +26,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Apply guarded integration and save only to cat branch
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-          git fetch origin feat/l7-rural-cat
-          test "$(git rev-parse FETCH_HEAD)" = "$EXPECTED_SHA"
-          python3 scripts/tmp-cat-integration.py
-          git diff --check
-          # Workflow scope is applied through the connector separately; do not push workflow changes with the job token.
-          cp .github/workflows/targeted-checks.yml /tmp/cat-targeted-checks.yml
-          git restore .github/workflows/targeted-checks.yml
-          git add scripts/check-livestock* README.md AGENTS.md Documentation/田园猫.md Documentation/家畜睡觉动作.md Documentation/工作交接.md
-          git rm scripts/tmp-cat-integration.py
-          git config user.name 'wanhu-authoring'
-          git config user.email 'wanhu-authoring@users.noreply.github.com'
-          git commit -m 'feat(cat): integrate shared sleep, catalogue regression and authoring contracts'
-          git push origin HEAD:refs/heads/feat/l7-rural-cat
-          echo "REVIEW_HEAD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-          git rev-parse HEAD | tee /tmp/cat-reviewed-source.txt
       - name: Complete livestock numeric matrix
-        continue-on-error: true
         run: set -o pipefail; npm run check:livestock 2>&1 | tee /tmp/cat-numeric-log.txt
       - name: Prepare assets and TypeScript
         run: npm run prepare:motion && npx tsc --noEmit
@@ -55,12 +35,11 @@ jobs:
           npx playwright install --with-deps chromium
           sudo apt-get install -y fonts-noto-cjk
       - name: Cat desktop controls and exact-source screenshots
-        continue-on-error: true
         run: |
           cat > scripts/tmp-cat-browser.mjs <<'JS'
           import { chromium } from 'playwright';
           import { spawn } from 'node:child_process';
-          import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+          import { mkdirSync, readFileSync } from 'node:fs';
           import assert from 'node:assert/strict';
           import { checkCatBrowser } from './check-livestock-cat-browser.mjs';
           const base='http://127.0.0.1:4187', dir=process.env.LIVESTOCK_CHECK_DIR;
@@ -72,36 +51,39 @@ jobs:
             browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
             const page=await browser.newPage({viewport:{width:1600,height:1000},deviceScaleFactor:1});
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
-            // Reuse the exact production browser suite's real-control phase helper.
             const suite=readFileSync('scripts/check-livestock-browser.mjs','utf8');
             const begin=suite.indexOf('const setPhase = async value =>');
             const end=suite.indexOf('  await page.goto',begin);
             assert(begin>=0&&end>begin);
             const setPhase=new Function('page','assert',suite.slice(begin,end)+'\nreturn setPhase;')(page,assert);
+            await page.goto(`${base}/?lab=livestock&paused=1`,{waitUntil:'networkidle'});
+            await page.waitForFunction(()=>!!window.__LIVESTOCK_REVIEW__);
             await checkCatBrowser(page,base,dir,true,setPhase);
             assert.deepEqual(errors,[]);
           } finally {await browser?.close();server.kill();}
           JS
           set -o pipefail
           node scripts/tmp-cat-browser.mjs 2>&1 | tee /tmp/cat-browser-log.txt
-      - name: Publish isolated review evidence without adding images to product branch
+      - name: Publish isolated exact-source review evidence
         if: always()
         run: |
           set -euo pipefail
-          test -n "${REVIEW_HEAD_SHA:-}"
           mkdir -p /tmp/cat-evidence
-          cp /tmp/cat-reviewed-source.txt /tmp/cat-evidence/source-sha.txt
+          printf '%s\n' "$REVIEW_HEAD_SHA" > /tmp/cat-evidence/source-sha.txt
           cp /tmp/cat-numeric-log.txt /tmp/cat-evidence/ 2>/dev/null || true
           cp /tmp/cat-browser-log.txt /tmp/cat-evidence/ 2>/dev/null || true
           cp /tmp/cat-integration-checks/*.json /tmp/cat-evidence/ 2>/dev/null || true
           cp review/livestock/cat*.png /tmp/cat-evidence/ 2>/dev/null || true
           branch="review/cat-l7-${REVIEW_HEAD_SHA:0:10}"
+          git restore .
           git switch --orphan "$branch"
           git rm -r --cached . >/dev/null 2>&1 || true
           mkdir -p cat-evidence
           cp /tmp/cat-evidence/* cat-evidence/
           git add -f cat-evidence
-          git commit -m "review(cat): exact-source diagnostic evidence $REVIEW_HEAD_SHA; not user approval"
+          git config user.name 'wanhu-authoring'
+          git config user.email 'wanhu-authoring@users.noreply.github.com'
+          git commit -m "review(cat): exact-source evidence $REVIEW_HEAD_SHA; not user approval"
           git push origin HEAD:"refs/heads/$branch"
           echo "CAT_EVIDENCE_BRANCH=$branch"
       - uses: actions/upload-artifact@v4
