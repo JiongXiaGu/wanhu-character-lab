@@ -1,6 +1,6 @@
 import type { Joint, Point } from '../livestock/types';
 
-export const PIG_RIG_VERSION = 'wanhu-domestic-pig-rig-v1';
+export const PIG_RIG_VERSION = 'wanhu-domestic-pig-rig-v2';
 export const PIG_BODY_DROP = .05;
 export const PIG_BONES = { Root: 0, Body: 1, Neck: 2, Head: 3, Tail: 4, FrontLegL: 5, FrontLegR: 6, RearLegL: 7, RearLegR: 8 } as const;
 /** 猪独立的米制绑定，+Z朝前；四条短腿挂Root，不复制身体呼吸/俯仰。 */
@@ -16,8 +16,7 @@ export const PIG_JOINTS: readonly Joint[] = [
   { name: 'RearLegR', parent: 0, position: [.175, .310, -.325] },
 ];
 export const PIG_LEGS = [PIG_BONES.FrontLegL, PIG_BONES.FrontLegR, PIG_BONES.RearLegL, PIG_BONES.RearLegR] as const;
-/** 七点凹多边形形成很浅的双趾V口；三档接地烘焙共用这个保守外包。 */
+/** 简洁整蹄的作者足底，三档前后极值一致，烘焙接地不使用旧分趾外包。 */
 export const PIG_SOLE: readonly Point[] = [
-  [-.038,.006,-.044], [.038,.006,-.044], [.042,.006,.056], [.010,.006,.064],
-  [0,.006,.031], [-.010,.006,.064], [-.042,.006,.056],
+  [-.043,.006,-.040], [.043,.006,-.040], [.043,.006,.052], [-.043,.006,.052],
 ];

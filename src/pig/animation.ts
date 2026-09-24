@@ -2,7 +2,7 @@ import { AnimationClip, Euler, Quaternion, QuaternionKeyframeTrack, VectorKeyfra
 import type { MotionDefinition } from '../livestock/types';
 import { PIG_BONES as B, PIG_JOINTS, PIG_LEGS, PIG_SOLE } from './rig';
 
-export const PIG_ANIMATION_VERSION = 'wanhu-domestic-pig-motion-v1';
+export const PIG_ANIMATION_VERSION = 'wanhu-domestic-pig-motion-v2';
 export const PIG_MOTIONS: readonly MotionDefinition[] = [
   {id:'idle',label:'停驻',description:'厚身体轻微呼吸，头尾小范围活动。',duration:4,surface:'land'},
   {id:'walk',label:'行走',description:'四条短腿交错迈步，身体少量起伏。',duration:1.2,surface:'land'},
@@ -18,7 +18,7 @@ export function authorPigPose(motion:string,phase:number) {
   const rotations=PIG_JOINTS.map(()=>[0,0,0]),offsets=PIG_JOINTS.map(()=>[0,0,0]);
   rotations[B.Tail][1]=.04*Math.sin(a);rotations[B.Tail][2]=.018*Math.sin(a);
   if(motion==='walk'||motion==='run') {
-    const running=motion==='run',stride=running?.23:.12,stance=running?.54:.64;
+    const running=motion==='run',stride=running?.20:.11,stance=running?.54:.64;
     rotations[B.Body][0]=running?.045:.008;rotations[B.Body][2]=(running?.015:.008)*Math.sin(a);
     offsets[B.Body][1]=(running?.005:.002)*Math.sin(2*a);
     rotations[B.Neck][0]=running?.06:.015;rotations[B.Head][0]=-.02;
@@ -33,7 +33,7 @@ export function authorPigPose(motion:string,phase:number) {
     }
   } else if(motion==='root') {
     const dip=smooth(.08,.34,p)*(1-smooth(.72,.94,p));
-    rotations[B.Neck][0]=.47*dip;rotations[B.Head][0]=.10*dip;
+    rotations[B.Neck][0]=.56*dip;rotations[B.Head][0]=.10*dip;
     rotations[B.Head][1]=.075*Math.sin(4*a)*dip;rotations[B.Neck][1]=.025*Math.sin(2*a)*dip;
     offsets[B.Head][2]=.005*Math.sin(4*a)*dip;
   } else if(motion==='sniff') {

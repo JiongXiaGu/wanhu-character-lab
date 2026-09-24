@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs';
 
 /** 使用正式家畜UI、真实WebGL和同一Renderer；不提供猪专属测试页面。 */
 export async function checkPigBrowser(page,base,dir,screenshots,setPhase) {
-  const animal='pig_domestic_black',budgets=[['lod0',248,148],['lod1',114,73],['lod2',62,47]];
+  const animal='pig_domestic_black',budgets=[['lod0',248,144],['lod1',138,89],['lod2',82,57]];
   const cases=[],counts=[],images=[],comparisons=[],switches=[];
   const snap=()=>page.evaluate(()=>window.__LIVESTOCK_REVIEW__.snapshot());
   const ready=()=>page.waitForFunction(id=>window.__LIVESTOCK_REVIEW__?.snapshot().animal===id,animal);
@@ -16,7 +16,15 @@ export async function checkPigBrowser(page,base,dir,screenshots,setPhase) {
     const initial=await snap();assert.equal(initial.bones,9);assert.equal(initial.triangles,triangles);assert.equal(initial.logicalVertices,logicalVertices);
     assert.equal(initial.surface,'land');assert.equal(initial.waterClipped,false);assert.equal(await page.getByTestId('livestock-environment').count(),0);
     assert.equal(await page.locator('canvas').count(),1);assert.equal(await page.locator('.livestock-motions button').count(),5);
-    if(lod==='lod0')await shot('pig-three.png');
+    if(lod==='lod0') {
+      await shot('pig-three.png');
+      if(screenshots) {
+        await page.getByTestId('livestock-view-front').click();await shot('pig-front.png');
+        await page.getByTestId('livestock-view-farm').click();await shot('pig-farm-single.png');
+        await page.getByTestId('livestock-view-three').click();
+        await page.waitForFunction(()=>{const c=window.__LIVESTOCK_REVIEW__.snapshot().camera;const d=c.position.map((v,i)=>v-c.target[i]);return Math.abs(d[0]/d[2]-1.25/1.5)<1e-6;});
+      }
+    }
     if(screenshots) {
       await page.evaluate(()=>window.scrollTo(0,0));const box=await page.locator('.livestock-viewport canvas').boundingBox();assert(box);
       const width=Math.min(620,Math.floor(box.width)),height=Math.min(580,Math.floor(box.height));

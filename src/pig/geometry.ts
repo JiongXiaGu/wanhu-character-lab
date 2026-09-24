@@ -2,7 +2,7 @@ import { Ray, Vector3 } from 'three';
 import type { AnimalMeshData, LivestockLodId, Point } from '../livestock/types';
 import { PIG_BONES as B, PIG_BODY_DROP, PIG_JOINTS, PIG_LEGS, PIG_SOLE } from './rig';
 
-export const PIG_MESH_VERSION = 'wanhu-black-domestic-pig-mesh-v1';
+export const PIG_MESH_VERSION = 'wanhu-black-domestic-pig-mesh-v2';
 const skin = '#373a38', belly = '#50483f', nose = '#61514b', hoof = '#292b29';
 interface Ring { z: number; y: number; rx: number; ry: number; sides: number; bone: number; color: string }
 /** 三档独立截面；厚身、粗颈、低头、鼻梁和宽鼻盘共享一张闭合主壳。 */
@@ -16,14 +16,14 @@ export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
   const rows = lod === 'lod0' ? [
     row(-.455,.414,.158,.200,6), row(-.295,.421,.263,.236,8), row(-.045,.415,.273,.239,8),
     row(.208,.399,.234,.223,8), row(.330,.390,.180,.188,6,B.Neck), row(.453,.360,.165,.165,6,B.Head),
-    row(.565,.296,.098,.084,6,B.Head), row(.601,.290,.120,.073,6,B.Head,nose), row(.650,.290,.120,.073,6,B.Head,nose),
+    row(.545,.302,.088,.078,6,B.Head), row(.582,.278,.094,.058,6,B.Head,nose), row(.616,.278,.094,.058,6,B.Head,nose),
   ] : lod === 'lod1' ? [
     row(-.295,.421,.273,.236,6), row(.150,.408,.263,.236,6), row(.330,.390,.180,.188,4,B.Neck),
-    row(.453,.360,.165,.165,4,B.Head), row(.565,.296,.098,.084,4,B.Head),
-    row(.601,.290,.120,.073,4,B.Head,nose), row(.650,.290,.120,.073,4,B.Head,nose),
+    row(.453,.360,.165,.165,4,B.Head),
+    row(.575,.278,.082,.058,4,B.Head,nose), row(.616,.278,.082,.058,4,B.Head,nose),
   ] : [
     row(-.290,.421,.273,.236,4), row(.155,.408,.258,.236,4), row(.330,.390,.180,.188,4,B.Neck),
-    row(.483,.345,.180,.155,3,B.Head), row(.650,.263,.142,.100,3,B.Head,nose),
+    row(.483,.345,.160,.150,4,B.Head), row(.616,.278,.082,.058,4,B.Head,nose),
   ];
   const rings = rows.map(r => Array.from({length:r.sides},(_,i) => {
     // 身体截面保留宽的腹底，不让四条短腿在尖腹两侧显得过高；三档最高点保持一致。
@@ -56,7 +56,7 @@ export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
   for(let i=1;i<last.length-1;i++) data.indices.push(last[0],last[i],last[i+1]);
   data.parts.push({name:'BodyNeckHeadSnout',start:0,count:data.positions.length});
 
-  // 附件是少量闭合实体。凸附件按中心确定朝外；凹双趾脚使用显式一致绕序。
+  // 少量闭合实体；按中心确定朝外，不用单面片或分趾长槽制造细节。
   function solid(name: string, points: Point[], faces: number[][], bone: number, color: string, convex = true) {
     const start=data.positions.length, center=new Vector3();points.forEach(p=>center.add(new Vector3(...p)));center.divideScalar(points.length);
     points.forEach(p=>vertex(p,bone,color));
@@ -71,21 +71,63 @@ export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
   const prism=[[0,1,2],[3,5,4],[0,3,4,1],[1,4,5,2],[2,5,3,0]];
   for(const bone of PIG_LEGS) {
     const [x,,z]=PIG_JOINTS[bone].position;
-    // 上端向体内收55mm，留出奔跑摆腿的遮挡量；脚底仍位于原肩臀四角。
-    const at=(p:Point):Point=>[x+p[0]-(p[1]>.39?Math.sign(x)*.055:0),p[1],z+p[2]];
-    let start:number;
-    if(lod==='lod0') {
-      const points=[...PIG_SOLE,[-.050,.405,-.032],[.050,.405,-.032],[.050,.405,.032],[-.050,.405,.032]] as Point[];
-      const faces=[[0,1,4],[1,2,3],[1,3,4],[0,4,5],[0,5,6], [7,10,9,8],
-        [0,7,8,1],[1,8,9,2],[2,9,3],[3,9,4],[4,9,10],[4,10,5],[5,10,6],[6,10,7,0]];
-      start=solid(PIG_JOINTS[bone].name,points.map(at),faces,bone,skin,false);
-    } else {
-      const sole:Point[]=[[-.042,.006,.064],[.042,.006,.064],[0,.006,-.044]];
-      start=lod==='lod1'
-        ?solid(PIG_JOINTS[bone].name,([...sole,[-.050,.405,.032],[.050,.405,.032],[0,.405,-.032]] as Point[]).map(at),prism,bone,skin)
-        :solid(PIG_JOINTS[bone].name,([...sole,[0,.405,0]] as Point[]).map(at),tetra,bone,skin);
+    // 上粗下窄的整块短腿，脚底不再用贯穿腿身的凹V口；根部略内收而非外撇。
+    const sole:Point[]=lod==='lod2'?[[-.043,.006,.052],[.043,.006,.052],[0,.006,-.040]]:[...PIG_SOLE];
+    const points:Point[]=sole.map(([px,y,pz])=>[x+px,y,z+pz]);
+    const top:Point[]=lod==='lod2'?[[-.072,.365,.046],[.072,.365,.046],[0,.365,-.092]]:
+      [[-.072,.365,-.066],[.072,.365,-.066],[.072,.365,.066],[-.072,.365,.066]];
+    points.push(...top.map(([px,y,pz])=>[x+px-Math.sign(x)*(lod==='lod2'?.040:.020),y,z+pz] as Point));
+    const n=sole.length,faces:number[][]=[Array.from({length:n},(_,i)=>i),Array.from({length:n},(_,i)=>n+i)];
+    for(let i=0;i<n;i++)faces.push([i,(i+1)%n,(i+1)%n+n,i+n]);
+    const start=solid(PIG_JOINTS[bone].name,points,faces,bone,skin);
+    for(let i=0;i<n;i++)data.colors[start+i]=hoof;
+  }
+  // 眼睛单独贴合真实头面：细灰褐眼缘承托一块深色眼面，不再是浅色菱形中的黑针尖。
+  function makeEye(side:number,suffix:string) {
+    const headFaces:number[][]=[];
+    for(let i=0;i<data.indices.length;i+=3) {
+      const ids=data.indices.slice(i,i+3);
+      if(ids.every(id=>id<data.parts[0].count&&data.bones[id]===B.Head))headFaces.push(ids);
     }
-    for(let i=start;i<data.positions.length;i++) if(data.positions[i][1]<.01) data.colors[i]=hoof;
+    function hit(origin:Vector3,direction:Vector3) {
+      const ray=new Ray(origin,direction),point=new Vector3();
+      let nearest: {point:Vector3;normal:Vector3;distance:number}|undefined;
+      for(const ids of headFaces) {
+        const [a,b,c]=ids.map(id=>new Vector3(...data.positions[id]));
+        if(!ray.intersectTriangle(a,b,c,true,point))continue;
+        const distance=point.distanceToSquared(origin);
+        if(!nearest||distance<nearest.distance)nearest={point:point.clone(),normal:b.sub(a).cross(c.sub(a)).normalize(),distance};
+      }
+      if(!nearest)throw new Error('猪眼睛必须落在真实Head表面');
+      return nearest;
+    }
+    const {point:contact,normal}=hit(new Vector3(side*.5,.420,.492),new Vector3(-side,0,0));
+    const up=new Vector3(0,1,0).addScaledVector(normal,-normal.y).normalize();
+    const forward=new Vector3().crossVectors(normal,up).normalize();
+    const onFace=(horizontal:number,vertical:number,height:number)=>{
+      const desired=contact.clone().addScaledVector(forward,horizontal).addScaledVector(up,vertical);
+      return hit(desired.clone().addScaledVector(normal,.15),normal.clone().negate()).point.addScaledVector(normal,height);
+    };
+    const points:Point[]=[contact.clone().addScaledVector(normal,-.008).toArray()];
+    const faces:number[][]=[];
+    if(lod==='lod0') {
+      for(const [scale,height] of [[1,.002],[.72,.007]])for(let i=0;i<6;i++) {
+        const a=i*2*Math.PI/6;
+        points.push(onFace(Math.cos(a)*.032*scale,Math.sin(a)*.025*scale,height).toArray());
+      }
+      points.push(contact.clone().addScaledVector(normal,.008).toArray());
+      for(let i=0;i<6;i++) {
+        const a=1+i,b=1+(i+1)%6;
+        faces.push([0,b,a],[a,b,b+6,a+6],[13,a+6,b+6]);
+      }
+    } else {
+      for(const [u,v] of [[-.031,0],[0,-.023],[.031,0],[0,.023]])points.push(onFace(u,v,.002).toArray());
+      points.push(contact.clone().addScaledVector(normal,.008).toArray());
+      for(let i=0;i<4;i++){const a=1+i,b=1+(i+1)%4;faces.push([0,b,a],[5,a,b]);}
+    }
+    const start=solid('Eye'+suffix,points,faces,B.Head,'#898271');
+    if(lod==='lod0')for(let i=7;i<14;i++)data.colors[start+i]='#101714';
+    else data.colors[start+5]='#101714';
   }
   for(const side of [-1,1]) {
     const suffix=side<0?'L':'R';
@@ -93,26 +135,10 @@ export function buildPigMesh(lod: LivestockLodId = 'lod0'): AnimalMeshData {
       const ear:Point[]=[[side*.045,.440,.395],[side*.045,.430,.470],[side*.205,.342,.485]];
       const start=solid('Ear'+suffix,[...ear,...ear.map(([x,y,z])=>[x,y-.024,z] as Point)],prism,B.Head,skin);
       data.colors[start+2]='#655449';data.colors[start+5]='#584940';
-      // 在本档真实头面上定位眼睛；内极嵌入、外极只高出7mm，避免悬空眼球。
-      const ray=new Ray(new Vector3(side*.5,.410,.505),new Vector3(-side,0,0));
-      const contact=new Vector3(), normal=new Vector3();let found=false;
-      for(let i=0;i<data.indices.length;i+=3) {
-        const ids=data.indices.slice(i,i+3);if(!ids.every(id=>id<data.parts[0].count&&data.bones[id]===B.Head))continue;
-        const [a,b,c]=ids.map(id=>new Vector3(...data.positions[id]));
-        if(ray.intersectTriangle(a,b,c,true,contact)){normal.copy(b).sub(a).cross(c.sub(a)).normalize();found=true;break;}
-      }
-      if(!found)throw new Error('猪眼睛必须落在真实Head表面');
-      const up=new Vector3(0,1,0).addScaledVector(normal,-normal.y).normalize(), forward=new Vector3().crossVectors(normal,up).normalize();
-      const eye=[contact.clone().addScaledVector(normal,-.007),contact.clone().addScaledVector(normal,.007),
-        contact.clone().addScaledVector(up,.014),contact.clone().addScaledVector(up,-.014),
-        contact.clone().addScaledVector(forward,.018),contact.clone().addScaledVector(forward,-.018)].map(p=>p.toArray() as [number,number,number]);
-      const e=solid('Eye'+suffix,eye,[[0,2,4],[0,4,3],[0,3,5],[0,5,2],[1,4,2],[1,3,4],[1,5,3],[1,2,5]],B.Head,'#8b7b68');
-      data.colors[e+1]='#111916';
-      const x=side*.042;
-      solid('Nostril'+suffix,[[x-.011,.283,.644],[x+.011,.283,.644],[x,.307,.644],[x,.294,.652]],tetra,B.Head,'#282424');
     } else {
       solid('Ear'+suffix,[[side*.025,.400,.420],[side*.020,.445,.415],[side*.045,.382,.450],[side*.205,.342,.485]],tetra,B.Head,skin);
     }
+    if(lod!=='lod2')makeEye(side,suffix);
   }
   if(lod==='lod2') {
     solid('Tail',[[0,.451,-.477],[.018,.473,-.477],[-.018,.473,-.477],[0,.516,-.560]],tetra,B.Tail,skin);
