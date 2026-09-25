@@ -40,10 +40,14 @@ try{
   const downloading=page.waitForEvent('download');await page.getByRole('button',{name:'导出配方',exact:true}).click();const stream=await(await downloading).createReadStream(),chunks=[];for await(const chunk of stream)chunks.push(chunk);const bytes=Buffer.concat(chunks);assert.deepEqual(JSON.parse(bytes),saved);
   await page.getByLabel('上衣',{exact:true}).selectOption('work_vest');await page.getByLabel('导入配方文件',{exact:true}).setInputFiles({name:'palace.json',mimeType:'application/json',buffer:bytes});await page.waitForFunction(()=>window.__WANHU_RECIPE__().slots.top==='palace_guard_armor');assert.deepEqual(await recipe(),saved);
   await page.getByLabel('导入配方文件',{exact:true}).setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({...saved,profession:'soldier'}))});await page.locator('.notice-error').waitFor({state:'visible'});assert.deepEqual(await recipe(),saved);
+  // 先验收故意触发的错误及配方保持，再通过真实关闭按钮清理提示；不改DOM或隐藏运行时错误。
+  await page.getByRole('button',{name:'关闭提示',exact:true}).click();await page.locator('.studio-notice').waitFor({state:'hidden'});assert.deepEqual(await recipe(),saved);
   await page.getByLabel('锁定上衣',{exact:true}).check();await page.getByRole('button',{name:'随机人物',exact:true}).click();assert.equal((await recipe()).slots.top,'palace_guard_armor');
   await page.getByTestId('soldier-palace').click();await page.getByTestId('body-type-female').click();await page.waitForFunction(()=>window.__WANHU_RECIPE__().bodyType==='female');assert.equal((await recipe()).slots.headwear,'palace_guard_helmet');
+  // 随机成功提示同样通过用户入口关闭，避免覆盖接下来的女性资产截图。
+  await page.getByRole('button',{name:'关闭提示',exact:true}).click();await page.locator('.studio-notice').waitFor({state:'hidden'});
   await page.getByRole('button',{name:'自由',exact:true}).click();await shot('palace-female-three-quarter.png');
-  checks.push('V5 save/restore and file roundtrip; undo, strict invalid import, random slot lock and gender swap');
+  checks.push('V5 save/restore and file roundtrip; undo, strict invalid import and explicit notice dismissal, random slot lock and gender swap');
   await page.goto(`${base}/?review=1&soldier=palace&motion=jogging&paused=1&bodyType=female&rightHand=none&view=free`);await motionReady('jogging');
   await seek(.375);const phase=(await state()).status.phase,geometry=(await state()).geometry;
   await page.getByLabel('试衣动画',{exact:true}).selectOption('pilot-switches');await motionReady('pilot-switches');assert.equal((await state()).geometry,geometry);
