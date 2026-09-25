@@ -1,6 +1,22 @@
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 
+/** 相机矩阵允许双精度末位舍入，不允许改变取景；与穿插阈值无关。 */
+function sameCamera(actual, expected) {
+  if (typeof expected === 'number') {
+    assert(Number.isFinite(actual) && Number.isFinite(expected));
+    assert(Math.abs(actual - expected) < 1e-10, `Camera changed: ${actual} != ${expected}`);
+  } else if (Array.isArray(expected)) {
+    assert(Array.isArray(actual)); assert.equal(actual.length, expected.length);
+    expected.forEach((v, i) => sameCamera(actual[i], v));
+  } else if (expected && typeof expected === 'object') {
+    assert.deepEqual(Object.keys(actual).sort(), Object.keys(expected).sort());
+    for (const key of Object.keys(expected)) sameCamera(actual[key], expected[key]);
+  } else assert.equal(actual, expected);
+}
+assert.throws(() => sameCamera({ position: [2.800001, 1, 4] }, { position: [2.8, 1, 4] }));
+assert.throws(() => sameCamera([NaN], [1]));
+
 /** 只操作原工坊控件和原 WebGL Canvas；合成页只排列捕获帧，不创建第二套人物或渲染器。 */
 export async function checkSoldierArmor(ctx) {
   const { page, browser, base, capture, dir, recipe, state, sync, motionReady, seek, shot, checks, images } = ctx;
@@ -48,7 +64,7 @@ export async function checkSoldierArmor(ctx) {
     const fixedCamera = await camera(), fixedRecipe = await recipe(), panels = [];
     for (const item of tiers) {
       await tier(item.id); unchangedExceptArmor(fixedRecipe, await recipe());
-      assert.deepEqual(await camera(), fixedCamera);
+      sameCamera(await camera(), fixedCamera);
       panels.push(await frame(`armor-${item.id}-${view}.png`, item.name));
     }
     if (view === 'overview') assert(fixedCamera.position[1] > fixedCamera.target[1] + 3);
@@ -78,7 +94,7 @@ export async function checkSoldierArmor(ctx) {
     await page.getByTestId('soldier-' + style).click(); await sync();
     const after = await recipe();
     assert.deepEqual({ ...after.slots, headwear: before.slots.headwear }, before.slots);
-    assert.deepEqual(await garmentSignature(), heavyGeometry); assert.deepEqual(await camera(), colorCamera);
+    assert.deepEqual(await garmentSignature(), heavyGeometry); sameCamera(await camera(), colorCamera);
     assert.equal(await page.getByTestId('soldier-armor-heavy').getAttribute('aria-pressed'), 'true');
     colors.push(await frame(`heavy-${style}-palette.png`, `同一 Heavy · ${style}`));
   }
@@ -115,23 +131,12 @@ export async function checkSoldierArmor(ctx) {
     await open(`review=1&soldier=palace&armorClass=heavy&bodyType=${bodyType}&motion=jogging&paused=1&rightHand=none&view=free`);
     await motionReady('jogging'); await seek(.375);
     assert.equal((await recipe()).slots.top, 'heavy_armor');
-    const geometry = (await state()).geometry;
-    for (const [motion, phase, label] of [['jogging', .375, '慢跑'], ['pilot-switches', .5, '坐姿'], ['shooting-arrow', .5, '射箭']]) {
-      await page.getByLabel('试衣动画', { exact: true }).selectOption(motion); await motionReady(motion); await seek(phase);
-      assert.equal((await state()).geometry, geometry, '只切动作不得重建重甲几何');
-      const pose = (await state()).status.phase;
-      await page.getByTestId('soldier-identity-captain').click(); await motionReady(motion); assert(Math.abs((await state()).status.phase - pose) < 1e-6);
-      await page.getByTestId('soldier-identity-soldier').click(); await motionReady(motion); assert(Math.abs((await state()).status.phase - pose) < 1e-6);
-      actionPanels.push(await frame(`heavy-${bodyType}-${motion}.png`, `${bodyType === 'male' ? '男' : '女'} · ${label}`));
-      // 正面补图用于检查腋下、坐姿腰胯和两腿出口，不改变原相机定义。
-      await page.getByRole('button', { name: '正面', exact: true }).click(); await sync(); await shot(`heavy-${bodyType}-${motion}-front.png`);
-      await page.getByRole('button', { name: '自由', exact: true }).click(); await sync();
-      // 换头盔会重建外观；后续动作比较使用当前实际几何身份。
-      if (motion !== 'shooting-arrow') break;
-    }
-    // 独立动作轮换保持同一重甲/头盔，不让上面的身份换装影响几何复用断言。
+    const pose = (await state()).status.phase;
+    await page.getByTestId('soldier-identity-captain').click(); await motionReady('jogging'); assert(Math.abs((await state()).status.phase - pose) < 1e-6);
+    await page.getByTestId('soldier-identity-soldier').click(); await motionReady('jogging'); assert(Math.abs((await state()).status.phase - pose) < 1e-6);
+    // 身份换装完成后记录实际几何，三个动作切换都必须复用该几何。
     const fixedGeometry = (await state()).geometry;
-    for (const [motion, phase, label] of [['pilot-switches', .5, '坐姿'], ['shooting-arrow', .5, '射箭']]) {
+    for (const [motion, phase, label] of [['jogging', .375, '慢跑'], ['pilot-switches', .5, '坐姿'], ['shooting-arrow', .5, '射箭']]) {
       await page.getByLabel('试衣动画', { exact: true }).selectOption(motion); await motionReady(motion); await seek(phase);
       assert.equal((await state()).geometry, fixedGeometry);
       actionPanels.push(await frame(`heavy-${bodyType}-${motion}.png`, `${bodyType === 'male' ? '男' : '女'} · ${label}`));
