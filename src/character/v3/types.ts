@@ -26,8 +26,11 @@ export type HeadwearId =
   | "none"
   | "farmer_straw_hat"
   | "palace_guard_helmet"
+  | "palace_captain_helmet"
   | "frontier_guard_helmet"
+  | "frontier_captain_helmet"
   | "city_guard_helmet"
+  | "city_captain_helmet"
   | "guard_helmet"
   | "archer_headband"
   | "cloth_wrap"
@@ -123,8 +126,11 @@ export const HEADWEAR_IDS = [
   "none",
   "farmer_straw_hat",
   "palace_guard_helmet",
+  "palace_captain_helmet",
   "frontier_guard_helmet",
+  "frontier_captain_helmet",
   "city_guard_helmet",
+  "city_captain_helmet",
   "guard_helmet",
   "archer_headband",
   "cloth_wrap", "scholar_cap", "jade_pin",
