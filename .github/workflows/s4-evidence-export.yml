@@ -1,0 +1,54 @@
+name: S4 Evidence Export (isolated review branch)
+on:
+  push:
+    branches: [review/s4-captain-9e2e768777]
+    paths: [.github/workflows/s4-evidence-export.yml]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: review/s4-captain-9e2e768777
+      - name: Wait for the exact official visual run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run watch 36140742663 --repo JiongXiaGu/wanhu-character-lab --interval 10 --exit-status || echo 'Official run did not pass; export available diagnostics, not approval.'
+          gh api repos/JiongXiaGu/wanhu-character-lab/actions/runs/36140742663 --jq '{id,head_sha,status,conclusion,html_url}' > /tmp/source-run.json
+      - uses: actions/download-artifact@v4
+        with:
+          name: manual-visual-soldier-9e2e7687770bf9f400e0fbaa19e44fab94dc8e6b
+          github-token: ${{ github.token }}
+          repository: JiongXiaGu/wanhu-character-lab
+          run-id: 36140742663
+          path: /tmp/official-s4-evidence
+      - name: Copy unmodified PNGs and exact source metadata
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, shutil, hashlib
+          root=Path('/tmp/official-s4-evidence')
+          report=next(root.rglob('soldier/report.json'))
+          data=json.loads(report.read_text())
+          assert data['sourceSHA']=='9e2e7687770bf9f400e0fbaa19e44fab94dc8e6b'
+          dest=Path('evidence/s4');dest.mkdir(parents=True,exist_ok=True)
+          files=[]
+          for p in sorted(report.parent.glob('*.png')):
+              shutil.copyfile(p,dest/p.name)
+              files.append({'name':p.name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+          shutil.copyfile(report,dest/'report.json')
+          manifest={'sourceSHA':data['sourceSHA'],'officialRun':json.loads(Path('/tmp/source-run.json').read_text()),'files':files,'visualApproval':False,'note':'Unmodified official Playwright/WebGL images, not generated artwork. Actual visual review must be recorded separately.'}
+          (dest/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2))
+          Path('.github/workflows/s4-evidence-export.yml').unlink()
+          print(json.dumps({'sourceSHA':data['sourceSHA'],'passed':data['passed'],'imageCount':len(files)},ensure_ascii=False))
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add evidence/s4 .github/workflows/s4-evidence-export.yml
+          git commit -m 'review: preserve unmodified official S4 WebGL screenshots and remove exporter'
+          git push origin HEAD:review/s4-captain-9e2e768777
