@@ -232,14 +232,13 @@ jobs:
       - name: Closed soldier assets, identity and fault injection
         if: steps.scope.outputs.required == 'true'
         run: npm run check:soldier
-      # 分阶段验收：S6-3 浏览器交互先独立出结果；后续仍完整执行 S6-4 蒙皮与穿插门槛。
-      # 只调整顺序，不删除检查、动作或样本。
+      # 分阶段验收：先给 S6-3 一个小而独立的浏览器结论；完整回归仍保留在后续门槛。
       - name: Install desktop browser
         if: steps.scope.outputs.required == 'true'
         run: npx playwright install --with-deps chromium
-      - name: Soldier desktop interactions without screenshots
+      - name: S6-3 focused fitting browser interactions
         if: steps.scope.outputs.required == 'true'
-        run: npm run check:soldier-browser
+        run: node scripts/check-soldier-fitting-browser.mjs
       - name: Actual skinned source keys and midpoints
         if: steps.scope.outputs.required == 'true'
         run: npx tsx scripts/check-soldier-assets.ts --motion
@@ -247,6 +246,10 @@ jobs:
       - name: Full existing lower-body intersection regression
         if: steps.scope.outputs.required == 'true'
         run: npx tsx scripts/check-tailoring-intersections.ts
+      # 完整旧浏览器回归不删除；等 S6-4 数值门槛通过后继续执行，作为最终回归的一部分。
+      - name: Soldier full desktop interactions without screenshots
+        if: steps.scope.outputs.required == 'true'
+        run: npm run check:soldier-browser
       - name: Preserve full intersection diagnostics
         if: always() && steps.scope.outputs.required == 'true'
         run: |
