@@ -1,0 +1,35 @@
+name: Temporary S2 Authoring Snapshot
+on:
+  push:
+    branches: [feat/s2-frontier-guard]
+    paths: [.github/workflows/s2-source-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Package tracked source and locked dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > /tmp/s2-source-sha.txt
+          git archive --format=tar HEAD > /tmp/s2-source.tar
+          tar -rf /tmp/s2-source.tar node_modules
+          gzip /tmp/s2-source.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s2-authoring-snapshot
+          path: |
+            /tmp/s2-source.tar.gz
+            /tmp/s2-source-sha.txt
+          retention-days: 1
