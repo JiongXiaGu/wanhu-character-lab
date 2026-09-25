@@ -8,8 +8,9 @@ import {makeCharacter} from '../src/character/v3/outfit';
 import {BODY_TYPES,createRecipe} from '../src/character/v3/types';
 
 const expected=new Map([
-  ['mediapipe-xinbaodao',{frames:661,start:23,end:45,missing:0}],
-  ['mediapipe-xinbaodao-zhajishaoye',{frames:421,start:34,end:48,missing:0}],
+  ['mediapipe-xinbaodao',{frames:661,start:23,end:45,fps:30,missing:0}],
+  ['mediapipe-xinbaodao-zhajishaoye',{frames:421,start:34,end:48,fps:30,missing:0}],
+  ['mediapipe-guogaitou-rrrrrrrry',{frames:899,start:0,end:14.998683,fps:59.94,missing:0}],
 ]);
 assert.equal(MEDIAPIPE_CLIPS.length,expected.size);
 assert.equal(resolveMotionId('xr-b-ccae4e25'),'mediapipe-xinbaodao');
@@ -22,9 +23,11 @@ for(const definition of MEDIAPIPE_CLIPS){
   validateMotionData(data,definition.id);
   assert.equal(data.source.provider,'MediaPipe');
   assert.equal(data.source.format,'mp4');
+  assert.equal(data.source.file,definition.filename);
   assert.equal(data.source.sourceStartSeconds,specification.start);
   assert.equal(data.source.sourceEndSeconds,specification.end);
   assert.equal(data.times.length,specification.frames);
+  assert.equal(data.fps,specification.fps);
   assert(data.mediapipe33);
   assert.equal(data.mediapipe33.positions.length,data.times.length*33*3);
   assert.equal(data.mediapipe33.visibility.length,data.times.length*33);
@@ -34,11 +37,17 @@ for(const definition of MEDIAPIPE_CLIPS){
   }else assert.equal(specification.missing,0);
   assert.equal(data.source.poseSha256?.length,64);
   assert.equal(data.source.modelSha256?.length,64);
-  if(definition.id==='mediapipe-xinbaodao-zhajishaoye')assert.equal(data.source.extractorVersion,'mediapipe-pose-clip-v3');
+  assert.equal(data.source.extractorVersion,'mediapipe-pose-clip-v6');
+  if(definition.id==='mediapipe-xinbaodao')assert.equal(report.nonFootTracksPreservedFrom,undefined,'新宝岛不能继续使用旧版前臂轨道');
+  if(definition.id==='mediapipe-guogaitou-rrrrrrrry'){
+    assert.equal(data.source.sha256,'533197ce2c67b84363b86e333366c5670474d81d55fbba809beff0bdfba8a8b3');
+    assert.equal(data.source.poseSha256,'b73f6059006a2de46327f6d3f155cfeebe79496659cb634ad0f5d367c1c4463c');
+    assert.equal(data.source.modelSha256,'64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b');
+  }
   assert.equal(report.videoSha256,data.source.sha256);
   assert.equal(report.poseSha256,data.source.poseSha256);
   assert.equal(report.frameCount,data.times.length);
-  if(specification.missing)assert.equal(report.missingCriticalFrames,specification.missing);
+  if(report.missingCriticalFrames!==undefined)assert.equal(report.missingCriticalFrames,specification.missing);
 
   let maximumStep=0;
   const before=new T.Quaternion(),after=new T.Quaternion();
@@ -48,7 +57,7 @@ for(const definition of MEDIAPIPE_CLIPS){
     maximumStep=Math.max(maximumStep,before.angleTo(after)*180/Math.PI);
   }
   assert(maximumStep<90,`${definition.id} 出现 ${maximumStep.toFixed(1)}° 单帧翻转`);
-  if(data.source.extractorVersion==='mediapipe-pose-clip-v3'){
+  if(!report.nonFootTracksPreservedFrom){
     for(let frame=0;frame<data.times.length;frame++)for(const [upper,forearm] of [[7,8],[11,12]] as const){
       const point=(bone:number)=>new T.Vector3().fromArray(data.positions,(frame*SAMPLE_BONE_COUNT+bone)*3);
       const upperDirection=point(forearm).sub(point(upper)).normalize();
@@ -65,6 +74,23 @@ for(const definition of MEDIAPIPE_CLIPS){
     }
   }
   const pose=data.mediapipe33.positions;
+  const footDirections:T.Vector3[]=[];
+  for(const [bone,toe,side] of [[16,23,'right'],[19,24,'left']] as const){
+    const clamped=report.footPitchClampFrames?.[side];
+    assert(clamped,`${definition.id} 缺少 ${side} 脚俯仰限制统计`);
+    assert(clamped.tooSteep+clamped.tooShallow<=data.times.length);
+    const bindDirection=new T.Vector3().fromArray(data.bindPositions,toe*3)
+      .sub(new T.Vector3().fromArray(data.bindPositions,bone*3)).normalize();
+    for(let frame=0;frame<data.times.length;frame++){
+      const footRotation=new T.Quaternion().fromArray(data.worldDeltas,(frame*20+bone)*4);
+      const horizontal=bindDirection.clone().applyQuaternion(footRotation).setY(0).normalize();
+      footDirections.push(horizontal);
+    }
+  }
+  for(let frame=0;frame<data.times.length;frame++){
+    const separation=footDirections[frame].angleTo(footDirections[data.times.length+frame])*180/Math.PI;
+    assert(separation<30.5,`${definition.id} 第 ${frame} 帧双脚水平朝向分离 ${separation.toFixed(1)}°`);
+  }
   for(const bone of [4,5,16,19]){
     let minimumUp=1;
     for(let frame=0;frame<data.times.length;frame++){
@@ -74,7 +100,7 @@ for(const definition of MEDIAPIPE_CLIPS){
     assert(minimumUp>(bone<6?.85:.95),`${definition.id} 第 ${bone} 骨骼低头或鞋底翻转：${minimumUp.toFixed(3)}`);
   }
   // 前臂弯曲时衣袖朝向可以与躯干相反；v3 已逐帧校验肘部相对扭转和肘腕方向。
-  const facingBones=data.source.extractorVersion==='mediapipe-pose-clip-v3'?[7,11]:[7,8,11,12];
+  const facingBones=report.nonFootTracksPreservedFrom==='mediapipe-pose-clip-v2'?[7,8,11,12]:[7,11];
   for(const bone of facingBones){
     const sleeveFacing:number[]=[];
     for(let frame=0;frame<data.times.length;frame++){
@@ -112,6 +138,12 @@ for(const definition of MEDIAPIPE_CLIPS){
           .sub(new T.Vector3().fromArray(character.joints[bone].p)).normalize().applyQuaternion(world[bone]);
         const error=targetDirection.angleTo(sourceDirection)*180/Math.PI;
         assert(error<.05,`${definition.id} ${bodyType} 第 ${frame} 帧 ${bone} 偏离 ${error.toFixed(2)}°`);
+      }
+      if(definition.id==='mediapipe-xinbaodao-zhajishaoye'&&frame===data.times.length-1){
+        for(const bone of [16,19]){
+          const shoeForward=new T.Vector3(0,0,1).applyQuaternion(world[bone]);
+          assert(shoeForward.y<-.1,`${definition.id} ${bodyType} 末帧第 ${bone} 只鞋的鞋尖仍翘起`);
+        }
       }
     }
     const exported=exportTargetMotion(character,data,bake);

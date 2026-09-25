@@ -76,14 +76,15 @@ def swing_rotation(source: np.ndarray, target: np.ndarray) -> np.ndarray:
 
 def foot_rotation(bind_direction: np.ndarray, observed: np.ndarray, torso_forward: np.ndarray,
                   previous_angles: np.ndarray | None) -> tuple[np.ndarray, np.ndarray]:
-    """限制单目脚尖深度误差，并让鞋底始终朝下。"""
+    """脚踝到脚尖决定脚骨方向，限制单目深度噪声造成的鞋尖翘起或下扎。"""
     facing = unit(torso_forward * np.array([1., 0., 1.]), np.array([0., 0., 1.]))
     horizontal = observed * np.array([1., 0., 1.])
     horizontal = unit(horizontal, facing)
     yaw = np.arctan2(np.cross(facing, horizontal)[1], np.dot(facing, horizontal))
-    yaw = float(np.clip(yaw, -np.deg2rad(45), np.deg2rad(45)))
+    # 单目脚尖深度会让两只鞋分别卡在相反边界；保留小幅外八字，避免鞋横向落地。
+    yaw = float(np.clip(yaw, -np.deg2rad(15), np.deg2rad(15)))
     pitch = float(np.clip(np.arctan2(observed[1], np.linalg.norm(observed[[0, 2]])),
-                          -np.deg2rad(35), -np.deg2rad(8)))
+                          -np.deg2rad(40), -np.deg2rad(18)))
     if previous_angles is not None:
         yaw = float(np.clip(yaw, previous_angles[0] - np.deg2rad(8), previous_angles[0] + np.deg2rad(8)))
         pitch = float(np.clip(pitch, previous_angles[1] - np.deg2rad(8), previous_angles[1] + np.deg2rad(8)))
@@ -233,6 +234,8 @@ def build_motion(pose_path: Path, metadata_path: Path, video_path: Path,
     previous = np.tile(np.array([0., 0., 0., 1.]), (20, 1))
     previous_directions = np.zeros((20, 3), dtype=np.float64)
     previous_foot_angles: dict[int, np.ndarray] = {}
+    foot_pitch_clamp_frames = {16: {"tooSteep": 0, "tooShallow": 0},
+                               19: {"tooSteep": 0, "tooShallow": 0}}
     previous_torso_forward: np.ndarray | None = None
     torso_forward_corrections: list[int] = []
     limited_rotations: list[dict] = []
@@ -265,8 +268,14 @@ def build_motion(pose_path: Path, metadata_path: Path, video_path: Path,
             else:
                 observed = unit(semantic[child] - semantic[bone], np.array([0., 1., 0.]))
                 if bone in (16, 19):
+                    observed_pitch = np.rad2deg(np.arctan2(observed[1], np.linalg.norm(observed[[0, 2]])))
+                    if observed_pitch < -40:
+                        foot_pitch_clamp_frames[bone]["tooSteep"] += 1
+                    elif observed_pitch > -18:
+                        foot_pitch_clamp_frames[bone]["tooShallow"] += 1
                     rotation, previous_foot_angles[bone] = foot_rotation(
-                        BIND[child] - BIND[bone], observed, torso_forward, previous_foot_angles.get(bone))
+                        BIND[child] - BIND[bone], observed, torso_forward,
+                        previous_foot_angles.get(bone))
                 elif bone in (8, 12):
                     # 前臂沿上臂姿态做最短方向旋转，避免两段各自估计轴向时在肘部反向扭结。
                     upper_direction = unit(semantic[bone] - semantic[bone - 1], observed)
@@ -343,11 +352,11 @@ def build_motion(pose_path: Path, metadata_path: Path, video_path: Path,
             "file": video_path.name, "sha256": video_sha, "clipName": clip_name,
             "uniqueBones": 20, "rawBoneNodes": 33, "tracks": 21, "threeVersion": "0.180.0",
             "axisConversion": "MediaPipe camera coordinates → +X right / +Y up / +Z forward",
-            "extractorVersion": "mediapipe-pose-clip-v3", "generator": "MediaPipe 1.0.1 / scipy",
+            "extractorVersion": "mediapipe-pose-clip-v6", "generator": "MediaPipe 1.0.1 / scipy",
             "modelSha256": metadata["model_sha256"], "poseSha256": pose_sha,
             "sourceStartSeconds": start_seconds, "sourceEndSeconds": actual_end,
         },
-        "duration": float(times[-1]), "fps": 30, "times": rounded(times, 6),
+        "duration": float(times[-1]), "fps": float(metadata["fps"]), "times": rounded(times, 6),
         "names": SAMPLE_NAMES, "parents": SAMPLE_PARENTS,
         "bindPositions": rounded(BIND), "worldDeltas": rounded(world_deltas, 8),
         "positions": rounded(source_positions),
@@ -366,13 +375,39 @@ def build_motion(pose_path: Path, metadata_path: Path, video_path: Path,
         "filledDerivedIntervals": missing_repairs,
         "limitedRotations": limited_rotations,
         "torsoForwardCorrections": torso_forward_corrections,
+        "footPitchClampFrames": {"right": foot_pitch_clamp_frames[16], "left": foot_pitch_clamp_frames[19]},
         "lowVisibilityFrames": int(np.count_nonzero(~np.all(normalized[:, CRITICAL, 3] >= .5, axis=1))),
         "confidencePolicy": "低置信度仅作标记；坐标连续时照常使用",
-        "derivedRotationPolicy": "上臂轴向缓慢校正，前臂在时间连续性与上臂轴向之间选择同向姿态；前臂单帧旋转不超过 89°，其余骨骼不超过 75°；头颈沿躯干水平朝向；双脚限制偏航和俯仰并保持鞋面朝上",
+        "derivedRotationPolicy": "上臂轴向缓慢校正，前臂在时间连续性与上臂轴向之间选择同向姿态；前臂单帧旋转不超过 89°，其余骨骼不超过 75°；头颈沿躯干水平朝向；脚踝到脚尖决定脚骨方向，俯仰限于 -40° 至 -18°、相对躯干偏航限于 15°，并保持鞋面朝上",
         "repairedPoints": repairs,
         "remainingLimitations": ["MediaPipe world 坐标逐帧以髋部为原点；不推断真实世界水平位移", "头部只跟随躯干水平朝向，不补造独立头部动作", "脚掌方向含视觉约束，不代表真实脚掌姿态", "遮挡时 world 深度可能不准确"],
     }
     return motion, report
+
+
+def preserve_non_foot_tracks(motion: dict, report: dict, existing_path: Path) -> None:
+    """旧条目只替换脚骨，避免重生成时改动已经审查过的其余骨骼。"""
+    existing = json.loads(existing_path.read_text(encoding="utf-8"))
+    for field in ("id", "times", "positions", "bindPositions"):
+        if existing[field] != motion[field]:
+            raise ValueError(f"旧动作的 {field} 与当前完整提取结果不一致")
+    for field in ("sha256", "poseSha256", "modelSha256"):
+        if existing["source"].get(field) != motion["source"].get(field):
+            raise ValueError(f"旧动作的 {field} 来源哈希不一致")
+    for field in ("positions", "visibility"):
+        if existing["mediapipe33"][field] != motion["mediapipe33"][field]:
+            raise ValueError(f"旧动作的原始 33 点 {field} 不一致")
+    old_rotations = np.asarray(existing["worldDeltas"]).reshape(-1, 20, 4)
+    new_rotations = np.asarray(motion["worldDeltas"]).reshape(-1, 20, 4)
+    if old_rotations.shape != new_rotations.shape:
+        raise ValueError("旧动作骨骼旋转数量与当前结果不一致")
+    non_foot_bones = [bone for bone in range(20) if bone not in (16, 19)]
+    new_rotations[:, non_foot_bones] = old_rotations[:, non_foot_bones]
+    motion["worldDeltas"] = new_rotations.reshape(-1).tolist()
+    previous_version = existing["source"].get("nonFootExtractorVersion", existing["source"]["extractorVersion"])
+    motion["source"]["nonFootExtractorVersion"] = previous_version
+    report["nonFootTracksPreservedFrom"] = previous_version
+    report["derivedRotationPolicy"] += f"；其余骨骼沿用已审查的 {previous_version} 动作轨道"
 
 
 def main() -> None:
@@ -386,12 +421,15 @@ def main() -> None:
     parser.add_argument("--end-seconds", type=float)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument("--preserve-non-foot-from", type=Path)
     arguments = parser.parse_args()
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", arguments.clip_id):
         parser.error("clip-id 只能包含小写字母、数字与连字符")
     motion, report = build_motion(arguments.pose, arguments.metadata, arguments.video,
                                   arguments.clip_id, arguments.clip_name,
                                   arguments.start_seconds, arguments.end_seconds)
+    if arguments.preserve_non_foot_from is not None:
+        preserve_non_foot_tracks(motion, report, arguments.preserve_non_foot_from)
     arguments.output.parent.mkdir(parents=True, exist_ok=True)
     arguments.report.parent.mkdir(parents=True, exist_ok=True)
     arguments.output.write_text(json.dumps(motion, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

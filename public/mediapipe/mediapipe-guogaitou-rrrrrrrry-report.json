@@ -1,12 +1,12 @@
 {
   "schema": "wanhu-mediapipe-clip-diagnostics-v1",
-  "source": "虾不咕的抖音 - 抖音.mp4",
-  "videoSha256": "1fdcbd66402e302ddabf5cd3c14e0c898c487451661233306bb90a211bbcf651",
-  "poseSha256": "a3517b22c6ba209e0600cfed30d19905f592ac49c34184b2485f0192d7a6cd0c",
+  "source": "@rrrrrrrry_yang 嘿 抓个锅盖头… 4K.mp4",
+  "videoSha256": "533197ce2c67b84363b86e333366c5670474d81d55fbba809beff0bdfba8a8b3",
+  "poseSha256": "b73f6059006a2de46327f6d3f155cfeebe79496659cb634ad0f5d367c1c4463c",
   "modelSha256": "64437af838a65d18e5ba7a0d39b465540069bc8aae8308de3e318aad31fcbc7b",
-  "sourceStartSeconds": 23.0,
-  "sourceEndSeconds": 45.0,
-  "frameCount": 661,
+  "sourceStartSeconds": 0.0,
+  "sourceEndSeconds": 14.998683,
+  "frameCount": 899,
   "missingCriticalFrames": 0,
   "missingCriticalIntervals": [],
   "filledDerivedIntervals": [],
@@ -14,44 +14,18 @@
   "torsoForwardCorrections": [],
   "footPitchClampFrames": {
     "right": {
-      "tooSteep": 102,
-      "tooShallow": 4
+      "tooSteep": 138,
+      "tooShallow": 85
     },
     "left": {
-      "tooSteep": 596,
-      "tooShallow": 0
+      "tooSteep": 741,
+      "tooShallow": 10
     }
   },
-  "lowVisibilityFrames": 312,
+  "lowVisibilityFrames": 138,
   "confidencePolicy": "低置信度仅作标记；坐标连续时照常使用",
   "derivedRotationPolicy": "上臂轴向缓慢校正，前臂在时间连续性与上臂轴向之间选择同向姿态；前臂单帧旋转不超过 89°，其余骨骼不超过 75°；头颈沿躯干水平朝向；脚踝到脚尖决定脚骨方向，俯仰限于 -40° 至 -18°、相对躯干偏航限于 15°，并保持鞋面朝上",
-  "repairedPoints": [
-    {
-      "frame": 133,
-      "landmark": 27,
-      "reason": "isolated_world_jump"
-    },
-    {
-      "frame": 133,
-      "landmark": 29,
-      "reason": "isolated_world_jump"
-    },
-    {
-      "frame": 133,
-      "landmark": 30,
-      "reason": "isolated_world_jump"
-    },
-    {
-      "frame": 133,
-      "landmark": 31,
-      "reason": "isolated_world_jump"
-    },
-    {
-      "frame": 133,
-      "landmark": 32,
-      "reason": "isolated_world_jump"
-    }
-  ],
+  "repairedPoints": [],
   "remainingLimitations": [
     "MediaPipe world 坐标逐帧以髋部为原点；不推断真实世界水平位移",
     "头部只跟随躯干水平朝向，不补造独立头部动作",

@@ -19,7 +19,7 @@ export function loadMotion(id:MotionId):Promise<HumanoidMotionData>{
   cache.set(id,pending);if(cache.size>3)cache.delete(cache.keys().next().value!);
   return pending;
 }
-export interface MotionStatus{id:MotionId;ready:boolean;duration:number;loop:boolean;seamDegrees:number;sourceHash:string;phase:number;stage:string;finished:boolean}
+export interface MotionStatus{id:MotionId;ready:boolean;duration:number;fps:number;loop:boolean;seamDegrees:number;sourceHash:string;phase:number;stage:string;finished:boolean}
 export interface MotionPlayer{id:MotionId;sourceScene:T.Scene;targetDebug:T.LineSegments;bake:RetargetBake;update:(delta:number)=>void;seek:(phase:number)=>void;replay:()=>void;setLoop:(value:boolean)=>void;setHeadAxes:(value:boolean)=>void;status:()=>MotionStatus;export:()=>ReturnType<typeof exportTargetMotion>;dispose:()=>void}
 
 function makeHeadAxes(){
@@ -102,7 +102,7 @@ export function createMotionPlayer(actor:Actor,source:HumanoidMotionData):Motion
     id:source.id,sourceScene:scene,targetDebug,bake,
     update(delta){clock.advance(delta);sync();},seek(phase){clock.seek(phase);sync();},replay(){clock.replay();sync();},
     setLoop(value){clock.setLoop(value);sync();},setHeadAxes(value){sourceDebug.visible=value;targetDebug.visible=value;sync();},
-    status(){return{id:source.id,ready:true,duration:source.duration,loop:clock.loop,seamDegrees:bake.seamDegrees,sourceHash:source.source.sha256,phase:clock.phase,stage:`${motionSourceLabel(definition.source)} · ${definition.label}`,finished:clock.finished};},
+    status(){return{id:source.id,ready:true,duration:source.duration,fps:source.fps,loop:clock.loop,seamDegrees:bake.seamDegrees,sourceHash:source.source.sha256,phase:clock.phase,stage:`${motionSourceLabel(definition.source)} · ${definition.label}`,finished:clock.finished};},
     export(){return exportTargetMotion(actor.data,source,bake);},
     dispose(){
       disposed=true;action.stop();actor.mixer.uncacheClip(bake.clip);

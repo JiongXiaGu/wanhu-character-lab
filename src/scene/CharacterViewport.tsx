@@ -149,7 +149,8 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
   useEffect(()=>{
     const r=runtime.current;if(!r)return;
     const recipeChanged=r.builtRecipe!==options.recipe, selectionChanged=r.selection!==options.motion, restarted=r.restart!==options.restart;
-    const keepCamera=recipeChanged && r.builtRecipe.bodyType===options.recipe.bodyType;
+    // 更换基模或服装只重建人物，保留用户已调整的镜头位置、方向和缩放。
+    const keepCamera=recipeChanged;
     r.restart=options.restart;
     if(!recipeChanged&&!selectionChanged&&!(restarted&&r.loadError)){
       if(restarted){r.desiredPhase=0;r.motion?.replay();playbackRef.current(playback(r));}
@@ -161,7 +162,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
       if(recipeChanged){r.disposeActor();r.actor=makeActor(makeCharacter(options.recipe));r.builtRecipe=options.recipe;r.scene.add(r.actor.mesh,r.actor.wire,r.actor.skeletonHelper);}
       else {r.disposePlayer();r.actor.resetBindPose();}
       r.selection=options.motion;r.desiredPhase=phase;r.loading=options.motion!=='none';r.loadError='';
-      applyDisplay(r,options);if(!keepCamera)applyCamera(r,options);r.resize();
+      applyDisplay(r,options);if(!keepCamera){applyCamera(r,options);r.resize();}
       const stats=actorStats(r.actor);statsRef.current(stats);if(window.__WANHU_REVIEW__)window.__WANHU_REVIEW__.stats=stats;
       playbackRef.current(playback(r));
       if(options.motion!=='none'){
@@ -169,7 +170,8 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
         loadMotion(options.motion).then(source=>{
           if(runtime.current!==r||r.generation!==generation)return;
           r.motion=createMotionPlayer(actor,source);r.motion.setLoop(latest.current.loop);r.scene.add(r.motion.targetDebug);r.loading=false;
-          r.motion.seek(r.desiredPhase);applyDisplay(r,latest.current);if(!keepCamera)applyCamera(r,latest.current);r.resize();playbackRef.current(playback(r));
+          r.motion.seek(r.desiredPhase);applyDisplay(r,latest.current);
+          if(!keepCamera){applyCamera(r,latest.current);r.resize();}playbackRef.current(playback(r));
         }).catch(error=>{if(runtime.current!==r||r.generation!==generation)return;r.loading=false;r.loadError=String(error);playbackRef.current(playback(r));});
       }
     }catch(error){errorRef.current(String(error));}
