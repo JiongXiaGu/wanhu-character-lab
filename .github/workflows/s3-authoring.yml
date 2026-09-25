@@ -20,7 +20,16 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
       - name: Apply exact-base checked source edits
-        run: python3 .github/s3-author.py
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p=Path('.github/s3-author.py')
+          text=p.read_text()
+          old='("[\'palace_guard_helmet\',\'frontier_guard_helmet\',\'guard_helmet\'","[\'palace_guard_helmet\',\'frontier_guard_helmet\',\'city_guard_helmet\',\'guard_helmet\'",1)'
+          assert text.count(old)==1
+          p.write_text(text.replace(old,old[:-2]+'2)'))
+          PY
+          python3 .github/s3-author.py
       - name: Commit only staged integration to the existing working branch
         env:
           EXPECTED_PARENT: ${{ github.sha }}
