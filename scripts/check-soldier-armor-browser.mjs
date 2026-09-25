@@ -1,6 +1,24 @@
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 
+/** UI 换装不应改变相机；允许 Three/浏览器序列化产生的双精度末位噪声，但拒绝真实机位变化。 */
+function sameCamera(actual, expected) {
+  if (typeof expected === 'number') {
+    assert(Number.isFinite(actual) && Number.isFinite(expected));
+    assert(Math.abs(actual - expected) < 1e-10, `Camera changed: ${actual} != ${expected}`);
+  } else if (Array.isArray(expected)) {
+    assert(Array.isArray(actual)); assert.equal(actual.length, expected.length);
+    expected.forEach((value, index) => sameCamera(actual[index], value));
+  } else if (expected && typeof expected === 'object') {
+    assert(actual && typeof actual === 'object');
+    assert.deepEqual(Object.keys(actual).sort(), Object.keys(expected).sort());
+    for (const key of Object.keys(expected)) sameCamera(actual[key], expected[key]);
+  } else assert.equal(actual, expected);
+}
+sameCamera({ position: [2.8 + 1e-12, 1, 4] }, { position: [2.8, 1, 4] });
+assert.throws(() => sameCamera({ position: [2.8001, 1, 4] }, { position: [2.8, 1, 4] }));
+assert.throws(() => sameCamera({ position: [Number.NaN, 1, 4] }, { position: [2.8, 1, 4] }));
+
 /** 只操作原工坊控件和原 WebGL Canvas；合成页只排列捕获帧，不创建第二套人物或渲染器。 */
 export async function checkSoldierArmor(ctx) {
   const { page, browser, base, capture, dir, recipe, state, sync, motionReady, seek, shot, checks, images } = ctx;
@@ -42,13 +60,47 @@ export async function checkSoldierArmor(ctx) {
     const available = await page.getByLabel(key, { exact: true }).locator('option').evaluateAll(n => n.map(o => o.value));
     assert(available.includes(key === '上衣' ? 'heavy_armor' : 'heavy_armor_skirt'));
   }
+  // S6-3 三轴矩阵：驻地只拥有 palette/headwear，等级只拥有 top/bottom，身份只拥有 headwear variant。
+  const styles = {
+    palace: { soldier: 'palace_guard_helmet', captain: 'palace_captain_helmet', dyes: { primary: '#713b38', secondary: '#34383a', accent: '#a07c49' } },
+    frontier: { soldier: 'frontier_guard_helmet', captain: 'frontier_captain_helmet', dyes: { primary: '#41535a', secondary: '#4b4b47', accent: '#79504a' } },
+    city: { soldier: 'city_guard_helmet', captain: 'city_captain_helmet', dyes: { primary: '#44565b', secondary: '#505557', accent: '#887252' } },
+  };
+  let axisCases = 0;
+  for (const [style, expectedStyle] of Object.entries(styles)) {
+    const beforeStyle = await recipe();
+    await page.getByTestId('soldier-' + style).click(); await sync();
+    const styled = await recipe();
+    assert.equal(styled.slots.top, beforeStyle.slots.top); assert.equal(styled.slots.bottom, beforeStyle.slots.bottom);
+    assert.deepEqual({ ...styled.slots, headwear: beforeStyle.slots.headwear }, beforeStyle.slots);
+    assert.deepEqual(styled.dyes, expectedStyle.dyes);
+    assert.deepEqual({ ...styled, slots: beforeStyle.slots, dyes: beforeStyle.dyes }, beforeStyle);
+    for (const item of tiers) {
+      const beforeArmor = await recipe(); await tier(item.id); const armored = await recipe();
+      unchangedExceptArmor(beforeArmor, armored);
+      for (const identity of ['soldier', 'captain']) {
+        const beforeIdentity = await recipe();
+        await page.getByTestId('soldier-identity-' + identity).click(); await sync();
+        const identified = await recipe();
+        assert.equal(identified.slots.headwear, expectedStyle[identity]);
+        assert.deepEqual({ ...identified.slots, headwear: beforeIdentity.slots.headwear }, beforeIdentity.slots);
+        assert.deepEqual({ ...identified, slots: beforeIdentity.slots }, beforeIdentity);
+        assert.equal(await page.getByTestId('soldier-' + style).getAttribute('aria-pressed'), 'true');
+        assert.equal(await page.getByTestId('soldier-armor-' + item.id).getAttribute('aria-pressed'), 'true');
+        assert.equal(await page.getByTestId('soldier-identity-' + identity).getAttribute('aria-pressed'), 'true');
+        axisCases++;
+      }
+    }
+  }
+  assert.equal(axisCases, 18);
+  checks.push('S6-3: 18 browser combinations = 3 service styles × 3 armor classes × 2 identities; each control changes only its owned Recipe data');
   // 核心对比：身体、头盔、发型、染色、姿态和相机完全相同，只换 top/bottom。
   for (const [view, label] of [['free', '自由'], ['overview', '经营俯视']]) {
     await page.getByRole('button', { name: label, exact: true }).click(); await sync();
     const fixedCamera = await camera(), fixedRecipe = await recipe(), panels = [];
     for (const item of tiers) {
       await tier(item.id); unchangedExceptArmor(fixedRecipe, await recipe());
-      assert.deepEqual(await camera(), fixedCamera);
+      sameCamera(await camera(), fixedCamera);
       panels.push(await frame(`armor-${item.id}-${view}.png`, item.name));
     }
     if (view === 'overview') assert(fixedCamera.position[1] > fixedCamera.target[1] + 3);
@@ -78,7 +130,7 @@ export async function checkSoldierArmor(ctx) {
     await page.getByTestId('soldier-' + style).click(); await sync();
     const after = await recipe();
     assert.deepEqual({ ...after.slots, headwear: before.slots.headwear }, before.slots);
-    assert.deepEqual(await garmentSignature(), heavyGeometry); assert.deepEqual(await camera(), colorCamera);
+    assert.deepEqual(await garmentSignature(), heavyGeometry); sameCamera(await camera(), colorCamera);
     assert.equal(await page.getByTestId('soldier-armor-heavy').getAttribute('aria-pressed'), 'true');
     colors.push(await frame(`heavy-${style}-palette.png`, `同一 Heavy · ${style}`));
   }
