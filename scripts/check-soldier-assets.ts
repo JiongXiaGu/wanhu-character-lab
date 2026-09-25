@@ -103,7 +103,7 @@ for(const bodyType of BODY_TYPES){
   const badBottom=cloneCage(frontier);badBottom.vertices.find(v=>v.id==='MediumArmorSkirt.3.0')!.p[0]+=.01;
   assert.throws(()=>assertSharedMediumArmor(palace,badBottom));negativeCases++;
 }
-const frontierRecipe=applyFrontierGuard(createRecipe()),
+const frontierRecipe=applyFrontierGuard(createRecipe());
 const frontierHelmet=subset(makeCharacter(frontierRecipe).surface,'FrontierHelmet.');
 for(const mutate of [(c:Cage)=>{c.faces.pop();},(c:Cage)=>{c.vertices[0].w=[B.Neck,B.Neck,1];},(c:Cage)=>{c.vertices[0].p[0]=NaN;}]){const c=cloneCage(frontierHelmet);mutate(c);assert.throws(()=>closedRigid(c,B.Head,112));negativeCases++;}
 
