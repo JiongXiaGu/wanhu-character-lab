@@ -215,7 +215,7 @@ jobs:
             if [[ "$EVENT_NAME" == pull_request ]]; then BASE="$PR_BASE_SHA"; else BASE="$PUSH_BEFORE_SHA"; fi
             if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then BASE="$(git rev-parse HEAD^)"; fi
             while IFS= read -r path; do
-              case "$path" in src/soldier/*|src/character/*|src/scene/CharacterViewport.tsx|src/App.tsx|src/animation/*|scripts/check-soldier*|scripts/check-garment*|scripts/check-components*|scripts/prepare-*|scripts/lib/*|public/mixamo/*|public/system-animator/*|public/mediapipe/*|动画参考/*|动画参考_glb/*|Documentation/皇宫禁卫与长枪.md|Documentation/军人与甲胄工作流.md|package.json|package-lock.json|.github/workflows/*) required=true ;; esac
+              case "$path" in src/soldier/*|src/character/*|src/scene/CharacterViewport.tsx|src/App.tsx|src/animation/*|scripts/check-soldier*|scripts/check-garment*|scripts/check-components*|scripts/check-tailoring*|scripts/garment-contact-scope.ts|scripts/prepare-*|scripts/lib/*|public/mixamo/*|public/system-animator/*|public/mediapipe/*|动画参考/*|动画参考_glb/*|Documentation/皇宫禁卫与长枪.md|Documentation/军人与甲胄工作流.md|package.json|package-lock.json|.github/workflows/*) required=true ;; esac
             done < <(git -c core.quotepath=false diff --name-only "$BASE" HEAD)
           fi
           echo "required=$required" >> "$GITHUB_OUTPUT"
@@ -235,12 +235,23 @@ jobs:
       - name: Actual skinned source keys and midpoints
         if: steps.scope.outputs.required == 'true'
         run: npx tsx scripts/check-soldier-assets.ts --motion
+      # 闭合和有限值不足以验收甲片与内衬；复用原完整检测，不过滤甲片/动作或放宽容差。
+      - name: Full existing lower-body intersection regression
+        if: steps.scope.outputs.required == 'true'
+        run: npx tsx scripts/check-tailoring-intersections.ts
       - name: Install desktop browser
         if: steps.scope.outputs.required == 'true'
         run: npx playwright install --with-deps chromium
       - name: Soldier desktop interactions without screenshots
         if: steps.scope.outputs.required == 'true'
         run: npm run check:soldier-browser
+      - name: Preserve full intersection diagnostics
+        if: always() && steps.scope.outputs.required == 'true'
+        run: |
+          mkdir -p /tmp/wanhu-soldier-checks/intersections
+          if [[ -f review-tailoring-v2/intersections.json ]]; then
+            cp review-tailoring-v2/intersections.json /tmp/wanhu-soldier-checks/intersections/
+          fi
       - uses: actions/upload-artifact@v4
         if: always() && steps.scope.outputs.required == 'true'
         with:
