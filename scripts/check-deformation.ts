@@ -6,6 +6,7 @@ import { makeTrousers } from '../src/character/wardrobe/assets/trousers';
 import { createRecipe,B,BODY_TYPES,BOTTOM_IDS,emptySlots,type Cage } from '../src/character/v3/types';
 import { BODY_GEOMETRY_VERSION,BODY_TRIANGLES } from '../src/character/v3/leg-deformation';
 import { assertPalaceSkirt } from './check-soldier-skirt';
+import { assertFrontierSkirt } from './check-soldier-frontier';
 import { cloneCage,triCount } from '../src/character/v3/cage';
 
 /** 独立验证制作空间的膝前/膝后权重；不能再用“整圈相等”把错误当契约固定。 */
@@ -56,8 +57,8 @@ for(const bodyType of BODY_TYPES){
       assert(p.mesh.vertices.every(v=>v.id.startsWith('Skirt.')),'连续裙摆不能拼入裤腿或裆底');
       assert.equal(p.mesh.anchors.closedHem.length,12);
     }else{
-      assertKnees(p.mesh,true,bottom==='palace_guard_skirt'?'PalaceLiner':'Pants');
-      if(bottom==='palace_guard_skirt')assertPalaceSkirt(p);else assert.equal(triCount(p.mesh),240);
+      assertKnees(p.mesh,true,bottom==='palace_guard_skirt'?'PalaceLiner':bottom==='frontier_armor_skirt'?'FrontierLiner':'Pants');
+      if(bottom==='palace_guard_skirt')assertPalaceSkirt(p);else if(bottom==='frontier_armor_skirt')assertFrontierSkirt(p);else assert.equal(triCount(p.mesh),240);
       assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','waist']);
     }
   }
