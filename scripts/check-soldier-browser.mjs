@@ -94,10 +94,13 @@ try{
 
   // S3：沿用以上运行时与相机捕获第三套，原双套对比图保持。
   await page.getByTestId('soldier-city').click();await sync();
+  assert.equal((await recipe()).slots.top,'medium_armor');
+  await page.getByTestId('soldier-armor-light').click();await sync();
   assert.equal((await recipe()).slots.top,'city_guard_brigandine');
   assert.deepEqual(await page.evaluate(()=>window.__WANHU_REVIEW__.cameraState()),palaceCamera);
   await shot('comparison-city.png');
   const cityFrame=capture?await page.locator('canvas').screenshot():null;
+  await page.getByRole('button',{name:'撤销',exact:true}).click();await sync();assert.equal((await recipe()).slots.top,'medium_armor');
   await page.getByRole('button',{name:'撤销',exact:true}).click();await sync();assert.equal((await recipe()).slots.headwear,'frontier_guard_helmet');assert.equal((await recipe()).slots.top,'medium_armor');
   await page.getByTestId('soldier-palace').click();await sync();assert.equal((await recipe()).slots.headwear,'palace_guard_helmet');assert.equal((await recipe()).slots.top,'medium_armor');
   checks.push('palace/frontier shared-medium versus city light armor; three-way application/undo uses identical camera, bind pose, shared runtime canvas and unchanged V5 identity');

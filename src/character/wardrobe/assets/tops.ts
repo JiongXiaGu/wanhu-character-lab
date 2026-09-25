@@ -1,4 +1,5 @@
 import { makeCityTop } from './military/city-top';
+import { makeHeavyArmorTop } from './military/heavy-top';
 import { makeMediumArmorTop } from './military/medium-top';
 import { makeWorkVest } from './work-vest';
 import { makeShortJacket } from './short-jacket';
@@ -23,6 +24,7 @@ function makeAuthoredTop(recipe:Recipe):GarmentPiece|undefined {
   if(id==='body')return;
   const pattern=TOP_PATTERNS[id];
   if(!pattern)throw new Error('上衣资产未注册：'+id);
+  if(pattern.asset==='heavy-top')return makeHeavyArmorTop(recipe);
   if(pattern.asset==='medium-top')return makeMediumArmorTop(recipe);
   if(pattern.asset==='city-top')return makeCityTop(recipe);
   if(pattern.asset==='work-vest')return makeWorkVest(recipe);

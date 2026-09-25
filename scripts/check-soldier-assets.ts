@@ -1,4 +1,8 @@
-import { SOLDIER_HELMETS } from '../src/soldier/identities';
+import { SOLDIER_ARMOR_CLASS_IDS } from '../src/soldier/contract';
+import { SOLDIER_ARMOR_SLOTS } from '../src/soldier/armor';
+import { applySoldierLook } from '../src/soldier/looks';
+import { assertHeavyArmorSkirt, assertHeavyArmorTop } from './check-soldier-heavy';
+import { SOLDIER_HELMETS, SOLDIER_IDENTITY_IDS } from '../src/soldier/identities';
 import { assertCityTrousers,assertCitySilhouette } from './check-soldier-city';
 import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
@@ -28,7 +32,15 @@ const styles=[
 ] as const;
 // S5：皇宫/边疆共享中甲几何；驻地只由头盔与配色区分，城市保留轻甲。
 const captainBudgets={palace:142,frontier:142,city:166};
-const variants=[...styles,...styles.map(style=>({...style,id:style.id+'-captain',apply:(r:Recipe)=>style.apply(r,'captain'),slots:{...style.slots,headwear:SOLDIER_HELMETS[style.id].captain},budgets:{...style.budgets,helmet:captainBudgets[style.id]}}))];
+const armorBudgets={light:{top:340,bottom:260},medium:{top:386,bottom:308},heavy:{top:432,bottom:328}};
+// 三等级 × 三驻地 × 两身份；原六种组合仍完整保留，新增组合使用同一检查链。
+const variants=styles.flatMap(style=>SOLDIER_ARMOR_CLASS_IDS.flatMap(armorClass=>SOLDIER_IDENTITY_IDS.map(identity=>({
+  ...style,id:style.id+'-'+armorClass+'-'+identity,
+  apply:(r:Recipe)=>applySoldierLook(r,style.id,identity,armorClass),
+  slots:{...style.slots,...SOLDIER_ARMOR_SLOTS[armorClass],headwear:SOLDIER_HELMETS[style.id][identity]},
+  budgets:{...style.budgets,...armorBudgets[armorClass],helmet:identity==='captain'?captainBudgets[style.id]:style.budgets.helmet},
+  skirt:armorClass==='heavy'?assertHeavyArmorSkirt:armorClass==='medium'?assertMediumArmorSkirt:assertCityTrousers,
+}))));
 const rows:unknown[]=[],silhouettes:unknown[]=[];let negativeCases=0,poses=0;
 function subset(c:Cage,prefix:string):Cage {
   const source=c.vertices.flatMap((v,i)=>v.id.startsWith(prefix)?[i]:[]),remap=new Map(source.map((v,i)=>[v,i]));
@@ -56,6 +68,7 @@ for(const style of variants)for(const bodyType of BODY_TYPES)for(const hairStyle
   for(const [key,make] of [['top',makeTop],['bottom',makeTrousers],['shoes',makeFootwear]] as const){const p=make(recipe)!;assertGarmentPiece(p);assert.equal(triCount(p.mesh),style.budgets[key]);}
   closedRigid(subset(d.surface,style.helmet),B.Head,style.budgets.helmet);closedRigid(subset(d.surface,'MilitarySpear.'),B.RightHand,budgets.spear);assertGrip(d.surface,recipe);
   style.skirt(makeTrousers(recipe)!);
+  if(recipe.slots.top==='heavy_armor')assertHeavyArmorTop(makeTop(recipe)!);
   assert(!d.surface.vertices.some(v=>v.id.startsWith('CustomHair')),'盔内不能保留穿壳发髻');
   assert.deepEqual(d.body,makeCharacter(input).body,'军装不得修改固定皮肤');
   const changed=makeCharacter(createRecipe({...recipe,dyes:{primary:'#ad3344',secondary:'#416275',accent:'#dfb363'}}));

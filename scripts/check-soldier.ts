@@ -18,7 +18,7 @@ import {
 } from '../src/soldier/contract';
 
 assert.equal(SOLDIER_WORKFLOW_VERSION, 'wanhu-soldier-authoring-v2');
-assert.deepEqual(SOLDIER_ARMOR_CLASS_IDS, ['light', 'medium']);
+assert.deepEqual(SOLDIER_ARMOR_CLASS_IDS, ['light', 'medium', 'heavy']);
 assert.deepEqual(SOLDIER_STYLE_IDS, ['palace', 'frontier', 'city']);
 assert.deepEqual(SOLDIER_ROLE_IDS, ['spearman', 'swordsman', 'archer', 'shieldman']);
 assert.equal(SOLDIER_FIRST_BUILD.style, 'palace');

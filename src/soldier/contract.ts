@@ -4,7 +4,7 @@ export const SOLDIER_WORKFLOW_VERSION = 'wanhu-soldier-authoring-v2';
 export const SOLDIER_STYLE_IDS = ['palace', 'frontier', 'city'] as const;
 export type SoldierStyleId = typeof SOLDIER_STYLE_IDS[number];
 
-export const SOLDIER_ARMOR_CLASS_IDS = ['light', 'medium'] as const;
+export const SOLDIER_ARMOR_CLASS_IDS = ['light', 'medium', 'heavy'] as const;
 export type SoldierArmorClassId = typeof SOLDIER_ARMOR_CLASS_IDS[number];
 
 export const SOLDIER_ROLE_IDS = ['spearman', 'swordsman', 'archer', 'shieldman'] as const;
