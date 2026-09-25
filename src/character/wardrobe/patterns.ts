@@ -2,16 +2,17 @@ import type { TopId, BottomId } from '../v3/types';
 
 /** 注册标识和接口尺寸；每个保留款式必须有明确用途或轮廓差异。 */
 export type TopPattern = { id:string; hem:number } & (
-  { asset:'work-shirt'|'cross-shirt'|'half-sleeve'|'work-vest'|'short-jacket'|'palace-top'|'frontier-top' } |
+  { asset:'work-shirt'|'cross-shirt'|'half-sleeve'|'work-vest'|'short-jacket'|'palace-top'|'frontier-top'|'city-top' } |
   { asset:'classic'; sleeve:'short'|'long'; width:number; cuff:number }
 );
 export type BottomPattern = { id:string; hem:number; stressOnlyClips?:readonly string[] } & (
-  { asset:'short-trousers'|'continuous-short-skirt'|'continuous-long-skirt'|'palace-skirt'|'frontier-skirt' } |
+  { asset:'short-trousers'|'continuous-short-skirt'|'continuous-long-skirt'|'palace-skirt'|'frontier-skirt'|'city-trousers' } |
   { asset:'classic'; thigh:number; knee:number; calf:number; trim:boolean }
 );
 export const TOP_PATTERNS:Record<Exclude<TopId,'body'>,TopPattern>={
   palace_guard_armor:{id:'palace-top-v1',asset:'palace-top',hem:1.035},
   frontier_lamellar_armor:{id:'frontier-heavy-top-v1',asset:'frontier-top',hem:1.035},
+  city_guard_brigandine:{id:'city-short-brigandine-v1',asset:'city-top',hem:1.060},
   work_vest:{id:'sleeveless-work-v1',asset:'work-vest',hem:1.045},
   short_work_jacket:{id:'summer-short-jacket-v1',asset:'short-jacket',hem:1.025},
   farmer_tunic:{id:'farmer-short-v2',asset:'classic',sleeve:'short',width:1,cuff:1,hem:1.035},
@@ -23,6 +24,7 @@ export const TOP_PATTERNS:Record<Exclude<TopId,'body'>,TopPattern>={
 export const BOTTOM_PATTERNS:Record<Exclude<BottomId,'body'>,BottomPattern>={
   palace_guard_skirt:{id:'palace-waist-skirt-v2',asset:'palace-skirt',hem:.095},
   frontier_armor_skirt:{id:'frontier-waist-skirt-v1',asset:'frontier-skirt',hem:.095},
+  city_guard_trousers:{id:'city-patrol-trousers-v1',asset:'city-trousers',hem:.095},
   short_trousers:{id:'closed-cuff-shorts-v2',asset:'short-trousers',hem:.504},
   true_short_skirt:{id:'continuous-short-skirt-v1',asset:'continuous-short-skirt',hem:.505,stressOnlyClips:['snatch']},
   long_skirt:{id:'plain-long-skirt-v1',asset:'continuous-long-skirt',hem:.092,stressOnlyClips:['snatch']},
