@@ -145,7 +145,9 @@ export function checkYak() {
     }
     let released = 0; riding.rider.mesh.geometry.addEventListener('dispose', () => released++); riding.dispose(); riding.dispose(); assert.equal(released, 1);
   }
-  assert.equal(bodyPoses, 964); assert.equal(ridingPoses, 2892); assert.equal(wardrobeCases, 70); assert.equal(swaps, 40);
+  assert.equal(bodyPoses, 964); assert.equal(ridingPoses, 2892);
+  // 完整现役衣柜笛卡尔积，保留旧服饰及新增军装的全部姿态采样。
+  assert.equal(wardrobeCases, BODY_TYPES.length * TOP_IDS.filter(id => id !== 'body').length * BOTTOM_IDS.filter(id => id !== 'body').length); assert.equal(swaps, 40);
   return { result: 'passed', mesh: { ...YAK_AUTHOR_STATS, shells: 30 }, anatomy, ground, gait, facial, bodyPoses, ridingPoses, wardrobeCases, swaps, faults,
     boundary: 'Authored in-place gait; sparse rein intersections include the broad body, nose mirror, horns and fur shells. Not full garment/saddle/contact or visual approval.' };
 }
