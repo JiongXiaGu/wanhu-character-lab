@@ -54,7 +54,7 @@ function triangles(c:Cage,accept:(id:string)=>boolean){
 }
 const hatVertex=(id:string)=>/^(PalaceHelmet|FrontierHelmet|CityHelmet|Helmet|WardrobeCap|CapTablet|CapWings|WrapKnot|Straw|Headband|JadePin|JadeFinial)/.test(id);
 const headwearTriangles:Record<Exclude<HeadwearId,'none'>,number>={
-  palace_guard_helmet:126,frontier_guard_helmet:112,city_guard_helmet:144,palace_captain_helmet:126,frontier_captain_helmet:126,city_captain_helmet:164,farmer_straw_hat:24,guard_helmet:28,archer_headband:36,cloth_wrap:40,scholar_cap:52,jade_pin:24,
+  palace_guard_helmet:126,frontier_guard_helmet:112,city_guard_helmet:144,palace_captain_helmet:142,frontier_captain_helmet:142,city_captain_helmet:166,farmer_straw_hat:24,guard_helmet:28,archer_headband:36,cloth_wrap:40,scholar_cap:52,jade_pin:24,
 };
 const baseCapPrefix=(id:HeadwearId)=>(id==='city_guard_helmet'||id==='city_captain_helmet')?'CityHelmet.Shell.Base':(id==='frontier_guard_helmet'||id==='frontier_captain_helmet')?'FrontierHelmet.Shell.Base':(id==='palace_guard_helmet'||id==='palace_captain_helmet')?'PalaceHelmet.Shell.Base':id==='guard_helmet'?'HelmetBrim':id==='cloth_wrap'||id==='scholar_cap'?'WardrobeCapBase':undefined;
 const isBaseCapTriangle=(c:Cage,id:HeadwearId,tri:number[])=>{

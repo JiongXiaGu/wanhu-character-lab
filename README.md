@@ -6,7 +6,7 @@
 
 队长示例：`?soldier=palace&soldierRole=captain&pose=bind&paused=1&view=free`；换为 `soldier=frontier` 或 `soldier=city` 检查另外两套。`soldierRole=soldier` 或省略为普通；`view=overview` 为经营俯视。显式 `headwear=` 最后覆盖，非法身份回退普通。没有独立军人页面、rank 系统或 Recipe 字段。
 
-宫卫宽短缨、边军后掠短缨、城市低横冠沿用原盔壳；上衣、下装、鞋和武器完全共用。详见[普通士兵与队长](Documentation/普通士兵与队长.md)。本轮精确受测 SHA、Actions 与实际看图记录见对应 PR，用户美术认可单独验收。
+队长盔已按用户返工要求改为细高竖饰：宫卫高束缨、边军束缨盔尖、城市窄竖冠；弃用宽短缨、肥厚后拖和低横冠，沿用原盔壳；上衣、下装、鞋和武器完全共用。详见[普通士兵与队长](Documentation/普通士兵与队长.md)。本轮精确受测 SHA、Actions 与实际看图记录见对应 PR，用户美术认可单独验收。
 
 ## S3：城市守军 · 长枪
 

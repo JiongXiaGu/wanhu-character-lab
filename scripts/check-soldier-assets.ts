@@ -28,7 +28,7 @@ const styles=[
   {id:'city',apply:applyCityGuard,slots:CITY_GUARD_SLOTS,budgets:{...budgets,top:340,bottom:260,helmet:144},helmet:'CityHelmet.',skirt:assertCityTrousers},
 ] as const;
 // S4 只扩展头盔组合；原三套轮廓/服饰及全部故障反例继续保留。
-const captainBudgets={palace:126,frontier:126,city:164};
+const captainBudgets={palace:142,frontier:142,city:166};
 const variants=[...styles,...styles.map(style=>({...style,id:style.id+'-captain',apply:(r:Recipe)=>style.apply(r,'captain'),slots:{...style.slots,headwear:SOLDIER_HELMETS[style.id].captain},budgets:{...style.budgets,helmet:captainBudgets[style.id]}}))];
 const rows:unknown[]=[],silhouettes:unknown[]=[];let negativeCases=0,poses=0;
 function subset(c:Cage,prefix:string):Cage {
