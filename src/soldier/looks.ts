@@ -1,7 +1,7 @@
 import { createRecipe, type Recipe, type CharacterSlots } from '../character/v3/types';
 import { SOLDIER_STYLE_CONTRACT } from './contract';
 
-/** 只有已制作真实资产的宫卫与边军进入显式试衣入口；不加入居民随机池，不写入职业或兵种字段。 */
+/** 只有已制作真实资产的三套军装进入显式试衣入口；不加入居民随机池，不写入职业或兵种字段。 */
 export const PALACE_GUARD_SLOTS:Readonly<CharacterSlots>={headwear:'palace_guard_helmet',top:'palace_guard_armor',bottom:'palace_guard_skirt',shoes:'military_boots',back:'none',leftHand:'none',rightHand:'military_spear'};
 export function applyPalaceGuard(recipe:Recipe):Recipe {
   return createRecipe({...recipe,slots:{...PALACE_GUARD_SLOTS},dyes:{...SOLDIER_STYLE_CONTRACT.palace.palette}});
@@ -17,4 +17,13 @@ export function applyFrontierGuard(recipe:Recipe):Recipe {
 }
 export function isFrontierGuard(recipe:Recipe):boolean {
   return (Object.keys(FRONTIER_GUARD_SLOTS) as (keyof CharacterSlots)[]).every(k=>recipe.slots[k]===FRONTIER_GUARD_SLOTS[k]);
+}
+
+/** 城市整套复用原七槽位和保存链路，不向配方写入身份、职业或军阶。 */
+export const CITY_GUARD_SLOTS:Readonly<CharacterSlots>={headwear:'city_guard_helmet',top:'city_guard_brigandine',bottom:'city_guard_trousers',shoes:'military_boots',back:'none',leftHand:'none',rightHand:'military_spear'};
+export function applyCityGuard(recipe:Recipe):Recipe {
+  return createRecipe({...recipe,slots:{...CITY_GUARD_SLOTS},dyes:{...SOLDIER_STYLE_CONTRACT.city.palette}});
+}
+export function isCityGuard(recipe:Recipe):boolean {
+  return (Object.keys(CITY_GUARD_SLOTS) as (keyof CharacterSlots)[]).every(k=>recipe.slots[k]===CITY_GUARD_SLOTS[k]);
 }

@@ -29,17 +29,18 @@ try{
   const styles=[
     {id:'palace',helmet:'palace_guard_helmet',top:'palace_guard_armor',bottom:'palace_guard_skirt'},
     {id:'frontier',helmet:'frontier_guard_helmet',top:'frontier_lamellar_armor',bottom:'frontier_armor_skirt'},
+    {id:'city',helmet:'city_guard_helmet',top:'city_guard_brigandine',bottom:'city_guard_trousers'},
   ];
   for(const style of styles){
   await page.goto(`${base}/?review=1&pose=bind&paused=1&view=free`);await page.waitForFunction(()=>!!window.__WANHU_REVIEW__&&!!window.__WANHU_RECIPE__);
   const before=await recipe();await page.getByTestId(`soldier-${style.id}`).click();await page.waitForFunction(top=>window.__WANHU_RECIPE__().slots.top===top,style.top);await sync();
   const saved=await recipe();assert.equal(saved.bodyType,before.bodyType);assert.equal(saved.hairStyle,before.hairStyle);assert.equal(saved.hairColor,before.hairColor);assert.equal(Object.keys(saved).length,6);assert.equal(Object.keys(saved.slots).length,7);assert.equal(saved.slots.rightHand,'military_spear');
-  for(const [label,id] of [['头饰',style.helmet],['上衣',style.top],['下装',style.bottom],['鞋','military_boots'],['右手','military_spear']]){const ids=await page.getByLabel(label,{exact:true}).locator('option').evaluateAll(n=>n.map(x=>x.value));assert(ids.includes(id));assert(!ids.some(x=>x.startsWith('city_guard_')));}
+  for(const [label,id] of [['头饰',style.helmet],['上衣',style.top],['下装',style.bottom],['鞋','military_boots'],['右手','military_spear']]){const ids=await page.getByLabel(label,{exact:true}).locator('option').evaluateAll(n=>n.map(x=>x.value));assert(ids.includes(id));const key={'头饰':'helmet','上衣':'top','下装':'bottom'}[label];if(key)for(const real of styles)assert(ids.includes(real[key]),'三套都必须有真实可选部件');}
   await page.getByRole('button',{name:'自由',exact:true}).click();await shot(`${style.id}-workbench.png`,true);await shot(`${style.id}-male-three-quarter.png`);
   await page.getByRole('button',{name:'正面',exact:true}).click();await shot(`${style.id}-skirt-front.png`);
   await page.getByRole('button',{name:'三视图',exact:true}).click();await shot(`${style.id}-three-views.png`);
   await page.getByRole('button',{name:'经营俯视',exact:true}).click();await sync();const cam=await page.evaluate(()=>window.__WANHU_REVIEW__.cameraState());assert(cam.position[1]>cam.target[1]+3);await shot(`${style.id}-overview.png`);
-  checks.push(style.id+': '+ 'explicit real military suit and independent slot options; no city placeholders; body/hair identity preserved; shared canvas and 20 bones; overview camera');
+  checks.push(style.id+': '+ 'explicit real military suit and independent slot options; three real authored styles; body/hair identity preserved; shared canvas and 20 bones; overview camera');
   await page.getByRole('button',{name:'保存装扮',exact:true}).click();await page.getByRole('button',{name:'清空随身装备',exact:true}).click();assert.equal((await recipe()).slots.rightHand,'none');
   await page.getByRole('button',{name:'撤销',exact:true}).click();assert.deepEqual(await recipe(),saved);
   await page.getByLabel('上衣',{exact:true}).selectOption('work_vest');await page.getByRole('button',{name:'恢复装扮',exact:true}).click();assert.deepEqual(await recipe(),saved);
@@ -88,6 +89,24 @@ try{
     await sheet.locator('img').evaluateAll(images=>Promise.all(images.map(i=>i.decode())));
     await sheet.screenshot({path:join(dir,'palace-vs-frontier.png')});await sheet.close();
     images.push({name:'palace-vs-frontier.png',sources:['comparison-palace.png','comparison-frontier.png'],camera:palaceCamera,composition:'two captured WebGL frames; no second application renderer'});
+  }
+
+  // S3：沿用以上运行时与相机捕获第三套，原双套对比图保持。
+  await page.getByTestId('soldier-city').click();await sync();
+  assert.equal((await recipe()).slots.top,'city_guard_brigandine');
+  assert.deepEqual(await page.evaluate(()=>window.__WANHU_REVIEW__.cameraState()),palaceCamera);
+  await shot('comparison-city.png');
+  const cityFrame=capture?await page.locator('canvas').screenshot():null;
+  await page.getByRole('button',{name:'撤销',exact:true}).click();await sync();assert.equal((await recipe()).slots.top,'frontier_lamellar_armor');
+  await page.getByTestId('soldier-palace').click();await sync();assert.equal((await recipe()).slots.top,'palace_guard_armor');
+  checks.push('palace/frontier/city real three-way application and undo; identical camera, bind pose, shared runtime canvas and unchanged V5 identity');
+  if(capture){
+    const sheet=await browser.newPage({viewport:{width:2040,height:1000},deviceScaleFactor:1});
+    const panels=[['皇宫禁卫 · Palace',palaceFrame],['边疆戍卒 · Frontier',frontierFrame],['城市守军 · City',cityFrame]];
+    await sheet.setContent(`<html><head><style>body{margin:0;background:#e5e1d8;font:24px sans-serif;color:#252723}.row{display:flex}figure{margin:16px;width:648px}figcaption{text-align:center;padding:12px}img{width:648px;height:900px;object-fit:contain}</style></head><body><div class="row">${panels.map(([name,bytes])=>`<figure><figcaption>${name}</figcaption><img src="data:image/png;base64,${bytes.toString('base64')}"></figure>`).join('')}</div></body></html>`);
+    await sheet.locator('img').evaluateAll(items=>Promise.all(items.map(i=>i.decode())));
+    await sheet.screenshot({path:join(dir,'palace-frontier-city.png')});await sheet.close();
+    images.push({name:'palace-frontier-city.png',sources:['comparison-palace.png','comparison-frontier.png','comparison-city.png'],camera:palaceCamera,composition:'three captured WebGL frames from the same application canvas; no new soldier renderer'});
   }
   assert.deepEqual(errors,[]);writeFileSync(join(dir,'report.json'),JSON.stringify({passed:true,sourceSHA,checks,images,errors,visualApproval:false},null,2));console.log(JSON.stringify({passed:true,sourceSHA,checks,images:images.map(x=>x.name)}));
 }catch(error){writeFileSync(join(dir,'report.json'),JSON.stringify({passed:false,sourceSHA,checks,images,errors,error:String(error?.stack||error)},null,2));console.error(error);process.exitCode=1;}

@@ -27,6 +27,7 @@ export type HeadwearId =
   | "farmer_straw_hat"
   | "palace_guard_helmet"
   | "frontier_guard_helmet"
+  | "city_guard_helmet"
   | "guard_helmet"
   | "archer_headband"
   | "cloth_wrap"
@@ -36,6 +37,7 @@ export type TopId =
   | "body"
   | "palace_guard_armor"
   | "frontier_lamellar_armor"
+  | "city_guard_brigandine"
   | "farmer_tunic"
   | "rough_tunic"
   | "cross_jacket"
@@ -47,6 +49,7 @@ export type BottomId =
   | "body"
   | "palace_guard_skirt"
   | "frontier_armor_skirt"
+  | "city_guard_trousers"
   | "work_pants"
   | "work_wrap"
   | "short_trousers"
@@ -121,6 +124,7 @@ export const HEADWEAR_IDS = [
   "farmer_straw_hat",
   "palace_guard_helmet",
   "frontier_guard_helmet",
+  "city_guard_helmet",
   "guard_helmet",
   "archer_headband",
   "cloth_wrap", "scholar_cap", "jade_pin",
@@ -130,6 +134,7 @@ export const TOP_IDS = [
   "body",
   "palace_guard_armor",
   "frontier_lamellar_armor",
+  "city_guard_brigandine",
   "farmer_tunic",
   "rough_tunic", "cross_jacket", "layered_vest", "ceremony_robe",
   "work_vest", "short_work_jacket",
@@ -139,6 +144,7 @@ export const BOTTOM_IDS = [
   "body",
   "palace_guard_skirt",
   "frontier_armor_skirt",
+  "city_guard_trousers",
   "work_pants", "work_wrap", "short_trousers", "true_short_skirt", "long_skirt",
 ] as const satisfies readonly BottomId[];
 

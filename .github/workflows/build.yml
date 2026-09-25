@@ -37,3 +37,5 @@ jobs:
         run: npm run build
       - name: Back equipment source-key animation and riding checks
         run: npx tsx scripts/check-back-equipment.ts --motion
+      - name: Checks must not mutate tracked source
+        run: git diff --exit-code && test "$(git rev-parse HEAD)" = "$REVIEW_HEAD_SHA"
