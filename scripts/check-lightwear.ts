@@ -52,11 +52,11 @@ function pierces(a:Vec3,b:Vec3,p:Vec3[]){
 function triangles(c:Cage,accept:(id:string)=>boolean){
   return c.faces.filter(f=>f.v.every(i=>accept(c.vertices[i].id))).flatMap(f=>f.v.slice(1,-1).map((_,k)=>[f.v[0],f.v[k+1],f.v[k+2]]));
 }
-const hatVertex=(id:string)=>/^(PalaceHelmet|Helmet|WardrobeCap|CapTablet|CapWings|WrapKnot|Straw|Headband|JadePin|JadeFinial)/.test(id);
+const hatVertex=(id:string)=>/^(PalaceHelmet|FrontierHelmet|Helmet|WardrobeCap|CapTablet|CapWings|WrapKnot|Straw|Headband|JadePin|JadeFinial)/.test(id);
 const headwearTriangles:Record<Exclude<HeadwearId,'none'>,number>={
-  palace_guard_helmet:126,farmer_straw_hat:24,guard_helmet:28,archer_headband:36,cloth_wrap:40,scholar_cap:52,jade_pin:24,
+  palace_guard_helmet:126,frontier_guard_helmet:112,farmer_straw_hat:24,guard_helmet:28,archer_headband:36,cloth_wrap:40,scholar_cap:52,jade_pin:24,
 };
-const baseCapPrefix=(id:HeadwearId)=>id==='palace_guard_helmet'?'PalaceHelmet.Shell.Base':id==='guard_helmet'?'HelmetBrim':id==='cloth_wrap'||id==='scholar_cap'?'WardrobeCapBase':undefined;
+const baseCapPrefix=(id:HeadwearId)=>id==='frontier_guard_helmet'?'FrontierHelmet.Shell.Base':id==='palace_guard_helmet'?'PalaceHelmet.Shell.Base':id==='guard_helmet'?'HelmetBrim':id==='cloth_wrap'||id==='scholar_cap'?'WardrobeCapBase':undefined;
 const isBaseCapTriangle=(c:Cage,id:HeadwearId,tri:number[])=>{
   const prefix=baseCapPrefix(id);return !!prefix&&tri.every(i=>c.vertices[i].id.startsWith(prefix+'.'));
 };
@@ -97,8 +97,8 @@ function assertHat(c:Cage,id:Exclude<HeadwearId,'none'|'jade_pin'>){
     failures.push({hat:a.map(i=>c.vertices[i].id),hair:b.map(i=>c.vertices[i].id)});
   }
   assert.equal(failures.length,0,id+' 与头发有非帽底静态贯穿：'+JSON.stringify(failures.slice(0,4)));
-  if(['palace_guard_helmet','guard_helmet','cloth_wrap','scholar_cap'].includes(id)){
-    const prefix=id==='palace_guard_helmet'?'PalaceHelmet.Shell':id==='guard_helmet'?'Helmet':'WardrobeCap';
+  if(['palace_guard_helmet','frontier_guard_helmet','guard_helmet','cloth_wrap','scholar_cap'].includes(id)){
+    const prefix=id==='frontier_guard_helmet'?'FrontierHelmet.Shell':id==='palace_guard_helmet'?'PalaceHelmet.Shell':id==='guard_helmet'?'Helmet':'WardrobeCap';
     const shell=c.faces.filter(f=>f.v.every(i=>c.vertices[i].id.startsWith(prefix))&&!isBaseCapTriangle(c,id,f.v));
     const h=c.vertices.filter(v=>/^(HairVolume|HairCrown)/.test(v.id));
     const center:Vec3=[0,h.reduce((s,v)=>s+v.p[1],0)/h.length,0];
@@ -179,7 +179,7 @@ for(const id of HEADWEAR_IDS.filter((x):x is Exclude<HeadwearId,'none'>=>x!=='no
   const fi=broken.faces.findIndex(f=>f.v.every(i=>hatVertex(broken.vertices[i].id)));assert(fi>=0);broken.faces.splice(fi,1);
   assert.throws(()=>assertHeadwearClosed(broken,id),id+' 删除任意头饰面后必须失败');headwearHoleMutations++;
 }
-for(const id of ['palace_guard_helmet','guard_helmet','cloth_wrap','scholar_cap'] as const){
+for(const id of ['palace_guard_helmet','frontier_guard_helmet','guard_helmet','cloth_wrap','scholar_cap'] as const){
   const source=makeCharacter(createRecipe({slots:{...emptySlots(),headwear:id}})).surface,wrong=cloneCage(source),prefix=baseCapPrefix(id)!;
   const base=wrong.faces.find(f=>f.v.every(i=>wrong.vertices[i].id.startsWith(prefix+'.')));assert(base);base.color='#c8956e';
   assert.throws(()=>assertHeadwearClosed(wrong,id),id+' 帽底使用肤色必须失败');headwearCapColorMutations++;
