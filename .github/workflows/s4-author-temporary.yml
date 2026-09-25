@@ -1,0 +1,38 @@
+name: S4 Author Temporary
+on:
+  push:
+    branches: [s4-soldier-captain-20260925]
+    paths: [.github/workflows/s4-author-temporary.yml, scripts/s4-author-temporary.py]
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: s4-soldier-captain-20260925
+          fetch-depth: 0
+      - name: Apply reviewed author changes when present
+        run: |
+          if [ -f scripts/s4-author-temporary.py ]; then
+            python3 scripts/s4-author-temporary.py
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add src scripts Documentation README.md AGENTS.md .github
+            if ! git diff --cached --quiet; then
+              git commit -m 'feat(soldier): S4 helmet-only captain roles and review coverage'
+              git push origin HEAD:s4-soldier-captain-20260925
+            fi
+          fi
+      - name: Archive source for local inspection
+        run: |
+          git archive --format=tar HEAD | gzip > /tmp/s4-source.tar.gz
+          git rev-parse HEAD > /tmp/s4-source-sha.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s4-author-source
+          path: |
+            /tmp/s4-source.tar.gz
+            /tmp/s4-source-sha.txt
+          retention-days: 3
