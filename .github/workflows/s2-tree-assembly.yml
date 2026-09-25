@@ -1,0 +1,87 @@
+name: Temporary S2 Tree Assembly
+on:
+  push:
+    branches: [feat/s2-frontier-guard]
+    paths:
+      - .github/workflows/s2-tree-assembly.yml
+      - .github/s2-edits-a.json
+      - .github/s2-edits-b.json
+      - .github/s2-edits-c.json
+permissions:
+  contents: write
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate edits and create Git objects only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SOURCE_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import hashlib, json, os, pathlib, urllib.request
+          root=pathlib.Path.cwd()
+          repo=os.environ['REPO']
+          assert repo=='JiongXiaGu/wanhu-character-lab'
+          parent=os.environ['SOURCE_SHA']
+          def blob(data):
+              return hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+          def api(path, payload=None):
+              data=None if payload is None else json.dumps(payload,ensure_ascii=False).encode()
+              req=urllib.request.Request('https://api.github.com/repos/'+repo+path,data=data,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'})
+              with urllib.request.urlopen(req,timeout=60) as response:
+                  return json.load(response)
+          seen=set(); verified=[]
+          for suffix in 'abc':
+              manifest=json.loads((root/f'.github/s2-edits-{suffix}.json').read_text())
+              assert manifest['base']=='b72e27d07c1db4d2357c1768b2e62f621e1cc299'
+              for entry in manifest['entries']:
+                  path=entry['path']; relative=pathlib.PurePosixPath(path)
+                  assert not relative.is_absolute() and '..' not in relative.parts and path not in seen
+                  seen.add(path); target=root/path
+                  if entry['old'] is None:
+                      assert not target.exists(), path+' already exists'
+                      text=''
+                  else:
+                      raw=target.read_bytes()
+                      assert blob(raw)==entry['old'],path+' old SHA mismatch'
+                      text=raw.decode('utf-8')
+                  end=0
+                  for start,stop,replacement in entry['edits']:
+                      assert end<=start<=stop<=len(text) and isinstance(replacement,str),path+' invalid edit'
+                      end=stop
+                  for start,stop,replacement in reversed(entry['edits']):
+                      text=text[:start]+replacement+text[stop:]
+                  raw=text.encode('utf-8')
+                  if entry['new'] is None:
+                      assert not raw
+                  else:
+                      assert blob(raw)==entry['new'],path+' new SHA mismatch'
+                  verified.append((entry,text))
+          tree=[]
+          for entry,text in verified:
+              sha=entry['new']
+              if sha is not None:
+                  assert api('/git/blobs',{'content':text,'encoding':'utf-8'})['sha']==sha
+              tree.append({'path':entry['path'],'mode':'100644','type':'blob','sha':sha})
+          for path in ['.github/s2-edits-a.json','.github/s2-edits-b.json','.github/s2-edits-c.json','.github/workflows/s2-tree-assembly.yml']:
+              assert (root/path).is_file()
+              tree.append({'path':path,'mode':'100644','type':'blob','sha':None})
+          base_tree=api('/git/commits/'+parent)['tree']['sha']
+          result=api('/git/trees',{'base_tree':base_tree,'tree':tree})
+          evidence={'parent':parent,'tree':result['sha'],'changes':tree}
+          pathlib.Path('/tmp/s2-assembled-tree.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2))
+          print(json.dumps(evidence,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s2-assembled-tree
+          path: /tmp/s2-assembled-tree.json
+          retention-days: 1
