@@ -1,3 +1,4 @@
+import './soldier-heavy-evidence';
 import assert from 'node:assert/strict';
 import { B, createRecipe, type Cage, type Weight } from '../src/character/v3/types';
 import { triCount } from '../src/character/v3/cage';
