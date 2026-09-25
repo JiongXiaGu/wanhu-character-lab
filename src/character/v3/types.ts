@@ -39,6 +39,7 @@ export type HeadwearId =
 export type TopId =
   | "body"
   | "medium_armor"
+  | "heavy_armor"
   | "city_guard_brigandine"
   | "farmer_tunic"
   | "rough_tunic"
@@ -50,6 +51,7 @@ export type TopId =
 export type BottomId =
   | "body"
   | "medium_armor_skirt"
+  | "heavy_armor_skirt"
   | "city_guard_trousers"
   | "work_pants"
   | "work_wrap"
@@ -137,6 +139,7 @@ export const HEADWEAR_IDS = [
 export const TOP_IDS = [
   "body",
   "medium_armor",
+  "heavy_armor",
   "city_guard_brigandine",
   "farmer_tunic",
   "rough_tunic", "cross_jacket", "layered_vest", "ceremony_robe",
@@ -146,6 +149,7 @@ export const TOP_IDS = [
 export const BOTTOM_IDS = [
   "body",
   "medium_armor_skirt",
+  "heavy_armor_skirt",
   "city_guard_trousers",
   "work_pants", "work_wrap", "short_trousers", "true_short_skirt", "long_skirt",
 ] as const satisfies readonly BottomId[];
