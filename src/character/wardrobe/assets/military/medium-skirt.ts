@@ -3,7 +3,7 @@ import { bridge, face, vertex, ring, orient } from '../../../v3/cage';
 import { KNEE, kneeWeights } from '../../../v3/leg-deformation';
 import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from '../contract';
 
-// 边军独立长甲裙：前后整幅跨中线，六排厚实裙身落到大腿中下段。
+// 共享中甲长甲裙：前后整幅跨中线，六排裙身落到大腿中下段；皇宫/边疆共用几何。
 const PROFILE = [[.27,1],[.76,.88],[1,0],[.76,-.88],[.27,-1],[-.27,-1],[-.76,-.88],[-1,0],[-.76,.88],[-.27,1]] as const;
 const ROWS = [[1.075,.165,.108],[.94,.207,.136],[.855,.230,.143],[.785,.242,.156],[.705,.248,.161],[.685,.250,.162]] as const;
 const HIP_WEIGHTS = [1,.60,.45,.35,.29,.28] as const;
@@ -13,8 +13,8 @@ function shade(color:string,factor:number):string {
   return '#'+[1,3,5].map(i=>Math.min(255,Math.round(parseInt(color.slice(i,i+2),16)*factor)).toString(16).padStart(2,'0')).join('');
 }
 
-/** 腰甲、整体长裙身、拱形裤管出口为单一闭合壳；不调用居民裙或宫卫工厂。 */
-export function makeFrontierSkirt(recipe:Recipe):GarmentPiece {
+/** 中甲腰甲、整体长裙身、拱形裤管出口为单一闭合壳；不从驻地复制第二份版型。 */
+export function makeMediumArmorSkirt(recipe:Recipe):GarmentPiece {
   const c:Cage={vertices:[],faces:[],anchors:{}},openings:Record<string,number[]>={};
   const {primary:cloth,secondary:iron,accent:binding}=recipe.dyes;
   const roots:number[][]=[];
@@ -32,7 +32,7 @@ export function makeFrontierSkirt(recipe:Recipe):GarmentPiece {
     ];
     let previous:number[]=[];
     for(const [label,y,width,depth,weights] of rows){
-      const loop=ring(c,`FrontierLiner.${name}.${label}`,[side*.101,y,0],[1,0,0],[0,0,1],profile,width,depth,weights);
+      const loop=ring(c,`MediumArmorLiner.${name}.${label}`,[side*.101,y,0],[1,0,0],[0,0,1],profile,width,depth,weights);
       // 中央裆口高于外侧出口；保留迈步空间，不用低平封底横贯两腿。
       if(label==='Entry')for(const k of [0,4,5,6,7]){
         const end=k===0||k===4;
@@ -55,7 +55,7 @@ export function makeFrontierSkirt(recipe:Recipe):GarmentPiece {
       const thigh=x>0?B.RightThigh:B.LeftThigh;
       const weights:Weight=row===0?[B.Hips,B.Hips,1]:[B.Hips,thigh,HIP_WEIGHTS[row]];
       const point:Vec3=[x*width,y+Math.max(0,-z)*REAR_LIFT[row],z*(depth+(row>=4&&z>0?.015:0))];
-      return vertex(c,`FrontierSkirt.${row}.${column}`,point,weights);
+      return vertex(c,`MediumArmorSkirt.${row}.${column}`,point,weights);
     });
     if(!row)openings.waist=loop;
     else bridge(c,previous,loop,row===1?'pelvis':'thigh',row===ROWS.length-1?binding:shade(iron,[1,.97,1.06,.94,1.03][row]));
@@ -64,7 +64,7 @@ export function makeFrontierSkirt(recipe:Recipe):GarmentPiece {
   bridge(c,previous,entry,'thigh',iron);
   orient(c);
   // 选定跨中线回收面的对角线，避免迈步时扭曲四边形折回裙面。
-  for(const f of c.faces)if(f.v.length===4&&f.v.some(i=>c.vertices[i].id==='FrontierLiner.Left.Entry.4')&&f.v.some(i=>c.vertices[i].id==='FrontierSkirt.5.0'))f.v.push(f.v.shift()!);
+  for(const f of c.faces)if(f.v.length===4&&f.v.some(i=>c.vertices[i].id==='MediumArmorLiner.Left.Entry.4')&&f.v.some(i=>c.vertices[i].id==='MediumArmorSkirt.5.0'))f.v.push(f.v.shift()!);
   c.anchors={...openings};
   return{id:recipe.slots.bottom,slot:'bottom',version:GARMENT_GEOMETRY_VERSION,mesh:c,covers:['pelvis','thigh','shin'],openings};
 }

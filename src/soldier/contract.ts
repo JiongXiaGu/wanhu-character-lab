@@ -1,14 +1,18 @@
 /** 军人作者流程契约：只定义风格、命名与阶段，不进入 Recipe 或玩法运行时。 */
-export const SOLDIER_WORKFLOW_VERSION = 'wanhu-soldier-authoring-v1';
+export const SOLDIER_WORKFLOW_VERSION = 'wanhu-soldier-authoring-v2';
 
 export const SOLDIER_STYLE_IDS = ['palace', 'frontier', 'city'] as const;
 export type SoldierStyleId = typeof SOLDIER_STYLE_IDS[number];
+
+export const SOLDIER_ARMOR_CLASS_IDS = ['light', 'medium'] as const;
+export type SoldierArmorClassId = typeof SOLDIER_ARMOR_CLASS_IDS[number];
 
 export const SOLDIER_ROLE_IDS = ['spearman', 'swordsman', 'archer', 'shieldman'] as const;
 export type SoldierRoleId = typeof SOLDIER_ROLE_IDS[number];
 
 export interface SoldierStyleContract {
   name: string;
+  armorClass: SoldierArmorClassId;
   silhouette: string;
   palette: {
     primary: string;
@@ -26,29 +30,32 @@ export interface SoldierStyleContract {
 export const SOLDIER_STYLE_CONTRACT: Readonly<Record<SoldierStyleId, SoldierStyleContract>> = {
   palace: {
     name: '皇宫禁卫',
-    silhouette: '宽肩、高盔、红缨',
+    armorClass: 'medium',
+    silhouette: '中甲、高盔、绛红配色',
     palette: { primary: '#713b38', secondary: '#34383a', accent: '#a07c49' },
     assets: {
       headwear: 'palace_guard_helmet',
-      top: 'palace_guard_armor',
-      bottom: 'palace_guard_skirt',
+      top: 'medium_armor',
+      bottom: 'medium_armor_skirt',
       shoes: 'military_boots',
     },
   },
   frontier: {
     name: '边疆戍卒',
-    silhouette: '厚胸、长甲裙、护颈',
+    armorClass: 'medium',
+    silhouette: '中甲、护颈盔、靛灰配色',
     palette: { primary: '#41535a', secondary: '#4b4b47', accent: '#79504a' },
     assets: {
       headwear: 'frontier_guard_helmet',
-      top: 'frontier_lamellar_armor',
-      bottom: 'frontier_armor_skirt',
+      top: 'medium_armor',
+      bottom: 'medium_armor_skirt',
       shoes: 'military_boots',
     },
   },
   city: {
     name: '城市守军',
-    silhouette: '短甲、窄肩、明显腰带',
+    armorClass: 'light',
+    silhouette: '轻甲、低檐盔、束腿军裤',
     palette: { primary: '#44565b', secondary: '#505557', accent: '#887252' },
     assets: {
       headwear: 'city_guard_helmet',
