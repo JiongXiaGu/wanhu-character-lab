@@ -1,6 +1,7 @@
 import './check-soldier-identities';
 import './check-soldier-armor';
 import './check-soldier-heavy-authoring';
+import './check-soldier-wardrobe';
 import assert from 'node:assert/strict';
 import {
   B,
