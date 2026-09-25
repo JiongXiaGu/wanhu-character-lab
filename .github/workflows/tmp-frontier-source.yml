@@ -6,26 +6,18 @@ on:
 permissions:
   contents: read
 jobs:
-  snapshot:
+  inspect:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - name: Package checked-out source and author dependencies
+      - name: Integration sites
+        run: git grep -n -E 'palace_guard|applyPalace|isPalace|PalaceHelmet|PalaceLiner' -- src scripts .github
+      - name: Source contracts
         run: |
-          git rev-parse HEAD > /tmp/source-sha.txt
-          tar --exclude=.git -czf /tmp/frontier-author-source.tar.gz .
-      - uses: actions/upload-artifact@v4
-        with:
-          name: frontier-author-source
-          path: |
-            /tmp/source-sha.txt
-            /tmp/frontier-author-source.tar.gz
-          retention-days: 2
+          for f in src/character/wardrobe/assets/tops.ts src/character/wardrobe/assets/trousers.ts src/character/wardrobe/assets/top-seams.ts scripts/check-soldier.ts scripts/check-soldier-assets.ts scripts/check-soldier-skirt.ts scripts/check-soldier-browser.mjs .github/workflows/targeted-checks.yml .github/workflows/manual-visual-review.yml; do
+            echo "===== $f ====="
+            if test -f "$f"; then cat "$f"; fi
+          done
