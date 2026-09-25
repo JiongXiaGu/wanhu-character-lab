@@ -1,0 +1,61 @@
+name: S4 Slender Author Temporary
+on:
+  push:
+    branches: [s4-slender-captain-20260925]
+    paths: [.github/workflows/s4-slender-author-temporary.yml]
+permissions:
+  contents: write
+jobs:
+  author:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: s4-slender-captain-20260925
+          fetch-depth: 0
+      - name: Apply reviewed narrow patch and verify local-tested file hashes
+        run: |
+          python3 scripts/s4-slender-author-temporary.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, subprocess
+          expected = {
+            'AGENTS.md': 'a7818c8f39d24f7ca905f13d6fde9d169e3c7fc8c526ed995ff5cbc8b8ac26cc',
+            'Documentation/军人与甲胄工作流.md': '6c2e83a3a441d1724d0e262130506706fb845df30d1d21be1ea41bf149d82e03',
+            'Documentation/工作交接.md': '8b99c0ac96274980dd0e4822bd19491d5f3d6846640e84d58c67510540b06884',
+            'Documentation/普通士兵与队长.md': 'eb61256ea7bf4ea741256665da7bc51436512dc393a71ab02446fa619ec4890f',
+            'README.md': '90c0a039d1a29c42c65422651e57c2100554a1cd7f2e45ba95f8f5125bc5b850',
+            'scripts/check-lightwear.ts': '44a666421de95e71c1a30f443dfbe7b89e3177a779ee8841dc0e84513b47a485',
+            'scripts/check-soldier-assets.ts': '58929ef0b6e875556150bcb6dc3da7cbc0c56f5121ea2e6a2b0e0551913b94bd',
+            'scripts/check-soldier-identities.ts': 'a807f17efa91c4fddfaca6141ece0d388ecf0bc430737c643b6aa2e19722b1b8',
+            'src/character/wardrobe/captain-equipment.ts': '50b78ddcb0626ca0623d55719dfdba763bc4597ec77a1aa7f452e8e12e2ced21',
+            'src/character/wardrobe/catalog.ts': '211e69b6cd26f27cab1a766967584e51ef463b2e07a7505c19694045fab487e7',
+          }
+          changed = set(filter(None, subprocess.check_output(['git', 'diff', '--name-only', '-z']).decode().split('\0')))
+          assert changed == set(expected), changed
+          for path, digest in expected.items():
+              assert hashlib.sha256(Path(path).read_bytes()).hexdigest() == digest, path
+          print('All 10 reviewed files exactly match the locally tested candidate.')
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Author smoke checks
+        run: |
+          npm ci
+          npm run prepare:motion
+          npx tsc --noEmit
+          npm run check:soldier
+          npm run check:lightwear
+      - name: Commit scoped changes and remove temporary tooling
+        run: |
+          rm scripts/s4-slender-author-temporary.py .github/workflows/s4-slender-author-temporary.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/character/wardrobe/captain-equipment.ts src/character/wardrobe/catalog.ts scripts/check-lightwear.ts scripts/check-soldier-assets.ts scripts/check-soldier-identities.ts README.md AGENTS.md Documentation/普通士兵与队长.md Documentation/工作交接.md Documentation/军人与甲胄工作流.md scripts/s4-slender-author-temporary.py .github/workflows/s4-slender-author-temporary.yml
+          git diff --cached --check
+          git commit -m 'fix(soldier): replace broad captain ornaments with slender upright crests'
+          git push origin HEAD:s4-slender-captain-20260925
+          git rev-parse HEAD
