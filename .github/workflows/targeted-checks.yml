@@ -232,17 +232,17 @@ jobs:
       - name: Closed soldier assets, identity and fault injection
         if: steps.scope.outputs.required == 'true'
         run: npm run check:soldier
-      - name: Actual skinned source keys and midpoints
-        if: steps.scope.outputs.required == 'true'
-        run: npx tsx scripts/check-soldier-assets.ts --motion
-      # 分阶段验收：先执行 S6-3 原浏览器交互，再进入 S6-4 穿插门槛。
-      # 只调整顺序，不删除任何检查；因此已知穿插失败不会遮蔽三轴 UI 的独立结果。
+      # 分阶段验收：S6-3 浏览器交互先独立出结果；后续仍完整执行 S6-4 蒙皮与穿插门槛。
+      # 只调整顺序，不删除检查、动作或样本。
       - name: Install desktop browser
         if: steps.scope.outputs.required == 'true'
         run: npx playwright install --with-deps chromium
       - name: Soldier desktop interactions without screenshots
         if: steps.scope.outputs.required == 'true'
         run: npm run check:soldier-browser
+      - name: Actual skinned source keys and midpoints
+        if: steps.scope.outputs.required == 'true'
+        run: npx tsx scripts/check-soldier-assets.ts --motion
       # 闭合和有限值不足以验收甲片与内衬；复用原完整检测，不过滤甲片/动作或放宽容差。
       - name: Full existing lower-body intersection regression
         if: steps.scope.outputs.required == 'true'
