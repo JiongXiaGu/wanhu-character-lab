@@ -1,0 +1,338 @@
+{
+  "sourceSHA": "9e2e7687770bf9f400e0fbaa19e44fab94dc8e6b",
+  "officialRun": {
+    "conclusion": "success",
+    "head_sha": "9e2e7687770bf9f400e0fbaa19e44fab94dc8e6b",
+    "html_url": "https://github.com/JiongXiaGu/wanhu-character-lab/actions/runs/36140742663",
+    "id": 36140742663,
+    "status": "completed"
+  },
+  "files": [
+    {
+      "name": "captain-action-fitting.png",
+      "sha256": "bca985f59550eaeb3c1e58fb2285a38a6be7f961fa77fa6b349a18871c808d16"
+    },
+    {
+      "name": "captain-workbench.png",
+      "sha256": "652c1fee27f05a92f51b53817d8c15c35c39aba60f7e7ee8071ea8c109f65be6"
+    },
+    {
+      "name": "city-archery-fitting.png",
+      "sha256": "00d94ce512dd7dcc5aff284ac8618e7b21ed27d86b1381e1eb1feafac8a0c0ef"
+    },
+    {
+      "name": "city-captain-female-archery.png",
+      "sha256": "a244982a8be52f626225a2e453ee4231d728ba414655fff8e3d5a1bfd363eb26"
+    },
+    {
+      "name": "city-captain-female-jogging.png",
+      "sha256": "72baf1296f03da6945d9c52225a08e619fa54f1b923f2de6109b83f94b6eeab3"
+    },
+    {
+      "name": "city-captain-female-seated.png",
+      "sha256": "5a2526e63b23c352edeafaaf693e22ef1ff562fff6c16a09437a3c13a73b2d01"
+    },
+    {
+      "name": "city-captain-identity-free.png",
+      "sha256": "f58b03a0c36ddfe76bac9093fe7bc5a29640f83970c3f5f7bf24438952c3fcb8"
+    },
+    {
+      "name": "city-captain-identity-overview.png",
+      "sha256": "8c35a82d207dcc72f2ac18d82334b42fd83c796907b24c24c3838ff9f1f1e25e"
+    },
+    {
+      "name": "city-captain-male-archery.png",
+      "sha256": "9145bf670db3ba13193d07bbfb229fb19e8805d0fb40c75cb18801c28c16ae5f"
+    },
+    {
+      "name": "city-captain-male-jogging.png",
+      "sha256": "fd125cb0c21184915ffe8d40348a47e7a392e366515dc7fe6728452da9c3274d"
+    },
+    {
+      "name": "city-captain-male-seated.png",
+      "sha256": "aa066e26adbe437e8630999b44f2c05c5e0bcdc063333bc4333094e253689edf"
+    },
+    {
+      "name": "city-captain-three-views.png",
+      "sha256": "450ee12967594af7f7efe4c2c6a8c486cd898ceb2d199f47c66702e26622629c"
+    },
+    {
+      "name": "city-female-three-quarter.png",
+      "sha256": "7ee5d62465173475dd5a19beea36ea543abfd68c665c5d8032de9cf79eb7311a"
+    },
+    {
+      "name": "city-identity-overview.png",
+      "sha256": "bd1482693cc4ce29bddb9508d7ef3d8ffc289865c66a3da19b94b450def65e42"
+    },
+    {
+      "name": "city-identity-three-views.png",
+      "sha256": "3839607634cb2d5ed9c3f2961779359cb18f5fbfa43b6253a30344ed2738fa66"
+    },
+    {
+      "name": "city-jogging-fitting.png",
+      "sha256": "bab435e28bcf6b991346d966ae738362375eb22c5b7ecc55d23ae1573d2ab0b0"
+    },
+    {
+      "name": "city-male-three-quarter.png",
+      "sha256": "578ce5cf1bc3da3fdf2e4adf0e66faada6bbcef3607ad38189436279315b7673"
+    },
+    {
+      "name": "city-overview.png",
+      "sha256": "d57fdec9d54f76e8bfd267ec4d58eb798767af90094040e0a40d435c7be76464"
+    },
+    {
+      "name": "city-seated-fitting.png",
+      "sha256": "3650dfda85c7477b84a80f94414ff5f246b8f3c52544b459d20441c01d69acd5"
+    },
+    {
+      "name": "city-skirt-front.png",
+      "sha256": "b710e5175982c580a9a3643bc4a291f0b54cdfcdc83a7e660e7c7415a543fe71"
+    },
+    {
+      "name": "city-soldier-identity-free.png",
+      "sha256": "578ce5cf1bc3da3fdf2e4adf0e66faada6bbcef3607ad38189436279315b7673"
+    },
+    {
+      "name": "city-soldier-identity-overview.png",
+      "sha256": "d57fdec9d54f76e8bfd267ec4d58eb798767af90094040e0a40d435c7be76464"
+    },
+    {
+      "name": "city-soldier-three-views.png",
+      "sha256": "83e4ddb78574bfd482d109124978d42935c6f4bdeb2fc7648f90ad179d6811e6"
+    },
+    {
+      "name": "city-soldier-vs-captain.png",
+      "sha256": "b228c92a45a577f541efea267f9c28a2b4401c7550793a9f22e25f925055bee1"
+    },
+    {
+      "name": "city-three-views.png",
+      "sha256": "83e4ddb78574bfd482d109124978d42935c6f4bdeb2fc7648f90ad179d6811e6"
+    },
+    {
+      "name": "city-workbench.png",
+      "sha256": "b257269559437ac6ed892c0dc14053d6277960145cc330ac0892ee15f5bf3929"
+    },
+    {
+      "name": "comparison-city.png",
+      "sha256": "578ce5cf1bc3da3fdf2e4adf0e66faada6bbcef3607ad38189436279315b7673"
+    },
+    {
+      "name": "comparison-frontier.png",
+      "sha256": "acfdbf524959a04ead5b0b90a73828a04734d7a80f11065294b37bbaafdec95f"
+    },
+    {
+      "name": "comparison-palace.png",
+      "sha256": "2b38d57de6037759fdd9daef2b8cd65127c903ee79337e226801e83378d162fd"
+    },
+    {
+      "name": "frontier-archery-fitting.png",
+      "sha256": "fc7528200bf623598d8fd4436dfd31390598a098a166acda1cecd1ff112b57ca"
+    },
+    {
+      "name": "frontier-captain-female-archery.png",
+      "sha256": "68a56e556827b8a76276c69db0ab782a999912d8226cb363b68eb80319094529"
+    },
+    {
+      "name": "frontier-captain-female-jogging.png",
+      "sha256": "5288fb9d9910cf486c0b6c9e5febc5ae272696b4ed1c7f93ac133e640c915fb8"
+    },
+    {
+      "name": "frontier-captain-female-seated.png",
+      "sha256": "96de63b9b7e837cc3652315101aa5a4f31eeb9d1248b4bb19c61af7472a69ab9"
+    },
+    {
+      "name": "frontier-captain-identity-free.png",
+      "sha256": "c5e87a0eb5c61b2dcf3d617873ac1f4c16b0c71aeacf3a263adee598af8412d7"
+    },
+    {
+      "name": "frontier-captain-identity-overview.png",
+      "sha256": "94b4c941143978dca6d24640ec9dfcba55600e0f477341d4a823a22c8fea172b"
+    },
+    {
+      "name": "frontier-captain-male-archery.png",
+      "sha256": "990b315baf81184bee14dec7866882f4de943a9fbbd3b89738d3da7045b83b7b"
+    },
+    {
+      "name": "frontier-captain-male-jogging.png",
+      "sha256": "4ce163bb21f3ac888f3f679968a2fb18cc3f193067aac1771258d73ab700b261"
+    },
+    {
+      "name": "frontier-captain-male-seated.png",
+      "sha256": "9ca984a6a586c844cf1a0603c66e5c15a9373a394e847db267c6c4d9c03ba220"
+    },
+    {
+      "name": "frontier-captain-three-views.png",
+      "sha256": "a855d8b6a3a72e7a5d894f22632097b5804e9d859bc0e111551c1dfecbba4e76"
+    },
+    {
+      "name": "frontier-female-three-quarter.png",
+      "sha256": "e9f1f188a446664f59b7b3b821d0760a6d5abe006e1d351aa95300e45049f337"
+    },
+    {
+      "name": "frontier-identity-overview.png",
+      "sha256": "f23405734155cc91a91f692697b3fb39cc14d978d3d4e30e6c1ca269e0fd4a56"
+    },
+    {
+      "name": "frontier-identity-three-views.png",
+      "sha256": "ecb60be5d16d49aab7ef3d9a5481d2ebc1117d66d9ea4c3c5b6babdf4ec48b7c"
+    },
+    {
+      "name": "frontier-jogging-fitting.png",
+      "sha256": "ec5ea7660e32971be20dd6047aff75b01d43a5787ddf02eb025fa0cee122e439"
+    },
+    {
+      "name": "frontier-male-three-quarter.png",
+      "sha256": "acfdbf524959a04ead5b0b90a73828a04734d7a80f11065294b37bbaafdec95f"
+    },
+    {
+      "name": "frontier-overview.png",
+      "sha256": "df25292e433b4016d44fdbe6ad3ddf73cefc814d977cf9a92f7c385884574bdd"
+    },
+    {
+      "name": "frontier-seated-fitting.png",
+      "sha256": "cc0981a828da70e5bcece933c3072e0725e0e89dd5069ae54ce512e8612fc1cd"
+    },
+    {
+      "name": "frontier-skirt-front.png",
+      "sha256": "d783c218eb0bd9f357f37d2965e6dcb980ab107f124698e9d5c9459e86ce5cef"
+    },
+    {
+      "name": "frontier-soldier-identity-free.png",
+      "sha256": "acfdbf524959a04ead5b0b90a73828a04734d7a80f11065294b37bbaafdec95f"
+    },
+    {
+      "name": "frontier-soldier-identity-overview.png",
+      "sha256": "df25292e433b4016d44fdbe6ad3ddf73cefc814d977cf9a92f7c385884574bdd"
+    },
+    {
+      "name": "frontier-soldier-three-views.png",
+      "sha256": "c141fdbdbbd1a919278c5e6dff88c156766affbcee1b50d07280ee76947404f9"
+    },
+    {
+      "name": "frontier-soldier-vs-captain.png",
+      "sha256": "110e87fbdd5bec54f824e8ea649cc3f0cce3dbe28eeb789a9db2c18a84eeee82"
+    },
+    {
+      "name": "frontier-three-views.png",
+      "sha256": "c141fdbdbbd1a919278c5e6dff88c156766affbcee1b50d07280ee76947404f9"
+    },
+    {
+      "name": "frontier-workbench.png",
+      "sha256": "d025a03939f0e74c4c34f191f67b4fdea9ae52aa78ea98d57aa6e9497b1960df"
+    },
+    {
+      "name": "palace-archery-fitting.png",
+      "sha256": "a57989ee0ce1726f50724e5551041c6d646ab6e6b1c962763b3edc8c6f7f7586"
+    },
+    {
+      "name": "palace-captain-female-archery.png",
+      "sha256": "04d08f500a6e49a62eefc0003b230ee66d9bf45583571959cac8d2b1694dd46b"
+    },
+    {
+      "name": "palace-captain-female-jogging.png",
+      "sha256": "bcdcad95eb58e430fd22d1827de38978bc9e7266924c77c19dd9afa40db312cf"
+    },
+    {
+      "name": "palace-captain-female-seated.png",
+      "sha256": "b80adb19c2e47f11a5954e97df68fdc78bff7c986d7cd5f057f29b4331385981"
+    },
+    {
+      "name": "palace-captain-identity-free.png",
+      "sha256": "c0f28be5b0fdf619496042fe066aff48fbb3a76035e2ade1d125defec5484955"
+    },
+    {
+      "name": "palace-captain-identity-overview.png",
+      "sha256": "3c1a6ecbbb60d48eed4e7c92652aed9ff114e5ef66aec5f146a996a07bdea4c7"
+    },
+    {
+      "name": "palace-captain-male-archery.png",
+      "sha256": "ce0045183fea8e9285f0472d391cf5b337847c9ecede58c66d7dde6945d461f7"
+    },
+    {
+      "name": "palace-captain-male-jogging.png",
+      "sha256": "4fdcafff8ed2ed33b2a6cff83b4edeb724a051e1bd64e7402a3ab4f256c5de17"
+    },
+    {
+      "name": "palace-captain-male-seated.png",
+      "sha256": "d49c80654b47f9f01e42dbf901849b42e5f71f9337579b0f457328392f88adab"
+    },
+    {
+      "name": "palace-captain-three-views.png",
+      "sha256": "aed28ce18bddc5118b0d93cbc213abd507c35239d905d3d516fb3ff9b91f2113"
+    },
+    {
+      "name": "palace-female-three-quarter.png",
+      "sha256": "cbab648f84b1c922e6d9cecd22ad38710a1c45892caa57d8cf651b67f968395b"
+    },
+    {
+      "name": "palace-frontier-city.png",
+      "sha256": "cd2dffee270e21f2eaecfb36a4c2bc60f941bdf670dbef55dcf6fbdb2f5e8202"
+    },
+    {
+      "name": "palace-identity-overview.png",
+      "sha256": "d3e2d59f2fe3a305f9e01e73454c841f9889989abd2ebd988f4379e4503e7afb"
+    },
+    {
+      "name": "palace-identity-three-views.png",
+      "sha256": "0571d55ae2c5e8b2884b222073b0c75429472a7dd5891dd1d4fb201805dab9b7"
+    },
+    {
+      "name": "palace-jogging-fitting.png",
+      "sha256": "245c872315382795ce96379d1251845f0d00830f6efc2e0aeeda5f6ad4116628"
+    },
+    {
+      "name": "palace-male-three-quarter.png",
+      "sha256": "2b38d57de6037759fdd9daef2b8cd65127c903ee79337e226801e83378d162fd"
+    },
+    {
+      "name": "palace-overview.png",
+      "sha256": "7be46b02b39ba10b302342fe7e29727c979c787002f2f92aea5ea6b7c7051fa8"
+    },
+    {
+      "name": "palace-seated-fitting.png",
+      "sha256": "04020d06b382d5499e9ab83359f77150979ddaa004736f038890e49c8da80883"
+    },
+    {
+      "name": "palace-skirt-front.png",
+      "sha256": "2bc27b1e3ca834f744fa2d7d390fbbc1e16b15ad64be2684d922a9ae9bf43c79"
+    },
+    {
+      "name": "palace-soldier-identity-free.png",
+      "sha256": "2b38d57de6037759fdd9daef2b8cd65127c903ee79337e226801e83378d162fd"
+    },
+    {
+      "name": "palace-soldier-identity-overview.png",
+      "sha256": "7be46b02b39ba10b302342fe7e29727c979c787002f2f92aea5ea6b7c7051fa8"
+    },
+    {
+      "name": "palace-soldier-three-views.png",
+      "sha256": "b25ee3e304267078597c69f2225a305740727974fa455685f45b25ec0837f9ec"
+    },
+    {
+      "name": "palace-soldier-vs-captain.png",
+      "sha256": "f2ab739e69cc659ea3851bb63d8abfa36a5790a0bab7326ece364830c1f7fd74"
+    },
+    {
+      "name": "palace-three-views.png",
+      "sha256": "b25ee3e304267078597c69f2225a305740727974fa455685f45b25ec0837f9ec"
+    },
+    {
+      "name": "palace-vs-frontier.png",
+      "sha256": "a8162088d4f878572433c513f6d06f625d863df5f1e84287f134164d51efc90e"
+    },
+    {
+      "name": "palace-workbench.png",
+      "sha256": "fa567ddd13bc0adc1c3a85be082a8dc68ff940cd22c0e962b538f0b123ba9bfd"
+    },
+    {
+      "name": "soldier-captain-six-overview.png",
+      "sha256": "28fc7c98f2c8a7cc2de49190a7ff4b9fdd9ad56f66ce06329312a9d5cd0d86e7"
+    },
+    {
+      "name": "soldier-captain-six-roster.png",
+      "sha256": "a494dcf04473c84667465bfb4617e9626024e91044b13a58d4da788e58f5a961"
+    }
+  ],
+  "visualApproval": false,
+  "note": "Unmodified official Playwright/WebGL images, not generated artwork. Actual visual review must be recorded separately."
+}

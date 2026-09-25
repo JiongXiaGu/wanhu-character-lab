@@ -1,0 +1,3423 @@
+{
+  "passed": true,
+  "sourceSHA": "9e2e7687770bf9f400e0fbaa19e44fab94dc8e6b",
+  "checks": [
+    "palace: explicit real military suit and independent slot options; three real authored styles; body/hair identity preserved; shared canvas and 20 bones; overview camera",
+    "palace: V5 save/restore and file roundtrip; undo, strict invalid import and explicit notice dismissal, random slot lock and gender swap",
+    "palace: source motion switch reuses geometry; paused phase retained by gender and helmet changes; step, loop and playback controls; sitting, jogging and archery garment previews do not claim combat spear animation",
+    "frontier: explicit real military suit and independent slot options; three real authored styles; body/hair identity preserved; shared canvas and 20 bones; overview camera",
+    "frontier: V5 save/restore and file roundtrip; undo, strict invalid import and explicit notice dismissal, random slot lock and gender swap",
+    "frontier: source motion switch reuses geometry; paused phase retained by gender and helmet changes; step, loop and playback controls; sitting, jogging and archery garment previews do not claim combat spear animation",
+    "city: explicit real military suit and independent slot options; three real authored styles; body/hair identity preserved; shared canvas and 20 bones; overview camera",
+    "city: V5 save/restore and file roundtrip; undo, strict invalid import and explicit notice dismissal, random slot lock and gender swap",
+    "city: source motion switch reuses geometry; paused phase retained by gender and helmet changes; step, loop and playback controls; sitting, jogging and archery garment previews do not claim combat spear animation",
+    "palace/frontier application and undo use the same canvas and exact camera; distinct geometry IDs; no identity/protocol changes",
+    "palace/frontier/city real three-way application and undo; identical camera, bind pose, shared runtime canvas and unchanged V5 identity",
+    "palace: identity only changes helmet; three views and overview preserve camera; captain save/undo/restore/export/import; civilian mixing; style changes preserve identity",
+    "palace/male: captain query, paused identity swap, jogging/sitting/archery fitting, unchanged animation geometry and phase",
+    "palace/female: captain query, paused identity swap, jogging/sitting/archery fitting, unchanged animation geometry and phase",
+    "frontier: identity only changes helmet; three views and overview preserve camera; captain save/undo/restore/export/import; civilian mixing; style changes preserve identity",
+    "frontier/male: captain query, paused identity swap, jogging/sitting/archery fitting, unchanged animation geometry and phase",
+    "frontier/female: captain query, paused identity swap, jogging/sitting/archery fitting, unchanged animation geometry and phase",
+    "city: identity only changes helmet; three views and overview preserve camera; captain save/undo/restore/export/import; civilian mixing; style changes preserve identity",
+    "city/male: captain query, paused identity swap, jogging/sitting/archery fitting, unchanged animation geometry and phase",
+    "city/female: captain query, paused identity swap, jogging/sitting/archery fitting, unchanged animation geometry and phase"
+  ],
+  "images": [
+    {
+      "name": "palace-workbench.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "b7fbaa2b-6f4c-41b6-a8f8-31a94372d93e"
+      }
+    },
+    {
+      "name": "palace-male-three-quarter.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "b7fbaa2b-6f4c-41b6-a8f8-31a94372d93e"
+      }
+    },
+    {
+      "name": "palace-skirt-front.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "b7fbaa2b-6f4c-41b6-a8f8-31a94372d93e"
+      }
+    },
+    {
+      "name": "palace-three-views.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "b7fbaa2b-6f4c-41b6-a8f8-31a94372d93e"
+      }
+    },
+    {
+      "name": "palace-overview.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "b7fbaa2b-6f4c-41b6-a8f8-31a94372d93e"
+      }
+    },
+    {
+      "name": "palace-female-three-quarter.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1173,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2283,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "5dacf02f-046c-4579-9af0-7d5b1017c9aa"
+      }
+    },
+    {
+      "name": "palace-seated-fitting.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2167,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "pilot-switches",
+          "ready": true,
+          "duration": 5.0333333015441895,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.01974443943853288,
+          "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+          "phase": 0.5,
+          "stage": "Mixamo · 坐姿拨动开关",
+          "finished": false,
+          "motion": {
+            "id": "pilot-switches",
+            "ready": true,
+            "duration": 5.0333333015441895,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.01974443943853288,
+            "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+            "phase": 0.5,
+            "stage": "Mixamo · 坐姿拨动开关",
+            "finished": false
+          }
+        },
+        "geometry": "fbb8de3c-679a-4295-8471-de4bf9e68ca3"
+      }
+    },
+    {
+      "name": "palace-jogging-fitting.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1113,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "jogging",
+          "ready": true,
+          "duration": 2.566666603088379,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.00016398678259188265,
+          "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+          "phase": 0.375,
+          "stage": "Mixamo · 慢跑",
+          "finished": false,
+          "motion": {
+            "id": "jogging",
+            "ready": true,
+            "duration": 2.566666603088379,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.00016398678259188265,
+            "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+            "phase": 0.375,
+            "stage": "Mixamo · 慢跑",
+            "finished": false
+          }
+        },
+        "geometry": "eec0bfe6-7c0c-4a4f-937f-4820b5cf5bb4"
+      }
+    },
+    {
+      "name": "palace-archery-fitting.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "archer_bow",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1173,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2287,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "shooting-arrow",
+          "ready": true,
+          "duration": 5,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.0002911555907790775,
+          "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+          "phase": 0.5,
+          "stage": "Mixamo · 拉弓射箭",
+          "finished": false,
+          "motion": {
+            "id": "shooting-arrow",
+            "ready": true,
+            "duration": 5,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.0002911555907790775,
+            "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+            "phase": 0.5,
+            "stage": "Mixamo · 拉弓射箭",
+            "finished": false
+          }
+        },
+        "geometry": "3ecfe1b9-f795-4fc0-a35e-00686580139b"
+      }
+    },
+    {
+      "name": "frontier-workbench.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1177,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2289,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "90f65699-8b56-4acd-8fcf-3bfc5fd0d11e"
+      }
+    },
+    {
+      "name": "frontier-male-three-quarter.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1177,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2289,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "90f65699-8b56-4acd-8fcf-3bfc5fd0d11e"
+      }
+    },
+    {
+      "name": "frontier-skirt-front.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1177,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2289,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "90f65699-8b56-4acd-8fcf-3bfc5fd0d11e"
+      }
+    },
+    {
+      "name": "frontier-three-views.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1177,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2289,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "90f65699-8b56-4acd-8fcf-3bfc5fd0d11e"
+      }
+    },
+    {
+      "name": "frontier-overview.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1177,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2289,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "90f65699-8b56-4acd-8fcf-3bfc5fd0d11e"
+      }
+    },
+    {
+      "name": "frontier-female-three-quarter.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1179,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2291,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "2db8b66b-1cb3-4a80-ae28-8add4a8785db"
+      }
+    },
+    {
+      "name": "frontier-seated-fitting.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1121,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2175,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "pilot-switches",
+          "ready": true,
+          "duration": 5.0333333015441895,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.01974443943853288,
+          "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+          "phase": 0.5,
+          "stage": "Mixamo · 坐姿拨动开关",
+          "finished": false,
+          "motion": {
+            "id": "pilot-switches",
+            "ready": true,
+            "duration": 5.0333333015441895,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.01974443943853288,
+            "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+            "phase": 0.5,
+            "stage": "Mixamo · 坐姿拨动开关",
+            "finished": false
+          }
+        },
+        "geometry": "8c79c576-dca7-42f7-9f85-d92e18550855"
+      }
+    },
+    {
+      "name": "frontier-jogging-fitting.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1119,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2173,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "jogging",
+          "ready": true,
+          "duration": 2.566666603088379,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.00016398678259188265,
+          "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+          "phase": 0.375,
+          "stage": "Mixamo · 慢跑",
+          "finished": false,
+          "motion": {
+            "id": "jogging",
+            "ready": true,
+            "duration": 2.566666603088379,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.00016398678259188265,
+            "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+            "phase": 0.375,
+            "stage": "Mixamo · 慢跑",
+            "finished": false
+          }
+        },
+        "geometry": "2728d063-7153-476d-a1ee-9a1e60cd39c3"
+      }
+    },
+    {
+      "name": "frontier-archery-fitting.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "archer_bow",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1179,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2295,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "shooting-arrow",
+          "ready": true,
+          "duration": 5,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.0002911555907790775,
+          "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+          "phase": 0.5,
+          "stage": "Mixamo · 拉弓射箭",
+          "finished": false,
+          "motion": {
+            "id": "shooting-arrow",
+            "ready": true,
+            "duration": 5,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.0002911555907790775,
+            "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+            "phase": 0.5,
+            "stage": "Mixamo · 拉弓射箭",
+            "finished": false
+          }
+        },
+        "geometry": "9896dd52-f56e-4877-9e11-fbaab46bc907"
+      }
+    },
+    {
+      "name": "city-workbench.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "7dab3703-58b7-4142-90e4-740934ace151"
+      }
+    },
+    {
+      "name": "city-male-three-quarter.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "7dab3703-58b7-4142-90e4-740934ace151"
+      }
+    },
+    {
+      "name": "city-skirt-front.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "7dab3703-58b7-4142-90e4-740934ace151"
+      }
+    },
+    {
+      "name": "city-three-views.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "7dab3703-58b7-4142-90e4-740934ace151"
+      }
+    },
+    {
+      "name": "city-overview.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "7dab3703-58b7-4142-90e4-740934ace151"
+      }
+    },
+    {
+      "name": "city-female-three-quarter.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1117,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2167,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "a4aa42a6-dc42-4609-97ba-356686f7d2db"
+      }
+    },
+    {
+      "name": "city-seated-fitting.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1059,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2051,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "pilot-switches",
+          "ready": true,
+          "duration": 5.0333333015441895,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.01974443943853288,
+          "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+          "phase": 0.5,
+          "stage": "Mixamo · 坐姿拨动开关",
+          "finished": false,
+          "motion": {
+            "id": "pilot-switches",
+            "ready": true,
+            "duration": 5.0333333015441895,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.01974443943853288,
+            "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+            "phase": 0.5,
+            "stage": "Mixamo · 坐姿拨动开关",
+            "finished": false
+          }
+        },
+        "geometry": "6e9525c7-7419-448b-a5ab-5fffb48ac82e"
+      }
+    },
+    {
+      "name": "city-jogging-fitting.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1057,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2049,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "jogging",
+          "ready": true,
+          "duration": 2.566666603088379,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.00016398678259188265,
+          "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+          "phase": 0.375,
+          "stage": "Mixamo · 慢跑",
+          "finished": false,
+          "motion": {
+            "id": "jogging",
+            "ready": true,
+            "duration": 2.566666603088379,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.00016398678259188265,
+            "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+            "phase": 0.375,
+            "stage": "Mixamo · 慢跑",
+            "finished": false
+          }
+        },
+        "geometry": "3ae62436-c5b9-4bad-85a9-85199562f7ff"
+      }
+    },
+    {
+      "name": "city-archery-fitting.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "archer_bow",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1117,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2171,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "shooting-arrow",
+          "ready": true,
+          "duration": 5,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.0002911555907790775,
+          "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+          "phase": 0.5,
+          "stage": "Mixamo · 拉弓射箭",
+          "finished": false,
+          "motion": {
+            "id": "shooting-arrow",
+            "ready": true,
+            "duration": 5,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.0002911555907790775,
+            "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+            "phase": 0.5,
+            "stage": "Mixamo · 拉弓射箭",
+            "finished": false
+          }
+        },
+        "geometry": "e6ca0001-6270-4e91-ac8a-6fc639b57ecb"
+      }
+    },
+    {
+      "name": "comparison-palace.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "06907155-d03e-40dd-812c-4d8976d4ec6f"
+      }
+    },
+    {
+      "name": "comparison-frontier.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1177,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2289,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "99e2b110-2151-4779-9a0c-454442788e1c"
+      }
+    },
+    {
+      "name": "palace-vs-frontier.png",
+      "sources": [
+        "comparison-palace.png",
+        "comparison-frontier.png"
+      ],
+      "camera": {
+        "position": [
+          2.8000000000000016,
+          1.9828000000000001,
+          4.500000000000003
+        ],
+        "target": [
+          0,
+          0.9328000000000001,
+          0
+        ],
+        "zoom": 1,
+        "projection": [
+          0.4843661042794764,
+          0,
+          0,
+          0,
+          0,
+          0.8480325644504749,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "composition": "two captured WebGL frames; no second application renderer"
+    },
+    {
+      "name": "comparison-city.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "8e6b92e0-2753-42bc-8a21-aab9e4a2ab77"
+      }
+    },
+    {
+      "name": "palace-frontier-city.png",
+      "sources": [
+        "comparison-palace.png",
+        "comparison-frontier.png",
+        "comparison-city.png"
+      ],
+      "camera": {
+        "position": [
+          2.8000000000000016,
+          1.9828000000000001,
+          4.500000000000003
+        ],
+        "target": [
+          0,
+          0.9328000000000001,
+          0
+        ],
+        "zoom": 1,
+        "projection": [
+          0.4843661042794764,
+          0,
+          0,
+          0,
+          0,
+          0.8480325644504749,
+          0,
+          0,
+          0,
+          0,
+          -0.040008001600320066,
+          0,
+          0,
+          0,
+          -1.0004000800160031,
+          1
+        ]
+      },
+      "composition": "three captured WebGL frames from the same application canvas; no new soldier renderer"
+    },
+    {
+      "name": "palace-soldier-identity-free.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "737a71a8-a845-4fae-b0c3-6bde56c72bdb"
+      }
+    },
+    {
+      "name": "palace-captain-identity-free.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_captain_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "6f4e4bc9-5528-4e16-b63c-a8c4a46dec00"
+      }
+    },
+    {
+      "name": "palace-soldier-vs-captain.png",
+      "sources": [
+        "palace-soldier-identity-free.png",
+        "palace-captain-identity-free.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    },
+    {
+      "name": "captain-workbench.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_captain_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "6f4e4bc9-5528-4e16-b63c-a8c4a46dec00"
+      }
+    },
+    {
+      "name": "palace-captain-three-views.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_captain_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "6f4e4bc9-5528-4e16-b63c-a8c4a46dec00"
+      }
+    },
+    {
+      "name": "palace-soldier-three-views.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "47bb4e58-a33f-4709-a603-dcc2249459d9"
+      }
+    },
+    {
+      "name": "palace-identity-three-views.png",
+      "sources": [
+        "palace-soldier-three-views.png",
+        "palace-captain-three-views.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    },
+    {
+      "name": "palace-soldier-identity-overview.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_guard_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "47bb4e58-a33f-4709-a603-dcc2249459d9"
+      }
+    },
+    {
+      "name": "palace-captain-identity-overview.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_captain_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1171,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2281,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "c229127c-68db-49db-b7ae-a1bc76b8b85c"
+      }
+    },
+    {
+      "name": "palace-identity-overview.png",
+      "sources": [
+        "palace-soldier-identity-overview.png",
+        "palace-captain-identity-overview.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    },
+    {
+      "name": "palace-captain-male-jogging.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_captain_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1113,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "jogging",
+          "ready": true,
+          "duration": 2.566666603088379,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.00016398678259188265,
+          "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+          "phase": 0.375,
+          "stage": "Mixamo · 慢跑",
+          "finished": false,
+          "motion": {
+            "id": "jogging",
+            "ready": true,
+            "duration": 2.566666603088379,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.00016398678259188265,
+            "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+            "phase": 0.375,
+            "stage": "Mixamo · 慢跑",
+            "finished": false
+          }
+        },
+        "geometry": "8b91cbf9-ffe6-4bad-9154-761c01a208b0"
+      }
+    },
+    {
+      "name": "palace-captain-male-seated.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_captain_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1113,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "pilot-switches",
+          "ready": true,
+          "duration": 5.0333333015441895,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.01974443943853288,
+          "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+          "phase": 0.5,
+          "stage": "Mixamo · 坐姿拨动开关",
+          "finished": false,
+          "motion": {
+            "id": "pilot-switches",
+            "ready": true,
+            "duration": 5.0333333015441895,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.01974443943853288,
+            "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+            "phase": 0.5,
+            "stage": "Mixamo · 坐姿拨动开关",
+            "finished": false
+          }
+        },
+        "geometry": "8b91cbf9-ffe6-4bad-9154-761c01a208b0"
+      }
+    },
+    {
+      "name": "palace-captain-male-archery.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "palace_captain_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1113,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "shooting-arrow",
+          "ready": true,
+          "duration": 5,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.0002911555907790775,
+          "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+          "phase": 0.5,
+          "stage": "Mixamo · 拉弓射箭",
+          "finished": false,
+          "motion": {
+            "id": "shooting-arrow",
+            "ready": true,
+            "duration": 5,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.0002911555907790775,
+            "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+            "phase": 0.5,
+            "stage": "Mixamo · 拉弓射箭",
+            "finished": false
+          }
+        },
+        "geometry": "8b91cbf9-ffe6-4bad-9154-761c01a208b0"
+      }
+    },
+    {
+      "name": "palace-captain-female-jogging.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "palace_captain_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2167,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "jogging",
+          "ready": true,
+          "duration": 2.566666603088379,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.00016399567245081053,
+          "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+          "phase": 0.375,
+          "stage": "Mixamo · 慢跑",
+          "finished": false,
+          "motion": {
+            "id": "jogging",
+            "ready": true,
+            "duration": 2.566666603088379,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.00016399567245081053,
+            "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+            "phase": 0.375,
+            "stage": "Mixamo · 慢跑",
+            "finished": false
+          }
+        },
+        "geometry": "3e369c97-5dce-4c9e-bdcb-2cb6b4f42572"
+      }
+    },
+    {
+      "name": "palace-captain-female-seated.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "palace_captain_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2167,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "pilot-switches",
+          "ready": true,
+          "duration": 5.0333333015441895,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.01974443943853288,
+          "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+          "phase": 0.5,
+          "stage": "Mixamo · 坐姿拨动开关",
+          "finished": false,
+          "motion": {
+            "id": "pilot-switches",
+            "ready": true,
+            "duration": 5.0333333015441895,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.01974443943853288,
+            "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+            "phase": 0.5,
+            "stage": "Mixamo · 坐姿拨动开关",
+            "finished": false
+          }
+        },
+        "geometry": "3e369c97-5dce-4c9e-bdcb-2cb6b4f42572"
+      }
+    },
+    {
+      "name": "palace-captain-female-archery.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "palace_captain_helmet",
+          "top": "palace_guard_armor",
+          "bottom": "palace_guard_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#713b38",
+          "secondary": "#34383a",
+          "accent": "#a07c49"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2167,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "shooting-arrow",
+          "ready": true,
+          "duration": 5,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.0002911555907790775,
+          "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+          "phase": 0.5,
+          "stage": "Mixamo · 拉弓射箭",
+          "finished": false,
+          "motion": {
+            "id": "shooting-arrow",
+            "ready": true,
+            "duration": 5,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.0002911555907790775,
+            "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+            "phase": 0.5,
+            "stage": "Mixamo · 拉弓射箭",
+            "finished": false
+          }
+        },
+        "geometry": "3e369c97-5dce-4c9e-bdcb-2cb6b4f42572"
+      }
+    },
+    {
+      "name": "frontier-soldier-identity-free.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1177,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2289,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "0386ca12-ac1c-48fa-9b63-fa666495922e"
+      }
+    },
+    {
+      "name": "frontier-captain-identity-free.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_captain_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1191,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2321,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "d9a4d96e-d739-43c5-98e3-5e07d628d1a9"
+      }
+    },
+    {
+      "name": "frontier-soldier-vs-captain.png",
+      "sources": [
+        "frontier-soldier-identity-free.png",
+        "frontier-captain-identity-free.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    },
+    {
+      "name": "frontier-captain-three-views.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_captain_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1191,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2321,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "d9a4d96e-d739-43c5-98e3-5e07d628d1a9"
+      }
+    },
+    {
+      "name": "frontier-soldier-three-views.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1177,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2289,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "e8e5532e-49f6-42b7-a93d-002d27432b09"
+      }
+    },
+    {
+      "name": "frontier-identity-three-views.png",
+      "sources": [
+        "frontier-soldier-three-views.png",
+        "frontier-captain-three-views.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    },
+    {
+      "name": "frontier-soldier-identity-overview.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_guard_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1177,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2289,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "e8e5532e-49f6-42b7-a93d-002d27432b09"
+      }
+    },
+    {
+      "name": "frontier-captain-identity-overview.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_captain_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1191,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2321,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "40a3961e-fa60-437c-a146-ae52f116d656"
+      }
+    },
+    {
+      "name": "frontier-identity-overview.png",
+      "sources": [
+        "frontier-soldier-identity-overview.png",
+        "frontier-captain-identity-overview.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    },
+    {
+      "name": "frontier-captain-male-jogging.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_captain_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1133,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2205,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "jogging",
+          "ready": true,
+          "duration": 2.566666603088379,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.00016398678259188265,
+          "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+          "phase": 0.375,
+          "stage": "Mixamo · 慢跑",
+          "finished": false,
+          "motion": {
+            "id": "jogging",
+            "ready": true,
+            "duration": 2.566666603088379,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.00016398678259188265,
+            "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+            "phase": 0.375,
+            "stage": "Mixamo · 慢跑",
+            "finished": false
+          }
+        },
+        "geometry": "72b93067-c314-4612-8c38-7133c0bb29c1"
+      }
+    },
+    {
+      "name": "frontier-captain-male-seated.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_captain_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1133,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2205,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "pilot-switches",
+          "ready": true,
+          "duration": 5.0333333015441895,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.01974443943853288,
+          "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+          "phase": 0.5,
+          "stage": "Mixamo · 坐姿拨动开关",
+          "finished": false,
+          "motion": {
+            "id": "pilot-switches",
+            "ready": true,
+            "duration": 5.0333333015441895,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.01974443943853288,
+            "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+            "phase": 0.5,
+            "stage": "Mixamo · 坐姿拨动开关",
+            "finished": false
+          }
+        },
+        "geometry": "72b93067-c314-4612-8c38-7133c0bb29c1"
+      }
+    },
+    {
+      "name": "frontier-captain-male-archery.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "frontier_captain_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1133,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2205,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "shooting-arrow",
+          "ready": true,
+          "duration": 5,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.0002911555907790775,
+          "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+          "phase": 0.5,
+          "stage": "Mixamo · 拉弓射箭",
+          "finished": false,
+          "motion": {
+            "id": "shooting-arrow",
+            "ready": true,
+            "duration": 5,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.0002911555907790775,
+            "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+            "phase": 0.5,
+            "stage": "Mixamo · 拉弓射箭",
+            "finished": false
+          }
+        },
+        "geometry": "72b93067-c314-4612-8c38-7133c0bb29c1"
+      }
+    },
+    {
+      "name": "frontier-captain-female-jogging.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "frontier_captain_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1135,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2207,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "jogging",
+          "ready": true,
+          "duration": 2.566666603088379,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.00016399567245081053,
+          "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+          "phase": 0.375,
+          "stage": "Mixamo · 慢跑",
+          "finished": false,
+          "motion": {
+            "id": "jogging",
+            "ready": true,
+            "duration": 2.566666603088379,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.00016399567245081053,
+            "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+            "phase": 0.375,
+            "stage": "Mixamo · 慢跑",
+            "finished": false
+          }
+        },
+        "geometry": "7caf4581-c545-4526-82bc-2ee6c2fbb421"
+      }
+    },
+    {
+      "name": "frontier-captain-female-seated.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "frontier_captain_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1135,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2207,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "pilot-switches",
+          "ready": true,
+          "duration": 5.0333333015441895,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.01974443943853288,
+          "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+          "phase": 0.5,
+          "stage": "Mixamo · 坐姿拨动开关",
+          "finished": false,
+          "motion": {
+            "id": "pilot-switches",
+            "ready": true,
+            "duration": 5.0333333015441895,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.01974443943853288,
+            "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+            "phase": 0.5,
+            "stage": "Mixamo · 坐姿拨动开关",
+            "finished": false
+          }
+        },
+        "geometry": "7caf4581-c545-4526-82bc-2ee6c2fbb421"
+      }
+    },
+    {
+      "name": "frontier-captain-female-archery.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "frontier_captain_helmet",
+          "top": "frontier_lamellar_armor",
+          "bottom": "frontier_armor_skirt",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#41535a",
+          "secondary": "#4b4b47",
+          "accent": "#79504a"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1135,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2207,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "shooting-arrow",
+          "ready": true,
+          "duration": 5,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.0002911555907790775,
+          "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+          "phase": 0.5,
+          "stage": "Mixamo · 拉弓射箭",
+          "finished": false,
+          "motion": {
+            "id": "shooting-arrow",
+            "ready": true,
+            "duration": 5,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.0002911555907790775,
+            "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+            "phase": 0.5,
+            "stage": "Mixamo · 拉弓射箭",
+            "finished": false
+          }
+        },
+        "geometry": "7caf4581-c545-4526-82bc-2ee6c2fbb421"
+      }
+    },
+    {
+      "name": "city-soldier-identity-free.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "0124c306-0e67-4850-b821-3e8a18fc81d6"
+      }
+    },
+    {
+      "name": "city-captain-identity-free.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_captain_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1135,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2205,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "5b02cd41-0ca2-404a-afbe-ba73c29d7fd8"
+      }
+    },
+    {
+      "name": "city-soldier-vs-captain.png",
+      "sources": [
+        "city-soldier-identity-free.png",
+        "city-captain-identity-free.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    },
+    {
+      "name": "city-captain-three-views.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_captain_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1135,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2205,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "5b02cd41-0ca2-404a-afbe-ba73c29d7fd8"
+      }
+    },
+    {
+      "name": "city-soldier-three-views.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "1610ab09-7437-47f7-8147-235e0a0210ac"
+      }
+    },
+    {
+      "name": "city-identity-three-views.png",
+      "sources": [
+        "city-soldier-three-views.png",
+        "city-captain-three-views.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    },
+    {
+      "name": "city-soldier-identity-overview.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_guard_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1115,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2165,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "1610ab09-7437-47f7-8147-235e0a0210ac"
+      }
+    },
+    {
+      "name": "city-captain-identity-overview.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_captain_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "military_spear"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1135,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2205,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "phase": 0,
+          "stage": "静态绑定姿态",
+          "loading": false,
+          "loadError": "",
+          "finished": false
+        },
+        "geometry": "af8a367b-ea55-4d2b-9e01-389f3e7c82ab"
+      }
+    },
+    {
+      "name": "city-identity-overview.png",
+      "sources": [
+        "city-soldier-identity-overview.png",
+        "city-captain-identity-overview.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    },
+    {
+      "name": "city-captain-male-jogging.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_captain_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1077,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2089,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "jogging",
+          "ready": true,
+          "duration": 2.566666603088379,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.00016398678259188265,
+          "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+          "phase": 0.375,
+          "stage": "Mixamo · 慢跑",
+          "finished": false,
+          "motion": {
+            "id": "jogging",
+            "ready": true,
+            "duration": 2.566666603088379,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.00016398678259188265,
+            "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+            "phase": 0.375,
+            "stage": "Mixamo · 慢跑",
+            "finished": false
+          }
+        },
+        "geometry": "cadf1729-b437-4dac-9a19-616813a17b4d"
+      }
+    },
+    {
+      "name": "city-captain-male-seated.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_captain_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1077,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2089,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "pilot-switches",
+          "ready": true,
+          "duration": 5.0333333015441895,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.01974443943853288,
+          "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+          "phase": 0.5,
+          "stage": "Mixamo · 坐姿拨动开关",
+          "finished": false,
+          "motion": {
+            "id": "pilot-switches",
+            "ready": true,
+            "duration": 5.0333333015441895,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.01974443943853288,
+            "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+            "phase": 0.5,
+            "stage": "Mixamo · 坐姿拨动开关",
+            "finished": false
+          }
+        },
+        "geometry": "cadf1729-b437-4dac-9a19-616813a17b4d"
+      }
+    },
+    {
+      "name": "city-captain-male-archery.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "male",
+        "slots": {
+          "headwear": "city_captain_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "topknot",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1077,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2089,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "shooting-arrow",
+          "ready": true,
+          "duration": 5,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.0002911555907790775,
+          "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+          "phase": 0.5,
+          "stage": "Mixamo · 拉弓射箭",
+          "finished": false,
+          "motion": {
+            "id": "shooting-arrow",
+            "ready": true,
+            "duration": 5,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.0002911555907790775,
+            "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+            "phase": 0.5,
+            "stage": "Mixamo · 拉弓射箭",
+            "finished": false
+          }
+        },
+        "geometry": "cadf1729-b437-4dac-9a19-616813a17b4d"
+      }
+    },
+    {
+      "name": "city-captain-female-jogging.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "city_captain_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1079,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2091,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "jogging",
+          "ready": true,
+          "duration": 2.566666603088379,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.00016399567245081053,
+          "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+          "phase": 0.375,
+          "stage": "Mixamo · 慢跑",
+          "finished": false,
+          "motion": {
+            "id": "jogging",
+            "ready": true,
+            "duration": 2.566666603088379,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.00016399567245081053,
+            "sourceHash": "49cfab0a224d1edff015881dd11a6ce3ceb34c315e6f3ffc0d239ec200b3d958",
+            "phase": 0.375,
+            "stage": "Mixamo · 慢跑",
+            "finished": false
+          }
+        },
+        "geometry": "aa046307-e408-44e2-ad08-bdd2116507b9"
+      }
+    },
+    {
+      "name": "city-captain-female-seated.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "city_captain_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1079,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2091,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "pilot-switches",
+          "ready": true,
+          "duration": 5.0333333015441895,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.01974443943853288,
+          "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+          "phase": 0.5,
+          "stage": "Mixamo · 坐姿拨动开关",
+          "finished": false,
+          "motion": {
+            "id": "pilot-switches",
+            "ready": true,
+            "duration": 5.0333333015441895,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.01974443943853288,
+            "sourceHash": "086aa9b7bbdbb32be760d94605b0a5c2409084c05ce84c257fb406acc6911489",
+            "phase": 0.5,
+            "stage": "Mixamo · 坐姿拨动开关",
+            "finished": false
+          }
+        },
+        "geometry": "aa046307-e408-44e2-ad08-bdd2116507b9"
+      }
+    },
+    {
+      "name": "city-captain-female-archery.png",
+      "recipe": {
+        "version": 5,
+        "bodyType": "female",
+        "slots": {
+          "headwear": "city_captain_helmet",
+          "top": "city_guard_brigandine",
+          "bottom": "city_guard_trousers",
+          "shoes": "military_boots",
+          "back": "none",
+          "leftHand": "none",
+          "rightHand": "none"
+        },
+        "dyes": {
+          "primary": "#44565b",
+          "secondary": "#505557",
+          "accent": "#887252"
+        },
+        "hairStyle": "low_bun",
+        "hairColor": "#282b29"
+      },
+      "state": {
+        "stats": {
+          "triangles": 1079,
+          "bodyTriangles": 524,
+          "vertices": 264,
+          "gpuVertices": 2091,
+          "bones": 20,
+          "replaced": 406
+        },
+        "status": {
+          "id": "shooting-arrow",
+          "ready": true,
+          "duration": 5,
+          "fps": 30,
+          "loop": true,
+          "seamDegrees": 0.0002911555907790775,
+          "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+          "phase": 0.5,
+          "stage": "Mixamo · 拉弓射箭",
+          "finished": false,
+          "motion": {
+            "id": "shooting-arrow",
+            "ready": true,
+            "duration": 5,
+            "fps": 30,
+            "loop": true,
+            "seamDegrees": 0.0002911555907790775,
+            "sourceHash": "67cda683cdd0667dfcefa37db44071f4a3cdce24ebc3876aca675723e189c044",
+            "phase": 0.5,
+            "stage": "Mixamo · 拉弓射箭",
+            "finished": false
+          }
+        },
+        "geometry": "aa046307-e408-44e2-ad08-bdd2116507b9"
+      }
+    },
+    {
+      "name": "soldier-captain-six-overview.png",
+      "sources": [
+        "palace-soldier-identity-overview.png",
+        "palace-captain-identity-overview.png",
+        "frontier-soldier-identity-overview.png",
+        "frontier-captain-identity-overview.png",
+        "city-soldier-identity-overview.png",
+        "city-captain-identity-overview.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    },
+    {
+      "name": "soldier-captain-six-roster.png",
+      "sources": [
+        "palace-soldier-identity-free.png",
+        "palace-captain-identity-free.png",
+        "frontier-soldier-identity-free.png",
+        "frontier-captain-identity-free.png",
+        "city-soldier-identity-free.png",
+        "city-captain-identity-free.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    },
+    {
+      "name": "captain-action-fitting.png",
+      "sources": [
+        "palace-captain-male-seated.png",
+        "palace-captain-female-seated.png",
+        "frontier-captain-male-seated.png",
+        "frontier-captain-female-seated.png",
+        "city-captain-male-seated.png",
+        "city-captain-female-seated.png"
+      ],
+      "composition": "Labeled layout of unchanged real WebGL captures from the original application canvas."
+    }
+  ],
+  "errors": [],
+  "visualApproval": false
+}
