@@ -26,6 +26,29 @@ export async function checkSoldierIdentities(ctx) {
     await page.waitForFunction(() => !!window.__WANHU_REVIEW__ && !!window.__WANHU_RECIPE__);
     await sync();
   }
+  // 用真实配方的原作者顶点和当前相机矩阵检查边界，不改镜头、不加检查专用模型。
+  async function assertHelmetFramed() {
+    const result = await page.evaluate(async () => {
+      const { makeCharacter } = await import('/src/character/v3/outfit.ts');
+      const r = window.__WANHU_RECIPE__(), c = makeCharacter(r).surface;
+      const camera = window.__WANHU_REVIEW__.cameraState();
+      const sub = (a, b) => a.map((v, i) => v - b[i]);
+      const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+      const dot = (a, b) => a.reduce((sum, v, i) => sum + v * b[i], 0);
+      const unit = a => { const n = Math.hypot(...a); return a.map(v => v / n); };
+      const z = unit(sub(camera.position, camera.target)), x = unit(cross([0, 1, 0], z)), y = cross(z, x);
+      const p = camera.projection;
+      const vertices = c.vertices.filter(v => /^(Palace|Frontier|City)Helmet\./.test(v.id));
+      const points = vertices.map(v => {
+        const relative = sub(v.p, camera.position), q = [dot(relative, x), dot(relative, y), dot(relative, z), 1];
+        const clip = [0, 1, 2, 3].map(row => q.reduce((sum, value, column) => sum + p[column * 4 + row] * value, 0));
+        return [clip[0] / clip[3], clip[1] / clip[3]];
+      });
+      return { count: points.length, finite: points.flat().every(Number.isFinite), maxX: Math.max(...points.map(v => Math.abs(v[0]))), maxY: Math.max(...points.map(v => Math.abs(v[1]))) };
+    });
+    assert(result.count > 0 && result.finite, '必须投影当前真实头盔顶点');
+    assert(result.maxX < .99 && result.maxY < .99, '完整头盔须在原机位内保留边距: ' + JSON.stringify(result));
+  }
   async function identity(value, expected) {
     await page.getByTestId('soldier-identity-' + value).click();
     await page.waitForFunction(h => window.__WANHU_RECIPE__().slots.headwear === h, expected);
@@ -44,10 +67,17 @@ export async function checkSoldierIdentities(ctx) {
     const selected = await recipe();
     assert.deepEqual({ ...selected, slots: { ...selected.slots, headwear: original.slots.headwear } }, original);
     assert.deepEqual(await camera(), originalCamera);
+    await assertHelmetFramed();
     const leader = await frame(`${style.id}-captain-identity-free.png`, names[style.id] + ' · 队长');
     roster.push(normal, leader);
     await sheet(`${style.id}-soldier-vs-captain.png`, names[style.id] + ' · 同机位 / 仅头盔不同', [normal, leader]);
     if (style.id === 'palace') await shot('captain-workbench.png', true);
+
+    for (const [view, label] of [['front', '正面'], ['side', '侧面'], ['back', '背面']]) {
+      await page.getByRole('button', { name: label, exact: true }).click(); await sync();
+      await assertHelmetFramed(); await shot(`${style.id}-captain-${view}.png`);
+    }
+    checks.push(style.id + ': full captain helmet framed with margin in unchanged free/front/side/back cameras');
 
     // 多角度对比沿用原三视图，不另建人物模型或检查专用渲染器。
     await page.getByRole('button', { name: '三视图', exact: true }).click(); await sync();
@@ -62,6 +92,7 @@ export async function checkSoldierIdentities(ctx) {
     const overheadCamera = await camera(); assert(overheadCamera.position[1] > overheadCamera.target[1] + 3);
     const normalTop = await frame(`${style.id}-soldier-identity-overview.png`, names[style.id] + ' · 普通');
     await identity('captain', captain); assert.deepEqual(await camera(), overheadCamera);
+    await assertHelmetFramed();
     const captainTop = await frame(`${style.id}-captain-identity-overview.png`, names[style.id] + ' · 队长');
     overview.push(normalTop, captainTop);
     await sheet(`${style.id}-identity-overview.png`, names[style.id] + ' · 经营俯视同机位', [normalTop, captainTop]);

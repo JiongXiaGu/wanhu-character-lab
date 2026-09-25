@@ -52,9 +52,9 @@ export function addPalaceCaptainHelmet(target: Cage, recipe: Recipe): void {
   addCrest(target, 'PalaceHelmet.Plume.', [
     ['Base', 1.893, -.006, .011, .012],
     ['Socket', 1.925, -.006, .012, .013],
-    ['Body', 2.005, -.012, .026, .028],
-    ['Upper', 2.090, -.021, .013, .017],
-  ], [0, 2.145, -.028], [recipe.dyes.accent, recipe.dyes.primary, recipe.dyes.primary, recipe.dyes.primary]);
+    ['Body', 1.975, -.012, .023, .026],
+    ['Upper', 2.044, -.021, .011, .015],
+  ], [0, 2.085, -.028], [recipe.dyes.accent, recipe.dyes.primary, recipe.dyes.primary, recipe.dyes.primary]);
 }
 
 /** 边军：紧束暗赤短缨托起细高盔尖；后倾克制，不再有肥厚拖尾。 */

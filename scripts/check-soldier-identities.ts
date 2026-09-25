@@ -41,7 +41,7 @@ function assertSilhouette(style: SoldierStyleId, ordinary: Cage, captain: Cage) 
   assert(ornament.width > .035 && ornament.width < .061, '不能恢复宽冠/毛团，也不能细成不可读的线');
   assert(ornament.depth > .026 && ornament.depth < .065, '保持真实体积，不能恢复肥厚后拖');
   assert(ornament.height / ornament.width > 3.7 && ornament.height / ornament.width < 6, '竖饰高宽比必须收束');
-  assert(next.max[1] - base.max[1] > .11 && next.max[1] - base.max[1] < .24, '与普通盔须有明确竖向差异');
+  assert(next.max[1] - base.max[1] > .085 && next.max[1] - base.max[1] < .24, '与普通盔须有明确竖向差异');
   assert(Math.abs(ornament.max[0] + ornament.min[0] - shell.max[0] - shell.min[0]) < 1e-8, '顶饰不能横向偏心');
   assert(Math.abs(tip[0] - (root.min[0] + root.max[0]) / 2) < 1e-8, '尖端必须位于盔顶中线');
   assert(Math.abs(tip[2] - (root.min[2] + root.max[2]) / 2) < .03, '只允许克制后倾，不能形成拖尾');
