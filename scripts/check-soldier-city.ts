@@ -50,6 +50,6 @@ export function assertCitySilhouette(palace:Cage,frontier:Cage,city:Cage){
   assert(beltTop.low[1]-belt.high[1]>.025,'城市宽腰带不能退化成一条细线');
   assert(belt.width>cHem.width*1.04,'城市腰带需要真实外扩截面');
   assert(city.vertices.some(v=>v.id.startsWith('CityPants.Right.Root.'))&&city.vertices.some(v=>v.id.startsWith('CityPants.Left.Root.')));
-  assert(!city.vertices.some(v=>/^(PalaceSkirt|FrontierSkirt|Skirt)\./.test(v.id)),'城市整套不能暗中退回甲裙');
+  assert(!city.vertices.some(v=>/^(MediumArmorSkirt|Skirt)\./.test(v.id)),'城市整套不能暗中退回甲裙');
   return {shoulderWidths:[pShoulder.width,fShoulder.width,cShoulder.width],chestDepths:[fChest.depth,cChest.depth],helmetTops:[pHelmet.high[1],fHelmet.high[1],cHelmet.high[1]],cityBrimWidth:cBrim.width,cityBeltHeight:beltTop.low[1]-belt.high[1],cityTopHem:cHem.low[1]};
 }

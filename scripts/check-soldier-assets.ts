@@ -13,21 +13,20 @@ import {makeTrousers} from '../src/character/wardrobe/assets/trousers';
 import {makeFootwear} from '../src/character/wardrobe/assets/footwear';
 import {assertGarmentPiece} from './check-garment-assets';
 import {assertComponentWinding} from './check-components';
-import {assertPalaceSkirt} from './check-soldier-skirt';
-import {assertFrontierSkirt,assertFrontierSilhouette} from './check-soldier-frontier';
+import {assertMediumArmorSkirt,assertSharedMediumArmor} from './check-soldier-medium';
 import {parseRecipeFile,randomizeCharacter,SLOT_OPTIONS,WARDROBE_LOOKS} from '../src/character/wardrobe/catalog';
 import {applyPalaceGuard,PALACE_GUARD_SLOTS,applyFrontierGuard,FRONTIER_GUARD_SLOTS,applyCityGuard,CITY_GUARD_SLOTS} from '../src/soldier/looks';
 import {MILITARY_SPEAR_GRIP} from '../src/character/wardrobe/military-equipment';
 import {MOTION_CLIPS,motionAssetDirectory} from '../src/character/motion/catalog';
 import {retargetMotion} from '../src/character/motion/retarget';
 
-const budgets={top:386,bottom:288,shoes:120,helmet:126,spear:58};
+const budgets={top:386,bottom:308,shoes:120,helmet:126,spear:58};
 const styles=[
-  {id:'palace',apply:applyPalaceGuard,slots:PALACE_GUARD_SLOTS,budgets,helmet:'PalaceHelmet.',skirt:assertPalaceSkirt},
-  {id:'frontier',apply:applyFrontierGuard,slots:FRONTIER_GUARD_SLOTS,budgets:{...budgets,bottom:308,helmet:112},helmet:'FrontierHelmet.',skirt:assertFrontierSkirt},
+  {id:'palace',apply:applyPalaceGuard,slots:PALACE_GUARD_SLOTS,budgets,helmet:'PalaceHelmet.',skirt:assertMediumArmorSkirt},
+  {id:'frontier',apply:applyFrontierGuard,slots:FRONTIER_GUARD_SLOTS,budgets:{...budgets,helmet:112},helmet:'FrontierHelmet.',skirt:assertMediumArmorSkirt},
   {id:'city',apply:applyCityGuard,slots:CITY_GUARD_SLOTS,budgets:{...budgets,top:340,bottom:260,helmet:144},helmet:'CityHelmet.',skirt:assertCityTrousers},
 ] as const;
-// S4 只扩展头盔组合；原三套轮廓/服饰及全部故障反例继续保留。
+// S5：皇宫/边疆共享中甲几何；驻地只由头盔与配色区分，城市保留轻甲。
 const captainBudgets={palace:142,frontier:142,city:166};
 const variants=[...styles,...styles.map(style=>({...style,id:style.id+'-captain',apply:(r:Recipe)=>style.apply(r,'captain'),slots:{...style.slots,headwear:SOLDIER_HELMETS[style.id].captain},budgets:{...style.budgets,helmet:captainBudgets[style.id]}}))];
 const rows:unknown[]=[],silhouettes:unknown[]=[];let negativeCases=0,poses=0;
@@ -66,27 +65,30 @@ for(const style of variants)for(const bodyType of BODY_TYPES)for(const hairStyle
   for(let i=0;i<position.count;i++){actor.mesh.getVertexPosition(i,p);bind.fromBufferAttribute(position as T.BufferAttribute,i);assert(p.distanceTo(bind)<1e-5);}
   actor.dispose();rows.push({style:style.id,bodyType,hairStyle,totalTriangles:triCount(d.surface),logicalVertices:d.surface.vertices.length,budgets:style.budgets});
 }
-assert(!WARDROBE_LOOKS.some(l=>l.slots.top==='palace_guard_armor'),'军装不能混入默认居民灵感/随机池');
-for(let seed=0;seed<64;seed++)assert.notEqual(randomizeCharacter(createRecipe(),seed).slots.top,'palace_guard_armor');
+assert(!WARDROBE_LOOKS.some(l=>l.slots.top==='medium_armor'),'军装不能混入默认居民灵感/随机池');
+for(let seed=0;seed<64;seed++)assert.notEqual(randomizeCharacter(createRecipe(),seed).slots.top,'medium_armor');
 const r=applyPalaceGuard(createRecipe()),spear=subset(makeCharacter(r).surface,'MilitarySpear.');
 for(const mutate of [(c:Cage)=>{c.faces.pop();},(c:Cage)=>{c.faces[0].v.reverse();},(c:Cage)=>{c.vertices[0].w=[B.LeftHand,B.LeftHand,1];},(c:Cage)=>{c.vertices[0].p[0]=NaN;},(c:Cage)=>{c.faces.push({...c.faces[0]});}]){const c=cloneCage(spear);mutate(c);assert.throws(()=>closedRigid(c,B.RightHand,budgets.spear));negativeCases++;}
 const detached=cloneCage(spear);for(const v of detached.vertices)v.p[0]+=.05;assert.throws(()=>assertGrip(detached,r));negativeCases++;
+for(const retired of ['palace_guard_armor','frontier_lamellar_armor','palace_guard_skirt','frontier_armor_skirt']){
+  const slots={...r.slots,[retired.includes('skirt')?'bottom':'top']:retired};assert.throws(()=>parseRecipeFile(JSON.stringify({...r,slots})));negativeCases++;
+}
 for(const value of [{...r,profession:'soldier'},{...r,slots:{...r.slots,headwear:'city_guard_missing_helmet'}},{...r,slots:{...r.slots,top:'guard_light_armor'}}]){assert.throws(()=>parseRecipeFile(JSON.stringify(value)));negativeCases++;}
 for(const make of [makeTop,makeTrousers,makeFootwear]){const p=structuredClone(make(r)!);p.mesh.faces.pop();assert.throws(()=>assertGarmentPiece(p));negativeCases++;}
-// 延续六类坏结构反例，并追加腰起轮廓、前摆、长度和裆部出口回归。
-const skirt=makeTrousers(r)!;
+// 共享中甲下装保留原封闭、权重、长度和回收面对角线反例；只检查一次，避免伪造两套驻地几何。
+const mediumSkirt=makeTrousers(r)!;
 for(const mutate of [
-  (p:typeof skirt)=>{for(const v of p.mesh.vertices)if(v.id.startsWith('PalaceSkirt.'))v.w=[B.RightThigh,B.RightThigh,1];},
-  (p:typeof skirt)=>{p.mesh.vertices.find(v=>v.id==='PalaceSkirt.2.0')!.w[1]=B.LeftThigh;},
-  (p:typeof skirt)=>{p.mesh.vertices[0].w[2]=Number.NaN;},
-  (p:typeof skirt)=>{p.mesh.faces.pop();},
-  (p:typeof skirt)=>{p.mesh.faces[0].v.reverse();},
-  (p:typeof skirt)=>{p.mesh.vertices[0].p[0]=Number.NaN;},
-  (p:typeof skirt)=>{for(const v of p.mesh.vertices)if(v.id.startsWith('PalaceSkirt.0.'))v.p[1]-=.15;},
-  (p:typeof skirt)=>{p.mesh.vertices.find(v=>v.id==='PalaceSkirt.4.0')!.p[2]=.02;},
-  (p:typeof skirt)=>{for(const v of p.mesh.vertices)if(v.id.startsWith('PalaceSkirt.4.'))v.p[1]=.50;},
-  (p:typeof skirt)=>{p.mesh.vertices.find(v=>v.id==='PalaceLiner.Right.Entry.0')!.p[1]=.735;},
-]){const p=structuredClone(skirt);mutate(p);assert.throws(()=>assertPalaceSkirt(p));negativeCases++;}
+  (p:typeof mediumSkirt)=>{p.mesh.faces.pop();},
+  (p:typeof mediumSkirt)=>{p.mesh.faces[0].v.reverse();},
+  (p:typeof mediumSkirt)=>{p.mesh.vertices[0].p[0]=NaN;},
+  (p:typeof mediumSkirt)=>{p.mesh.vertices[0].w[2]=NaN;},
+  (p:typeof mediumSkirt)=>{p.mesh.vertices.find(v=>v.id==='MediumArmorSkirt.3.0')!.w[1]=B.LeftThigh;},
+  (p:typeof mediumSkirt)=>{for(const v of p.mesh.vertices)if(v.id.startsWith('MediumArmorSkirt.0.'))v.p[1]-=.15;},
+  (p:typeof mediumSkirt)=>{for(const v of p.mesh.vertices)if(v.id.startsWith('MediumArmorSkirt.5.'))v.p[1]=.78;},
+  (p:typeof mediumSkirt)=>{p.mesh.vertices.find(v=>v.id==='MediumArmorSkirt.5.0')!.p[2]=.15;},
+  (p:typeof mediumSkirt)=>{p.mesh.vertices.find(v=>v.id==='MediumArmorLiner.Right.Entry.0')!.p[1]=.70;},
+  (p:typeof mediumSkirt)=>{const c=p.mesh;const f=c.faces.find(f=>f.v.some(i=>c.vertices[i].id==='MediumArmorLiner.Left.Entry.4')&&f.v.some(i=>c.vertices[i].id==='MediumArmorSkirt.5.0'))!;f.v.push(f.v.shift()!);},
+]){const p=structuredClone(mediumSkirt);mutate(p);assert.throws(()=>assertMediumArmorSkirt(p));negativeCases++;}
 
 for(const style of styles){
   assert(!WARDROBE_LOOKS.some(l=>l.slots.top===style.slots.top));
@@ -95,35 +97,13 @@ for(const style of styles){
 for(const bodyType of BODY_TYPES){
   const palace=makeCharacter(applyPalaceGuard(createRecipe({bodyType}))).surface;
   const frontier=makeCharacter(applyFrontierGuard(createRecipe({bodyType}))).surface;
-  silhouettes.push({bodyType,...assertFrontierSilhouette(palace,frontier)});
-  // 灰模也必须区分；故意将六处关键形状复制回宫卫，断言应逐个拒绝。
-  for(const [from,to,axis] of [
-    ['PalaceHelmet.','FrontierHelmet.',1],
-    ['PalaceHelmet.Neck.','FrontierHelmet.Neck.',1],
-    ['Top.Chest.','Top.Chest.',2],
-    ['Top.Neck.','Top.Neck.',1],
-    ['PalaceSkirt.4.','FrontierSkirt.5.',1],
-    ['Top.Shoulder.','Top.Shoulder.',0],
-  ] as const){
-    const changed=cloneCage(frontier),source=palace.vertices.filter(v=>v.id.startsWith(from)),target=changed.vertices.filter(v=>v.id.startsWith(to));
-    if(from==='PalaceHelmet.')for(const v of target)v.p[1]+=.2;
-    else for(let i=0;i<target.length;i++)target[i].p[axis]=source[i%source.length].p[axis];
-    assert.throws(()=>assertFrontierSilhouette(palace,changed));negativeCases++;
-  }
+  silhouettes.push({bodyType,style:'shared-medium',...assertSharedMediumArmor(palace,frontier)});
+  const badTop=cloneCage(frontier);badTop.vertices.find(v=>v.id==='Top.Chest.0')!.p[2]+=.01;
+  assert.throws(()=>assertSharedMediumArmor(palace,badTop));negativeCases++;
+  const badBottom=cloneCage(frontier);badBottom.vertices.find(v=>v.id==='MediumArmorSkirt.3.0')!.p[0]+=.01;
+  assert.throws(()=>assertSharedMediumArmor(palace,badBottom));negativeCases++;
 }
-const frontierRecipe=applyFrontierGuard(createRecipe()),frontierSkirt=makeTrousers(frontierRecipe)!;
-for(const mutate of [
-  (p:typeof frontierSkirt)=>{p.mesh.faces.pop();},
-  (p:typeof frontierSkirt)=>{p.mesh.faces[0].v.reverse();},
-  (p:typeof frontierSkirt)=>{p.mesh.vertices[0].p[0]=NaN;},
-  (p:typeof frontierSkirt)=>{p.mesh.vertices[0].w[2]=NaN;},
-  (p:typeof frontierSkirt)=>{p.mesh.vertices.find(v=>v.id==='FrontierSkirt.3.0')!.w[1]=B.LeftThigh;},
-  (p:typeof frontierSkirt)=>{for(const v of p.mesh.vertices)if(v.id.startsWith('FrontierSkirt.0.'))v.p[1]-=.15;},
-  (p:typeof frontierSkirt)=>{for(const v of p.mesh.vertices)if(v.id.startsWith('FrontierSkirt.5.'))v.p[1]=.78;},
-  (p:typeof frontierSkirt)=>{p.mesh.vertices.find(v=>v.id==='FrontierSkirt.5.0')!.p[2]=.15;},
-  (p:typeof frontierSkirt)=>{p.mesh.vertices.find(v=>v.id==='FrontierLiner.Right.Entry.0')!.p[1]=.70;},
-  (p:typeof frontierSkirt)=>{const c=p.mesh;const f=c.faces.find(f=>f.v.some(i=>c.vertices[i].id==='FrontierLiner.Left.Entry.4')&&f.v.some(i=>c.vertices[i].id==='FrontierSkirt.5.0'))!;f.v.push(f.v.shift()!);},
-]){const p=structuredClone(frontierSkirt);mutate(p);assert.throws(()=>assertFrontierSkirt(p));negativeCases++;}
+const frontierRecipe=applyFrontierGuard(createRecipe()),
 const frontierHelmet=subset(makeCharacter(frontierRecipe).surface,'FrontierHelmet.');
 for(const mutate of [(c:Cage)=>{c.faces.pop();},(c:Cage)=>{c.vertices[0].w=[B.Neck,B.Neck,1];},(c:Cage)=>{c.vertices[0].p[0]=NaN;}]){const c=cloneCage(frontierHelmet);mutate(c);assert.throws(()=>closedRigid(c,B.Head,112));negativeCases++;}
 

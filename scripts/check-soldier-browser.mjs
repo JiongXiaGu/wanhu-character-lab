@@ -28,8 +28,8 @@ try{
   }
   async function shot(name,full=false){await sync();if(!capture)return;await (full?page:page.locator('canvas')).screenshot({path:join(dir,name)});images.push({name,recipe:await recipe(),state:await state()});}
   const styles=[
-    {id:'palace',helmet:'palace_guard_helmet',top:'palace_guard_armor',bottom:'palace_guard_skirt'},
-    {id:'frontier',helmet:'frontier_guard_helmet',top:'frontier_lamellar_armor',bottom:'frontier_armor_skirt'},
+    {id:'palace',helmet:'palace_guard_helmet',top:'medium_armor',bottom:'medium_armor_skirt'},
+    {id:'frontier',helmet:'frontier_guard_helmet',top:'medium_armor',bottom:'medium_armor_skirt'},
     {id:'city',helmet:'city_guard_helmet',top:'city_guard_brigandine',bottom:'city_guard_trousers'},
   ];
   for(const style of styles){
@@ -77,13 +77,13 @@ try{
   await shot('comparison-palace.png');
   const palaceFrame=capture?await page.locator('canvas').screenshot():null;
   await page.getByTestId('soldier-frontier').click();await sync();
-  assert.equal((await recipe()).slots.top,'frontier_lamellar_armor');assert.notEqual((await state()).geometry,palaceGeometry);
+  assert.equal((await recipe()).slots.top,'medium_armor');assert.equal((await recipe()).slots.bottom,'medium_armor_skirt');assert.notEqual((await recipe()).slots.headwear,'palace_guard_helmet');assert.notEqual((await state()).geometry,palaceGeometry);
   const frontierCamera=await page.evaluate(()=>window.__WANHU_REVIEW__.cameraState());assert.deepEqual(frontierCamera,palaceCamera);
   await shot('comparison-frontier.png');
   const frontierFrame=capture?await page.locator('canvas').screenshot():null;
-  await page.getByRole('button',{name:'撤销',exact:true}).click();await sync();assert.equal((await recipe()).slots.top,'palace_guard_armor');
+  await page.getByRole('button',{name:'撤销',exact:true}).click();await sync();assert.equal((await recipe()).slots.headwear,'palace_guard_helmet');assert.equal((await recipe()).slots.top,'medium_armor');
   await page.getByTestId('soldier-frontier').click();await sync();assert.equal((await recipe()).slots.headwear,'frontier_guard_helmet');
-  checks.push('palace/frontier application and undo use the same canvas and exact camera; distinct geometry IDs; no identity/protocol changes');
+  checks.push('palace/frontier share medium armor top/bottom; only palette/helmet differ; application and undo keep the same canvas/camera and V5 protocol');
   if(capture){
     const sheet=await browser.newPage({viewport:{width:1600,height:1000},deviceScaleFactor:1});
     await sheet.setContent(`<html><head><style>body{margin:0;background:#e5e1d8;font:24px sans-serif;color:#252723}.row{display:flex}figure{margin:20px;width:760px}figcaption{text-align:center;padding:12px}img{width:760px;height:875px;object-fit:contain}</style></head><body><div class="row"><figure><figcaption>皇宫禁卫 · Palace</figcaption><img src="data:image/png;base64,${palaceFrame.toString('base64')}"></figure><figure><figcaption>边疆戍卒 · Frontier</figcaption><img src="data:image/png;base64,${frontierFrame.toString('base64')}"></figure></div></body></html>`);
@@ -98,9 +98,9 @@ try{
   assert.deepEqual(await page.evaluate(()=>window.__WANHU_REVIEW__.cameraState()),palaceCamera);
   await shot('comparison-city.png');
   const cityFrame=capture?await page.locator('canvas').screenshot():null;
-  await page.getByRole('button',{name:'撤销',exact:true}).click();await sync();assert.equal((await recipe()).slots.top,'frontier_lamellar_armor');
-  await page.getByTestId('soldier-palace').click();await sync();assert.equal((await recipe()).slots.top,'palace_guard_armor');
-  checks.push('palace/frontier/city real three-way application and undo; identical camera, bind pose, shared runtime canvas and unchanged V5 identity');
+  await page.getByRole('button',{name:'撤销',exact:true}).click();await sync();assert.equal((await recipe()).slots.headwear,'frontier_guard_helmet');assert.equal((await recipe()).slots.top,'medium_armor');
+  await page.getByTestId('soldier-palace').click();await sync();assert.equal((await recipe()).slots.headwear,'palace_guard_helmet');assert.equal((await recipe()).slots.top,'medium_armor');
+  checks.push('palace/frontier shared-medium versus city light armor; three-way application/undo uses identical camera, bind pose, shared runtime canvas and unchanged V5 identity');
   if(capture){
     const sheet=await browser.newPage({viewport:{width:2040,height:1000},deviceScaleFactor:1});
     const panels=[['皇宫禁卫 · Palace',palaceFrame],['边疆戍卒 · Frontier',frontierFrame],['城市守军 · City',cityFrame]];
