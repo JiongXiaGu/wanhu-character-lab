@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { BODY_TYPES, createRecipe } from '../src/character/v3/types';
 import { triCount } from '../src/character/v3/cage';
 import type { GarmentPiece } from '../src/character/wardrobe/assets/contract';
@@ -70,6 +71,8 @@ assert.equal(rows.length, 6, 'S6-1 必须包含男女 × 三驻地 palette');
 const report = {
   passed: true,
   stage: 'S6-1',
+  // 使用 workflow 实际 checkout 的候选 SHA；本地未指定时不冒用 PR merge SHA。
+  sourceSHA: process.env.REVIEW_HEAD_SHA ?? null,
   budgets: HEAVY_ARMOR_BUDGET,
   rows,
   negativeCases: faults.negativeCases,
@@ -80,6 +83,8 @@ const report = {
   visualReviewed: false,
   scope: 'Authored static geometry only. Full source-key/midpoint motion, intersections, browser behavior and actual WebGL review remain required before merging S6.',
 };
-mkdirSync('review', { recursive: true });
-writeFileSync('review/soldier-heavy-authoring.json', JSON.stringify(report, null, 2) + '\n');
+// 跟随既有 Soldier artifact 目录；否则正式任务只上传 /tmp，快速报告会遗失。
+const outputDirectory = process.env.SOLDIER_CHECK_DIR || 'review';
+mkdirSync(outputDirectory, { recursive: true });
+writeFileSync(join(outputDirectory, 'soldier-heavy-authoring.json'), JSON.stringify(report, null, 2) + '\n');
 console.log('S6-1 HEAVY AUTHORING', JSON.stringify(report));
