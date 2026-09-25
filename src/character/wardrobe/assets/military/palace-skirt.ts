@@ -12,9 +12,14 @@ export function makePalaceSkirt(recipe:Recipe) {
     const thigh=side===1?B.RightThigh:B.LeftThigh,name=side===1?'Right':'Left';
     for(const [panel,angle] of [['Front',0],['Outer',Math.PI/2],['Back',Math.PI]] as const){
       const rows:number[][]=[];
-      const rear=panel==='Back';
-      const heights=rear?[.89,.855,.825]:panel==='Outer'?[.928,.805,.635]:[.80,.72,.635],radii=rear?[.116,.113,.110]:panel==='Outer'?[.101,.100,.085]:[.103,.099,.083],widths=rear?[.067,.068,.070]:[.067,.071,.061];
-      const weights:Weight[]=[[thigh,thigh,1],[thigh,thigh,1],[thigh,thigh,1]];
+      const rear=panel==='Back',outer=panel==='Outer';
+      const heights=rear?[.89,.855,.825]:outer?[.928,.805,.635]:[.80,.72,.635],radii=rear?[.116,.113,.110]:outer?[.115,.111,.097]:[.103,.099,.083],widths=rear?[.067,.068,.070]:[.067,.071,.061];
+      // 外侧长片的上缘随髋部悬挂，向下逐渐随大腿；与相邻裤壳的髋部影响衔接。
+      // 原整片刚性Thigh会在内收步态中横切Hips/Thigh混合的裤腿。只改新甲片，不改裤壳/动作/检测。
+      // 双面厚度9毫米之外保留制作间距；全部权重一次写入，仍只使用现有两个骨骼。
+      const weights:Weight[]=outer
+        ? [[B.Hips,thigh,.526],[B.Hips,thigh,.28],[B.Hips,thigh,.108]]
+        : [[thigh,thigh,1],[thigh,thigh,1],[thigh,thigh,1]];
       const normal:Vec3=[side*Math.sin(angle),0,Math.cos(angle)];
       const tangent:Vec3=[side*Math.cos(angle),0,-Math.sin(angle)];
       for(let row=0;row<3;row++){
