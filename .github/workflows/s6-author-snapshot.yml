@@ -1,0 +1,37 @@
+name: S6 Author Snapshot (temporary)
+on:
+  push:
+    branches: [s6-heavy-armor]
+    paths: [.github/workflows/s6-author-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Export tracked author source and runtime assets
+        run: |
+          mkdir -p /tmp/s6-author
+          git archive --format=tar.gz HEAD -o /tmp/s6-author/source.tar.gz
+          tar -czf /tmp/s6-author/node_modules.tar.gz node_modules
+          git rev-parse HEAD > /tmp/s6-author/source-sha.txt
+          du -h /tmp/s6-author/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s6-author-source
+          path: /tmp/s6-author/source*
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s6-author-dependencies
+          path: /tmp/s6-author/node_modules.tar.gz
+          retention-days: 1
