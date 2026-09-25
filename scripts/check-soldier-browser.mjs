@@ -31,6 +31,7 @@ try{
   const saved=await recipe();assert.equal(saved.bodyType,before.bodyType);assert.equal(saved.hairStyle,before.hairStyle);assert.equal(saved.hairColor,before.hairColor);assert.equal(Object.keys(saved).length,6);assert.equal(Object.keys(saved.slots).length,7);assert.equal(saved.slots.rightHand,'military_spear');
   for(const [label,id] of [['头饰','palace_guard_helmet'],['上衣','palace_guard_armor'],['下装','palace_guard_skirt'],['鞋','military_boots'],['右手','military_spear']]){const ids=await page.getByLabel(label,{exact:true}).locator('option').evaluateAll(n=>n.map(x=>x.value));assert(ids.includes(id));assert(!ids.some(x=>x.startsWith('frontier_')||x.startsWith('city_guard_')));}
   await page.getByRole('button',{name:'自由',exact:true}).click();await shot('palace-workbench.png',true);await shot('palace-male-three-quarter.png');
+  await page.getByRole('button',{name:'正面',exact:true}).click();await shot('palace-skirt-front.png');
   await page.getByRole('button',{name:'三视图',exact:true}).click();await shot('palace-three-views.png');
   await page.getByRole('button',{name:'经营俯视',exact:true}).click();await sync();const cam=await page.evaluate(()=>window.__WANHU_REVIEW__.cameraState());assert(cam.position[1]>cam.target[1]+3);await shot('palace-overview.png');
   checks.push('explicit real palace suit and independent slot options; no frontier/city placeholders; body/hair identity preserved; shared canvas and 20 bones; overview camera');
