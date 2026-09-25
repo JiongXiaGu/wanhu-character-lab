@@ -12,6 +12,8 @@ import { RIDER_POSE_VERSION } from '../src/riding/rider-pose';
 
 const near = (a: number, b: number, epsilon = 1e-6) => assert(Math.abs(a - b) <= epsilon, `${a} != ${b}`);
 let poses = 0, vertexSamples = 0, wardrobeCases = 0;
+// 与下方完整现役衣柜循环一致；不因军装新增而保留旧阶段固定的35/70组。
+const wardrobeCasesPerBody = TOP_IDS.filter(id => id !== 'body').length * BOTTOM_IDS.filter(id => id !== 'body').length;
 const extremes = { minimumKneeX: Infinity, minimumFootX: Infinity, maximumSeatError: 0 };
 function checkSync(status: RidingPlayback) { near(status.horsePhase, status.riderPhase, 1e-9); near(status.phase, status.horsePhase, 1e-9); }
 function checkPose(player: RidingPlayer, vertices = true) {
@@ -123,9 +125,9 @@ for (const bodyType of BODY_TYPES) {
       for (const phase of [0, .25, .5, .75, 1]) { player.seek(phase); checkPose(player); }
     }
   }
-  player.dispose(); console.log(`PASS ${bodyType}: 35 wardrobe constructions and sampled poses (not intersection approval)`);
+  player.dispose(); console.log(`PASS ${bodyType}: ${wardrobeCasesPerBody} wardrobe constructions and sampled poses (not intersection approval)`);
 }
-assert.equal(wardrobeCases, 70, 'current 2 bodies x 7 tops x 5 bottoms');
+assert.equal(wardrobeCases, BODY_TYPES.length * wardrobeCasesPerBody, 'all current bodies x active tops x active bottoms');
 const sourceSHA = process.env.REVIEW_HEAD_SHA || execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const report = { result: 'passed', sourceSHA, version: RIDING_VERSION, poseVersion: RIDER_POSE_VERSION, denseAnimationPoses: 1446,
   totalPoseChecks: poses, vertexSamples, wardrobeCases, faultInjections: 8, ...extremes,
