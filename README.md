@@ -1,3 +1,9 @@
+## S5：军人按轻甲 / 中甲组织
+
+皇宫与边疆不再各维护一套近似甲胄。两者现在共享 `medium_armor`（中甲札甲）与 `medium_armor_skirt`（中甲长甲裙与裤装），区别只来自各自头盔/队长头盔和三色配色；城市现有布面短甲、束腿军裤归为当前轻甲。重甲留到下一阶段再制作真正不同的轮廓。
+
+已退役并从正式选择中删除：边军厚甲 `frontier_lamellar_armor`、皇宫甲裙 `palace_guard_skirt`，以及转换前的 `palace_guard_armor` / `frontier_armor_skirt` 旧 ID。Recipe 仍为 V5 六字段七槽位，但旧 prototype JSON 不做迁移，需重新选择中甲再导出。下方 S1/S2 内容是历史制作记录，不再代表当前合法衣甲 ID。
+
 # 万户 · 衣冠工坊V5与多坐骑
 
 ## S4：三种驻地 × 普通士兵／队长

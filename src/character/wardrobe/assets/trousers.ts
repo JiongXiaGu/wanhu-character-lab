@@ -1,7 +1,6 @@
 import { makeCityTrousers } from './military/city-trousers';
 import { makeTrouserShell } from './trouser-shell';
-import { makePalaceSkirt } from './military/palace-skirt';
-import { makeFrontierSkirt } from './military/frontier-skirt';
+import { makeMediumArmorSkirt } from './military/medium-skirt';
 import { makeContinuousSkirt } from './skirts';
 import { makeShortBottom } from './short-bottoms';
 import { sealGarmentInterfaces } from './seal-interfaces';
@@ -21,8 +20,7 @@ function makeAuthoredBottom(recipe:Recipe):GarmentPiece|undefined {
   const pattern=BOTTOM_PATTERNS[id];if(!pattern)throw new Error('下装资产未注册：'+id);
   if(pattern.asset==='short-trousers')return makeShortBottom(recipe);
   if(pattern.asset==='continuous-short-skirt'||pattern.asset==='continuous-long-skirt')return makeContinuousSkirt(recipe);
-  if(pattern.asset==='palace-skirt')return makePalaceSkirt(recipe);
-  if(pattern.asset==='frontier-skirt')return makeFrontierSkirt(recipe);
+  if(pattern.asset==='medium-skirt')return makeMediumArmorSkirt(recipe);
   if(pattern.asset==='city-trousers')return makeCityTrousers(recipe);
   if(pattern.asset!=='classic')throw new Error('未知长裤构造器');
   return makeTrouserShell(recipe,pattern);

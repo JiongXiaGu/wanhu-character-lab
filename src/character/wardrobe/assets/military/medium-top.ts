@@ -1,8 +1,8 @@
 import { B, rigid, type Recipe } from '../../../v3/types';
 import { armBones, finishTop, sewSleeve, sewTorso, solidBand, torsoChest, torsoNeck, torsoRib, torsoWaist, type TorsoRow } from '../top-seams';
 
-/** 宫卫上甲自有胸甲截面、横向甲带及阶梯护肩；不是普通短衣外贴一层壳。 */
-export function makePalaceTop(recipe:Recipe) {
+/** 共享中甲上甲：完整胸甲、有限护肩和护臂；驻地差异只来自配色/头盔，不复制整身几何。 */
+export function makeMediumArmorTop(recipe:Recipe) {
   const {primary:cloth,secondary:iron,accent:bronze}=recipe.dyes;
   const cuts=[-.060,-.012,.012,.060] as const;
   const tone=(hex:string,k:number)=>'#'+[1,3,5].map(i=>Math.min(255,Math.round(parseInt(hex.slice(i,i+2),16)*k)).toString(16).padStart(2,'0')).join('');
