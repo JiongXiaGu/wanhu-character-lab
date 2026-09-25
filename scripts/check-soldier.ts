@@ -1,3 +1,4 @@
+import './check-soldier-identities';
 import assert from 'node:assert/strict';
 import {
   B,

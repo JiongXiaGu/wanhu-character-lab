@@ -1,3 +1,4 @@
+import { checkSoldierIdentities } from './check-soldier-identities-browser.mjs';
 import assert from 'node:assert/strict';
 import {spawn,execFileSync} from 'node:child_process';
 import {mkdirSync,writeFileSync,createWriteStream} from 'node:fs';
@@ -108,6 +109,7 @@ try{
     await sheet.screenshot({path:join(dir,'palace-frontier-city.png')});await sheet.close();
     images.push({name:'palace-frontier-city.png',sources:['comparison-palace.png','comparison-frontier.png','comparison-city.png'],camera:palaceCamera,composition:'three captured WebGL frames from the same application canvas; no new soldier renderer'});
   }
+  await checkSoldierIdentities({page,browser,base,capture,dir,recipe,state,sync,motionReady,seek,shot,checks,images,styles});
   assert.deepEqual(errors,[]);writeFileSync(join(dir,'report.json'),JSON.stringify({passed:true,sourceSHA,checks,images,errors,visualApproval:false},null,2));console.log(JSON.stringify({passed:true,sourceSHA,checks,images:images.map(x=>x.name)}));
 }catch(error){writeFileSync(join(dir,'report.json'),JSON.stringify({passed:false,sourceSHA,checks,images,errors,error:String(error?.stack||error)},null,2));console.error(error);process.exitCode=1;}
 finally{await browser?.close();server?.kill('SIGTERM');log.end();}

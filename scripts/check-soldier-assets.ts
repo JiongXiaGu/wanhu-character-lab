@@ -1,3 +1,4 @@
+import { SOLDIER_HELMETS } from '../src/soldier/identities';
 import { assertCityTrousers,assertCitySilhouette } from './check-soldier-city';
 import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
@@ -26,6 +27,9 @@ const styles=[
   {id:'frontier',apply:applyFrontierGuard,slots:FRONTIER_GUARD_SLOTS,budgets:{...budgets,bottom:308,helmet:112},helmet:'FrontierHelmet.',skirt:assertFrontierSkirt},
   {id:'city',apply:applyCityGuard,slots:CITY_GUARD_SLOTS,budgets:{...budgets,top:340,bottom:260,helmet:144},helmet:'CityHelmet.',skirt:assertCityTrousers},
 ] as const;
+// S4 只扩展头盔组合；原三套轮廓/服饰及全部故障反例继续保留。
+const captainBudgets={palace:126,frontier:126,city:164};
+const variants=[...styles,...styles.map(style=>({...style,id:style.id+'-captain',apply:(r:Recipe)=>style.apply(r,'captain'),slots:{...style.slots,headwear:SOLDIER_HELMETS[style.id].captain},budgets:{...style.budgets,helmet:captainBudgets[style.id]}}))];
 const rows:unknown[]=[],silhouettes:unknown[]=[];let negativeCases=0,poses=0;
 function subset(c:Cage,prefix:string):Cage {
   const source=c.vertices.flatMap((v,i)=>v.id.startsWith(prefix)?[i]:[]),remap=new Map(source.map((v,i)=>[v,i]));
@@ -45,7 +49,7 @@ function assertGrip(c:Cage,recipe:Recipe){
   const center=ring.reduce((p,v)=>p.add(new T.Vector3(...v.p)),new T.Vector3()).multiplyScalar(1/6);
   assert(center.distanceTo(new T.Vector3(...expected))<1e-7,'枪杆握点必须对应实际右手绑定空间');
 }
-for(const style of styles)for(const bodyType of BODY_TYPES)for(const hairStyle of HAIR_STYLE_IDS){
+for(const style of variants)for(const bodyType of BODY_TYPES)for(const hairStyle of HAIR_STYLE_IDS){
   const input=createRecipe({bodyType,hairStyle,hairColor:'#353331'}),snapshot=JSON.stringify(input),recipe=style.apply(input),d=makeCharacter(recipe);
   assert.equal(JSON.stringify(input),snapshot);assert.equal(recipe.bodyType,input.bodyType);assert.equal(recipe.hairStyle,input.hairStyle);assert.equal(recipe.hairColor,input.hairColor);
   assert.deepEqual(Object.keys(recipe).sort(),['version','bodyType','slots','dyes','hairStyle','hairColor'].sort());assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);assert.equal(d.joints.length,20);assert.deepEqual(d.joints,makeJoints(input));
@@ -152,8 +156,15 @@ for(const mutate of [
 const cityHelmet=subset(makeCharacter(cityRecipe).surface,'CityHelmet.');
 for(const mutate of [(c:Cage)=>{c.faces.pop();},(c:Cage)=>{c.vertices[0].w=[B.Neck,B.Neck,1];},(c:Cage)=>{c.vertices[0].p[0]=NaN;}]){const c=cloneCage(cityHelmet);mutate(c);assert.throws(()=>closedRigid(c,B.Head,144));negativeCases++;}
 
+// 新三顶队长盔也必须实际拒绝开口、反面、错误骨骼、非数及重复面。
+for(const style of styles){
+  const helmet=subset(makeCharacter(style.apply(createRecipe(),'captain')).surface,style.helmet);
+  for(const mutate of [(c:Cage)=>{c.faces.pop();},(c:Cage)=>{c.faces[0].v.reverse();},(c:Cage)=>{c.vertices[0].w=[B.Neck,B.Neck,1];},(c:Cage)=>{c.vertices[0].p[0]=NaN;},(c:Cage)=>{c.faces.push({...c.faces[0]});}]){
+    const broken=cloneCage(helmet);mutate(broken);assert.throws(()=>closedRigid(broken,B.Head,captainBudgets[style.id]));negativeCases++;
+  }
+}
 if(process.argv.includes('--motion')){
-  for(const style of styles)for(const bodyType of BODY_TYPES){
+  for(const style of variants)for(const bodyType of BODY_TYPES){
     const recipe=style.apply(createRecipe({bodyType})),actor=makeActor(makeCharacter(recipe)),geometry=actor.mesh.geometry,inverses=actor.skeleton.boneInverses.map(m=>m.toArray());
     const position=geometry.attributes.position,index=geometry.attributes.skinIndex,weight=geometry.attributes.skinWeight,p=new T.Vector3(),q=new T.Vector3();
     const gripBind=new T.Vector3(...shapeRigidPoint(MILITARY_SPEAR_GRIP,B.RightHand,recipe,makeJoints(createRecipe()),makeJoints(recipe)));
