@@ -90,8 +90,8 @@ export function assertHeavyArmorSkirt(piece: GarmentPiece): void {
   for (const sign of [-1, 1]) assert(piece.mesh.faces.some(f => f.v.every(i => piece.mesh.vertices[i].id.startsWith('HeavyArmorSkirt.')) && f.v.some(i => piece.mesh.vertices[i].p[0] < 0) && f.v.some(i => piece.mesh.vertices[i].p[0] > 0) && f.v.every(i => Math.sign(piece.mesh.vertices[i].p[2]) === sign)), '正背面都必须连续跨中线');
   const returnFace = piece.mesh.faces.find(f => f.v.some(i => piece.mesh.vertices[i].id === 'HeavyArmorLiner.Left.Entry.4') && f.v.some(i => piece.mesh.vertices[i].id === 'HeavyArmorSkirt.7.0'));
   assert(returnFace && returnFace.v.length === 4);
-  const diagonal = [returnFace.v[0], returnFace.v[2]].map(i => piece.mesh.vertices[i].id);
-  assert(diagonal.includes('HeavyArmorLiner.Left.Entry.4') && diagonal.includes('HeavyArmorSkirt.7.0'), '裆口回收面必须保留经校验的对角线');
+  const diagonal = [returnFace.v[0], returnFace.v[2]].map(i => piece.mesh.vertices[i].id).sort();
+  assert.deepEqual(diagonal, ['HeavyArmorLiner.Right.Entry.0', 'HeavyArmorSkirt.7.9'].sort(), '裆口回收面必须保留经校验的对角线');
 }
 
 export function checkHeavyArmor(): { negativeCases: number; silhouette: Record<string, number> } {
