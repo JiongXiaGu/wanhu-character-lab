@@ -64,12 +64,14 @@ export function assertHeavyArmorSkirt(piece: GarmentPiece): void {
   assertGarmentPiece(piece); connected(piece.mesh);
   assert.equal(triCount(piece.mesh), HEAVY_ARMOR_BUDGET.bottom); assert.equal(piece.mesh.vertices.length, 176);
   const hips = [1, .92, .74, .55, .43, .35, .29, .28];
+  const perimeterDepth = [1, .88, 0, -.88, -1, -1, -.88, 0, .88, 1];
   for (const v of piece.mesh.vertices) {
     const shell = /^HeavyArmorSkirt\.(\d+)\.(\d+)$/.exec(v.id);
     if (shell) {
-      const row = Number(shell[1]), thigh = v.p[0] > 0 ? B.RightThigh : B.LeftThigh;
-      assert(row < hips.length);
-      assert.deepEqual(v.w, row === 0 ? [B.Hips, B.Hips, 1] : [B.Hips, thigh, hips[row]], v.id);
+      const row = Number(shell[1]), column = Number(shell[2]), thigh = v.p[0] > 0 ? B.RightThigh : B.LeftThigh;
+      assert(row < hips.length && column < perimeterDepth.length);
+      const hipWeight = hips[row] + (1 - hips[row]) * .16 * (1 - perimeterDepth[column]);
+      assert.deepEqual(v.w, row === 0 ? [B.Hips, B.Hips, 1] : [B.Hips, thigh, hipWeight], v.id);
       if (row === 0) near(v.p[1], 1.075);
       continue;
     }
@@ -121,6 +123,7 @@ export function checkHeavyArmor(): { negativeCases: number; silhouette: Record<s
     (p: GarmentPiece) => { for (const v of vertices(p.mesh, 'HeavyArmorSkirt.7.')) v.p[1] -= .12; },
     (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorLiner.Right.Entry.0')!.p[1] = .70; },
     (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorSkirt.3.0')!.w[1] = B.LeftThigh; },
+    (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorSkirt.5.4')!.w[2] = .35; },
   ]) { const bad = structuredClone(bottom); mutate(bad); assert.throws(() => assertHeavyArmorSkirt(bad)); negativeCases++; }
   return { negativeCases, silhouette };
 }
