@@ -27,7 +27,7 @@ function geometryFingerprint(piece: GarmentPiece): string {
 // S6-1 快速入口：不加载动作源、不创建 Actor/浏览器，不把静态通过冒充动作或美术验收。
 // 正式 check:soldier 导入本文件，独立命令与 Actions 使用完全相同的断言。
 const faults = checkHeavyArmor();
-assert.equal(faults.negativeCases, 21, '原重甲几何故障注入不得静默减少');
+assert.equal(faults.negativeCases, 22, '原重甲几何故障注入不得静默减少');
 const rows: {
   bodyType: string;
   palette: string;

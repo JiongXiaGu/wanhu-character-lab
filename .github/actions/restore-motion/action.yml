@@ -1,0 +1,29 @@
+name: Restore exact candidate motion
+description: Install locked dependencies and restore preparation from this workflow's exact candidate.
+inputs:
+  source-sha:
+    required: true
+    description: Actual checked-out candidate SHA
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
+    - shell: bash
+      run: npm ci
+    - uses: actions/download-artifact@v4
+      with:
+        name: prepared-soldier-motion-${{ inputs.source-sha }}
+        path: ${{ runner.temp }}/prepared-soldier-motion
+    - shell: bash
+      env:
+        EXPECTED_SHA: ${{ inputs.source-sha }}
+        BUNDLE_DIR: ${{ runner.temp }}/prepared-soldier-motion
+      run: |
+        set -euo pipefail
+        test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+        test "$(cat "$BUNDLE_DIR/SOURCE_SHA")" = "$EXPECTED_SHA"
+        tar -xzf "$BUNDLE_DIR/motion.tar.gz"
+        git diff --exit-code

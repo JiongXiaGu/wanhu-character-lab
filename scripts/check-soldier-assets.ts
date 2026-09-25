@@ -1,5 +1,6 @@
 import { SOLDIER_HELMETS, SOLDIER_IDENTITY_IDS } from '../src/soldier/identities';
 import { SOLDIER_ARMOR_CLASS_IDS } from '../src/soldier/contract';
+import {createHash} from 'node:crypto';
 import { SOLDIER_ARMOR_SLOTS } from '../src/soldier/armor-classes';
 import { HEAVY_ARMOR_BUDGET, assertHeavyArmorTop, assertHeavyArmorSkirt, checkHeavyArmor } from './check-soldier-heavy';
 import { assertCityTrousers,assertCitySilhouette } from './check-soldier-city';
@@ -40,6 +41,12 @@ const variants=styles.flatMap(style=>SOLDIER_ARMOR_CLASS_IDS.flatMap(armorClass=
   skirt:armorClass==='heavy'?assertHeavyArmorSkirt:armorClass==='medium'?assertMediumArmorSkirt:assertCityTrousers,
 }))));
 assert.equal(variants.length,18);assert.equal(new Set(variants.map(v=>v.id)).size,18);
+const motionArmor=process.env.SOLDIER_MOTION_ARMOR;
+assert(motionArmor===undefined||(process.argv.includes('--motion')&&SOLDIER_ARMOR_CLASS_IDS.some(id=>id===motionArmor)), 'SOLDIER_MOTION_ARMOR must be light/medium/heavy and requires --motion');
+const motionVariants=motionArmor?variants.filter(v=>v.armorClass===motionArmor):variants;
+assert.equal(motionVariants.length,motionArmor?6:18);
+const motionCases:{variant:string;bodyType:string;clip:string;samples:number;sampleDigest:string}[]=[];
+const started=performance.now();
 const rows:unknown[]=[],silhouettes:unknown[]=[];let negativeCases=0,poses=0;
 function subset(c:Cage,prefix:string):Cage {
   const source=c.vertices.flatMap((v,i)=>v.id.startsWith(prefix)?[i]:[]),remap=new Map(source.map((v,i)=>[v,i]));
@@ -166,7 +173,7 @@ for(const style of styles){
   }
 }
 if(process.argv.includes('--motion')){
-  for(const style of variants)for(const bodyType of BODY_TYPES){
+  for(const style of motionVariants)for(const bodyType of BODY_TYPES){
     const recipe=style.apply(createRecipe({bodyType})),actor=makeActor(makeCharacter(recipe)),geometry=actor.mesh.geometry,inverses=actor.skeleton.boneInverses.map(m=>m.toArray());
     const position=geometry.attributes.position,index=geometry.attributes.skinIndex,weight=geometry.attributes.skinWeight,p=new T.Vector3(),q=new T.Vector3();
     const gripBind=new T.Vector3(...shapeRigidPoint(MILITARY_SPEAR_GRIP,B.RightHand,recipe,makeJoints(createRecipe()),makeJoints(recipe)));
@@ -175,6 +182,7 @@ if(process.argv.includes('--motion')){
       const source=JSON.parse(readFileSync(`public/${motionAssetDirectory(def.id)}/${def.id}.json`,'utf8')),bake=retargetMotion(actor.data,source);
       actor.resetBindPose();const action=actor.mixer.clipAction(bake.clip);action.setLoop(T.LoopOnce,1).play();action.paused=true;action.clampWhenFinished=true;
       const times=[...new Set<number>([0,source.duration,...source.times,...source.times.slice(1).map((t:number,i:number)=>(t+source.times[i])/2)])].sort((a,b)=>a-b);
+      motionCases.push({variant:style.id,bodyType,clip:def.id,samples:times.length,sampleDigest:createHash('sha256').update(JSON.stringify(times)).digest('hex')});
       for(const t of times){
         action.time=t;actor.update(0);actor.mesh.updateMatrixWorld(true);actor.skeleton.update();
         const right=new T.Matrix4().multiplyMatrices(actor.bones[B.RightHand].matrixWorld,actor.skeleton.boneInverses[B.RightHand]);
@@ -192,5 +200,9 @@ if(process.argv.includes('--motion')){
     assert.deepEqual(actor.skeleton.boneInverses.map(m=>m.toArray()),inverses);actor.dispose();
   }
 }
-const report={passed:true,sourceSHA:process.env.REVIEW_HEAD_SHA??'local',rows,silhouettes,negativeCases,poses,motions:process.argv.includes('--motion')?MOTION_CLIPS.length:0,armorClasses:SOLDIER_ARMOR_CLASS_IDS,variantCount:variants.length,visualApproval:false,scope:'Actual closed assets, exact budgets, V5 identity, fixed bind, seed isolation; --motion samples all source keys and midpoints for skinning, rigid equipment and bind reuse. Lower-body intersections use the unchanged full tailoring test. No all-motion collision-free or combat-grip claim.'};
-const dir=process.env.SOLDIER_CHECK_DIR??'review/soldier-numeric';mkdirSync(dir,{recursive:true});writeFileSync(`${dir}/${poses?'motion':'assets'}.json`,JSON.stringify(report,null,2));console.log('SOLDIER_ASSETS',JSON.stringify(report));
+if(process.argv.includes('--motion')){
+  assert.equal(motionCases.length,motionVariants.length*BODY_TYPES.length*MOTION_CLIPS.length);
+  assert.equal(poses,motionCases.reduce((sum,c)=>sum+c.samples,0));
+}
+const report={passed:true,motionArmor:motionArmor??'all',motionCases,elapsedSeconds:(performance.now()-started)/1000,sourceSHA:process.env.REVIEW_HEAD_SHA??'local',rows,silhouettes,negativeCases,poses,motions:process.argv.includes('--motion')?MOTION_CLIPS.length:0,armorClasses:SOLDIER_ARMOR_CLASS_IDS,variantCount:variants.length,visualApproval:false,scope:'Actual closed assets, exact budgets, V5 identity, fixed bind, seed isolation; --motion samples all source keys and midpoints for skinning, rigid equipment and bind reuse. Lower-body intersections use the unchanged full tailoring test. No all-motion collision-free or combat-grip claim.'};
+const dir=process.env.SOLDIER_CHECK_DIR??'review/soldier-numeric';mkdirSync(dir,{recursive:true});writeFileSync(`${dir}/${poses?'motion':'assets'}.json`,JSON.stringify(report,null,2));console.log('SOLDIER_ASSETS',JSON.stringify({...report,rows:rows.length,motionCases:motionCases.length}));

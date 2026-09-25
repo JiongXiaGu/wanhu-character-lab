@@ -41,7 +41,7 @@ jobs:
             git -c core.quotepath=false diff --name-only "$BASE" HEAD | tee /tmp/changed-files.txt
           fi
           while IFS= read -r path; do
-            case "$path" in .github/workflows/*|package.json|package-lock.json|scripts/review-local.mjs) all=true ;; esac
+            case "$path" in .github/workflows/*|.github/actions/*|scripts/check-ci-*|scripts/check-soldier-motion-coverage.ts|package.json|package-lock.json|scripts/review-local.mjs) all=true ;; esac
             case "$path" in src/character/wardrobe/*|src/character/wardrobe/**/*|src/character/v3/outfit.ts|src/character/v3/types.ts|scripts/check-wardrobe*|scripts/check-lightwear*|scripts/check-skirts*|scripts/garment-contact-scope.ts) wardrobe=true ;; esac
             case "$path" in src/soldier/*|src/soldier/**/*|scripts/check-soldier*|Documentation/军人与甲胄工作流.md|Documentation/边疆戍卒与长枪.md|src/character/wardrobe/assets/military/*|src/character/wardrobe/assets/military/**/*|src/character/wardrobe/adornments.ts|src/character/wardrobe/frontier-equipment.ts|src/character/wardrobe/military-equipment.ts|src/character/wardrobe/catalog.ts|src/character/v3/types.ts) soldier=true ;; esac
             case "$path" in src/character/mixamo/*|src/character/mixamo/**/*|src/character/motion/*|src/character/motion/**/*|src/character/system-animator/*|src/character/system-animator/**/*|动画参考_glb/*|动画参考_glb/**/*|public/mixamo/*|public/mixamo/**/*|public/system-animator/*|public/system-animator/**/*|src/animation/clip-clock.ts|scripts/check-mixamo*|scripts/check-system-animator*|scripts/prepare-mixamo.ts|scripts/prepare-system-animator.ts|scripts/lib/system-animator-glb.ts) mixamo=true ;; esac
@@ -59,9 +59,6 @@ jobs:
           cache: npm
       - run: npm ci
         if: steps.scope.outputs.any == 'true'
-      - name: Soldier authoring contract checks
-        if: steps.scope.outputs.soldier == 'true'
-        run: npm run check:soldier
       - name: Multi-mount mesh, animation and riding checks
         if: steps.scope.outputs.riding == 'true'
         run: npm run check:mounts
@@ -93,7 +90,7 @@ jobs:
           retention-days: 7
       - name: Prepare motion data
         if: steps.scope.outputs.mixamo == 'true' || steps.scope.outputs.tailoring == 'true'
-        run: npm run prepare:motion
+        uses: ./.github/actions/prepare-motion
       - name: Wardrobe numeric checks
         if: steps.scope.outputs.wardrobe == 'true'
         run: npm run check:wardrobe-numeric
@@ -103,9 +100,10 @@ jobs:
       - name: XR Animator GLB numeric checks
         if: steps.scope.outputs.mixamo == 'true'
         run: npm run check:system-animator
-      - name: Tailoring and intersection checks
+      # Full intersections have one owner: soldier, whose scope includes every tailoring input.
+      - name: Tailoring topology and deformation checks
         if: steps.scope.outputs.tailoring == 'true'
-        run: npm run check:tailoring
+        run: npx tsx scripts/check-tailoring-v2.ts
       - name: Horse numeric checks
         if: steps.scope.outputs.horse == 'true'
         run: npm run check:horse
@@ -142,7 +140,7 @@ jobs:
             if [[ "$EVENT_NAME" == pull_request ]]; then BASE="$PR_BASE_SHA"; else BASE="$PUSH_BEFORE_SHA"; fi
             if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then BASE="$(git rev-parse HEAD^)"; fi
             while IFS= read -r path; do
-              case "$path" in src/livestock/*|src/chicken/*|src/duck/*|src/goose/*|src/pig/*|src/dog/*|src/cat/*|src/ui/AnimalModeSwitcher*|src/ui/animal-mode-switcher*|src/ui/WorkspaceSwitcher*|src/horse/horse.css|src/main.tsx|src/styles.css|src/animation/clip-clock.ts|scripts/check-livestock*|package.json|package-lock.json|.github/workflows/*) required=true ;; esac
+              case "$path" in src/livestock/*|src/chicken/*|src/duck/*|src/goose/*|src/pig/*|src/dog/*|src/cat/*|src/ui/AnimalModeSwitcher*|src/ui/animal-mode-switcher*|src/ui/WorkspaceSwitcher*|src/horse/horse.css|src/main.tsx|src/styles.css|src/animation/clip-clock.ts|scripts/check-livestock*|package.json|package-lock.json|.github/workflows/*|.github/actions/*) required=true ;; esac
             done < <(git -c core.quotepath=false diff --name-only "$BASE" HEAD)
           fi
           echo "required=$required" >> "$GITHUB_OUTPUT"
@@ -156,9 +154,12 @@ jobs:
       - name: Chicken, duck, goose, pig, dog and cat topology, actual skinning and crowd checks
         if: steps.scope.outputs.required == 'true'
         run: npm run check:livestock
-      - name: Prepare imports and check TypeScript
+      - name: Prepare verified motion inputs
         if: steps.scope.outputs.required == 'true'
-        run: npm run prepare:motion && npx tsc --noEmit
+        uses: ./.github/actions/prepare-motion
+      - name: Check TypeScript
+        if: steps.scope.outputs.required == 'true'
+        run: npx tsc --noEmit
       - name: Install desktop browser
         if: steps.scope.outputs.required == 'true'
         run: |
@@ -186,14 +187,14 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  soldier:
-    name: Soldier assets, source-key motion and desktop checks
+  prepare-soldier:
+    name: Prepare shared soldier motion inputs
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
+    outputs:
+      required: ${{ steps.scope.outputs.required }}
     env:
       REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      SOLDIER_CHECK_DIR: /tmp/wanhu-soldier-checks/numeric
-      SOLDIER_BROWSER_DIR: /tmp/wanhu-soldier-checks/browser
     steps:
       - uses: actions/checkout@v4
         with:
@@ -215,7 +216,7 @@ jobs:
             if [[ "$EVENT_NAME" == pull_request ]]; then BASE="$PR_BASE_SHA"; else BASE="$PUSH_BEFORE_SHA"; fi
             if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then BASE="$(git rev-parse HEAD^)"; fi
             while IFS= read -r path; do
-              case "$path" in src/soldier/*|src/character/*|src/scene/CharacterViewport.tsx|src/App.tsx|src/animation/*|scripts/check-soldier*|scripts/check-garment*|scripts/check-components*|scripts/check-tailoring*|scripts/garment-contact-scope.ts|scripts/prepare-*|scripts/lib/*|public/mixamo/*|public/system-animator/*|public/mediapipe/*|动画参考/*|动画参考_glb/*|Documentation/皇宫禁卫与长枪.md|Documentation/军人与甲胄工作流.md|Documentation/边疆戍卒与长枪.md|package.json|package-lock.json|.github/workflows/*) required=true ;; esac
+              case "$path" in src/soldier/*|src/character/*|src/scene/CharacterViewport.tsx|src/App.tsx|src/animation/*|scripts/check-ci-*|scripts/review-local.mjs|scripts/check-soldier*|scripts/check-garment*|scripts/check-components*|scripts/check-tailoring*|scripts/garment-contact-scope.ts|scripts/prepare-*|scripts/lib/*|public/mixamo/*|public/system-animator/*|public/mediapipe/*|动画参考/*|动画参考_glb/*|Documentation/皇宫禁卫与长枪.md|Documentation/军人与甲胄工作流.md|Documentation/边疆戍卒与长枪.md|package.json|package-lock.json|.github/workflows/*|.github/actions/*) required=true ;; esac
             done < <(git -c core.quotepath=false diff --name-only "$BASE" HEAD)
           fi
           echo "required=$required" >> "$GITHUB_OUTPUT"
@@ -226,41 +227,152 @@ jobs:
           cache: npm
       - run: npm ci
         if: steps.scope.outputs.required == 'true'
-      - name: Prepare actual motion inventory
+      - uses: ./.github/actions/prepare-motion
         if: steps.scope.outputs.required == 'true'
-        run: npm run prepare:motion
-      - name: Closed soldier assets, identity and fault injection
+      - name: Bundle exact motion inputs once for all soldier lanes
         if: steps.scope.outputs.required == 'true'
+        run: |
+          mkdir -p /tmp/prepared-soldier-motion
+          printf '%s\n' "$REVIEW_HEAD_SHA" > /tmp/prepared-soldier-motion/SOURCE_SHA
+          tar -czf /tmp/prepared-soldier-motion/motion.tar.gz public/mixamo public/system-animator src/character/mixamo/catalog.generated.ts src/character/system-animator/catalog.generated.ts
+      - uses: actions/upload-artifact@v4
+        if: steps.scope.outputs.required == 'true'
+        with:
+          name: prepared-soldier-motion-${{ env.REVIEW_HEAD_SHA }}
+          path: /tmp/prepared-soldier-motion/
+          compression-level: 0
+          retention-days: 2
+
+  soldier:
+    name: Soldier static contracts and full intersections
+    needs: prepare-soldier
+    if: needs.prepare-soldier.outputs.required == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      SOLDIER_CHECK_DIR: /tmp/wanhu-soldier-checks/numeric
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.REVIEW_HEAD_SHA }}
+          persist-credentials: false
+      - uses: ./.github/actions/restore-motion
+        with:
+          source-sha: ${{ env.REVIEW_HEAD_SHA }}
+      - name: Closed soldier assets, identity, wardrobe and fault injection
         run: npm run check:soldier
-      # 分阶段验收：先给 S6-3 一个小而独立的浏览器结论；完整回归仍保留在后续门槛。
-      - name: Install desktop browser
-        if: steps.scope.outputs.required == 'true'
-        run: npx playwright install --with-deps chromium
-      - name: S6-3 focused fitting browser interactions
-        if: steps.scope.outputs.required == 'true'
-        run: node scripts/check-soldier-fitting-browser.mjs
-      - name: Actual skinned source keys and midpoints
-        if: steps.scope.outputs.required == 'true'
-        run: npx tsx scripts/check-soldier-assets.ts --motion
-      # 闭合和有限值不足以验收甲片与内衬；复用原完整检测，不过滤甲片/动作或放宽容差。
       - name: Full existing lower-body intersection regression
-        if: steps.scope.outputs.required == 'true'
+        if: ${{ !cancelled() }}
         run: npx tsx scripts/check-tailoring-intersections.ts
-      # 完整旧浏览器回归不删除；等 S6-4 数值门槛通过后继续执行，作为最终回归的一部分。
-      - name: Soldier full desktop interactions without screenshots
-        if: steps.scope.outputs.required == 'true'
-        run: npm run check:soldier-browser
       - name: Preserve full intersection diagnostics
-        if: always() && steps.scope.outputs.required == 'true'
+        if: always()
         run: |
           mkdir -p /tmp/wanhu-soldier-checks/intersections
-          if [[ -f review-tailoring-v2/intersections.json ]]; then
-            cp review-tailoring-v2/intersections.json /tmp/wanhu-soldier-checks/intersections/
-          fi
+          if [[ -f review-tailoring-v2/intersections.json ]]; then cp review-tailoring-v2/intersections.json /tmp/wanhu-soldier-checks/intersections/; fi
       - uses: actions/upload-artifact@v4
-        if: always() && steps.scope.outputs.required == 'true'
+        if: always()
         with:
           name: soldier-checks-${{ env.REVIEW_HEAD_SHA }}
           path: /tmp/wanhu-soldier-checks/
-          if-no-files-found: warn
+          retention-days: 14
+
+  soldier-motion:
+    name: Soldier source-key motion (${{ matrix.armor }})
+    needs: prepare-soldier
+    if: needs.prepare-soldier.outputs.required == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        armor: [light, medium, heavy]
+    env:
+      REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      SOLDIER_CHECK_DIR: /tmp/wanhu-soldier-motion
+      SOLDIER_MOTION_ARMOR: ${{ matrix.armor }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.REVIEW_HEAD_SHA }}
+          persist-credentials: false
+      - uses: ./.github/actions/restore-motion
+        with:
+          source-sha: ${{ env.REVIEW_HEAD_SHA }}
+      # Same real vertices, source keys and midpoints; only the outer armor loop is partitioned.
+      - name: Actual skinned source keys and midpoints
+        run: npx tsx scripts/check-soldier-assets.ts --motion
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: soldier-motion-${{ env.REVIEW_HEAD_SHA }}-${{ matrix.armor }}
+          path: /tmp/wanhu-soldier-motion/
+          if-no-files-found: error
+          retention-days: 14
+
+  soldier-browser:
+    name: Soldier browser (${{ matrix.mode }})
+    needs: prepare-soldier
+    if: needs.prepare-soldier.outputs.required == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [fitting, full]
+    env:
+      REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      SOLDIER_BROWSER_DIR: /tmp/wanhu-soldier-browser
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.REVIEW_HEAD_SHA }}
+          persist-credentials: false
+      - uses: ./.github/actions/restore-motion
+        with:
+          source-sha: ${{ env.REVIEW_HEAD_SHA }}
+      - name: Install desktop browser
+        run: npx playwright install --with-deps chromium
+      - name: S6-3 focused fitting browser interactions
+        if: matrix.mode == 'fitting'
+        run: node scripts/check-soldier-fitting-browser.mjs
+      - name: Soldier full desktop interactions without screenshots
+        if: matrix.mode == 'full'
+        run: npm run check:soldier-browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: soldier-browser-${{ env.REVIEW_HEAD_SHA }}-${{ matrix.mode }}
+          path: /tmp/wanhu-soldier-browser/
+          retention-days: 14
+
+  soldier-motion-coverage:
+    name: Verify complete soldier motion matrix
+    needs: [prepare-soldier, soldier-motion]
+    if: ${{ !cancelled() && needs.prepare-soldier.outputs.required == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.REVIEW_HEAD_SHA }}
+          persist-credentials: false
+      - uses: ./.github/actions/restore-motion
+        with:
+          source-sha: ${{ env.REVIEW_HEAD_SHA }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: soldier-motion-${{ env.REVIEW_HEAD_SHA }}-*
+          path: /tmp/soldier-motion-reports
+      - name: Reject missing, duplicate or stale shards and any missing pose cases
+        run: npx tsx scripts/check-soldier-motion-coverage.ts /tmp/soldier-motion-reports
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: soldier-motion-coverage-${{ env.REVIEW_HEAD_SHA }}
+          path: review/soldier-motion-coverage.json
+          if-no-files-found: error
           retention-days: 14

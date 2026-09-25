@@ -63,7 +63,7 @@ export function assertHeavyArmorSkirt(piece: GarmentPiece): void {
   assert.equal(piece.id, 'heavy_armor_skirt'); assert.equal(piece.slot, 'bottom');
   assertGarmentPiece(piece); connected(piece.mesh);
   assert.equal(triCount(piece.mesh), HEAVY_ARMOR_BUDGET.bottom); assert.equal(piece.mesh.vertices.length, 176);
-  const hips = [1, .92, .74, .55, .43, .35, .29, .28];
+  const hips = [1, .72, .62, .55, .45, .38, .32, .30];
   const perimeterDepth = [1, .88, 0, -.88, -1, -1, -.88, 0, .88, 1];
   for (const v of piece.mesh.vertices) {
     const shell = /^HeavyArmorSkirt\.(\d+)\.(\d+)$/.exec(v.id);
@@ -124,6 +124,8 @@ export function checkHeavyArmor(): { negativeCases: number; silhouette: Record<s
     (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorLiner.Right.Entry.0')!.p[1] = .70; },
     (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorSkirt.3.0')!.w[1] = B.LeftThigh; },
     (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorSkirt.5.4')!.w[2] = .35; },
+    // 历史失败权重必须被拒绝；它曾在 Snatch 男女各产生 22 个阻塞采样。
+    (p: GarmentPiece) => { const old=[1,.92,.74,.55,.43,.35,.29,.28],z=[1,.88,0,-.88,-1,-1,-.88,0,.88,1]; for(const v of p.mesh.vertices){const m=/^HeavyArmorSkirt\.(\d+)\.(\d+)$/.exec(v.id);if(m){const row=Number(m[1]);v.w[2]=old[row]+(1-old[row])*.16*(1-z[Number(m[2])]);}} },
   ]) { const bad = structuredClone(bottom); mutate(bad); assert.throws(() => assertHeavyArmorSkirt(bad)); negativeCases++; }
   return { negativeCases, silhouette };
 }

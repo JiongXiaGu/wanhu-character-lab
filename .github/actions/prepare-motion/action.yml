@@ -1,0 +1,16 @@
+name: Prepare verified motion inputs
+description: Reuse source-keyed extraction data, then validate/regenerate the actual motion inventory.
+runs:
+  using: composite
+  steps:
+    - uses: actions/cache@v4
+      with:
+        path: |
+          public/mixamo
+          public/system-animator
+        key: motion-v1-${{ runner.os }}-node22-${{ hashFiles('package-lock.json', '.github/actions/prepare-motion/action.yml', 'scripts/prepare-*.ts', 'scripts/lib/**', 'src/character/motion/data.ts', 'src/character/mixamo/catalog.ts', '动画参考/**', '动画参考_glb/**') }}
+    # Always run the existing source-hash/inventory checks. A cache hit is not a test pass.
+    - shell: bash
+      run: npm run prepare:motion
+    - shell: bash
+      run: git diff --exit-code
