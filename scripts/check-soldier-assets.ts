@@ -11,13 +11,14 @@ import {makeTrousers} from '../src/character/wardrobe/assets/trousers';
 import {makeFootwear} from '../src/character/wardrobe/assets/footwear';
 import {assertGarmentPiece} from './check-garment-assets';
 import {assertComponentWinding} from './check-components';
+import {assertPalaceSkirt} from './check-soldier-skirt';
 import {parseRecipeFile,randomizeCharacter,SLOT_OPTIONS,WARDROBE_LOOKS} from '../src/character/wardrobe/catalog';
 import {applyPalaceGuard,PALACE_GUARD_SLOTS} from '../src/soldier/looks';
 import {MILITARY_SPEAR_GRIP} from '../src/character/wardrobe/military-equipment';
 import {MOTION_CLIPS,motionAssetDirectory} from '../src/character/motion/catalog';
 import {retargetMotion} from '../src/character/motion/retarget';
 
-const budgets={top:386,bottom:360,shoes:120,helmet:126,spear:58};
+const budgets={top:386,bottom:288,shoes:120,helmet:126,spear:58};
 const rows:unknown[]=[];let negativeCases=0,poses=0;
 function subset(c:Cage,prefix:string):Cage {
   const source=c.vertices.flatMap((v,i)=>v.id.startsWith(prefix)?[i]:[]),remap=new Map(source.map((v,i)=>[v,i]));
@@ -31,16 +32,6 @@ function closedAuthored(c:Cage,count:number,expectedWeight:(id:string)=>Weight){
   for(const n of edges.values())assert.equal(n,2);assertComponentWinding(c);
 }
 function closedRigid(c:Cage,bone:number,count:number){closedAuthored(c,count,()=>[bone,bone,1]);}
-function closedOuterTasset(c:Cage,side:'Right'|'Left'){
-  // 只对两片外侧长甲验证明确的髋部过渡；盔、枪、前后短甲仍保持原刚性断言。
-  const thigh=side==='Right'?B.RightThigh:B.LeftThigh,hipWeights=[.526,.28,.108];
-  assert.equal(c.vertices.length,12);
-  for(let row=0;row<3;row++)for(let point=0;point<4;point++)assert(c.vertices.some(v=>v.id===`PalaceTasset.${side}.Outer.${row}.${point}`));
-  closedAuthored(c,20,id=>{
-    const row=Number(id.split('.').at(-2));assert(Number.isInteger(row)&&row>=0&&row<3);
-    return[B.Hips,thigh,hipWeights[row]];
-  });
-}
 function assertGrip(c:Cage,recipe:Recipe){
   const ring=c.vertices.filter(v=>v.id.startsWith('MilitarySpear.Shaft.1.'));assert.equal(ring.length,6);
   const expected=shapeRigidPoint(MILITARY_SPEAR_GRIP,B.RightHand,recipe,makeJoints(createRecipe()),makeJoints(recipe));
@@ -54,11 +45,7 @@ for(const bodyType of BODY_TYPES)for(const hairStyle of HAIR_STYLE_IDS){
   for(const key of Object.keys(PALACE_GUARD_SLOTS) as (keyof typeof PALACE_GUARD_SLOTS)[])assert(SLOT_OPTIONS[key].some(o=>o.id===recipe.slots[key]));
   for(const [key,make] of [['top',makeTop],['bottom',makeTrousers],['shoes',makeFootwear]] as const){const p=make(recipe)!;assertGarmentPiece(p);assert.equal(triCount(p.mesh),budgets[key]);}
   closedRigid(subset(d.surface,'PalaceHelmet.'),B.Head,budgets.helmet);closedRigid(subset(d.surface,'MilitarySpear.'),B.RightHand,budgets.spear);assertGrip(d.surface,recipe);
-  const tassets=subset(d.surface,'PalaceTasset.');assert.equal(triCount(tassets),120);
-  for(const side of ['Right','Left'] as const)for(const panel of ['Front','Outer','Back']){
-    const part=subset(d.surface,`PalaceTasset.${side}.${panel}.`);
-    if(panel==='Outer')closedOuterTasset(part,side);else closedRigid(part,side==='Right'?B.RightThigh:B.LeftThigh,20);
-  }
+  assertPalaceSkirt(makeTrousers(recipe)!);
   assert(!d.surface.vertices.some(v=>v.id.startsWith('CustomHair')),'盔内不能保留穿壳发髻');
   assert.deepEqual(d.body,makeCharacter(input).body,'军装不得修改固定皮肤');
   const changed=makeCharacter(createRecipe({...recipe,dyes:{primary:'#ad3344',secondary:'#416275',accent:'#dfb363'}}));
@@ -75,16 +62,20 @@ for(const mutate of [(c:Cage)=>{c.faces.pop();},(c:Cage)=>{c.faces[0].v.reverse(
 const detached=cloneCage(spear);for(const v of detached.vertices)v.p[0]+=.05;assert.throws(()=>assertGrip(detached,r));negativeCases++;
 for(const value of [{...r,profession:'soldier'},{...r,slots:{...r.slots,headwear:'frontier_guard_helmet'}},{...r,slots:{...r.slots,top:'guard_light_armor'}}]){assert.throws(()=>parseRecipeFile(JSON.stringify(value)));negativeCases++;}
 for(const make of [makeTop,makeTrousers,makeFootwear]){const p=structuredClone(make(r)!);p.mesh.faces.pop();assert.throws(()=>assertGarmentPiece(p));negativeCases++;}
-// 旧整片刚性、错腿、坏权重、缺面、反绕序和坏坐标都必须拒绝，不将新权重改成任意双权重放行。
-const outer=subset(makeCharacter(r).surface,'PalaceTasset.Right.Outer.');
+// 延续六类坏结构反例，并追加腰起轮廓、前摆、长度和裆部出口回归。
+const skirt=makeTrousers(r)!;
 for(const mutate of [
-  (c:Cage)=>{for(const v of c.vertices)v.w=[B.RightThigh,B.RightThigh,1];},
-  (c:Cage)=>{c.vertices[0].w[1]=B.LeftThigh;},
-  (c:Cage)=>{c.vertices[0].w[2]=Number.NaN;},
-  (c:Cage)=>{c.faces.pop();},
-  (c:Cage)=>{c.faces[0].v.reverse();},
-  (c:Cage)=>{c.vertices[0].p[0]=Number.NaN;},
-]){const c=cloneCage(outer);mutate(c);assert.throws(()=>closedOuterTasset(c,'Right'));negativeCases++;}
+  (p:typeof skirt)=>{for(const v of p.mesh.vertices)if(v.id.startsWith('PalaceSkirt.'))v.w=[B.RightThigh,B.RightThigh,1];},
+  (p:typeof skirt)=>{p.mesh.vertices.find(v=>v.id==='PalaceSkirt.2.0')!.w[1]=B.LeftThigh;},
+  (p:typeof skirt)=>{p.mesh.vertices[0].w[2]=Number.NaN;},
+  (p:typeof skirt)=>{p.mesh.faces.pop();},
+  (p:typeof skirt)=>{p.mesh.faces[0].v.reverse();},
+  (p:typeof skirt)=>{p.mesh.vertices[0].p[0]=Number.NaN;},
+  (p:typeof skirt)=>{for(const v of p.mesh.vertices)if(v.id.startsWith('PalaceSkirt.0.'))v.p[1]-=.15;},
+  (p:typeof skirt)=>{p.mesh.vertices.find(v=>v.id==='PalaceSkirt.4.0')!.p[2]=.02;},
+  (p:typeof skirt)=>{for(const v of p.mesh.vertices)if(v.id.startsWith('PalaceSkirt.4.'))v.p[1]=.50;},
+  (p:typeof skirt)=>{p.mesh.vertices.find(v=>v.id==='PalaceLiner.Right.Entry.0')!.p[1]=.735;},
+]){const p=structuredClone(skirt);mutate(p);assert.throws(()=>assertPalaceSkirt(p));negativeCases++;}
 if(process.argv.includes('--motion')){
   for(const bodyType of BODY_TYPES){
     const recipe=applyPalaceGuard(createRecipe({bodyType})),actor=makeActor(makeCharacter(recipe)),geometry=actor.mesh.geometry,inverses=actor.skeleton.boneInverses.map(m=>m.toArray());

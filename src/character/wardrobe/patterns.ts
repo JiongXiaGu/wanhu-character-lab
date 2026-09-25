@@ -20,7 +20,7 @@ export const TOP_PATTERNS:Record<Exclude<TopId,'body'>,TopPattern>={
   ceremony_robe:{id:'ceremony-jacket-v2',asset:'classic',sleeve:'long',width:1.045,cuff:1.16,hem:1.035},
 };
 export const BOTTOM_PATTERNS:Record<Exclude<BottomId,'body'>,BottomPattern>={
-  palace_guard_skirt:{id:'palace-tassets-v1',asset:'palace-skirt',hem:.095},
+  palace_guard_skirt:{id:'palace-waist-skirt-v2',asset:'palace-skirt',hem:.095},
   short_trousers:{id:'closed-cuff-shorts-v2',asset:'short-trousers',hem:.504},
   true_short_skirt:{id:'continuous-short-skirt-v1',asset:'continuous-short-skirt',hem:.505,stressOnlyClips:['snatch']},
   long_skirt:{id:'plain-long-skirt-v1',asset:'continuous-long-skirt',hem:.092,stressOnlyClips:['snatch']},
