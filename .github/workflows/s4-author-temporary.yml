@@ -19,20 +19,35 @@ jobs:
             python3 scripts/s4-author-temporary.py
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add src scripts Documentation README.md AGENTS.md .github
+            git add src scripts Documentation README.md AGENTS.md .github package.json
             if ! git diff --cached --quiet; then
-              git commit -m 'feat(soldier): S4 helmet-only captain roles and review coverage'
+              git commit -m 'feat(soldier): S4 helmet-only captain identities and review coverage'
               git push origin HEAD:s4-soldier-captain-20260925
             fi
           fi
-      - name: Archive source for local inspection
+      - name: Inspect headwear integration points
         run: |
-          git archive --format=tar HEAD | gzip > /tmp/s4-source.tar.gz
+          git grep -n -E 'palace_guard_helmet|PalaceHelmet|isPalaceGuard' -- src scripts | cut -c1-1600
+      - name: Archive text source for inspection
+        run: |
+          git archive --format=tar HEAD src scripts Documentation AGENTS.md README.md package.json package-lock.json .github | gzip > /tmp/s4-text-source.tar.gz
           git rev-parse HEAD > /tmp/s4-source-sha.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: s4-author-source
+          name: s4-author-text-source
           path: |
-            /tmp/s4-source.tar.gz
+            /tmp/s4-text-source.tar.gz
             /tmp/s4-source-sha.txt
           retention-days: 3
+      - uses: actions/setup-node@v4
+        if: hashFiles('src/soldier/identities.ts') != ''
+        with:
+          node-version: 22
+          cache: npm
+      - name: S4 smoke checks
+        if: hashFiles('src/soldier/identities.ts') != ''
+        run: |
+          npm ci
+          npm run prepare:motion
+          npx tsc --noEmit
+          npm run check:soldier
