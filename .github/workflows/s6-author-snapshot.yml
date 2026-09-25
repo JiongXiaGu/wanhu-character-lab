@@ -1,37 +1,52 @@
-name: S6 Author Snapshot (temporary)
+name: S6 Author Checks (temporary)
 on:
   push:
     branches: [s6-heavy-armor]
-    paths: [.github/workflows/s6-author-snapshot.yml]
+    paths:
+      - .github/workflows/s6-author-snapshot.yml
+      - .s6-author-integrate.py
 permissions:
-  contents: read
+  contents: write
 jobs:
-  snapshot:
+  author:
+    if: github.ref == 'refs/heads/s6-heavy-armor'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          ref: ${{ github.sha }}
+      - name: Apply guarded source integration
+        run: |
+          python3 .s6-author-integrate.py
+          if ! git diff --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add src scripts
+            git commit -m 'feat(s6): register shared heavy armor and orthogonal fitting controls'
+            git push origin HEAD:s6-heavy-armor
+          fi
+          echo "REVIEW_HEAD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Export tracked author source and runtime assets
-        run: |
-          mkdir -p /tmp/s6-author
-          git archive --format=tar.gz HEAD -o /tmp/s6-author/source.tar.gz
-          tar -czf /tmp/s6-author/node_modules.tar.gz node_modules
-          git rev-parse HEAD > /tmp/s6-author/source-sha.txt
-          du -h /tmp/s6-author/*
+      - name: Build author candidate
+        id: build
+        run: npm run build 2>&1 | tee s6-build.log
+      - name: Soldier exact topology and state matrix
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: npm run check:soldier 2>&1 | tee s6-soldier.log
+      - name: Original complete tailoring intersections
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: npm run check:intersections 2>&1 | tee s6-intersections.log
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: s6-author-source
-          path: /tmp/s6-author/source*
-          retention-days: 1
-      - uses: actions/upload-artifact@v4
-        with:
-          name: s6-author-dependencies
-          path: /tmp/s6-author/node_modules.tar.gz
-          retention-days: 1
+          name: s6-author-checks-${{ github.sha }}
+          path: |
+            s6-*.log
+            review/soldier-numeric/
+            review-tailoring-v2/intersections.json
+          retention-days: 3
