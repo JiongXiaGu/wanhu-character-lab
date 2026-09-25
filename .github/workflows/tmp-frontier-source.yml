@@ -1,0 +1,30 @@
+name: Temporary S2 author snapshot
+on:
+  push:
+    branches: [feat/s2-frontier-guard]
+    paths: [.github/workflows/tmp-frontier-source.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Package checked-out source and author dependencies
+        run: |
+          git rev-parse HEAD > /tmp/source-sha.txt
+          tar --exclude=.git -czf /tmp/frontier-author-source.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontier-author-source
+          path: |
+            /tmp/source-sha.txt
+            /tmp/frontier-author-source.tar.gz
+          retention-days: 2
