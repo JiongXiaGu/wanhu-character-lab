@@ -1,4 +1,3 @@
-## S0 军人与甲胄工作流
 
 ## A0 动物长期工作流
 
@@ -7,13 +6,13 @@
 山羊／绵羊／适合作为饲养动物的兔子优先复用现有家畜公共播放、LOD、Pose Cache 和 Crowd；猴子与鹿视为环境动物，鸟类与鱼类分别在做到对应阶段时建立最小必要的环境／飞行／水生预览能力。不得为了统一强行把飞行动物、鱼类或猴子特殊动作塞进 `src/livestock`，也不得提前建立大而全的通用 AnimalSystem。
 
 每个物种仍独立拥有作者模型、骨架、动作和数值契约；必须保留三档可读性、真实蒙皮检查、浏览器回归与最终 WebGL 看图。继续只有三条正式 Actions；关键截图直接展示给用户，并区分自动检查、AI看图和用户最终认可。
+## S1 皇宫禁卫与长枪
 
-用户已批准建立中国风格军人工作流，固定三种驻地风格：皇宫禁卫、边疆戍卒、城市守军。先读 `Documentation/军人与甲胄工作流.md` 与 `src/soldier/contract.ts`。当前 S0 只建立风格、计划资产 ID、检查与阶段边界；第一件真实资产进入 S1“皇宫禁卫 · 长枪”，不得提前把空占位加入人物 UI 或 Recipe。
+用户已授权制作第一套真实宫卫。先读 `Documentation/皇宫禁卫与长枪.md` 和《军人与甲胄工作流》。五件新资产已走原七槽位、固定成年男女、20骨与最多双权重；`src/soldier/looks.ts`只应用外观，不另建Renderer、动画播放器、兵种或军阶协议。旧军服与boots仍退役，边疆城市仅为规划，不开放空选项。
 
-军人仍复用固定成年男女、Recipe V5 七槽位、20 骨人物和现有 wardrobe / tailoring / motion 链路；`src/soldier` 不是第二套人物 Renderer。驻地风格、兵种、军阶彼此独立，外观 Recipe 不增加 profession/style/role/rank 字段。旧 `guard_light_armor`、`archer_tunic`、`guard_pants`、`archer_pants`、`loose_trousers`、`boots` 不得恢复。
+上甲与护肩为连续闭合衣壳；六片甲裙各自闭合、随对应Thigh，裤装内衬保留髋膝遮挡；军靴只覆盖foot。原下身源键/中点检测、Snatch压力片段、固定身体与inverse bind不变，不加军装豁免。长枪只随RightHand，不宣称专用站岗、刺击、双手握枪或战斗已实现。
 
-`npm run check:soldier` 已进入 Targeted Numeric Checks；仍只保留 Build & Core Checks、Targeted Numeric Checks、Manual Visual Review 三条正式 Actions，不新增第四条永久军人 workflow。S1 有首件可见甲胄后再接入 soldier 视觉 scope。关键截图仍须实际打开并直接展示给用户，自动通过、AI看图和用户美术认可分开记录。
-
+`check:soldier`检查真实资产，Targeted追加源键蒙皮和普通桌面交互；`review:soldier`与Manual soldier scope/[soldier-visual]显式产图。必须实际打开关键图并直接展示，区分自动通过、生成、AI看图与用户美术认可。保留猫和其它并行修改，合并前重读main，不强推，不留下临时作者工作流。
 
 ## L7：田园猫作者边界
 
@@ -119,7 +118,7 @@ check:riding-browser、check:saddles-browser、check:mounts-browser只做真实�
 
 正式路径Recipe→固定基模／资产注册→作者接口封闭→装配→CharacterData→rig→viewport；Mixamo FBX／XR Animator GLB→各自离线提取→HumanoidMotionData→motion/retarget→motion/player。patterns只注册，assets拥有几何与静态权重，seal-interfaces只在创建时封闭显式接口，assembly负责固定覆盖，adornments拥有头发／头饰，headwear-fit只做一次性帽壳留量。无外部Mesh通用导入器，不恢复tailoring或人体衣面fallback。
 
-正式衣柜7上衣／5下装／1鞋，body只为内部裸模哨兵；10张搭配灵感保留、基础搭配已删。上衣work_vest、short_work_jacket、rough_tunic、cross_jacket、layered_vest、ceremony_robe、farmer_tunic；下装short_trousers、true_short_skirt、long_skirt、work_pants、work_wrap；鞋cloth_shoes。guard_light_armor、archer_tunic、loose_trousers、guard_pants、archer_pants、pleated_skirt、robe_skirt、short_skirt、boots退役，不恢复隐藏选项或fallback。
+正式衣柜8上衣／6下装／2鞋，body只为内部裸模哨兵；10张搭配灵感保留、基础搭配已删。上衣work_vest、short_work_jacket、rough_tunic、cross_jacket、layered_vest、ceremony_robe、farmer_tunic；下装short_trousers、true_short_skirt、long_skirt、work_pants、work_wrap；鞋cloth_shoes与military_boots；新增宫卫上甲与甲裙见专篇。guard_light_armor、archer_tunic、loose_trousers、guard_pants、archer_pants、pleated_skirt、robe_skirt、short_skirt、boots退役，不恢复隐藏选项或fallback。
 
 真裙仍为连续12段裙壳和12片固定扇面封底，腰口已补。服装wanhu-modular-garments-v9、皮肤wanhu-skin-cage-v3、绑定wanhu-fixed-bodies-v1，不升级Recipe。短裙／短裤仅遮pelvis/thigh，长裙再遮shin；背心／短褂仅遮torso，不能整块删裸露手臂小腿。
 

@@ -5,7 +5,7 @@ import { makeTrousers } from '../src/character/wardrobe/assets/trousers';
 import { makeFootwear } from '../src/character/wardrobe/assets/footwear';
 import { sealGarmentInterfaces } from '../src/character/wardrobe/assets/seal-interfaces';
 import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from '../src/character/wardrobe/assets/contract';
-import { createRecipe, TOP_IDS, BOTTOM_IDS, BODY_TYPES, emptySlots, type Cage, type Recipe } from '../src/character/v3/types';
+import { createRecipe, TOP_IDS, BOTTOM_IDS, SHOES_IDS, BODY_TYPES, emptySlots, type Cage, type Recipe } from '../src/character/v3/types';
 import { cloneCage, triCount, cross, sub } from '../src/character/v3/cage';
 import { makeCharacter } from '../src/character/v3/outfit';
 import { assertComponentWinding } from './check-components';
@@ -76,7 +76,7 @@ function assertCapRollout(){
     const recipes:Recipe[]=[
       ...TOP_IDS.filter(id=>id!=='body').map(top=>createRecipe({bodyType,dyes,slots:{...emptySlots(),top}})),
       ...BOTTOM_IDS.filter(id=>id!=='body').map(bottom=>createRecipe({bodyType,dyes,slots:{...emptySlots(),bottom}})),
-      createRecipe({bodyType,dyes,slots:{...emptySlots(),shoes:'cloth_shoes'}}),
+      ...SHOES_IDS.filter(id=>id!=='body').map(shoes=>createRecipe({bodyType,dyes,slots:{...emptySlots(),shoes}})),
     ];
     for(const recipe of recipes){
       const p=makeTop(recipe)??makeTrousers(recipe)??makeFootwear(recipe)!;
@@ -121,7 +121,7 @@ export function assertModularAssets():number {
   for(const bodyType of BODY_TYPES){
     for(const top of TOP_IDS){const p=makeTop(createRecipe({bodyType,slots:{top}}));if(p){assertGarmentPiece(p);checked++;}}
     for(const bottom of BOTTOM_IDS){const p=makeTrousers(createRecipe({bodyType,slots:{bottom}}));if(p){assertGarmentPiece(p);checked++;}}
-    assertGarmentPiece(makeFootwear(createRecipe({bodyType,slots:{shoes:'cloth_shoes'}}))!);checked++;
+    for(const shoes of SHOES_IDS){const p=makeFootwear(createRecipe({bodyType,slots:{shoes}}));if(p){assertGarmentPiece(p);checked++;}}
     for(const top of TOP_IDS)for(const bottom of BOTTOM_IDS){
       const r=createRecipe({bodyType,slots:{top,bottom}}),d=makeCharacter(r);
       const covers=new Set(d.garments.flatMap(p=>p.covers));

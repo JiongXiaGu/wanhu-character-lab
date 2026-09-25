@@ -1,3 +1,4 @@
+import { addMilitarySpear } from '../wardrobe/military-equipment';
 import { addBackEquipment } from '../wardrobe/back-equipment';
 import { applyHeadwearClearance } from "../wardrobe/headwear-fit";
 import { addWardrobeHeadwear, finishHair } from "../wardrobe/adornments";
@@ -538,7 +539,8 @@ function addLeftHand(c: Cage, id: LeftHandId) {
   if (id === "archer_bow") addBow(c);
 }
 
-function addRightHand(c: Cage, id: RightHandId) {
+function addRightHand(c: Cage, id: RightHandId, recipe:Recipe) {
+  if(id==='military_spear'){addMilitarySpear(c,recipe);return;}
   if (id === "farmer_hoe") addHoe(c);
   if (id === "guard_sword") addSword(c);
 }
@@ -551,7 +553,7 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   const [trim, leather] = [colors.accent, colors.accent];
 
   const hasTop = recipe.slots.top !== "body";
-  if (hasTop && !["rough_tunic", "cross_jacket", "layered_vest"].includes(recipe.slots.top)) {
+  if (hasTop && !["rough_tunic", "cross_jacket", "layered_vest", "palace_guard_armor"].includes(recipe.slots.top)) {
     ribbon(
       c,
       "CrossCollar",
@@ -595,7 +597,7 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   headwear(c, recipe.slots.headwear, recipe);
   addBack(c, recipe.slots.back);
   addLeftHand(c, recipe.slots.leftHand);
-  addRightHand(c, recipe.slots.rightHand);
+  addRightHand(c, recipe.slots.rightHand, recipe);
   const joints = makeJoints(recipe);
   const baseJoints = makeJoints(createRecipe({ bodyType:"male" }));
   c.vertices.forEach((v,i) => {
