@@ -133,7 +133,7 @@ Camel_Idle 4.8秒、Camel_Walk 1.6秒、Camel_Run 1.0秒、Camel_Eat 6.8秒。�
 
 退役guard_light_armor、archer_tunic、loose_trousers、guard_pants、archer_pants、pleated_skirt、robe_skirt、short_skirt、boots不恢复兼容。人物工坊保留种子、锁定、撤销、保存、文件往返、发式帽饰和配色。所有正式衣裤Cap封闭、帽饰闭合，原covers／sealedInterfaces／权重和人体保护签名不改变。详见[服装Cap封闭](Documentation/服装Cap封闭实验.md)与[头饰闭合](Documentation/头饰闭合与安全留量.md)。
 
-FBX放入动画参考目录，可含子目录，启动／构建动态扫描提取；XR Animator GLB 从 `动画参考_glb/` 提取。另有“新宝岛 · MediaPipe”使用视频 23–45 秒派生的 20 骨动画，源骨架对照显示 33 点；原视频保留在 D 盘，不进入仓库。动画搜索、分类、收藏、逐帧、变速、源骨架对照及暂停换装相位保持。人物Recipe仍精确六字段version/bodyType/slots/dyes/hairStyle/hairColor、七槽位、存储键wanhu.character.wardrobe.v5。
+FBX放入动画参考目录，可含子目录，启动／构建动态扫描提取；XR Animator GLB 从 `动画参考_glb/` 提取。MediaPipe 动作包含两条“新宝岛”和“抓个锅盖头 · MediaPipe（全片）”，由 D 盘视频派生为 20 骨动画，源骨架对照显示原始 33 点；原视频保留在 D 盘，不进入仓库。动画搜索、分类、收藏、逐帧、变速、源骨架对照及暂停换装相位保持。人物Recipe仍精确六字段version/bodyType/slots/dyes/hairStyle/hairColor、七槽位、存储键wanhu.character.wardrobe.v5。
 
 ## 自动检查与人工验收
 
@@ -157,4 +157,4 @@ node scripts/review-camel-torso.mjs
 
 旧review:local各入口与--full保留按需使用；生成截图、自动通过和人工视觉认可分开记录。有限采样不是全时域零穿插。尚无跪下／起身、上下坐骑、导航、玩家移动、地形贴蹄、袋子物理、连续身材、儿童老人、人物或坐骑多档LOD、Unity正式坐骑运行时或GPU Crowd。本项目不部署Vercel。
 
-文档：[V5契约](Documentation/固定基模与换装V5.md) · [服装架构](Documentation/服装生成架构.md) · [人物动画](Documentation/Mixamo动画接入.md) · [新宝岛MediaPipe片段](Documentation/新宝岛MediaPipe片段接入.md) · [多坐骑](Documentation/多坐骑与灰驴.md) · [双峰骆驼](Documentation/双峰骆驼.md) · [黄牛](Documentation/黄牛.md) · [牦牛](Documentation/牦牛.md) · [Unity迁移](Documentation/GPU骨骼动画迁移契约.md)。
+文档：[V5契约](Documentation/固定基模与换装V5.md) · [服装架构](Documentation/服装生成架构.md) · [人物动画](Documentation/Mixamo动画接入.md) · [新宝岛MediaPipe片段](Documentation/新宝岛MediaPipe片段接入.md) · [抓个锅盖头MediaPipe全片](Documentation/抓个锅盖头MediaPipe全片接入.md) · [多坐骑](Documentation/多坐骑与灰驴.md) · [双峰骆驼](Documentation/双峰骆驼.md) · [黄牛](Documentation/黄牛.md) · [牦牛](Documentation/牦牛.md) · [Unity迁移](Documentation/GPU骨骼动画迁移契约.md)。

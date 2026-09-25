@@ -103,7 +103,7 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
     const stats=actorStats(actor);statsRef.current(stats);
     if(new URLSearchParams(location.search).has('review')||import.meta.env.DEV){
       window.__WANHU_REVIEW__={stats,seek(phase){if(rt)seek(rt,phase);},getStatus:()=>rt?playback(rt):{phase:0,stage:'',finished:false},
-        cameraState:()=>rt?{position:rt.camera.position.toArray(),target:rt.controls.target.toArray(),projection:rt.camera.projectionMatrix.toArray()}:null,
+        cameraState:()=>rt?{position:rt.camera.position.toArray(),target:rt.controls.target.toArray(),zoom:rt.camera instanceof T.OrthographicCamera?rt.camera.zoom:1,projection:rt.camera.projectionMatrix.toArray()}:null,
         geometryId:()=>rt?.actor.mesh.geometry.uuid??'',focusHip(){if(!rt)return;
           const center=rt.actor.bones[1].getWorldPosition(new T.Vector3()).add(new T.Vector3(0,-.13,0));
           const direction=rt.camera.position.clone().sub(rt.controls.target).normalize();
@@ -149,8 +149,8 @@ export function CharacterViewport({options,onStats,onError,onPlayback}:Props) {
   useEffect(()=>{
     const r=runtime.current;if(!r)return;
     const recipeChanged=r.builtRecipe!==options.recipe, selectionChanged=r.selection!==options.motion, restarted=r.restart!==options.restart;
-    // 更换基模或服装只重建人物，保留用户已调整的镜头位置、方向和缩放。
-    const keepCamera=recipeChanged;
+    // 仅更换基模或服装时保留用户已调整的镜头；同时切换动作仍按新动作调整镜头。
+    const keepCamera=recipeChanged&&!selectionChanged;
     r.restart=options.restart;
     if(!recipeChanged&&!selectionChanged&&!(restarted&&r.loadError)){
       if(restarted){r.desiredPhase=0;r.motion?.replay();playbackRef.current(playback(r));}

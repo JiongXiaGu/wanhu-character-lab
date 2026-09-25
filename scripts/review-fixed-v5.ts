@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {mkdir, stat, writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
 import {MIXAMO_CLIPS} from '../src/character/mixamo/catalog';
-import {applyLook} from '../src/character/wardrobe/catalog';
+import {applyLook, randomizeCharacter} from '../src/character/wardrobe/catalog';
 import {createRecipe, type Recipe} from '../src/character/v3/types';
 
 // 独立补充验收，不替代原衣柜截图、视频或全 FBX 数值矩阵。
@@ -36,6 +36,13 @@ page.on('pageerror', error => errors.push(error.message));
 page.on('console', message => {if (message.type() === 'error') errors.push(message.text());});
 
 async function recipe(): Promise<Recipe> {return page.evaluate(() => window.__WANHU_RECIPE__!());}
+type CameraState = {position:number[];target:number[];zoom:number};
+async function cameraState():Promise<CameraState>{return page.evaluate(() => window.__WANHU_REVIEW__!.cameraState()) as Promise<CameraState>;}
+function assertCameraPreserved(before:CameraState,after:CameraState,label:string){
+  for(const key of ['position','target'] as const)for(let index=0;index<3;index++)
+    assert(Math.abs(after[key][index]-before[key][index])<.05,`${label}: ${key}[${index}] changed`);
+  assert.equal(after.zoom,before.zoom,`${label}: zoom changed`);
+}
 async function settle() {
   await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 }
@@ -203,6 +210,30 @@ try {
   await page.getByRole('button', {name: '侧面', exact: true}).click();
   await shot('06-source-comparison-and-frame-step');
   checks.push(`dynamic catalog ${MIXAMO_CLIPS.length} FBX; search, favorites across reload, labor filter, navigation, pause and exact frame stepping`);
+
+  await open({bodyType:'male',view:'free',pose:'',mixamo:'pilot-switches',phase:'.37'});
+  await waitMotion('pilot-switches');
+  await page.evaluate(()=>window.__WANHU_REVIEW__!.focusHead());
+  const canvas=await page.locator('canvas').first().boundingBox();assert(canvas,'missing character canvas');
+  const dragX=canvas.x+canvas.width*.55,dragY=canvas.y+canvas.height*.45;
+  await page.mouse.move(dragX,dragY);await page.mouse.down();await page.mouse.move(dragX+90,dragY-35,{steps:8});await page.mouse.up();
+  await page.waitForTimeout(1000);
+  const rotatedCamera=await cameraState();
+  assert(Math.abs(rotatedCamera.position[0]-rotatedCamera.target[0])>.2,'camera did not rotate before body switch');
+  await changeAtPhase(()=>page.getByTestId('body-type-female').click(),.37);
+  assertCameraPreserved(rotatedCamera,await cameraState(),'manual body switch');
+  const femaleRecipe=await recipe();
+  const seed=Array.from({length:64},(_,index)=>index).find(value=>randomizeCharacter(femaleRecipe,value).bodyType==='male');
+  assert(seed!==undefined,'missing seed that switches to male');
+  await page.getByLabel('人物种子',{exact:true}).fill(String(seed));
+  const beforeRandom=await cameraState();
+  await changeAtPhase(()=>page.getByRole('button',{name:'随机人物',exact:true}).click(),.37);
+  assert.equal((await recipe()).bodyType,'male');
+  assertCameraPreserved(beforeRandom,await cameraState(),'random body switch');
+  await page.getByRole('button',{name:'正面',exact:true}).click();await settle();
+  const frontCamera=await cameraState();
+  assert(Math.abs(frontCamera.position[0]-frontCamera.target[0])<.05&&frontCamera.position[2]>frontCamera.target[2],'explicit front view did not reset camera');
+  checks.push('manual and seeded random body switches preserve rotated camera after motion load; explicit view selection still resets');
 
   for (const width of [360, 768]) for (const bodyType of ['male', 'female']) {
     await page.setViewportSize({width, height: 915});
