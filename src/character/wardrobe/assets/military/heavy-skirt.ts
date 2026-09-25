@@ -51,7 +51,9 @@ export function makeHeavyArmorSkirt(recipe: Recipe): GarmentPiece {
     const [y, width, depth] = ROWS[row];
     const loop = PROFILE.map(([x, z], column) => {
       const thigh = x > 0 ? B.RightThigh : B.LeftThigh;
-      const weights: Weight = row === 0 ? [B.Hips, B.Hips, 1] : [B.Hips, thigh, HIP_WEIGHTS[row]];
+      // 厚后摆的弯曲半径比前摆大：侧后方渐增腰骨贡献，避免深屈髋时挤成反折面。
+      const hipWeight = HIP_WEIGHTS[row] + (1 - HIP_WEIGHTS[row]) * .16 * (1 - z);
+      const weights: Weight = row === 0 ? [B.Hips, B.Hips, 1] : [B.Hips, thigh, hipWeight];
       const point: Vec3 = [x * width, y + Math.max(0, -z) * REAR_LIFT[row], z * (depth + (row >= 6 && z > 0 ? .015 : 0))];
       return vertex(c, `HeavyArmorSkirt.${row}.${column}`, point, weights);
     });
