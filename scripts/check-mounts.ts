@@ -98,7 +98,9 @@ try {
     }
     let released = 0; riding.rider.mesh.geometry.addEventListener('dispose', () => released++); riding.dispose(); riding.dispose(); assert.equal(released, 1);
   }
-  assert.equal(bodyPoses, 964); assert.equal(ridingPoses, 2892); assert.equal(wardrobeCases, 70);
+  assert.equal(bodyPoses, 964); assert.equal(ridingPoses, 2892);
+  // 完整现役衣柜笛卡尔积：新增军装不能被旧阶段固定的70组拦截，也不能缩减循环。
+  assert.equal(wardrobeCases, BODY_TYPES.length * TOP_IDS.filter(id => id !== 'body').length * BOTTOM_IDS.filter(id => id !== 'body').length);
   report.camel = checkCamel();
   report.cattle = checkCattle();
   report.yak = checkYak();

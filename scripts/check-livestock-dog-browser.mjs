@@ -48,7 +48,7 @@ export async function checkDogBrowser(page,base,dir,screenshots,setPhase) {
     await page.evaluate(()=>window.scrollTo(0,0));await page.waitForTimeout(150);await page.screenshot({path:`review/livestock/${name}`,fullPage:true});images.push({name,...await snap()});
   };
   const wardrobe=await page.evaluate(()=>Object.fromEntries(Object.entries(localStorage).filter(([k])=>k.includes('character'))));
-  assert.deepEqual(await page.getByLabel('家畜种类',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value)),['chicken_brown','duck_domestic_brown','goose_domestic_white','pig_domestic_black',animal]);
+  assert.deepEqual(await page.getByLabel('家畜种类',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value)),['chicken_brown','duck_domestic_brown','goose_domestic_white','pig_domestic_black',animal, 'cat_rural_orange']);
   for(const [lod,triangles,logicalVertices] of budgets) {
     await page.goto(`${base}/?lab=livestock&animal=${animal}&lod=${lod}&clip=idle&phase=.5&paused=1&view=three`,{waitUntil:'networkidle'});await ready();
     const initial=await snap();assert.equal(initial.bones,9);assert.equal(initial.triangles,triangles);assert.equal(initial.logicalVertices,logicalVertices);

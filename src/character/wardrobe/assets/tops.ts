@@ -1,3 +1,4 @@
+import { makePalaceTop } from './military/palace-top';
 import { makeWorkVest } from './work-vest';
 import { makeShortJacket } from './short-jacket';
 import { makeWorkShirt } from './work-shirt';
@@ -21,6 +22,7 @@ function makeAuthoredTop(recipe:Recipe):GarmentPiece|undefined {
   if(id==='body')return;
   const pattern=TOP_PATTERNS[id];
   if(!pattern)throw new Error('上衣资产未注册：'+id);
+  if(pattern.asset==='palace-top')return makePalaceTop(recipe);
   if(pattern.asset==='work-vest')return makeWorkVest(recipe);
   if(pattern.asset==='short-jacket')return makeShortJacket(recipe);
   if(pattern.asset==='work-shirt')return makeWorkShirt(recipe);

@@ -25,6 +25,7 @@ export const BODY_HEIGHT: Readonly<Record<BodyType, number>> = { male: 1.76, fem
 export type HeadwearId =
   | "none"
   | "farmer_straw_hat"
+  | "palace_guard_helmet"
   | "guard_helmet"
   | "archer_headband"
   | "cloth_wrap"
@@ -32,6 +33,7 @@ export type HeadwearId =
   | "jade_pin";
 export type TopId =
   | "body"
+  | "palace_guard_armor"
   | "farmer_tunic"
   | "rough_tunic"
   | "cross_jacket"
@@ -41,15 +43,16 @@ export type TopId =
   | "short_work_jacket";
 export type BottomId =
   | "body"
+  | "palace_guard_skirt"
   | "work_pants"
   | "work_wrap"
   | "short_trousers"
   | "true_short_skirt"
   | "long_skirt";
-export type ShoesId = "body" | "cloth_shoes";
+export type ShoesId = "body" | "cloth_shoes" | "military_boots";
 export type BackId = "none" | "archer_quiver" | "bamboo_basket" | "firewood_bundle" | "book_case";
 export type LeftHandId = "none" | "guard_shield" | "archer_bow";
-export type RightHandId = "none" | "farmer_hoe" | "guard_sword";
+export type RightHandId = "none" | "farmer_hoe" | "guard_sword" | "military_spear";
 
 export interface CharacterSlots {
   headwear: HeadwearId;
@@ -113,6 +116,7 @@ export interface CharacterData {
 export const HEADWEAR_IDS = [
   "none",
   "farmer_straw_hat",
+  "palace_guard_helmet",
   "guard_helmet",
   "archer_headband",
   "cloth_wrap", "scholar_cap", "jade_pin",
@@ -120,6 +124,7 @@ export const HEADWEAR_IDS = [
 
 export const TOP_IDS = [
   "body",
+  "palace_guard_armor",
   "farmer_tunic",
   "rough_tunic", "cross_jacket", "layered_vest", "ceremony_robe",
   "work_vest", "short_work_jacket",
@@ -127,12 +132,14 @@ export const TOP_IDS = [
 
 export const BOTTOM_IDS = [
   "body",
+  "palace_guard_skirt",
   "work_pants", "work_wrap", "short_trousers", "true_short_skirt", "long_skirt",
 ] as const satisfies readonly BottomId[];
 
 export const SHOES_IDS = [
   "body",
   "cloth_shoes",
+  "military_boots",
 ] as const satisfies readonly ShoesId[];
 
 export const BACK_IDS = [
@@ -153,6 +160,7 @@ export const RIGHT_HAND_IDS = [
   "none",
   "farmer_hoe",
   "guard_sword",
+  "military_spear",
 ] as const satisfies readonly RightHandId[];
 
 export const EMPTY_SLOTS: CharacterSlots = {

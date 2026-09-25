@@ -9,7 +9,7 @@ import {createMotionPlayer,loadMotion,type MotionPlayer,type MotionStatus} from 
 import type { MotionSelection } from '../character/motion/catalog';
 
 export interface PlaybackStatus { phase:number; stage:string; finished:boolean; motion?:MotionStatus; loading?:boolean; loadError?:string }
-export type View = 'free' | 'front' | 'side' | 'back' | 'top' | 'three';
+export type View = 'free' | 'front' | 'side' | 'back' | 'top' | 'overview' | 'three';
 export type Display = 'beauty' | 'cage' | 'triangles' | 'clay' | 'unlit';
 export interface Stats { triangles:number; bodyTriangles:number; vertices:number; gpuVertices:number; bones:number; replaced:number }
 export interface ViewOptions {
@@ -196,7 +196,7 @@ function applyCamera(r:Runtime,o:ViewOptions){
     r.controls.enableDamping=true;r.controls.minDistance=1.4;r.controls.maxDistance=8;r.controls.minZoom=.55;r.controls.maxZoom=5;}
   const y=BODY_HEIGHT[o.recipe.bodyType]*.53,target=r.motion?r.motion.bake.bounds.getCenter(new T.Vector3()):new T.Vector3(0,y,0);
   next.up.set(0,1,0);if(next instanceof T.OrthographicCamera)next.zoom=o.view==='top'?1.7:1;
-  const position=o.view==='front'?[0,y,4]:o.view==='back'?[0,y,-4]:o.view==='side'?[4,y,0]:o.view==='top'?[0,5,.001]:[2.8,y+1.05,4.5];
+  const position=o.view==='front'?[0,y,4]:o.view==='back'?[0,y,-4]:o.view==='side'?[4,y,0]:o.view==='top'?[0,5,.001]:o.view==='overview'?[2.9,y+4.3,4.2]:[2.8,y+1.05,4.5];
   next.position.fromArray(position).add(new T.Vector3(target.x,target.y-y,target.z));
   if(o.view==='top')next.up.set(0,0,-1);next.lookAt(target);r.controls.target.copy(target);r.controls.enabled=o.view!=='three';r.controls.update();
   r.views.forEach((c,i)=>{c.position.set(...(i===0?[0,0,4]:i===1?[4,0,0]:[0,0,-4]) as [number,number,number]);c.position.add(target);c.lookAt(target);});

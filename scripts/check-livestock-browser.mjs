@@ -1,3 +1,4 @@
+import { checkCatBrowser } from './check-livestock-cat-browser.mjs';
 import { checkLivestockSleepBrowser } from './check-livestock-sleep-browser.mjs';
 import { checkDogBrowser } from './check-livestock-dog-browser.mjs';
 import { checkPigBrowser } from './check-livestock-pig-browser.mjs';
@@ -82,6 +83,7 @@ try {
   await page.goto(`${base}/?lab=livestock&preview=resume&count=NaN&clip=unknown&view=unknown&lod=unknown&phase=Infinity&paused=1`, { waitUntil: 'networkidle' }); await ready();
   assert.equal((await snap()).count, 1); assert.equal((await snap()).motion, 'idle'); assert.equal((await snap()).phase, 0); assert.equal((await snap()).lod, 'lod0');
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, '桌面横向溢出'); assert.deepEqual(errors, []);
+  await checkCatBrowser(page, base, dir, screenshots, setPhase);
   await checkLivestockSleepBrowser(page, base, dir, screenshots, setPhase);
   await checkDuckBrowser(page, base, dir, screenshots, setPhase);
   await checkGooseBrowser(page, base, dir, screenshots, setPhase);
