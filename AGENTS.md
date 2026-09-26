@@ -166,6 +166,12 @@ check:riding-browser、check:saddles-browser、check:mounts-browser只做真实�
 
 动态扫描全部 Mixamo FBX 与 XR Animator GLB，不固定总数，失败明确报错；GLB 必须使用真实 Bind World Transform，FBX 继续使用真实 inverse bind，不用首帧替代。保留头部相对bind完整旋转差，不用HeadTop_End当脸前向或锁俯仰。原人物换装／男女切换保持暂停相位，切动画复用网格。
 
+## GitHub Actions 轮询限制
+
+Actions 是异步验收，不是执行主循环。提交或触发 workflow 后，在没有失败信号时，对同一个 run 主动查询最多两次：第一次确认正常启动，第二次读取当前结果。若仍为 queued / in_progress，记录状态并结束本轮，不继续按 workflow / jobs / steps 循环查询。
+
+只有出现 failure、cancelled、action_required 等异常时才继续深入 job、step 或 log，并在得到可操作原因后优先修复代码。用户后续明确要求继续检查时，再读取最新状态。不要为了等待 CI 暂停已经可以完成的代码、文档或视觉判断，也不要承诺 runner 会在某个时间完成。
+
 ## 审图与交付
 
 默认修改→代码／数值／交互检查→交付用户体验。仅用户要求视觉审查、建立视觉基线或处理纯视觉问题时才执行本地／runner截图；不得每轮自动生成大矩阵并逐张代替用户判断，旧review:local各入口与--full按需保留。骆驼建模可显式调用scripts/review-camel-torso.mjs，不能并入默认交互测试。
