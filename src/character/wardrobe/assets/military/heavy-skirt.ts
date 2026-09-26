@@ -4,11 +4,13 @@ import { kneeWeights } from '../../../v3/leg-deformation';
 import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from '../contract';
 
 const PROFILE = [[.27, 1], [.76, .88], [1, 0], [.76, -.88], [.27, -1], [-.27, -1], [-.76, -.88], [-1, 0], [-.76, .88], [-.27, 1]] as const;
-const WAIST = [[1.205, .195, .132, 1], [1.105, .211, .125, .72], [.980, .243, .105, .60]] as const;
-// 前后甲裳各有窄活动缝；两侧为完整围裳，不是外挂大腿板。
-// 外层与裆部、内折裙边和两条裤管连为一个闭合衣壳，腿出口真实存在。
+// 完整前后围裳延伸到近膝部；原高胯分叉下移到低位活动出口。
+const WRAP_ROWS = [[1.205, .195, .132, 1], [1.105, .211, .136, .72], [.980, .249, .150, .60], [.760, .275, .174, .22], [.580, .284, .180, .05]] as const;
+// 开衩仅留在末端；裙边回折接入真实腿出口，与上段围裳形成单一闭合壳。
+// 不从腰胯处分成两条宽腿管，也不用封死双腿的平面裙底。
 const LEG = [[-.30, .36], [.57, .91], [1, 0], [.57, -.91], [-.30, -.36], [-.33, -.22], [-.35, 0], [-.33, .22]] as const;
 
+/** 共享长甲裳候选；只拥有下装制作网格，驻地/身份/Recipe 和运行时不变。 */
 export function makeHeavyArmorSkirt(recipe: Recipe): GarmentPiece {
   const c: Cage = { vertices: [], faces: [], anchors: {} }, openings: Record<string, number[]> = {};
   const { primary: cloth, secondary: iron, accent: binding } = recipe.dyes;
@@ -18,8 +20,7 @@ export function makeHeavyArmorSkirt(recipe: Recipe): GarmentPiece {
     const thigh = side === 1 ? B.RightThigh : B.LeftThigh, shin = side === 1 ? B.RightShin : B.LeftShin, foot = side === 1 ? B.RightFoot : B.LeftFoot;
     const name = side === 1 ? 'Right' : 'Left';
     const rows = [
-      ['Entry', .940, .160, .095], ['Upper', .760, .182, .105],
-      ['LowerThigh', .590, .195, .175], ['KneeUpper', .529, .194, .170],
+      ['Entry', .545, .194, .170],
       ['Knee', .489, .192, .160], ['KneeLower', .449, .187, .150],
       ['Hem', .375, .181, .140], ['HemEdge', .360, .180, .140],
     ] as const;
@@ -28,11 +29,18 @@ export function makeHeavyArmorSkirt(recipe: Recipe): GarmentPiece {
       const [label, y, width, depth] = rows[row];
       const loop = LEG.map(([x, z], column) => {
         const point: Vec3 = [side * (.112 + x * width), y, side * z * depth];
-        let w: Weight = row === 0 ? [B.Hips, thigh, .64]
-          : row === 1 ? [B.Hips, thigh, .22] : kneeWeights(point, thigh, shin);
+        let w: Weight = kneeWeights(point, thigh, shin);
         if (row === 0 && [5, 6, 7].includes(column)) {
-          point[1] = column === 6 ? .855 : .882;
-          w = [B.Hips, thigh, column === 6 ? .35 : .50];
+          point[1] = column === 6 ? .525 : .535;
+          w = kneeWeights(point, thigh, shin);
+        }
+        // 内侧回收面沿前后边界插值膝权重，避免中央 z=0 的陡权重峰将裳底反折。
+        // 这是固定作者权重；不依赖动作相位、不修改骨骼，也不增加碰撞豁免。
+        if ([5, 6, 7].includes(column)) {
+          const frontWeight = kneeWeights([point[0], point[1], depth * .36], thigh, shin)[2];
+          const backWeight = kneeWeights([point[0], point[1], -depth * .36], thigh, shin)[2];
+          const t = (point[2] / (depth * .36) + 1) * .5;
+          w = [thigh, shin, backWeight + (frontWeight - backWeight) * t];
         }
         return vertex(c, `HeavyArmorSkirt.${name}.${label}.${column}`, point, w);
       });
@@ -57,9 +65,17 @@ export function makeHeavyArmorSkirt(recipe: Recipe): GarmentPiece {
   for (let k = 0; k < 4; k++) face(c, [right[k], right[k + 1], left[k + 1], left[k]], 'thigh', iron);
   const entry = [r[0], r[1], r[2], r[3], r[4], l[0], l[1], l[2], l[3], l[4]];
   let previous: number[] = [];
-  for (let row = 0; row < WAIST.length; row++) {
-    const [y, width, depth, hip] = WAIST[row];
-    const loop = PROFILE.map(([x, z], column) => vertex(c, `HeavyArmorSkirt.Waist.${row}.${column}`, [x * width, y, z * depth], row === 0 ? [B.Hips, B.Hips, 1] : [B.Hips, x > 0 ? B.RightThigh : B.LeftThigh, hip + (1 - hip) * .16 * (1 - z)]));
+  for (let row = 0; row < WRAP_ROWS.length; row++) {
+    const [y, width, depth, hip] = WRAP_ROWS[row];
+    const loop = PROFILE.map(([x, z], column) => {
+      const thigh = x > 0 ? B.RightThigh : B.LeftThigh, shin = x > 0 ? B.RightShin : B.LeftShin;
+      // 下段正面收敛前突量，避免深蹲抬膝时撞入腰口；后围裳保留完整厚度。
+      const point: Vec3 = [x * width, y, z * depth * (row >= 3 && z > 0 ? .72 : 1)];
+      const weight: Weight = row === 0 ? [B.Hips, B.Hips, 1]
+        : row < 4 ? [B.Hips, thigh, hip + (1 - hip) * .16 * (1 - z)]
+        : kneeWeights(point, thigh, shin);
+      return vertex(c, `HeavyArmorSkirt.Waist.${row}.${column}`, point, weight);
+    });
     if (!row) openings.waist = loop;
     else bridge(c, previous, loop, row < 3 ? 'pelvis' : 'thigh', row === 1 ? binding : shade(iron, row % 2 ? 1.10 : .96));
     previous = loop;
