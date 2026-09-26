@@ -37,19 +37,18 @@ export function makeHeavyArmorSkirt(recipe: Recipe): GarmentPiece {
     const name=side===1?'Right':'Left', thigh=side===1?B.RightThigh:B.LeftThigh;
     const shin=side===1?B.RightShin:B.LeftShin, foot=side===1?B.RightFoot:B.LeftFoot;
     previous=[];
-    // 低位跨腿平底改为高拱内裆，内腿具有真实膝上/膝/膝下过渡。
     for (const [label,y,width,depth] of [
-      ['Opening',.655,.073,.077],['KneeUpper',.529,.064,.061],
-      ['Knee',.489,.060,.058],['KneeLower',.449,.061,.056],
-      ['Calf',.270,.065,.062],['Cuff',.095,.046,.045],
+      ['Opening',.300,.0236,.066],['Calf',.270,.0273,.062],['Cuff',.095,.046,.045],
     ] as const) {
       const loop=LEG.map(([x,z],column)=>{
         const point:Vec3=[side*(.101+x*width),y,side*z*depth];
         let weights:Weight=label==='Cuff'?[shin,foot,.2]:kneeWeights(point,thigh,shin);
-        if(label==='Opening') {
-          const inner=column===0||column>=4;
-          point[1]=inner?(column===0||column===4?.835:column===6?.850:.865):y;
-          weights=[B.Hips,thigh,inner?(column===0||column===4?.40:column===6?.35:.50):.12];
+        if (label !== 'Cuff' && column >= 5) {
+          const edge=depth*.9;
+          const front=kneeWeights([point[0],y,edge],thigh,shin)[2];
+          const back=kneeWeights([point[0],y,-edge],thigh,shin)[2];
+          const planar = back+(front-back)*((point[2]/edge+1)*.5);
+          weights=[thigh,shin,planar*.6+weights[2]*.4];
         }
         return vertex(c,`HeavyArmorLiner.${name}.${label}.${column}`,point,weights);
       });
@@ -58,13 +57,33 @@ export function makeHeavyArmorSkirt(recipe: Recipe): GarmentPiece {
     }
     openings[name+'Cuff']=previous;
   }
-  const [r,l]=roots, right=[r[4],r[5],r[6],r[7],r[0]], left=[l[0],l[7],l[6],l[5],l[4]];
-  for(let k=0;k<4;k++) face(c,[right[k],right[k+1],left[k+1],left[k]],'thigh',iron);
-  bridge(c,hem,[r[0],r[1],r[2],r[3],r[4],l[0],l[1],l[2],l[3],l[4]],'thigh',iron);
+  const [r,l]=roots;
+  const right=[r[4],r[5],r[6],r[7],r[0]], left=[l[0],l[7],l[6],l[5],l[4]];
+  // 纵向拱形内裆分担到两条小腿；端点不是横切两腿的低位平底。
+  // 后低前高给屈膝后的裙后片留出空间；固定蒙皮，不读取动作或相位。
+  const ridge=right.map((ri,k)=>{
+    const a=c.vertices[ri].p,b=c.vertices[left[k]].p;
+    return vertex(c,`HeavyArmorGusset.${k}`,[0,.330+.030*k,(a[2]+b[2])*.4],[B.LeftShin,B.RightShin,.5]);
+  });
+  // 两侧独立接入中央拱脊；显式三角形固定作者对角线，避免扭曲四边形换扇。
+  const triangle=(a:number,b:number,d:number)=>face(c,[a,b,d],'thigh',iron);
+  const panel=(a:number,b:number,d:number,e:number)=>{triangle(a,b,d);triangle(a,d,e);};
+  for(let k=0;k<4;k++){
+    panel(right[k],right[k+1],ridge[k+1],ridge[k]);
+    panel(ridge[k],ridge[k+1],left[k+1],left[k]);
+  }
+  const entry=[r[0],r[1],r[2],r[3],r[4],l[0],l[1],l[2],l[3],l[4]];
+  for(let k=0;k<10;k++){
+    if(k===4||k===9)continue;
+    const j=(k+1)%10;
+    face(c,[hem[k],hem[j],entry[j],entry[k]],'thigh',iron);
+  }
+  for(const [k,h1,h2] of [[0,4,5],[4,0,9]]){
+    triangle(hem[h1],hem[h2],ridge[k]);
+    triangle(hem[h1],ridge[k],right[k]);
+    triangle(hem[h2],left[k],ridge[k]);
+  }
   orient(c);
-  // 固定作者对角线，避免前回折面使用原来横切两腿的三角扇；不依赖动作相位。
-  const frontReturn=c.faces.find(f=>f.v.some(i=>c.vertices[i].id==='HeavyArmorLiner.Left.Opening.4')&&f.v.some(i=>c.vertices[i].id==='HeavyArmorSkirt.Hem.0'));
-  if(frontReturn) frontReturn.v.push(frontReturn.v.shift()!);
   c.anchors={...openings};
   return { id:recipe.slots.bottom,slot:'bottom',version:GARMENT_GEOMETRY_VERSION,mesh:c,covers:['pelvis','thigh','shin'],openings };
 }

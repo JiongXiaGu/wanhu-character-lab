@@ -7,7 +7,7 @@ import { makeTrousers } from '../src/character/wardrobe/assets/trousers';
 import type { GarmentPiece } from '../src/character/wardrobe/assets/contract';
 import { assertGarmentPiece } from './check-garment-assets';
 
-export const HEAVY_ARMOR_BUDGET = { top: 568, bottom: 388 } as const;
+export const HEAVY_ARMOR_BUDGET = { top: 568, bottom: 302 } as const;
 const near = (a: number, b: number) => assert(Math.abs(a - b) < 1e-9, `${a} != ${b}`);
 function connected(c: Cage) {
   assert.equal(new Set(c.vertices.map(v => v.id)).size, c.vertices.length);
@@ -59,13 +59,18 @@ export function assertHeavyArmorTop(piece: GarmentPiece): void {
   }
 }
 
-/** 外部前后长裳独立于内部裆口高度；不能以锁死低位跨腿底面来验证裙长。 */
+/** 外部前后长裳独立于内部裆口高度；不得用内部裤管代替完整裙身。 */
 function assertLongWrapSilhouette(c: Cage): void {
   assert(!c.vertices.some(v => /^HeavyArmorSkirt\.(Right|Left)\./.test(v.id)), '外甲裳不能恢复两条独立宽裤腿');
   for (const side of ['Right', 'Left']) {
     const split = vertices(c, `HeavyArmorLiner.${side}.Opening.`);
-    assert(split.every(v => v.p[1] >= .60 && v.p[1] <= .90), '内部裆口须位于长裳内的大腿段，不能跨接小腿或穿出腰部');
+    assert(split.every(v => v.p[1] >= .28 && v.p[1] <= .34), '窄腿出口须藏在裙边内侧，不以长裤管穿过外裙');
+    assert(Math.max(...split.map(v => v.p[0])) - Math.min(...split.map(v => v.p[0])) > .04, '真实腿出口不能缩成线');
   }
+  const ridge = vertices(c, 'HeavyArmorGusset.');
+  assert.equal(ridge.length, 5);
+  assert(Math.max(...ridge.map(v => v.p[1])) - Math.min(...ridge.map(v => v.p[1])) >= .11, '中央连接须保留纵向拱形，不退回低位跨腿平底');
+  assert(!c.faces.some(f => f.v.every(i => /^HeavyArmorLiner\.(Right|Left)\.Opening\./.test(c.vertices[i].id)) && f.v.some(i => c.vertices[i].id.includes('.Right.')) && f.v.some(i => c.vertices[i].id.includes('.Left.'))), '两腿出口不得恢复直接横跨连接');
   for (const sign of [-1, 1]) {
     const candidates = c.faces.filter(f => f.v.every(i => c.vertices[i].id.startsWith('HeavyArmorSkirt.')))
       .map(f => f.v.map(i => c.vertices[i].p))
@@ -78,16 +83,14 @@ function assertLongWrapSilhouette(c: Cage): void {
 export function assertHeavyArmorSkirt(piece: GarmentPiece): void {
   assert.equal(piece.id, 'heavy_armor_skirt'); assert.equal(piece.slot, 'bottom');
   assertGarmentPiece(piece); connected(piece.mesh);
-  assert.equal(triCount(piece.mesh), HEAVY_ARMOR_BUDGET.bottom); assert.equal(piece.mesh.vertices.length, 196);
+  assert.equal(triCount(piece.mesh), HEAVY_ARMOR_BUDGET.bottom); assert.equal(piece.mesh.vertices.length, 153);
   // 独立作者契约：不从生产网格常量导入尺寸或环数。
   const rows = ['Waist', 'Yoke', 'Hip', 'Upper', 'Middle', 'KneeUpper', 'Knee', 'KneeLower', 'Lower', 'Hem'];
   const heights = [1.205, 1.105, .980, .850, .720, .580, .489, .449, .380, .345];
   const hipWeights = [1, .72, .60, .38, .18];
   const depthProfile = [1, .88, 0, -.88, -1, -1, -.88, 0, .88, 1];
   for (const label of rows) assert.equal(vertices(piece.mesh, `HeavyArmorSkirt.${label}.`).length, 10);
-  for (const side of ['Right', 'Left']) for (const label of ['Opening', 'KneeUpper', 'Knee', 'KneeLower', 'Calf', 'Cuff']) {
-    assert.equal(vertices(piece.mesh, `HeavyArmorLiner.${side}.${label}.`).length, 8);
-  }
+  for (const side of ['Right', 'Left']) for (const label of ['Opening', 'Calf', 'Cuff']) assert.equal(vertices(piece.mesh, `HeavyArmorLiner.${side}.${label}.`).length, 8);
   for (const v of piece.mesh.vertices) {
     const skirt = /^HeavyArmorSkirt\.(\w+)\.(\d+)$/.exec(v.id);
     if (skirt) {
@@ -99,18 +102,25 @@ export function assertHeavyArmorSkirt(piece: GarmentPiece): void {
         : kneeWeights(v.p, thigh, shin);
       assert.deepEqual(v.w, expected, v.id); continue;
     }
+    const ridge = /^HeavyArmorGusset\.(\d+)$/.exec(v.id);
+    if (ridge) {
+      const k = Number(ridge[1]); assert(k < 5, v.id);
+      near(v.p[0], 0); near(v.p[1], .330 + .030 * k); near(v.p[2], [-.04752, -.027456, 0, .027456, .04752][k]);
+      assert.deepEqual(v.w, [B.LeftShin, B.RightShin, .5], '拱脊必须使用双腿对称静态权重'); continue;
+    }
     const leg = /^HeavyArmorLiner\.(Right|Left)\.(\w+)\.(\d+)$/.exec(v.id); assert(leg, v.id);
     const right = leg[1] === 'Right', thigh = right ? B.RightThigh : B.LeftThigh, shin = right ? B.RightShin : B.LeftShin, foot = right ? B.RightFoot : B.LeftFoot;
-    const label = leg[2], column = Number(leg[3]); assert(['Opening', 'KneeUpper', 'Knee', 'KneeLower', 'Calf', 'Cuff'].includes(label) && column < 8, v.id);
-    const linerHeights: Record<string, number> = { Opening: .655, KneeUpper: .529, Knee: .489, KneeLower: .449, Calf: .270, Cuff: .095 };
-    let expectedY = linerHeights[label];
+    const label = leg[2], column = Number(leg[3]); assert(['Opening', 'Calf', 'Cuff'].includes(label) && column < 8, v.id);
+    near(v.p[1], { Opening: .300, Calf: .270, Cuff: .095 }[label]!);
     let expected: Weight = label === 'Cuff' ? [shin, foot, .2] : kneeWeights(v.p, thigh, shin);
-    if (label === 'Opening') {
-      const inner = column === 0 || column >= 4;
-      expectedY = inner ? (column === 0 || column === 4 ? .835 : column === 6 ? .850 : .865) : .655;
-      expected = [B.Hips, thigh, inner ? (column === 0 || column === 4 ? .40 : column === 6 ? .35 : .50) : .12];
+    if (label !== 'Cuff' && column >= 5) {
+      const edge = (label === 'Opening' ? .066 : .062) * .9;
+      const front = kneeWeights([v.p[0], v.p[1], edge], thigh, shin)[2];
+      const back = kneeWeights([v.p[0], v.p[1], -edge], thigh, shin)[2];
+      const planar = back + (front - back) * ((v.p[2] / edge + 1) * .5);
+      expected = [thigh, shin, planar * .6 + expected[2] * .4];
     }
-    near(v.p[1], expectedY); assert.deepEqual(v.w, expected, v.id);
+    assert.deepEqual(v.w, expected, v.id);
   }
   assertLongWrapSilhouette(piece.mesh);
   assert(extent(piece.mesh, 'HeavyArmorSkirt.Hem.', 0) >= .315, '整圈裙边必须宽于中甲，不可收成裤管');
@@ -152,10 +162,8 @@ export function checkHeavyArmor(): { negativeCases: number; silhouette: Record<s
     (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorLiner.Right.Opening.0')!.p[0] = 0; },
     (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorSkirt.Upper.0')!.w[1] = B.LeftThigh; },
     (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorSkirt.Knee.4')!.w[2] = .35; },
-    // 内部入口改变也必须继续拒绝错误权重。
     (p: GarmentPiece) => { for (const v of p.mesh.vertices) if (/^HeavyArmorLiner\.(Right|Left)\.Opening\.[0-4]$/.test(v.id)) v.w[2] = .50; },
   ]) { const bad = structuredClone(bottom); mutate(bad); assert.throws(() => assertHeavyArmorSkirt(bad)); negativeCases++; }
-  // 高位分叉反例破坏外部长裳，而不是禁止内部裆口抬高。
   const highSplit = structuredClone(bottom.mesh);
   highSplit.faces = highSplit.faces.filter(f => {
     const ps = f.v.map(i => highSplit.vertices[i]);
