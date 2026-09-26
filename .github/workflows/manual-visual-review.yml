@@ -13,6 +13,7 @@ on:
           - character
           - back-equipment
           - soldier
+          - soldier-heavy-fast
           - wardrobe
           - lightwear
           - skirts
@@ -49,6 +50,7 @@ jobs:
           cache: npm
       - run: npm ci
       - uses: ./.github/actions/prepare-motion
+        if: inputs.scope != 'soldier-heavy-fast'
       - name: Build exact candidate
         run: npm run build --ignore-scripts
       - name: Install browser and Chinese fonts
@@ -73,6 +75,8 @@ jobs:
               node scripts/check-back-equipment-browser.mjs --screenshots 2>&1 | tee -a manual-visual-review.log
             elif [[ "$scope" == soldier ]]; then
               npm run review:soldier 2>&1 | tee -a manual-visual-review.log
+            elif [[ "$scope" == soldier-heavy-fast ]]; then
+              npm run review:soldier-heavy-fast 2>&1 | tee -a manual-visual-review.log
             elif [[ "$scope" == livestock ]]; then
               npm run review:livestock 2>&1 | tee -a manual-visual-review.log
             elif [[ "$scope" == system-animator ]]; then
@@ -83,7 +87,7 @@ jobs:
           }
 
           case "$SCOPE" in
-            character|back-equipment|soldier|wardrobe|lightwear|skirts|motion|system-animator|horse|livestock)
+            character|back-equipment|soldier|soldier-heavy-fast|wardrobe|lightwear|skirts|motion|system-animator|horse|livestock)
               run_scope "$SCOPE"
               ;;
             all)

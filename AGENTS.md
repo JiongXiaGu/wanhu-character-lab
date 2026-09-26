@@ -166,9 +166,25 @@ check:riding-browser、check:saddles-browser、check:mounts-browser只做真实�
 
 动态扫描全部 Mixamo FBX 与 XR Animator GLB，不固定总数，失败明确报错；GLB 必须使用真实 Bind World Transform，FBX 继续使用真实 inverse bind，不用首帧替代。保留头部相对bind完整旋转差，不用HeadTop_End当脸前向或锁俯仰。原人物换装／男女切换保持暂停相位，切动画复用网格。
 
+## GitHub Actions 执行纪律
+
+Actions 是异步验收器，不是执行主循环，但 **“不高频轮询”绝不等于“CI 还在运行就中途结束任务”**。
+
+提交或触发 workflow 后：
+- 先确认 run 已创建、目标 SHA 正确，且没有 YAML / checkout / 权限等立即失败。
+- 不执行 workflow → jobs → steps → workflow 的高频查询链；等待期间继续所有不依赖 CI 的代码、文档、截图整理、冲突处理和合并准备。
+- 到达真正的 Release / merge Gate 后，如果 CI 是唯一剩余依赖，优先使用一次持续等待 / watch；没有可用 watch 时才低频读取状态。**queued / in_progress 本身不是停止条件。**
+- failure / cancelled / action_required 时立即读取真实失败 job / step / log，修复可操作原因后重新验证，不用其它成功项掩盖失败。
+- 只有 workflow 已达到自身 timeout、连续约 20 分钟没有状态进展且没有任何可继续推进的工作、执行工具/权限发生硬阻塞，或用户明确要求停止时，才允许把未完成任务交回。必须写清停在哪一步和下一步动作。
+- 不承诺 runner 会在某个具体时间完成；只记录已发生的状态。
+
+目标是减少无意义查询和全量验收，不是把一次完整交付拆成多个“等用户再说继续”的半成品轮次。
+
 ## 审图与交付
 
 默认修改→代码／数值／交互检查→交付用户体验。仅用户要求视觉审查、建立视觉基线或处理纯视觉问题时才执行本地／runner截图；不得每轮自动生成大矩阵并逐张代替用户判断，旧review:local各入口与--full按需保留。骆驼建模可显式调用scripts/review-camel-torso.mjs，不能并入默认交互测试。
+
+军人/甲胄模型开发必须区分作者迭代、候选验收和 main 发布。Heavy 专项以《军人与甲胄工作流》为准：作者迭代使用 Targeted `soldier-heavy-authoring`，需要轮廓图时使用 Manual Visual `soldier-heavy-fast`；造型稳定后运行 `soldier-heavy-candidate`。Draft PR 仍属于开发/候选阶段，Heavy-only 同步不得自动重复完整 Release Targeted；转为 Ready for Review 时再触发完整 Release Gate。共享 rig、Recipe、assembly、motion、通用 wardrobe/runtime 或 CI 变化仍必须走完整影响范围，不得滥用 Heavy 快速通道。
 
 仍只有Build & Core Checks、Targeted Numeric Checks、手动Manual Visual Review三条正式Actions。多坐骑与家畜并入Targeted，不新增永久流程。Package／workflow变更仍全数值回归，不放宽源键／中点、绑定保护、故障注入或穿插阈值来加速。
 

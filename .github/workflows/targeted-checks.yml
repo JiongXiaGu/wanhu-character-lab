@@ -4,13 +4,55 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      scope:
+        description: Numeric review scope
+        required: true
+        type: choice
+        default: auto
+        options:
+          - auto
+          - soldier-heavy-authoring
+          - soldier-heavy-candidate
+          - full
 concurrency:
   group: targeted-numeric-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
 jobs:
+  heavy-authoring:
+    name: Heavy authoring fast lane
+    if: github.event_name == 'workflow_dispatch' && inputs.scope == 'soldier-heavy-authoring'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      REVIEW_HEAD_SHA: ${{ github.sha }}
+      SOLDIER_CHECK_DIR: /tmp/wanhu-heavy-authoring
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.REVIEW_HEAD_SHA }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Heavy topology, bind, budget and silhouette contracts only
+        run: npx tsx scripts/check-soldier-heavy-authoring.ts
+      - name: Fast lane must not mutate tracked source
+        run: git diff --exit-code && test "$(git rev-parse HEAD)" = "$REVIEW_HEAD_SHA"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: soldier-heavy-authoring-${{ env.REVIEW_HEAD_SHA }}
+          path: /tmp/wanhu-heavy-authoring/
+          if-no-files-found: error
+          retention-days: 7
+
   targeted:
+    if: github.event_name != 'workflow_dispatch' || inputs.scope == 'auto' || inputs.scope == 'full'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -29,18 +71,28 @@ jobs:
         shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_SCOPE: ${{ inputs.scope || 'auto' }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PUSH_BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -euo pipefail
           wardrobe=false; mixamo=false; tailoring=false; horse=false; riding=false; soldier=false; all=false
           if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            [[ "$DISPATCH_SCOPE" == "auto" || "$DISPATCH_SCOPE" == "full" ]]
             all=true; : > /tmp/changed-files.txt
           else
             if [[ "$EVENT_NAME" == "pull_request" ]]; then BASE="$PR_BASE_SHA"; else BASE="$PUSH_BEFORE_SHA"; if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then BASE="$(git rev-parse HEAD^)"; fi; fi
             git -c core.quotepath=false diff --name-only "$BASE" HEAD | tee /tmp/changed-files.txt
           fi
           while IFS= read -r path; do
+            # Heavy author geometry/helmet sources are owned by soldier; do not fan them out
+            # to generic wardrobe/tailoring/riding unless a shared runtime file also changed.
+            case "$path" in
+              src/character/wardrobe/assets/military/heavy-top.ts|src/character/wardrobe/assets/military/heavy-skirt.ts|src/character/wardrobe/heavy-equipment.ts|scripts/check-soldier-heavy.ts|scripts/check-soldier-heavy-authoring.ts|scripts/check-soldier-heavy-helmets.ts)
+                soldier=true
+                continue
+                ;;
+            esac
             case "$path" in .github/workflows/*|.github/actions/*|scripts/check-ci-*|scripts/check-soldier-motion-coverage.ts|package.json|package-lock.json|scripts/review-local.mjs) all=true ;; esac
             case "$path" in src/character/wardrobe/*|src/character/wardrobe/**/*|src/character/v3/outfit.ts|src/character/v3/types.ts|scripts/check-wardrobe*|scripts/check-lightwear*|scripts/check-skirts*|scripts/garment-contact-scope.ts) wardrobe=true ;; esac
             case "$path" in src/soldier/*|src/soldier/**/*|scripts/check-soldier*|Documentation/军人与甲胄工作流.md|Documentation/边疆戍卒与长枪.md|src/character/wardrobe/assets/military/*|src/character/wardrobe/assets/military/**/*|src/character/wardrobe/adornments.ts|src/character/wardrobe/frontier-equipment.ts|src/character/wardrobe/military-equipment.ts|src/character/wardrobe/catalog.ts|src/character/v3/types.ts) soldier=true ;; esac
@@ -112,6 +164,7 @@ jobs:
         run: echo "No targeted numeric checks required for this change set."
   livestock:
     name: Livestock mesh, motion and desktop checks
+    if: github.event_name != 'workflow_dispatch' || inputs.scope == 'auto' || inputs.scope == 'full'
     runs-on: ubuntu-latest
     # 六种家畜完整浏览器矩阵加睡眠专项，保留500只、多LOD与证据上传余量。
     timeout-minutes: 25
@@ -128,6 +181,7 @@ jobs:
         name: Resolve livestock scope
         env:
           EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_SCOPE: ${{ inputs.scope || 'auto' }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PUSH_BEFORE_SHA: ${{ github.event.before }}
         run: |
@@ -135,6 +189,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$REVIEW_HEAD_SHA"
           required=false
           if [[ "$EVENT_NAME" == workflow_dispatch ]]; then
+            [[ "$DISPATCH_SCOPE" == "auto" || "$DISPATCH_SCOPE" == "full" ]]
             required=true
           else
             if [[ "$EVENT_NAME" == pull_request ]]; then BASE="$PR_BASE_SHA"; else BASE="$PUSH_BEFORE_SHA"; fi
@@ -189,10 +244,14 @@ jobs:
 
   prepare-soldier:
     name: Prepare shared soldier motion inputs
+    if: github.event_name != 'workflow_dispatch' || inputs.scope != 'soldier-heavy-authoring'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
       required: ${{ steps.scope.outputs.required }}
+      motion_matrix: ${{ steps.scope.outputs.motion_matrix }}
+      browser_matrix: ${{ steps.scope.outputs.browser_matrix }}
+      coverage_required: ${{ steps.scope.outputs.coverage_required }}
     env:
       REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
@@ -205,13 +264,32 @@ jobs:
         name: Resolve soldier scope
         env:
           EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_SCOPE: ${{ inputs.scope || 'auto' }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PUSH_BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$REVIEW_HEAD_SHA"
           required=false
-          if [[ "$EVENT_NAME" == workflow_dispatch ]]; then required=true
+          motion_matrix='["light","medium","heavy"]'
+          browser_matrix='["fitting","full"]'
+          coverage_required=true
+          if [[ "$EVENT_NAME" == workflow_dispatch ]]; then
+            case "$DISPATCH_SCOPE" in
+              soldier-heavy-candidate)
+                required=true
+                motion_matrix='["heavy"]'
+                browser_matrix='["fitting"]'
+                coverage_required=false
+                ;;
+              auto|full)
+                required=true
+                ;;
+              *)
+                required=false
+                coverage_required=false
+                ;;
+            esac
           else
             if [[ "$EVENT_NAME" == pull_request ]]; then BASE="$PR_BASE_SHA"; else BASE="$PUSH_BEFORE_SHA"; fi
             if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then BASE="$(git rev-parse HEAD^)"; fi
@@ -219,7 +297,12 @@ jobs:
               case "$path" in src/soldier/*|src/character/*|src/scene/CharacterViewport.tsx|src/App.tsx|src/animation/*|scripts/check-ci-*|scripts/review-local.mjs|scripts/check-soldier*|scripts/check-garment*|scripts/check-components*|scripts/check-tailoring*|scripts/garment-contact-scope.ts|scripts/prepare-*|scripts/lib/*|public/mixamo/*|public/system-animator/*|public/mediapipe/*|动画参考/*|动画参考_glb/*|Documentation/皇宫禁卫与长枪.md|Documentation/军人与甲胄工作流.md|Documentation/边疆戍卒与长枪.md|package.json|package-lock.json|.github/workflows/*|.github/actions/*) required=true ;; esac
             done < <(git -c core.quotepath=false diff --name-only "$BASE" HEAD)
           fi
-          echo "required=$required" >> "$GITHUB_OUTPUT"
+          {
+            echo "required=$required"
+            echo "motion_matrix=$motion_matrix"
+            echo "browser_matrix=$browser_matrix"
+            echo "coverage_required=$coverage_required"
+          } >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v4
         if: steps.scope.outputs.required == 'true'
         with:
@@ -287,7 +370,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        armor: [light, medium, heavy]
+        armor: ${{ fromJSON(needs.prepare-soldier.outputs.motion_matrix) }}
     env:
       REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       SOLDIER_CHECK_DIR: /tmp/wanhu-soldier-motion
@@ -320,7 +403,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [fitting, full]
+        mode: ${{ fromJSON(needs.prepare-soldier.outputs.browser_matrix) }}
     env:
       REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       SOLDIER_BROWSER_DIR: /tmp/wanhu-soldier-browser
@@ -350,7 +433,7 @@ jobs:
   soldier-motion-coverage:
     name: Verify complete soldier motion matrix
     needs: [prepare-soldier, soldier-motion]
-    if: ${{ !cancelled() && needs.prepare-soldier.outputs.required == 'true' }}
+    if: ${{ !cancelled() && needs.prepare-soldier.outputs.required == 'true' && needs.prepare-soldier.outputs.coverage_required == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
