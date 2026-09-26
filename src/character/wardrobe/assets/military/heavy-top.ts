@@ -8,19 +8,19 @@ export function makeHeavyArmorTop(recipe: Recipe) {
   const face = shade(iron, 1.16), lower = shade(iron, .88);
   const cuts = [-.085, -.030, .030, .085] as const;
   const rows: TorsoRow[] = [
-    ['Hem', 1.035, .181, .124, cuts, torsoWaist],
-    ['Belt', 1.080, .193, .140, cuts, torsoWaist],
-    ['BeltTop', 1.118, .194, .144, cuts, torsoWaist],
-    ['Abdomen', 1.184, .207, .163, cuts, torsoRib],
-    ['Plate', 1.244, .223, .176, cuts, [B.Spine, B.Chest, .14]],
-    ['Chest', 1.300, .230, .165, cuts, torsoChest],
-    ['Shoulder', 1.424, .248, .139, cuts, torsoChest],
+    ['Hem', 1.035, .211, .144, cuts, torsoWaist],
+    ['Belt', 1.080, .221, .159, cuts, torsoWaist],
+    ['BeltTop', 1.118, .232, .171, cuts, torsoWaist],
+    ['Abdomen', 1.184, .250, .204, cuts, torsoRib],
+    ['Plate', 1.244, .263, .213, cuts, [B.Spine, B.Chest, .14]],
+    ['Chest', 1.300, .258, .196, cuts, torsoChest],
+    ['Shoulder', 1.424, .269, .161, cuts, torsoChest],
     ['Gorget', 1.451, .137, .096, [-.065, -.022, .022, .065], torsoNeck],
     ['Collar', 1.462, .096, .077, [-.046, -.014, .014, .046], torsoNeck],
     ['Neck', 1.469, .067, .063, [-.030, -.010, .010, .030], torsoNeck],
   ];
   const torso = sewTorso(rows, [
-    solidBand(lower), [iron, iron, binding, iron, iron, iron],
+    solidBand(lower), solidBand(binding),
     solidBand(lower), solidBand(face), solidBand(face), solidBand(iron),
     solidBand(iron), solidBand(binding), solidBand(cloth),
   ]);
@@ -29,21 +29,21 @@ export function makeHeavyArmorTop(recipe: Recipe) {
     const [upper, fore, hand] = armBones(side);
     cuffs[side === 1 ? 'RightCuff' : 'LeftCuff'] = sewSleeve(torso, side, [
       ['HeavyShoulderRoot', .246, 1.344, 0, .132, .091, [B.Chest, upper, .30], iron],
-      ['HeavyShoulderCrest', .285, 1.300, 0, .150, .096, [B.Chest, upper, .08], face],
-      ['HeavyShoulderRim', .310, 1.250, 0, .135, .090, rigid(upper), binding],
-      ['HeavyUpperGuard', .335, 1.209, 0, .080, .070, rigid(upper), iron],
+      ['HeavyShoulderCrest', .285, 1.300, 0, .176, .112, [B.Chest, upper, .08], face],
+      ['HeavyShoulderRim', .310, 1.250, 0, .154, .105, rigid(upper), binding],
+      ['HeavyUpperGuard', .335, 1.209, 0, .086, .080, rigid(upper), iron],
       ['ElbowUpper', .374, 1.136, 0, .060, .057, [upper, fore, .90], cloth],
       ['Elbow', .394, 1.101, 0, .052, .053, [upper, fore, .50], cloth],
-      ['HeavyBracer', .414, 1.066, .002, .061, .057, [upper, fore, .08], iron],
-      ['HeavyBracerLower', .463, .990, .008, .050, .050, rigid(fore), face],
+      ['HeavyBracer', .414, 1.066, .002, .069, .068, [upper, fore, .08], iron],
+      ['HeavyBracerLower', .463, .990, .008, .061, .061, rigid(fore), face],
       ['Cuff', .508, .904, .014, .038, .038, [fore, hand, .18], binding],
     ]);
   }
   // 六边袖环的 0/1/2 是内腋侧。只向外肩扩张，内腋半径保持活动净空。
   const shoulderRows = {
     HeavyShoulderRoot: [.246, 1.344, .132],
-    HeavyShoulderCrest: [.285, 1.300, .150],
-    HeavyShoulderRim: [.310, 1.250, .135],
+    HeavyShoulderCrest: [.285, 1.300, .176],
+    HeavyShoulderRim: [.310, 1.250, .154],
   } as const;
   for (const v of torso.mesh.vertices) {
     const match = /^Top\.(Right|Left)\.(HeavyShoulderRoot|HeavyShoulderCrest|HeavyShoulderRim)\.(\d+)$/.exec(v.id);

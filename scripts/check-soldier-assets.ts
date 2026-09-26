@@ -1,4 +1,4 @@
-import { SOLDIER_HELMETS, SOLDIER_IDENTITY_IDS } from '../src/soldier/identities';
+import { soldierHelmetFor, SOLDIER_IDENTITY_IDS } from '../src/soldier/identities';
 import { SOLDIER_ARMOR_CLASS_IDS } from '../src/soldier/contract';
 import {createHash} from 'node:crypto';
 import { SOLDIER_ARMOR_SLOTS } from '../src/soldier/armor-classes';
@@ -36,8 +36,9 @@ const armorBudgets={light:{top:340,bottom:260},medium:{top:386,bottom:308},heavy
 const variants=styles.flatMap(style=>SOLDIER_ARMOR_CLASS_IDS.flatMap(armorClass=>SOLDIER_IDENTITY_IDS.map(identity=>({
   ...style,id:`${style.id}-${armorClass}-${identity}`,armorClass,identity,
   apply:(r:Recipe)=>applySoldierLoadout(r,style.id,armorClass,identity),
-  slots:{...style.slots,...SOLDIER_ARMOR_SLOTS[armorClass],headwear:SOLDIER_HELMETS[style.id][identity]},
-  budgets:{...style.budgets,...armorBudgets[armorClass],helmet:identity==='captain'?captainBudgets[style.id]:style.budgets.helmet},
+  slots:{...style.slots,...SOLDIER_ARMOR_SLOTS[armorClass],headwear:soldierHelmetFor(style.id,identity,armorClass)},
+  helmet:armorClass==='heavy'?`Heavy${style.id[0].toUpperCase()+style.id.slice(1)}Helmet.`:style.helmet,
+  budgets:{...style.budgets,...armorBudgets[armorClass],helmet:armorClass==='heavy'?(identity==='captain'?174:144):identity==='captain'?captainBudgets[style.id]:style.budgets.helmet},
   skirt:armorClass==='heavy'?assertHeavyArmorSkirt:armorClass==='medium'?assertMediumArmorSkirt:assertCityTrousers,
 }))));
 assert.equal(variants.length,18);assert.equal(new Set(variants.map(v=>v.id)).size,18);

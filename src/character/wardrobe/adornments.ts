@@ -1,3 +1,4 @@
+import { addHeavyHelmet, isHeavyHeadwear } from './heavy-equipment';
 import { addPalaceCaptainHelmet, addFrontierCaptainHelmet, addCityCaptainHelmet } from './captain-equipment';
 import { addCityHelmet } from './city-equipment';
 import { addPalaceHelmet } from './military-equipment';
@@ -17,6 +18,7 @@ function solidBox(c:Cage,id:string,p:Vec3,size:Vec3,color:string):void {
   bridge(c,a,b,'equipment',color);face(c,[...a].reverse(),'equipment',color);face(c,b,'equipment',color);
 }
 export function addWardrobeHeadwear(target:Cage,id:HeadwearId,recipe:Recipe):boolean {
+  if(isHeavyHeadwear(id)){addHeavyHelmet(target,{...recipe,slots:{...recipe.slots,headwear:id}});return true;}
   if(id==='palace_guard_helmet'){addPalaceHelmet(target,recipe);return true;}
   if(id==='palace_captain_helmet'){addPalaceCaptainHelmet(target,recipe);return true;}
   if(id==='frontier_guard_helmet'){addFrontierHelmet(target,recipe);return true;}
@@ -65,7 +67,7 @@ export function addWardrobeHeadwear(target:Cage,id:HeadwearId,recipe:Recipe):boo
 }
 export function finishHair(c:Cage,recipe:Recipe):void {
   const {hairStyle,hairColor}=recipe;
-  const concealed=['palace_captain_helmet','frontier_captain_helmet','city_captain_helmet','palace_guard_helmet','frontier_guard_helmet','city_guard_helmet','guard_helmet','cloth_wrap','scholar_cap'].includes(recipe.slots.headwear)||recipe.slots.headwear==='farmer_straw_hat';
+  const concealed=isHeavyHeadwear(recipe.slots.headwear)||['palace_captain_helmet','frontier_captain_helmet','city_captain_helmet','palace_guard_helmet','frontier_guard_helmet','city_guard_helmet','guard_helmet','cloth_wrap','scholar_cap'].includes(recipe.slots.headwear)||recipe.slots.headwear==='farmer_straw_hat';
   {
     if(!concealed){
       const piece:Cage={vertices:[],faces:[],anchors:{}},w=rigid(B.Head),color=hairColor;

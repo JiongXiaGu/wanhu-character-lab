@@ -42,18 +42,3 @@ jobs:
         run: npx tsx scripts/check-back-equipment.ts --motion
       - name: Checks must not mutate tracked source
         run: git diff --exit-code && test "$(git rev-parse HEAD)" = "$REVIEW_HEAD_SHA"
-      # Temporary S6-5 authoring input transfer; remove before final candidate.
-      # Only tracked source and public runtime dependencies, never credentials or test-result caches.
-      - name: Package exact authoring inputs
-        run: |
-          git archive --format=tar.gz HEAD > /tmp/authoring-source.tar.gz
-          tar -czf /tmp/authoring-runtime.tar.gz node_modules public/mixamo public/system-animator
-          printf '%s\n' "$REVIEW_HEAD_SHA" > /tmp/AUTHORING_SOURCE_SHA
-      - uses: actions/upload-artifact@v4
-        with:
-          name: s6-authoring-inputs-${{ env.REVIEW_HEAD_SHA }}
-          path: |
-            /tmp/authoring-source.tar.gz
-            /tmp/authoring-runtime.tar.gz
-            /tmp/AUTHORING_SOURCE_SHA
-          retention-days: 1

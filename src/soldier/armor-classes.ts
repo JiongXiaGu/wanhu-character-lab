@@ -1,3 +1,4 @@
+import { identifySoldierHelmet, soldierHelmetFor } from './identities';
 import { patchSlots, type CharacterSlots, type Recipe } from '../character/v3/types';
 import { SOLDIER_ARMOR_CLASS_IDS, type SoldierArmorClassId } from './contract';
 
@@ -20,7 +21,8 @@ export function identifySoldierArmor(recipe: Recipe): SoldierArmorClassId | null
   }) ?? null;
 }
 
-/** 只换上下装：头盔、武器、鞋、背具、染色、身体与头发全部保留。 */
+/** 换等级应用共享上下装及同驻地/身份的军盔；自由选择的非军盔和其它装备不动。 */
 export function applySoldierArmor(recipe: Recipe, armorClass: SoldierArmorClassId): Recipe {
-  return patchSlots(recipe, SOLDIER_ARMOR_SLOTS[armorClass]);
+  const helmet = identifySoldierHelmet(recipe.slots.headwear);
+  return patchSlots(recipe, { ...SOLDIER_ARMOR_SLOTS[armorClass], ...(helmet ? { headwear: soldierHelmetFor(helmet.style, helmet.identity, armorClass) } : {}) });
 }

@@ -7,7 +7,7 @@ import { makeTrousers } from '../src/character/wardrobe/assets/trousers';
 import type { GarmentPiece } from '../src/character/wardrobe/assets/contract';
 import { assertGarmentPiece } from './check-garment-assets';
 
-export const HEAVY_ARMOR_BUDGET = { top: 432, bottom: 348 } as const;
+export const HEAVY_ARMOR_BUDGET = { top: 432, bottom: 408 } as const;
 const near = (a: number, b: number) => assert(Math.abs(a - b) < 1e-9, `${a} != ${b}`);
 function connected(c: Cage) {
   assert.equal(new Set(c.vertices.map(v => v.id)).size, c.vertices.length);
@@ -51,49 +51,57 @@ export function assertHeavyArmorTop(piece: GarmentPiece): void {
     }
     assert.deepEqual(v.w, expected, v.id);
   }
-  assert(extent(piece.mesh, 'Top.Plate.', 2) >= .170, '胸腹甲壳厚度不足');
-  assert(extent(piece.mesh, 'Top.BeltTop.', 0) >= .190, '腰甲不能收回中甲体量');
+  assert(extent(piece.mesh, 'Top.Plate.', 2) >= .205, '胸腹甲壳厚度不足');
+  assert(extent(piece.mesh, 'Top.BeltTop.', 0) >= .225, '腰甲不能收回中甲体量');
   for (const side of ['Right', 'Left']) {
-    assert(extent(piece.mesh, `Top.${side}.HeavyShoulderRim.`, 0) >= .420, '外肩必须有明确宽厚体量');
-    assert(extent(piece.mesh, `Top.${side}.HeavyShoulderCrest.`, 2) >= .080, '护肩侧向厚度不足');
+    assert(extent(piece.mesh, `Top.${side}.HeavyShoulderRim.`, 0) >= .440, '外肩必须有明确宽厚体量');
+    assert(extent(piece.mesh, `Top.${side}.HeavyShoulderCrest.`, 2) >= .095, '护肩侧向厚度不足');
   }
 }
 
 export function assertHeavyArmorSkirt(piece: GarmentPiece): void {
   assert.equal(piece.id, 'heavy_armor_skirt'); assert.equal(piece.slot, 'bottom');
   assertGarmentPiece(piece); connected(piece.mesh);
-  assert.equal(triCount(piece.mesh), HEAVY_ARMOR_BUDGET.bottom); assert.equal(piece.mesh.vertices.length, 176);
-  const hips = [1, .72, .62, .55, .45, .38, .32, .30];
-  const perimeterDepth = [1, .88, 0, -.88, -1, -1, -.88, 0, .88, 1];
+  assert.equal(triCount(piece.mesh), HEAVY_ARMOR_BUDGET.bottom); assert.equal(piece.mesh.vertices.length, 206);
+  const waistHips = [1, .72, .60], waistY = [1.205, 1.105, .980];
+  const depth = [1, .88, 0, -.88, -1, -1, -.88, 0, .88, 1];
+  const labels = ['Entry', 'Upper', 'LowerThigh', 'KneeUpper', 'Knee', 'KneeLower', 'Hem', 'HemEdge'];
   for (const v of piece.mesh.vertices) {
-    const shell = /^HeavyArmorSkirt\.(\d+)\.(\d+)$/.exec(v.id);
-    if (shell) {
-      const row = Number(shell[1]), column = Number(shell[2]), thigh = v.p[0] > 0 ? B.RightThigh : B.LeftThigh;
-      assert(row < hips.length && column < perimeterDepth.length);
-      const hipWeight = hips[row] + (1 - hips[row]) * .16 * (1 - perimeterDepth[column]);
-      assert.deepEqual(v.w, row === 0 ? [B.Hips, B.Hips, 1] : [B.Hips, thigh, hipWeight], v.id);
-      if (row === 0) near(v.p[1], 1.075);
+    const waist = /^HeavyArmorSkirt\.Waist\.(\d+)\.(\d+)$/.exec(v.id);
+    if (waist) {
+      const row = Number(waist[1]), col = Number(waist[2]); assert(row < 3 && col < 10);
+      near(v.p[1], waistY[row]);
+      assert.deepEqual(v.w, row === 0 ? [B.Hips, B.Hips, 1] : [B.Hips, v.p[0] > 0 ? B.RightThigh : B.LeftThigh, waistHips[row] + (1 - waistHips[row]) * .16 * (1 - depth[col])]);
       continue;
     }
-    const liner = /^HeavyArmorLiner\.(Right|Left)\.(\w+)\.(\d+)$/.exec(v.id); assert(liner, v.id);
-    const right = liner[1] === 'Right', thigh = right ? B.RightThigh : B.LeftThigh, shin = right ? B.RightShin : B.LeftShin, foot = right ? B.RightFoot : B.LeftFoot;
-    const label = liner[2], column = Number(liner[3]);
-    if (label === 'Entry') {
-      const inner = [0, 4, 5, 6, 7].includes(column), end = column === 0 || column === 4;
-      assert.deepEqual(v.w, [B.Hips, thigh, inner ? end ? .40 : column === 6 ? .35 : .50 : .12], v.id);
-      if (inner) assert(v.p[1] >= .830, '真实裤腿出口必须向上拱起，不能用低位扇面挡腿');
-    } else if (label.startsWith('Knee') || label === 'Calf') assert.deepEqual(v.w, kneeWeights(v.p, thigh, shin), v.id);
-    else { assert.equal(label, 'Cuff'); assert.deepEqual(v.w, [shin, foot, .2]); }
+    const leg = /^HeavyArmor(Skirt|Liner)\.(Right|Left)\.(\w+)\.(\d+)$/.exec(v.id); assert(leg, v.id);
+    const right = leg[2] === 'Right', thigh = right ? B.RightThigh : B.LeftThigh, shin = right ? B.RightShin : B.LeftShin, foot = right ? B.RightFoot : B.LeftFoot;
+    const label = leg[3], col = Number(leg[4]); assert(col < 8);
+    if (leg[1] === 'Skirt') {
+      assert(labels.includes(label));
+      if (label === 'Entry') {
+        const inner = [5, 6, 7].includes(col);
+        assert.deepEqual(v.w, [B.Hips, thigh, inner ? col === 6 ? .35 : .50 : .64], v.id);
+        near(v.p[1], inner ? col === 6 ? .855 : .882 : .940);
+      } else if (label === 'Upper') assert.deepEqual(v.w, [B.Hips, thigh, .22], v.id);
+      else assert.deepEqual(v.w, kneeWeights(v.p, thigh, shin), v.id);
+      if (label === 'HemEdge') near(v.p[1], .360);
+    } else {
+      assert(['Opening', 'Calf', 'Cuff'].includes(label));
+      assert.deepEqual(v.w, label === 'Cuff' ? [shin, foot, .2] : kneeWeights(v.p, thigh, shin), v.id);
+      if (label === 'Opening') near(v.p[1], .335);
+    }
   }
-  assert(extent(piece.mesh, 'HeavyArmorSkirt.2.', 0) >= .245, '重甲腰下侧甲体量不足');
-  assert(extent(piece.mesh, 'HeavyArmorSkirt.7.', 0) >= .285, '重甲不能退化为窄长中甲');
-  assert(extent(piece.mesh, 'HeavyArmorSkirt.5.', 2) >= .190, '前后防护厚度不足');
-  for (const v of vertices(piece.mesh, 'HeavyArmorSkirt.7.')) assert(v.p[1] >= .680 && v.p[1] <= .745, '不得靠继续加长裙摆冒充重甲');
-  for (const sign of [-1, 1]) assert(piece.mesh.faces.some(f => f.v.every(i => piece.mesh.vertices[i].id.startsWith('HeavyArmorSkirt.')) && f.v.some(i => piece.mesh.vertices[i].p[0] < 0) && f.v.some(i => piece.mesh.vertices[i].p[0] > 0) && f.v.every(i => Math.sign(piece.mesh.vertices[i].p[2]) === sign)), '正背面都必须连续跨中线');
-  const returnFace = piece.mesh.faces.find(f => f.v.some(i => piece.mesh.vertices[i].id === 'HeavyArmorLiner.Left.Entry.4') && f.v.some(i => piece.mesh.vertices[i].id === 'HeavyArmorSkirt.7.0'));
-  assert(returnFace && returnFace.v.length === 4);
-  const diagonal = [returnFace.v[0], returnFace.v[2]].map(i => piece.mesh.vertices[i].id).sort();
-  assert.deepEqual(diagonal, ['HeavyArmorLiner.Right.Entry.0', 'HeavyArmorSkirt.7.9'].sort(), '裆口回收面必须保留经校验的对角线');
+  for (const side of ['Right', 'Left']) {
+    assert(extent(piece.mesh, `HeavyArmorSkirt.${side}.HemEdge.`, 0) >= .290, '长围裳必须保留宽轮廓，不可收成紧腿裤');
+    assert(extent(piece.mesh, `HeavyArmorSkirt.${side}.Knee.`, 2) >= .143, '前后甲裳过膝后仍须有实质体量');
+    assert(extent(piece.mesh, `HeavyArmorSkirt.${side}.HemEdge.`, 2) >= .125, '不能用单面装饰片代替厚围裳');
+    const hem = vertices(piece.mesh, `HeavyArmorSkirt.${side}.HemEdge.`), hole = vertices(piece.mesh, `HeavyArmorLiner.${side}.Opening.`);
+    assert.equal(hem.length, 8); assert.equal(hole.length, 8);
+    assert(Math.max(...hem.map(v => Math.abs(v.p[0]))) - Math.max(...hole.map(v => Math.abs(v.p[0]))) > .12, '裙边须真实向腿出口回折');
+    assert(hole.every(v => Math.abs(v.p[0]) > .035 && Math.abs(v.p[0]) < .165), '两条裤管出口不得封死、合并或横跨中线');
+  }
+  for (const sign of [-1, 1]) assert(piece.mesh.faces.some(f => f.v.every(i => piece.mesh.vertices[i].id.startsWith('HeavyArmorSkirt.')) && f.v.some(i => piece.mesh.vertices[i].p[0] < 0) && f.v.some(i => piece.mesh.vertices[i].p[0] > 0) && f.v.every(i => Math.sign(piece.mesh.vertices[i].p[2]) === sign)), '上段围裳正背均连续跨中线，下段分裳服务现有20骨活动');
 }
 
 export function checkHeavyArmor(): { negativeCases: number; silhouette: Record<string, number> } {
@@ -105,10 +113,11 @@ export function checkHeavyArmor(): { negativeCases: number; silhouette: Record<s
   const silhouette = {
     shoulderRatio: extent(top.mesh, 'Top.Right.HeavyShoulderRim.', 0) / extent(mediumTop.mesh, 'Top.Right.PauldronRim.', 0),
     torsoDepthRatio: extent(top.mesh, 'Top.Plate.', 2) / extent(mediumTop.mesh, 'Top.Plate.', 2),
-    skirtWidthRatio: extent(bottom.mesh, 'HeavyArmorSkirt.7.', 0) / extent(mediumBottom.mesh, 'MediumArmorSkirt.5.', 0),
-    skirtDepthRatio: extent(bottom.mesh, 'HeavyArmorSkirt.5.', 2) / extent(mediumBottom.mesh, 'MediumArmorSkirt.3.', 2),
+    skirtWidthRatio: extent(bottom.mesh, 'HeavyArmorSkirt.Right.HemEdge.', 0) / extent(mediumBottom.mesh, 'MediumArmorSkirt.5.', 0),
+    hemExtension: .685 - Math.min(...vertices(bottom.mesh, 'HeavyArmorSkirt.Right.HemEdge.').map(v => v.p[1])),
+    skirtDepthRatio: extent(bottom.mesh, 'HeavyArmorSkirt.Right.Knee.', 2) / extent(mediumBottom.mesh, 'MediumArmorLiner.Right.Knee.', 2),
   };
-  assert(silhouette.shoulderRatio > 1.12 && silhouette.torsoDepthRatio > 1.20 && silhouette.skirtWidthRatio > 1.15 && silhouette.skirtDepthRatio > 1.20, '重甲必须从肩宽、胸腹厚度及裙甲体量同时区别中甲');
+  assert(silhouette.shoulderRatio > 1.16 && silhouette.torsoDepthRatio > 1.40 && silhouette.skirtWidthRatio > 1.15 && silhouette.skirtDepthRatio > 2.50 && silhouette.hemExtension > .30, '重甲必须从肩宽、胸腹厚度及裙甲体量同时区别中甲');
   let negativeCases = 0;
   for (const [piece, check] of [[top, assertHeavyArmorTop], [bottom, assertHeavyArmorSkirt]] as const) {
     const mutations: ((p: GarmentPiece) => void)[] = [
@@ -119,13 +128,13 @@ export function checkHeavyArmor(): { negativeCases: number; silhouette: Record<s
     for (const mutate of mutations) { const bad = structuredClone(piece); mutate(bad); assert.throws(() => check(bad)); negativeCases++; }
   }
   for (const mutate of [
-    (p: GarmentPiece) => { for (const v of vertices(p.mesh, 'HeavyArmorSkirt.0.')) v.p[1] -= .12; },
-    (p: GarmentPiece) => { for (const v of vertices(p.mesh, 'HeavyArmorSkirt.7.')) v.p[1] -= .12; },
-    (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorLiner.Right.Entry.0')!.p[1] = .70; },
-    (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorSkirt.3.0')!.w[1] = B.LeftThigh; },
-    (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorSkirt.5.4')!.w[2] = .35; },
-    // 历史失败权重必须被拒绝；它曾在 Snatch 男女各产生 22 个阻塞采样。
-    (p: GarmentPiece) => { const old=[1,.92,.74,.55,.43,.35,.29,.28],z=[1,.88,0,-.88,-1,-1,-.88,0,.88,1]; for(const v of p.mesh.vertices){const m=/^HeavyArmorSkirt\.(\d+)\.(\d+)$/.exec(v.id);if(m){const row=Number(m[1]);v.w[2]=old[row]+(1-old[row])*.16*(1-z[Number(m[2])]);}} },
+    (p: GarmentPiece) => { for (const v of vertices(p.mesh, 'HeavyArmorSkirt.Waist.0.')) v.p[1] -= .12; },
+    (p: GarmentPiece) => { for (const side of ['Right', 'Left']) for (const v of vertices(p.mesh, `HeavyArmorSkirt.${side}.HemEdge.`)) v.p[1] = .685; },
+    (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorLiner.Right.Opening.0')!.p[0] = 0; },
+    (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorSkirt.Right.Upper.0')!.w[1] = B.LeftThigh; },
+    (p: GarmentPiece) => { p.mesh.vertices.find(v => v.id === 'HeavyArmorSkirt.Right.Knee.4')!.w[2] = .35; },
+    // 新拓扑保留历史失败权重反例的职责：S6-5 Entry=.50 曾在真实 Snatch 中反折。
+    (p: GarmentPiece) => { for (const v of p.mesh.vertices) if (/^HeavyArmorSkirt\.(Right|Left)\.Entry\.[0-4]$/.test(v.id)) v.w[2] = .50; },
   ]) { const bad = structuredClone(bottom); mutate(bad); assert.throws(() => assertHeavyArmorSkirt(bad)); negativeCases++; }
   return { negativeCases, silhouette };
 }

@@ -54,13 +54,19 @@ export async function checkSoldierArmor(ctx) {
     await p.screenshot({ path: join(dir, name) }); await p.close();
     images.push({ name, sources: panels.map(p => p.name), composition: 'Unchanged real WebGL captures, labels only; identical camera verified within tier comparisons.' });
   }
-  const unchangedExceptArmor = (before, after) => assert.deepEqual({ ...after, slots: { ...after.slots, top: before.slots.top, bottom: before.slots.bottom } }, before);
+  const expectedHelmet = (style, identity, armorClass) => armorClass === 'heavy' ? `${style}_heavy${identity === 'captain' ? '_captain' : ''}_helmet` : styles[style][identity];
+  const unchangedExceptArmor = (before, after) => {
+    assert.deepEqual({ ...after, slots: { ...after.slots, top: before.slots.top, bottom: before.slots.bottom, headwear: before.slots.headwear } }, before);
+    const style = before.slots.headwear.split('_')[0];
+    const military = Object.hasOwn(styles, style);
+    assert.equal(after.slots.headwear, military ? expectedHelmet(style, before.slots.headwear.includes('_captain_') ? 'captain' : 'soldier', after.slots.top === 'heavy_armor' ? 'heavy' : 'medium') : before.slots.headwear);
+  };
   await open('review=1&pose=bind&paused=1&view=free&soldier=palace&bodyType=male&rightHand=none');
   for (const key of ['上衣', '下装']) {
     const available = await page.getByLabel(key, { exact: true }).locator('option').evaluateAll(n => n.map(o => o.value));
     assert(available.includes(key === '上衣' ? 'heavy_armor' : 'heavy_armor_skirt'));
   }
-  // S6-3 三轴矩阵：驻地只拥有 palette/headwear，等级只拥有 top/bottom，身份只拥有 headwear variant。
+  // S6-3 三轴矩阵：驻地只拥有 palette/headwear，等级拥有 top/bottom 与同驻地同身份的军盔默认选择，身份只拥有 headwear variant。
   const styles = {
     palace: { soldier: 'palace_guard_helmet', captain: 'palace_captain_helmet', dyes: { primary: '#713b38', secondary: '#34383a', accent: '#a07c49' } },
     frontier: { soldier: 'frontier_guard_helmet', captain: 'frontier_captain_helmet', dyes: { primary: '#41535a', secondary: '#4b4b47', accent: '#79504a' } },
@@ -82,7 +88,7 @@ export async function checkSoldierArmor(ctx) {
         const beforeIdentity = await recipe();
         await page.getByTestId('soldier-identity-' + identity).click(); await sync();
         const identified = await recipe();
-        assert.equal(identified.slots.headwear, expectedStyle[identity]);
+        assert.equal(identified.slots.headwear, expectedHelmet(style, identity, item.id));
         assert.deepEqual({ ...identified.slots, headwear: beforeIdentity.slots.headwear }, beforeIdentity.slots);
         assert.deepEqual({ ...identified, slots: beforeIdentity.slots }, beforeIdentity);
         assert.equal(await page.getByTestId('soldier-' + style).getAttribute('aria-pressed'), 'true');
@@ -94,7 +100,7 @@ export async function checkSoldierArmor(ctx) {
   }
   assert.equal(axisCases, 18);
   checks.push('S6-3: 18 browser combinations = 3 service styles × 3 armor classes × 2 identities; each control changes only its owned Recipe data');
-  // 核心对比：身体、头盔、发型、染色、姿态和相机完全相同，只换 top/bottom。
+  // 核心对比：身体、发型、染色、姿态和相机完全相同，只换等级衣甲及配套军盔。
   for (const [view, label] of [['free', '自由'], ['overview', '经营俯视']]) {
     await page.getByRole('button', { name: label, exact: true }).click(); await sync();
     const fixedCamera = await camera(), fixedRecipe = await recipe(), panels = [];
@@ -106,7 +112,7 @@ export async function checkSoldierArmor(ctx) {
     if (view === 'overview') assert(fixedCamera.position[1] > fixedCamera.target[1] + 3);
     await sheet(`armor-light-medium-heavy-${view}.png`, `同身体 / 同配色 / 同姿态 / 同机位 · ${label}`, panels);
   }
-  checks.push('S6: Light/Medium/Heavy real same-camera bind and management-overview comparison; only top/bottom change; actual selected slots and three-state UI agree');
+  checks.push('S6: Light/Medium/Heavy real same-camera bind and management-overview comparison; only grade clothing and matching military helmet change; actual selected slots and three-state UI agree');
   const heavyViews = [];
   for (const [view, label] of [['front', '正面'], ['side', '侧面'], ['back', '背面']]) {
     await page.getByRole('button', { name: label, exact: true }).click(); await sync();
@@ -183,16 +189,34 @@ export async function checkSoldierArmor(ctx) {
     }
     // 独立动作轮换保持同一重甲/头盔，不让上面的身份换装影响几何复用断言。
     const fixedGeometry = (await state()).geometry;
-    for (const [motion, phase, label] of [['pilot-switches', .5, '坐姿'], ['shooting-arrow', .5, '射箭']]) {
+    for (const [motion, phase, label] of [['pilot-switches', .5, '坐姿'], ['shooting-arrow', .5, '射箭'], ['snatch', 0, 'Snatch 深蹲']]) {
       await page.getByLabel('试衣动画', { exact: true }).selectOption(motion); await motionReady(motion); await seek(phase);
       assert.equal((await state()).geometry, fixedGeometry);
       actionPanels.push(await frame(`heavy-${bodyType}-${motion}.png`, `${bodyType === 'male' ? '男' : '女'} · ${label}`));
       await page.getByRole('button', { name: '正面', exact: true }).click(); await sync(); await shot(`heavy-${bodyType}-${motion}-front.png`);
       await page.getByRole('button', { name: '自由', exact: true }).click(); await sync();
     }
-    checks.push(`S6/${bodyType}: actual heavy jogging, Pilot Flips Switches sitting and shooting-arrow; front and free views; paused identity changes retain phase; motion changes reuse geometry`);
+    checks.push(`S6/${bodyType}: actual heavy jogging, Pilot Flips Switches sitting, shooting-arrow and Snatch; front and free views; paused identity changes retain phase; motion changes reuse geometry`);
   }
-  await sheet('heavy-male-female-actions.png', '共享重甲 · 男女动作试衣 / 原 WebGL Canvas', actionPanels, 3);
+  await sheet('heavy-male-female-actions.png', '共享重甲 · 男女动作试衣 / 原 WebGL Canvas', actionPanels, 4);
+  // 同一衣甲/身体/配色/姿态/相机只换头盔，避免用整身重甲掩盖头盔差异。
+  await open('review=1&pose=bind&paused=1&soldier=palace&armorClass=heavy&bodyType=male&rightHand=none&view=front');
+  const helmetCamera = await camera(), helmetBase = await recipe();
+  for (const style of ['palace', 'frontier', 'city']) {
+    const panels = [];
+    for (const identity of ['soldier', 'captain']) for (const grade of ['medium', 'heavy']) {
+      const id = expectedHelmet(style, identity, grade);
+      await page.getByLabel('头饰', { exact: true }).selectOption(id); await sync();
+      const current = await recipe();
+      assert.equal(current.slots.headwear, id);
+      assert.deepEqual({ ...current, slots: { ...current.slots, headwear: helmetBase.slots.headwear } }, helmetBase);
+      sameCamera(await camera(), helmetCamera);
+      assert.equal(await page.getByTestId('soldier-identity-' + identity).getAttribute('aria-pressed'), 'true');
+      panels.push(await frame(`helmet-${style}-${identity}-${grade}.png`, `${identity === 'soldier' ? '普通' : '队长'} · ${grade === 'medium' ? '标准盔' : '重盔'}`));
+    }
+    await sheet(`helmet-${style}-medium-heavy.png`, `${style} · 只换头盔 / 同身体、衣甲、配色、机位`, panels, 4);
+  }
+  checks.push('S6-5: all six Heavy helmet IDs and six standard counterparts in actual UI; head-only comparison preserves every other Recipe field and camera');
   await open('review=1&pose=bind&soldier=palace&armorClass=invalid'); assert.equal((await recipe()).slots.top, 'medium_armor');
   await open('review=1&pose=bind&soldier=palace&armorClass=heavy&top=work_vest');
   assert.equal((await recipe()).slots.top, 'work_vest'); assert.equal((await recipe()).slots.bottom, 'heavy_armor_skirt');

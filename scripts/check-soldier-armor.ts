@@ -3,7 +3,7 @@ import { BODY_TYPES, HAIR_STYLE_IDS, createRecipe, type Recipe } from '../src/ch
 import { parseRecipeFile, randomizeCharacter, WARDROBE_LOOKS } from '../src/character/wardrobe/catalog';
 import { SOLDIER_ARMOR_CLASS_IDS, SOLDIER_STYLE_IDS, SOLDIER_STYLE_CONTRACT } from '../src/soldier/contract';
 import { SOLDIER_ARMOR_SLOTS, identifySoldierArmor, applySoldierArmor } from '../src/soldier/armor-classes';
-import { SOLDIER_IDENTITY_IDS, SOLDIER_HELMETS, identifySoldierHelmet, applySoldierIdentity } from '../src/soldier/identities';
+import { SOLDIER_IDENTITY_IDS, soldierHelmetFor, identifySoldierHelmet, applySoldierIdentity } from '../src/soldier/identities';
 import { applySoldierLoadout, applySoldierStyle } from '../src/soldier/looks';
 
 const unchangedExceptSlots = (a: Recipe, b: Recipe, keys: (keyof Recipe['slots'])[]) => {
@@ -23,19 +23,20 @@ for (const armorClass of SOLDIER_ARMOR_CLASS_IDS) for (const style of SOLDIER_ST
   assert.equal(r.bodyType, bodyType); assert.equal(r.hairStyle, hairStyle);
   for (const target of SOLDIER_ARMOR_CLASS_IDS) {
     const changed = applySoldierArmor(r, target);
-    unchangedExceptSlots(r, changed, ['top', 'bottom']);
+    unchangedExceptSlots(r, changed, ['top', 'bottom', 'headwear']);
+    assert.equal(changed.slots.headwear, soldierHelmetFor(style, identity, target));
     assert.equal(identifySoldierArmor(changed), target);
     assert.deepEqual({ top: changed.slots.top, bottom: changed.slots.bottom }, SOLDIER_ARMOR_SLOTS[target]);
   }
   for (const target of SOLDIER_IDENTITY_IDS) {
     const changed = applySoldierIdentity(r, target);
     unchangedExceptSlots(r, changed, ['headwear']);
-    assert.equal(changed.slots.headwear, SOLDIER_HELMETS[style][target]);
+    assert.equal(changed.slots.headwear, soldierHelmetFor(style, target, armorClass));
   }
   for (const target of SOLDIER_STYLE_IDS) {
     const changed = applySoldierStyle(r, target);
     assert.deepEqual({ ...changed.slots, headwear: r.slots.headwear }, r.slots, '切驻地不能重置等级和装备');
-    assert.equal(changed.slots.headwear, SOLDIER_HELMETS[target][identity]);
+    assert.equal(changed.slots.headwear, soldierHelmetFor(target, identity, armorClass));
     assert.deepEqual(changed.dyes, SOLDIER_STYLE_CONTRACT[target].palette);
     assert.deepEqual({ ...changed, slots: r.slots, dyes: r.dyes }, r);
   }
@@ -59,3 +60,6 @@ for (let seed = 0; seed < 128; seed++) {
   assert.equal(identifySoldierHelmet(r.slots.headwear), null);
 }
 console.log('SOLDIER_ARMOR_AXES', JSON.stringify({ cases, classes: SOLDIER_ARMOR_CLASS_IDS, styles: SOLDIER_STYLE_IDS, recipeVersion: 5, fields: 6, slots: 7 }));
+
+const civilianHat = createRecipe({slots:{headwear:'scholar_cap'}});
+for(const armor of SOLDIER_ARMOR_CLASS_IDS) assert.equal(applySoldierArmor(civilianHat,armor).slots.headwear,'scholar_cap');

@@ -1,3 +1,4 @@
+import './check-soldier-heavy-helmets';
 import './check-soldier-identities';
 import './check-soldier-armor';
 import './check-soldier-heavy-authoring';

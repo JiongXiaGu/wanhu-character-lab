@@ -120,15 +120,17 @@ try {
       const beforeArmor = await recipe();
       await clickArmor(armorClass);
       const armored = await recipe();
-      assert.deepEqual({ ...armored.slots, top: beforeArmor.slots.top, bottom: beforeArmor.slots.bottom }, beforeArmor.slots);
+      assert.deepEqual({ ...armored.slots, top: beforeArmor.slots.top, bottom: beforeArmor.slots.bottom, headwear: beforeArmor.slots.headwear }, beforeArmor.slots);
       assert.deepEqual({ ...armored, slots: beforeArmor.slots }, beforeArmor);
+      const oldIdentity = beforeArmor.slots.headwear.includes('_captain_') ? 'captain' : 'soldier';
+      assert.equal(armored.slots.headwear, armorClass === 'heavy' ? `${style}_heavy${oldIdentity === 'captain' ? '_captain' : ''}_helmet` : expected[oldIdentity]);
       assert.equal(armored.slots.top, slots.top); assert.equal(armored.slots.bottom, slots.bottom);
       sameCamera(await camera(), matrixCamera);
       for (const identity of ['soldier', 'captain']) {
         const beforeIdentity = await recipe();
         await page.getByTestId('soldier-identity-' + identity).click(); await sync();
         const identified = await recipe();
-        assert.equal(identified.slots.headwear, expected[identity]);
+        assert.equal(identified.slots.headwear, armorClass === 'heavy' ? `${style}_heavy${identity === 'captain' ? '_captain' : ''}_helmet` : expected[identity]);
         assert.deepEqual({ ...identified.slots, headwear: beforeIdentity.slots.headwear }, beforeIdentity.slots);
         assert.deepEqual({ ...identified, slots: beforeIdentity.slots }, beforeIdentity);
         assert.equal(await page.getByTestId('soldier-' + style).getAttribute('aria-pressed'), 'true');

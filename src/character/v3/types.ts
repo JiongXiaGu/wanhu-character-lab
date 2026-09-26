@@ -25,6 +25,12 @@ export const BODY_HEIGHT: Readonly<Record<BodyType, number>> = { male: 1.76, fem
 export type HeadwearId =
   | "none"
   | "farmer_straw_hat"
+  | "palace_heavy_helmet"
+  | "palace_heavy_captain_helmet"
+  | "frontier_heavy_helmet"
+  | "frontier_heavy_captain_helmet"
+  | "city_heavy_helmet"
+  | "city_heavy_captain_helmet"
   | "palace_guard_helmet"
   | "palace_captain_helmet"
   | "frontier_guard_helmet"
@@ -125,6 +131,12 @@ export interface CharacterData {
 export const HEADWEAR_IDS = [
   "none",
   "farmer_straw_hat",
+  "palace_heavy_helmet",
+  "palace_heavy_captain_helmet",
+  "frontier_heavy_helmet",
+  "frontier_heavy_captain_helmet",
+  "city_heavy_helmet",
+  "city_heavy_captain_helmet",
   "palace_guard_helmet",
   "palace_captain_helmet",
   "frontier_guard_helmet",

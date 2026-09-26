@@ -1,6 +1,7 @@
+import { isHeavyHeadwear } from '../character/wardrobe/heavy-equipment';
 import { createRecipe, type Recipe, type CharacterSlots } from '../character/v3/types';
 import { SOLDIER_STYLE_CONTRACT, type SoldierStyleId, type SoldierArmorClassId } from './contract';
-import { SOLDIER_HELMETS, identifySoldierHelmet, type SoldierIdentity } from './identities';
+import { soldierHelmetFor, identifySoldierHelmet, type SoldierIdentity } from './identities';
 import { SOLDIER_ARMOR_SLOTS, identifySoldierArmor } from './armor-classes';
 
 /** 首次进入的默认长枪搭配；等级选择不受默认驻地绑定。 */
@@ -10,7 +11,7 @@ export const CITY_GUARD_SLOTS:Readonly<CharacterSlots>={headwear:'city_guard_hel
 
 /** 显式整套入口用于初次试衣、URL 和数值矩阵，不建立正式军人身份协议。 */
 export function applySoldierLoadout(recipe:Recipe,style:SoldierStyleId,armorClass:SoldierArmorClassId,identity:SoldierIdentity='soldier'):Recipe {
-  return createRecipe({...recipe,slots:{...PALACE_GUARD_SLOTS,...SOLDIER_ARMOR_SLOTS[armorClass],headwear:SOLDIER_HELMETS[style][identity]},dyes:{...SOLDIER_STYLE_CONTRACT[style].palette}});
+  return createRecipe({...recipe,slots:{...PALACE_GUARD_SLOTS,...SOLDIER_ARMOR_SLOTS[armorClass],headwear:soldierHelmetFor(style,identity,armorClass)},dyes:{...SOLDIER_STYLE_CONTRACT[style].palette}});
 }
 export function applyPalaceGuard(recipe:Recipe,identity:SoldierIdentity='soldier'):Recipe {
   return applySoldierLoadout(recipe,'palace','medium',identity);
@@ -26,7 +27,7 @@ export function applyCityGuard(recipe:Recipe,identity:SoldierIdentity='soldier')
 export function applySoldierStyle(recipe:Recipe,style:SoldierStyleId):Recipe {
   const helmet=identifySoldierHelmet(recipe.slots.headwear);
   if(!helmet&&!identifySoldierArmor(recipe))return applySoldierLoadout(recipe,style,SOLDIER_STYLE_CONTRACT[style].armorClass);
-  return createRecipe({...recipe,slots:{...recipe.slots,headwear:SOLDIER_HELMETS[style][helmet?.identity??'soldier']},dyes:{...SOLDIER_STYLE_CONTRACT[style].palette}});
+  return createRecipe({...recipe,slots:{...recipe.slots,headwear:soldierHelmetFor(style,helmet?.identity??'soldier',identifySoldierArmor(recipe)??(isHeavyHeadwear(recipe.slots.headwear)?'heavy':'medium'))},dyes:{...SOLDIER_STYLE_CONTRACT[style].palette}});
 }
 function isGuard(recipe:Recipe,style:SoldierStyleId):boolean {
   return identifySoldierHelmet(recipe.slots.headwear)?.style===style&&identifySoldierArmor(recipe)!==null&&

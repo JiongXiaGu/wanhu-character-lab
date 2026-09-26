@@ -19,7 +19,7 @@ export function SoldierFitting({ recipe, edit }: Props) {
       {SOLDIER_IDENTITY_IDS.map(identity => <button key={identity} data-testid={'soldier-identity-' + identity} disabled={!helmet} aria-pressed={helmet?.identity === identity} className={helmet?.identity === identity ? 'active' : ''} onClick={() => edit(r => applySoldierIdentity(r, identity))}>{SOLDIER_IDENTITY_NAMES[identity]}</button>)}
     </div>
     {SOLDIER_STYLE_IDS.map(style => <button key={style} className={'clear-equipment ' + (helmet?.style === style ? 'active' : '')} data-testid={'soldier-' + style} aria-pressed={helmet?.style === style} onClick={() => edit(r => applySoldierStyle(r, style))}>{SOLDIER_STYLE_CONTRACT[style].name}</button>)}
-    <p className="hint">甲装只换上下装；驻地只换军盔与配色，普通／队长只换头盔。首次从居民装选择驻地会应用默认长枪搭配；已有甲装或军盔时保留混搭。不同等级也可共用同一驻地。</p>
+    <p className="hint">甲装切换共享衣甲与配套军盔；驻地只换军盔与配色，普通／队长只换头盔。首次从居民装选择驻地会应用默认长枪搭配；已有甲装或军盔时保留混搭。不同等级也可共用同一驻地。</p>
     {!armorClass && helmet && <p className="hint">当前上下装为自由混搭，不强行归为轻、中或重甲。</p>}
   </section>;
 }
