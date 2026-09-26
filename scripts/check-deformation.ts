@@ -22,14 +22,21 @@ function assertHeavyDrapeKnees(c:Cage){
       assert(Math.abs(v.w[2]-kneeBlend(y,v.p[2]))<1e-12,'整圈甲裳膝梯度错误');
     }
   }
-  for(const side of ['Right','Left']) for(const [label,y,depth] of [['Opening',.320,.066],['Calf',.270,.062]] as const){
-    const loop=c.vertices.filter(v=>v.id.startsWith(`HeavyArmorLiner.${side}.${label}.`));assert.equal(loop.length,8);
+  for(const side of ['Right','Left']){
     const thigh=side==='Right'?B.RightThigh:B.LeftThigh,shin=side==='Right'?B.RightShin:B.LeftShin;
-    for(const v of loop){
-      assert.equal(v.p[1],y);assert.equal(v.w[0],thigh);assert.equal(v.w[1],shin);
-      const column=Number(v.id.split('.').at(-1)),edge=depth*.9;
-      const expected=column>=5?kneeBlend(y,-edge)+(kneeBlend(y,edge)-kneeBlend(y,-edge))*((v.p[2]/edge+1)*.5):kneeBlend(y,v.p[2]);
-      assert(Math.abs(v.w[2]-expected)<1e-12,'低位腿出口或内侧梯度错误');
+    const opening=c.vertices.filter(v=>v.id.startsWith(`HeavyArmorLiner.${side}.Opening.`));assert.equal(opening.length,8);
+    for(const v of opening){
+      const column=Number(v.id.split('.').at(-1)),inner=column===0||column>=4;
+      const y=inner?(column===0||column===4?.835:column===6?.850:.865):.655;
+      const hip=inner?(column===0||column===4?.40:column===6?.35:.50):.12;
+      assert.equal(v.p[1],y);assert.deepEqual(v.w,[B.Hips,thigh,hip],'高拱内裆须用合法同侧骨盆/大腿静态权重');
+    }
+    for(const [label,y] of [['KneeUpper',.529],['Knee',.489],['KneeLower',.449],['Calf',.270]] as const){
+      const loop=c.vertices.filter(v=>v.id.startsWith(`HeavyArmorLiner.${side}.${label}.`));assert.equal(loop.length,8);
+      for(const v of loop){
+        assert.equal(v.p[1],y);assert.equal(v.w[0],thigh);assert.equal(v.w[1],shin);
+        assert(Math.abs(v.w[2]-kneeBlend(y,v.p[2]))<1e-12,'内腿完整膝梯度错误');
+      }
     }
   }
 }
@@ -89,7 +96,7 @@ const rear=cloneCage(pants);for(const v of rear.vertices)if(v.id.includes('.Knee
 const front=cloneCage(pants);for(const v of front.vertices)if(v.id.includes('.KneeUpper.')&&v.p[2]>0)v.w[2]=.6;assert.throws(()=>assertKnees(front,true));
 const hole=cloneCage(skin);hole.faces.splice(hole.faces.findIndex(f=>f.v.every(i=>hole.vertices[i].id.startsWith('SkinPelvis.'))&&f.region==='pelvis'),1);assert.throws(()=>assertSaddle(hole));
 const wrongSide=cloneCage(skin);wrongSide.vertices.find(v=>v.id==='SkinPelvis.Right.Root.0')!.w[1]=B.LeftThigh;assert.throws(()=>assertSaddle(wrongSide));
-// 重甲新入口、内侧插值和膝环仍必须被独立变形检查识别。
+// 重甲内部入口与外部长裳膝环仍必须被独立变形检查识别。
 const heavy=makeTrousers(createRecipe({slots:{bottom:'heavy_armor_skirt'}}))!.mesh;
 for(const mutate of [
   (c:Cage)=>{c.vertices.find(v=>v.id==='HeavyArmorSkirt.KneeUpper.0')!.p[1]=.940;},
@@ -97,5 +104,5 @@ for(const mutate of [
   (c:Cage)=>{c.vertices.find(v=>v.id==='HeavyArmorSkirt.KneeLower.4')!.w[2]=.94;},
   (c:Cage)=>{c.vertices=c.vertices.filter(v=>!v.id.startsWith('HeavyArmorSkirt.Knee.'));},
 ]){const bad=cloneCage(heavy);mutate(bad);assert.throws(()=>assertKnees(bad,true,'HeavyArmorSkirt'));}
-const report={passed:true,bodyGeometryVersion:BODY_GEOMETRY_VERSION,rows,independentTrousersTriangles:{medium_armor_skirt:308,heavy_armor_skirt:292,city_guard_trousers:260,work_pants:240,work_wrap:240,short_trousers:164,true_short_skirt:190,long_skirt:262},mutationChecks:9,scope:'Authoring structure and injected regressions only. Actual FBX source-key/midpoint intersections and real screenshots remain separate checks; no automatic visual approval.'};
+const report={passed:true,bodyGeometryVersion:BODY_GEOMETRY_VERSION,rows,independentTrousersTriangles:{medium_armor_skirt:308,heavy_armor_skirt:388,city_guard_trousers:260,work_pants:240,work_wrap:240,short_trousers:164,true_short_skirt:190,long_skirt:262},mutationChecks:9,scope:'Authoring structure and injected regressions only. Actual FBX source-key/midpoint intersections and real screenshots remain separate checks; no automatic visual approval.'};
 mkdirSync('review-deformation',{recursive:true});writeFileSync('review-deformation/contracts.json',JSON.stringify(report,null,2));console.log('DEFORMATION CONTRACT',JSON.stringify(report));
