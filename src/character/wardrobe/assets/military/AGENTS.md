@@ -1,20 +1,32 @@
 # 军人甲胄当前作者边界
 
-先读根 `AGENTS.md`、`Documentation/军人与甲胄工作流.md`、`Documentation/皇宫禁卫与长枪.md`、`Documentation/边疆戍卒与长枪.md`。当前外观主轴已从“驻地各造一套近似甲”改为“甲装等级优先，驻地配色/头盔为辅”。
+先读根 `AGENTS.md` 与 `Documentation/军人与甲胄工作流.md`。军人视觉第一轴是甲装等级，驻地 palette/头盔为第二轴，普通/队长只通过 headwear variant 区分。
 
-当前只有两种已制作甲装等级：
-- `medium`：`medium_armor` + `medium_armor_skirt`，皇宫与边疆共享完全相同的上甲/下甲几何。
-- `light`：现有城市布面短甲 + 束腿军裤，仍使用原城市作者资产。
-- `heavy`：下一阶段再制作；本轮不得注册空 ID、空模型或临时放大中甲冒充重甲。
+当前现役等级：
+- `light`：`city_guard_brigandine + city_guard_trousers`。
+- `medium`：`medium_armor + medium_armor_skirt`，皇宫/边疆共享几何。
+- `heavy`：`heavy_armor + heavy_armor_skirt`，六款驻地×身份重盔由 `src/character/wardrobe/heavy-equipment.ts` 提供。
 
-已退役且不得恢复到 Recipe / UI：
+S6-6 正在整体重做 Heavy。目标是重甲步兵：厚重完整上甲、长甲裳/长战裙、明显重盔；不以骑乘适配作为 Heavy 造型目标。不要继续把 Heavy 做成 Medium 加厚或两条宽甲裤，也不要用表面纹理代替大轮廓差异。
+
+## 快速开发通道
+
+每次 Heavy 作者几何迭代不要跑整套发布 Gate：
+- 数值：手动运行 Targeted Numeric Checks，scope 选择 `soldier-heavy-authoring`。只检查 Heavy 拓扑、闭合/非流形、有限坐标、骨权重、预算、轮廓与故障反例，不提取动作、不启动浏览器。
+- 看图：需要时手动运行 Manual Visual Review，scope 选择 `soldier-heavy-fast`。只生成 Heavy 正/侧/背和 Medium/Heavy 同机位对比四份真实 WebGL 证据。
+- 造型方向稳定后再运行 `soldier-heavy-candidate`，此时才做 Heavy motion、完整下身穿插和 focused fitting。
+- 正式 PR 才跑完整 light/medium/heavy motion、full browser 与 coverage Gate。
+
+Heavy 专属 `heavy-top.ts`、`heavy-skirt.ts`、`heavy-equipment.ts` 的自动 Targeted 所有权属于 soldier lane，不应仅因目录位于 wardrobe 就触发 riding/mounts。若同一提交修改了 shared wardrobe assembly、rig、Recipe、motion、通用变形或 riding 本身，则仍按共享影响范围跑完整回归。
+
+## 不变量
+
+Recipe 仍为 V5 六字段、七槽位；固定男女、20 骨、最多双权重、inverse bind、Renderer 和 Actor 生命周期不变。不增加甲裙骨、实时布料、战斗/ECS 字段，不为 Heavy 新增动作豁免、放宽穿插阈值或减少源键/中点。
+
+已退役且不得恢复到 Recipe/UI：
 - `palace_guard_armor`
 - `frontier_lamellar_armor`
 - `palace_guard_skirt`
 - `frontier_armor_skirt`
 
-中甲上衣由原宫卫甲几何收敛而来；中甲长甲裙由原边军长甲裙几何收敛而来。两者改成中性资产所有权，不保留“皇宫版/边疆版”重复工厂。皇宫/边疆只允许头盔、队长顶饰和三色 palette 不同；不能再次靠厚胸、短裙/长裙、肩宽等复制第二套中甲。
-
-中甲下装仍是腰起、前后跨中线的连续闭合裙甲与真实裤腿出口，使用现有 Hips/Thigh/Knee 静态最多双权重，不增加甲裙骨、布料、碰撞求解或动作豁免。现有全部源键/中点、下身贯穿、Cap、固定身体、inverse bind 门槛保持。
-
-20骨、Recipe V5六字段/七槽位、固定男女和一档低模保持。城市轻甲、三套头盔、军靴和长枪的作者边界不因本次整理重构。重甲必须作为后续独立任务建立真正不同的大轮廓，再经过正式数值检查和真实截图验收。
+Fast/Candidate 只代表对应层通过，不能写成用户美术认可或 main 发布完成。
