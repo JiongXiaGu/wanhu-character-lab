@@ -20,7 +20,7 @@ import { SOLDIER_HELMETS } from '../src/soldier/identities';
 const levels = [
   { id: 'light', top: 'city_guard_brigandine', bottom: 'city_guard_trousers', topAsset: 'city-top', bottomAsset: 'city-trousers', topTriangles: 340, bottomTriangles: 260 },
   { id: 'medium', top: 'medium_armor', bottom: 'medium_armor_skirt', topAsset: 'medium-top', bottomAsset: 'medium-skirt', topTriangles: 386, bottomTriangles: 308 },
-  { id: 'heavy', top: 'heavy_armor', bottom: 'heavy_armor_skirt', topAsset: 'heavy-top', bottomAsset: 'heavy-skirt', topTriangles: 432, bottomTriangles: 352 },
+  { id: 'heavy', top: 'heavy_armor', bottom: 'heavy_armor_skirt', topAsset: 'heavy-top', bottomAsset: 'heavy-skirt', topTriangles: 568, bottomTriangles: 292 },
 ] as const;
 const retired: readonly [keyof Recipe['slots'], string][] = [
   ['top', 'palace_guard_armor'], ['top', 'frontier_lamellar_armor'],

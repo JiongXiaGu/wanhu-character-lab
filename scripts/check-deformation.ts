@@ -10,32 +10,38 @@ import { assertMediumArmorSkirt } from './check-soldier-medium';
 import { assertHeavyArmorSkirt } from './check-soldier-heavy';
 import { cloneCage,triCount } from '../src/character/v3/cage';
 
-/** 独立验证制作空间的膝前/膝后权重；不能再用“整圈相等”把错误当契约固定。 */
+/** 独立验证膝前/膝后权重，不使用作者生产函数作为测试预期。 */
+const kneeBlend=(y:number,z:number)=>Math.max(0,Math.min(1,.5+(y-.489)/(2*(1/22+4*Math.max(0,-z)))));
+function assertHeavyDrapeKnees(c:Cage){
+  for(const [label,y] of [['KneeUpper',.580],['Knee',.489],['KneeLower',.449]] as const){
+    const loop=c.vertices.filter(v=>v.id.startsWith(`HeavyArmorSkirt.${label}.`));assert.equal(loop.length,10);
+    assert(Math.min(...loop.map(v=>v.p[2]))<-.18,'长裳后片不能压薄');
+    for(const v of loop){
+      assert.equal(v.p[1],y);const right=v.p[0]>0;
+      assert.deepEqual(v.w.slice(0,2),right?[B.RightThigh,B.RightShin]:[B.LeftThigh,B.LeftShin]);
+      assert(Math.abs(v.w[2]-kneeBlend(y,v.p[2]))<1e-12,'整圈甲裳膝梯度错误');
+    }
+  }
+  for(const side of ['Right','Left']) for(const [label,y,depth] of [['Opening',.320,.066],['Calf',.270,.062]] as const){
+    const loop=c.vertices.filter(v=>v.id.startsWith(`HeavyArmorLiner.${side}.${label}.`));assert.equal(loop.length,8);
+    const thigh=side==='Right'?B.RightThigh:B.LeftThigh,shin=side==='Right'?B.RightShin:B.LeftShin;
+    for(const v of loop){
+      assert.equal(v.p[1],y);assert.equal(v.w[0],thigh);assert.equal(v.w[1],shin);
+      const column=Number(v.id.split('.').at(-1)),edge=depth*.9;
+      const expected=column>=5?kneeBlend(y,-edge)+(kneeBlend(y,edge)-kneeBlend(y,-edge))*((v.p[2]/edge+1)*.5):kneeBlend(y,v.p[2]);
+      assert(Math.abs(v.w[2]-expected)<1e-12,'低位腿出口或内侧梯度错误');
+    }
+  }
+}
 function assertKnees(c:Cage,pants:boolean,garmentPrefix='Pants'){
+  if(pants&&garmentPrefix==='HeavyArmorSkirt'){assertHeavyDrapeKnees(c);return;}
   for(const side of ['Right','Left']){
     const thigh=side==='Right'?B.RightThigh:B.LeftThigh,shin=side==='Right'?B.RightShin:B.LeftShin;
-    const heavy=pants&&garmentPrefix==='HeavyArmorSkirt';
-    // 新围裳将膝上入口合并到低位活动开口；仍逐点验证完整三圈，不豁免回收面。
-    const rings=heavy?[['Entry',.545],['Knee',.489],['KneeLower',.449]] as const
-      :[['KneeUpper',.529],['Knee',.489],['KneeLower',.449]] as const;
-    const depthByRing:Record<string,number>={Entry:.170,Knee:.160,KneeLower:.150};
-    const kneeBlend=(y:number,z:number)=>Math.max(0,Math.min(1,.5+(y-.489)/(2*(1/22+4*Math.max(0,-z)))));
-    for(const [label,y]of rings){
+    for(const [label,y] of [['KneeUpper',.529],['Knee',.489],['KneeLower',.449]] as const){
       const prefix=pants?`${garmentPrefix}.${side}.${label}.`:`${side}${label}.`;
       const loop=c.vertices.filter(v=>v.id.startsWith(prefix));assert.equal(loop.length,pants?8:6);
       assert(Math.min(...loop.map(v=>v.p[2]))<-.03,'旧膝后压薄恢复了');
-      for(const v of loop){
-        const column=Number(v.id.split('.').at(-1)),inner=heavy&&[5,6,7].includes(column);
-        const expectedY=heavy&&label==='Entry'&&inner?(column===6?.525:.535):y;
-        assert.equal(v.p[1],expectedY);assert.equal(v.w[0],thigh);assert.equal(v.w[1],shin);
-        let expected=kneeBlend(expectedY,v.p[2]);
-        if(inner){
-          const edge=depthByRing[label]*.36;
-          const front=kneeBlend(expectedY,edge),back=kneeBlend(expectedY,-edge);
-          expected=back+(front-back)*((v.p[2]/edge+1)*.5);
-        }
-        assert(Math.abs(v.w[2]-expected)<1e-12,'膝后梯度、膝前权重或围裳内侧插值错误');
-      }
+      for(const v of loop){assert.equal(v.p[1],y);assert.equal(v.w[0],thigh);assert.equal(v.w[1],shin);assert(Math.abs(v.w[2]-kneeBlend(y,v.p[2]))<1e-12,'膝前/膝后梯度错误');}
     }
     assert(!c.vertices.some(v=>v.id.startsWith(`Pants.${side}.UpperLeg.`)),'冗余过渡环仍存在');
   }
@@ -86,10 +92,10 @@ const wrongSide=cloneCage(skin);wrongSide.vertices.find(v=>v.id==='SkinPelvis.Ri
 // 重甲新入口、内侧插值和膝环仍必须被独立变形检查识别。
 const heavy=makeTrousers(createRecipe({slots:{bottom:'heavy_armor_skirt'}}))!.mesh;
 for(const mutate of [
-  (c:Cage)=>{c.vertices.find(v=>v.id==='HeavyArmorSkirt.Right.Entry.0')!.p[1]=.940;},
-  (c:Cage)=>{c.vertices.find(v=>v.id==='HeavyArmorSkirt.Right.Entry.6')!.w[2]=1;},
-  (c:Cage)=>{c.vertices.find(v=>v.id==='HeavyArmorSkirt.Right.KneeLower.4')!.w[2]=.94;},
-  (c:Cage)=>{c.vertices=c.vertices.filter(v=>!v.id.startsWith('HeavyArmorSkirt.Left.Knee.'));},
+  (c:Cage)=>{c.vertices.find(v=>v.id==='HeavyArmorSkirt.KneeUpper.0')!.p[1]=.940;},
+  (c:Cage)=>{c.vertices.find(v=>v.id==='HeavyArmorLiner.Right.Opening.6')!.w[2]=1;},
+  (c:Cage)=>{c.vertices.find(v=>v.id==='HeavyArmorSkirt.KneeLower.4')!.w[2]=.94;},
+  (c:Cage)=>{c.vertices=c.vertices.filter(v=>!v.id.startsWith('HeavyArmorSkirt.Knee.'));},
 ]){const bad=cloneCage(heavy);mutate(bad);assert.throws(()=>assertKnees(bad,true,'HeavyArmorSkirt'));}
-const report={passed:true,bodyGeometryVersion:BODY_GEOMETRY_VERSION,rows,independentTrousersTriangles:{medium_armor_skirt:308,heavy_armor_skirt:352,city_guard_trousers:260,work_pants:240,work_wrap:240,short_trousers:164,true_short_skirt:190,long_skirt:262},mutationChecks:9,scope:'Authoring structure and injected regressions only. Actual FBX source-key/midpoint intersections and real screenshots remain separate checks; no automatic visual approval.'};
+const report={passed:true,bodyGeometryVersion:BODY_GEOMETRY_VERSION,rows,independentTrousersTriangles:{medium_armor_skirt:308,heavy_armor_skirt:292,city_guard_trousers:260,work_pants:240,work_wrap:240,short_trousers:164,true_short_skirt:190,long_skirt:262},mutationChecks:9,scope:'Authoring structure and injected regressions only. Actual FBX source-key/midpoint intersections and real screenshots remain separate checks; no automatic visual approval.'};
 mkdirSync('review-deformation',{recursive:true});writeFileSync('review-deformation/contracts.json',JSON.stringify(report,null,2));console.log('DEFORMATION CONTRACT',JSON.stringify(report));
