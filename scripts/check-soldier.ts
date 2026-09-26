@@ -1,4 +1,8 @@
+import './check-soldier-heavy-helmets';
 import './check-soldier-identities';
+import './check-soldier-armor';
+import './check-soldier-heavy-authoring';
+import './check-soldier-wardrobe';
 import assert from 'node:assert/strict';
 import {
   B,
@@ -17,8 +21,8 @@ import {
   SOLDIER_WORKFLOW_VERSION,
 } from '../src/soldier/contract';
 
-assert.equal(SOLDIER_WORKFLOW_VERSION, 'wanhu-soldier-authoring-v2');
-assert.deepEqual(SOLDIER_ARMOR_CLASS_IDS, ['light', 'medium']);
+assert.equal(SOLDIER_WORKFLOW_VERSION, 'wanhu-soldier-authoring-v3');
+assert.deepEqual(SOLDIER_ARMOR_CLASS_IDS, ['light', 'medium', 'heavy']);
 assert.deepEqual(SOLDIER_STYLE_IDS, ['palace', 'frontier', 'city']);
 assert.deepEqual(SOLDIER_ROLE_IDS, ['spearman', 'swordsman', 'archer', 'shieldman']);
 assert.equal(SOLDIER_FIRST_BUILD.style, 'palace');
@@ -76,7 +80,8 @@ assert.equal(SOLDIER_STYLE_CONTRACT.frontier.assets.top,'medium_armor');
 assert.equal(SOLDIER_STYLE_CONTRACT.palace.assets.bottom,'medium_armor_skirt');
 assert.equal(SOLDIER_STYLE_CONTRACT.frontier.assets.bottom,'medium_armor_skirt');
 assert.equal(SOLDIER_STYLE_CONTRACT.city.armorClass,'light');
+assert(activeIds.has('heavy_armor')&&activeIds.has('heavy_armor_skirt'));
 
 console.log(
-  `Soldier workflow OK: ${SOLDIER_STYLE_IDS.length} styles, ${SOLDIER_ROLE_IDS.length} roles, Recipe V5 / 7 slots / 20 bones preserved.`,
+  `Soldier workflow OK: ${SOLDIER_ARMOR_CLASS_IDS.length} armor classes, ${SOLDIER_STYLE_IDS.length} styles, ${SOLDIER_ROLE_IDS.length} planned roles, Recipe V5 / 7 slots / 20 bones preserved.`,
 );

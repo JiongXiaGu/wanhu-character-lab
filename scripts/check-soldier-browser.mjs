@@ -1,4 +1,5 @@
 import { checkSoldierIdentities } from './check-soldier-identities-browser.mjs';
+import { checkSoldierArmor } from './check-soldier-armor-browser.mjs';
 import assert from 'node:assert/strict';
 import {spawn,execFileSync} from 'node:child_process';
 import {mkdirSync,writeFileSync,createWriteStream} from 'node:fs';
@@ -32,6 +33,7 @@ try{
     {id:'frontier',helmet:'frontier_guard_helmet',top:'medium_armor',bottom:'medium_armor_skirt'},
     {id:'city',helmet:'city_guard_helmet',top:'city_guard_brigandine',bottom:'city_guard_trousers'},
   ];
+  await checkSoldierArmor({page,browser,base,capture,dir,recipe,state,sync,motionReady,seek,shot,checks,images,styles});
   for(const style of styles){
   await page.goto(`${base}/?review=1&pose=bind&paused=1&view=free`);await page.waitForFunction(()=>!!window.__WANHU_REVIEW__&&!!window.__WANHU_RECIPE__);
   const before=await recipe();await page.getByTestId(`soldier-${style.id}`).click();await page.waitForFunction(top=>window.__WANHU_RECIPE__().slots.top===top,style.top);await sync();
@@ -92,15 +94,18 @@ try{
     images.push({name:'palace-vs-frontier.png',sources:['comparison-palace.png','comparison-frontier.png'],camera:palaceCamera,composition:'two captured WebGL frames; no second application renderer'});
   }
 
-  // S3：沿用以上运行时与相机捕获第三套，原双套对比图保持。
+  // S3 默认城市轻甲参考仍保留；S6 切驻地保持中甲，必须显式选轻甲后再捕获原参考。
   await page.getByTestId('soldier-city').click();await sync();
+  assert.equal((await recipe()).slots.top,'medium_armor');assert.equal((await recipe()).slots.headwear,'city_guard_helmet');
+  await page.getByTestId('soldier-armor-light').click();await sync();
   assert.equal((await recipe()).slots.top,'city_guard_brigandine');
   assert.deepEqual(await page.evaluate(()=>window.__WANHU_REVIEW__.cameraState()),palaceCamera);
   await shot('comparison-city.png');
   const cityFrame=capture?await page.locator('canvas').screenshot():null;
+  await page.getByRole('button',{name:'撤销',exact:true}).click();await sync();assert.equal((await recipe()).slots.headwear,'city_guard_helmet');assert.equal((await recipe()).slots.top,'medium_armor');
   await page.getByRole('button',{name:'撤销',exact:true}).click();await sync();assert.equal((await recipe()).slots.headwear,'frontier_guard_helmet');assert.equal((await recipe()).slots.top,'medium_armor');
   await page.getByTestId('soldier-palace').click();await sync();assert.equal((await recipe()).slots.headwear,'palace_guard_helmet');assert.equal((await recipe()).slots.top,'medium_armor');
-  checks.push('palace/frontier shared-medium versus city light armor; three-way application/undo uses identical camera, bind pose, shared runtime canvas and unchanged V5 identity');
+  checks.push('palace/frontier shared-medium versus explicitly selected city light armor; independent style/grade undo retains identical camera, bind pose, shared runtime canvas and V5');
   if(capture){
     const sheet=await browser.newPage({viewport:{width:2040,height:1000},deviceScaleFactor:1});
     const panels=[['皇宫禁卫 · Palace',palaceFrame],['边疆戍卒 · Frontier',frontierFrame],['城市守军 · City',cityFrame]];

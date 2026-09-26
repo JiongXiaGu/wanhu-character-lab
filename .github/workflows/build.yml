@@ -27,14 +27,17 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: CI graph and coverage guard checks
+        run: node scripts/check-ci-graph.mjs
       - name: Retired contract checks
         run: npm run check:retired
       - name: Core mesh and data checks
         run: npm run check:core
       - name: Back equipment topology, bind and Recipe V5 checks
         run: npx tsx scripts/check-back-equipment.ts
+      - uses: ./.github/actions/prepare-motion
       - name: TypeScript and production build
-        run: npm run build
+        run: npm run build --ignore-scripts
       - name: Back equipment source-key animation and riding checks
         run: npx tsx scripts/check-back-equipment.ts --motion
       - name: Checks must not mutate tracked source

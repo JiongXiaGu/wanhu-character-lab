@@ -1,6 +1,7 @@
 import { makeCityTrousers } from './military/city-trousers';
 import { makeTrouserShell } from './trouser-shell';
 import { makeMediumArmorSkirt } from './military/medium-skirt';
+import { makeHeavyArmorSkirt } from './military/heavy-skirt';
 import { makeContinuousSkirt } from './skirts';
 import { makeShortBottom } from './short-bottoms';
 import { sealGarmentInterfaces } from './seal-interfaces';
@@ -14,13 +15,14 @@ export function makeTrousers(recipe:Recipe):GarmentPiece|undefined {
   return piece?sealGarmentInterfaces(piece,recipe.dyes.secondary):undefined;
 }
 
-/** 保留下装只分为封口短裤、连续裙装和两种简洁实用长裤。 */
+/** 保留下装按各自作者工厂制作，沿同一入口封口与装配。 */
 function makeAuthoredBottom(recipe:Recipe):GarmentPiece|undefined {
   const id=recipe.slots.bottom;if(id==='body')return;
   const pattern=BOTTOM_PATTERNS[id];if(!pattern)throw new Error('下装资产未注册：'+id);
   if(pattern.asset==='short-trousers')return makeShortBottom(recipe);
   if(pattern.asset==='continuous-short-skirt'||pattern.asset==='continuous-long-skirt')return makeContinuousSkirt(recipe);
   if(pattern.asset==='medium-skirt')return makeMediumArmorSkirt(recipe);
+  if(pattern.asset==='heavy-skirt')return makeHeavyArmorSkirt(recipe);
   if(pattern.asset==='city-trousers')return makeCityTrousers(recipe);
   if(pattern.asset!=='classic')throw new Error('未知长裤构造器');
   return makeTrouserShell(recipe,pattern);
