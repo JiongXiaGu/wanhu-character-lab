@@ -125,6 +125,8 @@ GitHub Actions 是异步验收器，不应通过连续查询 workflow / jobs / s
 
 ## 合并策略
 
-运行时代码合并前要求：Build & Core Checks 成功；受改动影响的 Targeted Numeric Checks 成功。Manual Visual Review 不是默认合并门槛，除非用户明确要求视觉验收或此次任务本身就是视觉修改。
+Draft PR 是开发载体，不等于 Release Gate。Heavy-only Draft 迭代应使用 Fast / Candidate 范围，不自动重复完整 Soldier Release Targeted；转为 Ready for Review 时必须触发完整 Targeted，不能用 Draft 阶段结果替代正式发布证据。
+
+运行时代码合并前要求：Build & Core Checks 成功；受改动影响的 Release Targeted Numeric Checks 成功。Manual Visual Review 不是默认合并门槛，除非用户明确要求视觉验收或此次任务本身就是视觉修改。
 
 纯文档修改无需为了视觉证据重新运行完整代码/截图矩阵。工作流或测试脚本本身修改时，应验证新的 Build 与 Targeted Numeric Checks 能按预期触发；视觉工作流只需确认可被手动调用，不要求自动跑完整截图。
