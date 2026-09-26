@@ -198,12 +198,7 @@ jobs:
               case "$path" in src/livestock/*|src/chicken/*|src/duck/*|src/goose/*|src/pig/*|src/dog/*|src/cat/*|src/ui/AnimalModeSwitcher*|src/ui/animal-mode-switcher*|src/ui/WorkspaceSwitcher*|src/horse/horse.css|src/main.tsx|src/styles.css|src/animation/clip-clock.ts|scripts/check-livestock*|package.json|package-lock.json|.github/workflows/*|.github/actions/*) required=true ;; esac
             done < <(git -c core.quotepath=false diff --name-only "$BASE" HEAD)
           fi
-          {
-            echo "required=$required"
-            echo "motion_matrix=$motion_matrix"
-            echo "browser_matrix=$browser_matrix"
-            echo "coverage_required=$coverage_required"
-          } >> "$GITHUB_OUTPUT"
+          echo "required=$required" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v4
         if: steps.scope.outputs.required == 'true'
         with:
@@ -302,7 +297,12 @@ jobs:
               case "$path" in src/soldier/*|src/character/*|src/scene/CharacterViewport.tsx|src/App.tsx|src/animation/*|scripts/check-ci-*|scripts/review-local.mjs|scripts/check-soldier*|scripts/check-garment*|scripts/check-components*|scripts/check-tailoring*|scripts/garment-contact-scope.ts|scripts/prepare-*|scripts/lib/*|public/mixamo/*|public/system-animator/*|public/mediapipe/*|动画参考/*|动画参考_glb/*|Documentation/皇宫禁卫与长枪.md|Documentation/军人与甲胄工作流.md|Documentation/边疆戍卒与长枪.md|package.json|package-lock.json|.github/workflows/*|.github/actions/*) required=true ;; esac
             done < <(git -c core.quotepath=false diff --name-only "$BASE" HEAD)
           fi
-          echo "required=$required" >> "$GITHUB_OUTPUT"
+          {
+            echo "required=$required"
+            echo "motion_matrix=$motion_matrix"
+            echo "browser_matrix=$browser_matrix"
+            echo "coverage_required=$coverage_required"
+          } >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v4
         if: steps.scope.outputs.required == 'true'
         with:
