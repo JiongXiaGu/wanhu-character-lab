@@ -54,7 +54,7 @@ function triangles(c:Cage,accept:(id:string)=>boolean){
 }
 const hatVertex=(id:string)=>/^(HeavyPalaceHelmet|HeavyFrontierHelmet|HeavyCityHelmet|PalaceHelmet|FrontierHelmet|CityHelmet|Helmet|WardrobeCap|CapTablet|CapWings|WrapKnot|Straw|Headband|JadePin|JadeFinial)/.test(id);
 const headwearTriangles:Record<Exclude<HeadwearId,'none'>,number>={
-  palace_heavy_helmet:144,palace_heavy_captain_helmet:174,frontier_heavy_helmet:144,frontier_heavy_captain_helmet:174,city_heavy_helmet:144,city_heavy_captain_helmet:174,
+  palace_heavy_helmet:188,palace_heavy_captain_helmet:218,frontier_heavy_helmet:188,frontier_heavy_captain_helmet:218,city_heavy_helmet:188,city_heavy_captain_helmet:218,
   palace_guard_helmet:126,frontier_guard_helmet:112,city_guard_helmet:144,palace_captain_helmet:142,frontier_captain_helmet:142,city_captain_helmet:166,farmer_straw_hat:24,guard_helmet:28,archer_headband:36,cloth_wrap:40,scholar_cap:52,jade_pin:24,
 };
 // 所有实心帽壳共用原来的同色封底、头发贯穿和包覆规则；重盔不另设豁免。
