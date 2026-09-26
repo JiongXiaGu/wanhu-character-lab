@@ -36,6 +36,23 @@ jobs:
       - name: Back equipment topology, bind and Recipe V5 checks
         run: npx tsx scripts/check-back-equipment.ts
       - uses: ./.github/actions/prepare-motion
+      # Temporary S6-5 offline authoring inputs; remove before the final candidate.
+      - name: Archive exact S6-5 authoring inputs without Git credentials
+        if: github.event_name == 'pull_request' && github.event.pull_request.number == 66
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/s6-authoring
+          git archive --format=tar HEAD > /tmp/s6-authoring/source.tar
+          tar -czf /tmp/s6-authoring/runtime-inputs.tar.gz node_modules public/mixamo public/system-animator
+          printf '%s\n' "$REVIEW_HEAD_SHA" > /tmp/s6-authoring/source-sha.txt
+          (cd /tmp/s6-authoring && sha256sum source.tar runtime-inputs.tar.gz > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'pull_request' && github.event.pull_request.number == 66
+        with:
+          name: s6-authoring-${{ env.REVIEW_HEAD_SHA }}
+          path: /tmp/s6-authoring/
+          retention-days: 1
       - name: TypeScript and production build
         run: npm run build --ignore-scripts
       - name: Back equipment source-key animation and riding checks
