@@ -1,0 +1,32 @@
+name: Temporary S6-6 Author Snapshot
+on:
+  push:
+    branches: [s6-6-heavy-infantry-rebuild]
+    paths: [.github/workflows/s6-6-author-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Pack tracked source and dependencies only
+        run: |
+          mkdir -p /tmp/s6-6-author
+          git archive --format=tar HEAD | gzip > /tmp/s6-6-author/source.tar.gz
+          tar -czf /tmp/s6-6-author/dependencies.tar.gz node_modules
+          git rev-parse HEAD > /tmp/s6-6-author/source-sha.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s6-6-author-snapshot
+          path: /tmp/s6-6-author/
+          retention-days: 1
+          compression-level: 0
