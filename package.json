@@ -54,7 +54,8 @@
     "review:character": "node scripts/review-v3.mjs",
     "check:mediapipe": "tsx scripts/check-mediapipe.ts",
     "check:soldier-browser": "node scripts/check-soldier-browser.mjs",
-    "review:soldier": "node scripts/check-soldier-browser.mjs --screenshots"
+    "review:soldier": "node scripts/check-soldier-browser.mjs --screenshots",
+    "review:soldier-heavy-fast": "node scripts/review-soldier-heavy-fast.mjs"
   },
   "dependencies": {
     "react": "19.1.1",
