@@ -58,5 +58,11 @@ export function makeHeavyArmorTop(recipe: Recipe) {
     v.p[0] = side * x + (v.p[0] - side * x) * (.060 / radius);
     v.p[1] = y + (v.p[1] - y) * (.060 / radius);
   }
+  // 胸背到袖根的插接面属于躯干承托面，肩带需要沿它连续采样。
+  // 只补齐该段 region；不改顶点、权重、面序、通用采样器或实际臂甲。
+  for (const f of torso.mesh.faces) {
+    if (f.v.some(i => /^Top\.(Chest|Shoulder)\./.test(torso.mesh.vertices[i].id)) &&
+        f.v.some(i => /^Top\.(Right|Left)\.MantleRoot\./.test(torso.mesh.vertices[i].id))) f.region = 'torso';
+  }
   return finishTop(recipe, torso, cuffs, true);
 }
