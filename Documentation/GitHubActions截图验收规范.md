@@ -89,6 +89,25 @@ AI 默认不应做：
 
 纯数值/协议/目录清理无需完整视觉回归，除非改动直接影响画面。
 
+## Actions 查询与对话执行纪律
+
+GitHub Actions 是异步验收器，不应通过连续查询 workflow / jobs / steps 来同步盯住 runner；同时，**不能因为 run 仍是 queued / in_progress 就把本应完成的任务提前结束。**
+
+默认规则：
+
+1. 提交或触发 workflow 后，先确认 run 已创建、目标 SHA 正确，没有 YAML / checkout / 权限等立即失败。
+2. CI 运行期间继续所有不依赖 CI 的工作，包括代码修复、文档同步、视觉证据整理、PR 描述、冲突检查和合并准备。不要把“等 CI”当成停止点。
+3. 禁止高频执行 workflow → jobs → steps → workflow 的轮询链。查询次数不是停止任务的触发器。
+4. 到达真正的 Candidate / Release / merge Gate 后，如果当前 run 是唯一剩余依赖：
+   - 有持续等待 / watch 能力时，优先使用一次持续等待；
+   - 没有 watch 时才低频检查，不重复展开 jobs / steps，除非状态已经失败。
+5. queued / in_progress 本身不是交回任务的理由。只有 workflow 达到自身 timeout、连续约 **20 分钟**没有状态进展且已经没有其它可推进工作、工具/权限硬阻塞，或用户明确要求停止时，才允许结束未完成任务。
+6. failure / cancelled / action_required 时读取真实失败 job / step / log，得到可操作原因后直接修复；不能用其它 workflow 成功来掩盖失败。
+7. 修复后按实际影响范围重跑，不因为一次失败恢复到无关的全仓库矩阵。
+8. 不给 runner 完成时间作承诺，只陈述已经发生的状态。
+
+因此，“不轮询”意味着减少无意义 API 查询；**不意味着把一次可完成的交付拆成多个等待用户再次说“继续”的轮次。** 最终回复应优先给出真正完成的交付；若因上述长时间/硬阻塞条件被迫停止，必须精确说明阻塞、已完成部分和恢复入口。
+
 ## 证据记录
 
 必须区分：
@@ -106,6 +125,8 @@ AI 默认不应做：
 
 ## 合并策略
 
-运行时代码合并前要求：Build & Core Checks 成功；受改动影响的 Targeted Numeric Checks 成功。Manual Visual Review 不是默认合并门槛，除非用户明确要求视觉验收或此次任务本身就是视觉修改。
+Draft PR 是开发载体，不等于 Release Gate。Heavy-only Draft 迭代应使用 Fast / Candidate 范围，不自动重复完整 Soldier Release Targeted；转为 Ready for Review 时必须触发完整 Targeted，不能用 Draft 阶段结果替代正式发布证据。
+
+运行时代码合并前要求：Build & Core Checks 成功；受改动影响的 Release Targeted Numeric Checks 成功。Manual Visual Review 不是默认合并门槛，除非用户明确要求视觉验收或此次任务本身就是视觉修改。
 
 纯文档修改无需为了视觉证据重新运行完整代码/截图矩阵。工作流或测试脚本本身修改时，应验证新的 Build 与 Targeted Numeric Checks 能按预期触发；视觉工作流只需确认可被手动调用，不要求自动跑完整截图。
