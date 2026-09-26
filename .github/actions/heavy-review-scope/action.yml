@@ -1,0 +1,25 @@
+name: Resolve Heavy review lane
+description: Classify the complete PR diff; shared changes and Ready/main retain Release.
+inputs:
+  scope:
+    description: Requested numeric scope
+    required: false
+    default: auto
+outputs:
+  lane:
+    description: authoring, candidate or release
+    value: ${{ steps.resolve.outputs.lane }}
+  heavy_only:
+    description: Complete PR diff contains only Heavy authoring and static contracts
+    value: ${{ steps.resolve.outputs.heavy_only }}
+runs:
+  using: composite
+  steps:
+    - id: resolve
+      shell: bash
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        PR_DRAFT: ${{ github.event.pull_request.draft }}
+        PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        DISPATCH_SCOPE: ${{ inputs.scope }}
+      run: node scripts/resolve-heavy-review-scope.mjs
