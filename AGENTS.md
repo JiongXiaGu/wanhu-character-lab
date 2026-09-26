@@ -166,11 +166,19 @@ check:riding-browser、check:saddles-browser、check:mounts-browser只做真实�
 
 动态扫描全部 Mixamo FBX 与 XR Animator GLB，不固定总数，失败明确报错；GLB 必须使用真实 Bind World Transform，FBX 继续使用真实 inverse bind，不用首帧替代。保留头部相对bind完整旋转差，不用HeadTop_End当脸前向或锁俯仰。原人物换装／男女切换保持暂停相位，切动画复用网格。
 
-## GitHub Actions 轮询限制
+## GitHub Actions 执行纪律
 
-Actions 是异步验收，不是执行主循环。提交或触发 workflow 后，在没有失败信号时，对同一个 run 主动查询最多两次：第一次确认正常启动，第二次读取当前结果。若仍为 queued / in_progress，记录状态并结束本轮，不继续按 workflow / jobs / steps 循环查询。
+Actions 是异步验收器，不是执行主循环，但 **“不高频轮询”绝不等于“CI 还在运行就中途结束任务”**。
 
-只有出现 failure、cancelled、action_required 等异常时才继续深入 job、step 或 log，并在得到可操作原因后优先修复代码。用户后续明确要求继续检查时，再读取最新状态。不要为了等待 CI 暂停已经可以完成的代码、文档或视觉判断，也不要承诺 runner 会在某个时间完成。
+提交或触发 workflow 后：
+- 先确认 run 已创建、目标 SHA 正确，且没有 YAML / checkout / 权限等立即失败。
+- 不执行 workflow → jobs → steps → workflow 的高频查询链；等待期间继续所有不依赖 CI 的代码、文档、截图整理、冲突处理和合并准备。
+- 到达真正的 Release / merge Gate 后，如果 CI 是唯一剩余依赖，优先使用一次持续等待 / watch；没有可用 watch 时才低频读取状态。**queued / in_progress 本身不是停止条件。**
+- failure / cancelled / action_required 时立即读取真实失败 job / step / log，修复可操作原因后重新验证，不用其它成功项掩盖失败。
+- 只有 workflow 已达到自身 timeout、连续约 20 分钟没有状态进展且没有任何可继续推进的工作、执行工具/权限发生硬阻塞，或用户明确要求停止时，才允许把未完成任务交回。必须写清停在哪一步和下一步动作。
+- 不承诺 runner 会在某个具体时间完成；只记录已发生的状态。
+
+目标是减少无意义查询和全量验收，不是把一次完整交付拆成多个“等用户再说继续”的半成品轮次。
 
 ## 审图与交付
 
