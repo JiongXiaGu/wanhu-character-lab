@@ -184,7 +184,7 @@ Actions 是异步验收器，不是执行主循环，但 **“不高频轮询”
 
 默认修改→代码／数值／交互检查→交付用户体验。仅用户要求视觉审查、建立视觉基线或处理纯视觉问题时才执行本地／runner截图；不得每轮自动生成大矩阵并逐张代替用户判断，旧review:local各入口与--full按需保留。骆驼建模可显式调用scripts/review-camel-torso.mjs，不能并入默认交互测试。
 
-军人/甲胄模型开发必须区分作者迭代、候选验收和 main 发布。Heavy 专项以《军人与甲胄工作流》为准：作者迭代使用 Targeted `soldier-heavy-authoring`，需要轮廓图时使用 Manual Visual `soldier-heavy-fast`；造型稳定后才运行 `soldier-heavy-candidate`；正式 PR 才承担完整 Release Gate。不要为了每次顶点/轮廓调整创建 PR 并重复跑全 Soldier、全骑乘和全截图矩阵。共享 rig、Recipe、assembly、motion、通用 wardrobe/runtime 或 CI 变化仍必须走完整影响范围，不得滥用 Heavy 快速通道。
+军人/甲胄模型开发必须区分作者迭代、候选验收和 main 发布。Heavy 专项以《军人与甲胄工作流》为准：作者迭代使用 Targeted `soldier-heavy-authoring`，需要轮廓图时使用 Manual Visual `soldier-heavy-fast`；造型稳定后运行 `soldier-heavy-candidate`。Draft PR 仍属于开发/候选阶段，Heavy-only 同步不得自动重复完整 Release Targeted；转为 Ready for Review 时再触发完整 Release Gate。共享 rig、Recipe、assembly、motion、通用 wardrobe/runtime 或 CI 变化仍必须走完整影响范围，不得滥用 Heavy 快速通道。
 
 仍只有Build & Core Checks、Targeted Numeric Checks、手动Manual Visual Review三条正式Actions。多坐骑与家畜并入Targeted，不新增永久流程。Package／workflow变更仍全数值回归，不放宽源键／中点、绑定保护、故障注入或穿插阈值来加速。
 
