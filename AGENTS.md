@@ -1,10 +1,12 @@
-## S6-5：长甲裳审查候选，发布与美术认可分开
+## S6-6：整套重甲步兵重做
 
-用户明确 Heavy 必须接近长裙式甲裳、全副武装的重步兵，不接受高胯分叉的宽甲裤。沿用 PR #66：厚胸腹/肩腰/护臂与六款重盔保持，本次只重建 `heavy_armor_skirt` 的连续前后围裳、低位活动开口及真实腿出口。数值通过不能代替长裙观感与用户美术认可。
+Heavy 重新定义为重甲步兵：整套重做 `heavy_armor`、`heavy_armor_skirt` 与六款既有 Heavy 头盔，不以骑乘适配为设计目标，也不修改骑乘系统。前后与侧向长甲裳连续过膝到小腿，删除旧的两段外鼓甲裤腿；胸腹、肩腰、护臂和帽壳/眉檐/护颊/护颈一起重做，而非拉长 Medium。
 
-Light/Medium/Heavy 是第一轴；驻地第二轴主要拥有 palette + helmet；普通/队长只用实际 headwear variant。Heavy 头盔映射只在试衣/preset 层；V5 六字段、七槽位、固定男女、20骨、最多双权重、inverse bind、动作、Renderer、保存与染色协议不变，不恢复退役 ID 兼容。
+甲装等级仍为第一轴；驻地第二轴只拥有 palette + helmet，普通/队长仍只用实际 headwear 区分。六款 Heavy 头盔沿用原 ID 和试衣/preset 映射，独立混搭保持；Recipe V5 六字段/七槽位、固定男女、20骨、最多双权重、inverse bind、Renderer、Actor、动作/保存/染色协议不变，不恢复退役资产兼容。
 
-2026-09-26 用户明确要求正常合入 main，以便亲自审查。上轮仅本地补丁的状态已由本次真实 GitHub 提交取代；继续接手必须重新读取 main 与 PR #66，不能按历史 SHA 覆盖后续提交。保留原 Build、Targeted 与真实 Canvas 截图检查；用户尚未认可美术不再等同于禁止交付审查入口，但不得把合并写成用户已认可。具体受测 SHA、Actions 和合并结果记在 PR。共同规则见《军人与甲胄工作流》，下方历史阶段中“重甲留下一阶段”不是当前限制。
+当前是 S6-6 候选，不是已验收成品。完整原下身检查仍会在 Heavy 的 jogging/start-walking 中拦截裙底与小腿的穿插；不得合并 main、降低采样/容差、改接触豁免或把静态闭合通过写成动作通过。必须修模型、重跑三条正式 Actions、下载并实际查看原始 Canvas 图后再决定合并。实际 head、运行编号、截图与最终决定记录在本轮 PR，不把历史成功当作新候选成功。
+
+共同规则集中在《军人与甲胄工作流》。本轮继续 `s6-6-heavy-infantry-rebuild`，PR #66 已合并，不能向已关闭 PR 写新候选；开始和合并前均重新读取实时 main/head。
 
 ## S5 历史：等级主轴与驻地副轴
 
@@ -166,25 +168,9 @@ check:riding-browser、check:saddles-browser、check:mounts-browser只做真实�
 
 动态扫描全部 Mixamo FBX 与 XR Animator GLB，不固定总数，失败明确报错；GLB 必须使用真实 Bind World Transform，FBX 继续使用真实 inverse bind，不用首帧替代。保留头部相对bind完整旋转差，不用HeadTop_End当脸前向或锁俯仰。原人物换装／男女切换保持暂停相位，切动画复用网格。
 
-## GitHub Actions 执行纪律
-
-Actions 是异步验收器，不是执行主循环，但 **“不高频轮询”绝不等于“CI 还在运行就中途结束任务”**。
-
-提交或触发 workflow 后：
-- 先确认 run 已创建、目标 SHA 正确，且没有 YAML / checkout / 权限等立即失败。
-- 不执行 workflow → jobs → steps → workflow 的高频查询链；等待期间继续所有不依赖 CI 的代码、文档、截图整理、冲突处理和合并准备。
-- 到达真正的 Release / merge Gate 后，如果 CI 是唯一剩余依赖，优先使用一次持续等待 / watch；没有可用 watch 时才低频读取状态。**queued / in_progress 本身不是停止条件。**
-- failure / cancelled / action_required 时立即读取真实失败 job / step / log，修复可操作原因后重新验证，不用其它成功项掩盖失败。
-- 只有 workflow 已达到自身 timeout、连续约 20 分钟没有状态进展且没有任何可继续推进的工作、执行工具/权限发生硬阻塞，或用户明确要求停止时，才允许把未完成任务交回。必须写清停在哪一步和下一步动作。
-- 不承诺 runner 会在某个具体时间完成；只记录已发生的状态。
-
-目标是减少无意义查询和全量验收，不是把一次完整交付拆成多个“等用户再说继续”的半成品轮次。
-
 ## 审图与交付
 
 默认修改→代码／数值／交互检查→交付用户体验。仅用户要求视觉审查、建立视觉基线或处理纯视觉问题时才执行本地／runner截图；不得每轮自动生成大矩阵并逐张代替用户判断，旧review:local各入口与--full按需保留。骆驼建模可显式调用scripts/review-camel-torso.mjs，不能并入默认交互测试。
-
-军人/甲胄模型开发必须区分作者迭代、候选验收和 main 发布。Heavy 专项以《军人与甲胄工作流》为准：作者迭代使用 Targeted `soldier-heavy-authoring`，需要轮廓图时使用 Manual Visual `soldier-heavy-fast`；造型稳定后运行 `soldier-heavy-candidate`。Draft PR 仍属于开发/候选阶段，Heavy-only 同步不得自动重复完整 Release Targeted；转为 Ready for Review 时再触发完整 Release Gate。共享 rig、Recipe、assembly、motion、通用 wardrobe/runtime 或 CI 变化仍必须走完整影响范围，不得滥用 Heavy 快速通道。
 
 仍只有Build & Core Checks、Targeted Numeric Checks、手动Manual Visual Review三条正式Actions。多坐骑与家畜并入Targeted，不新增永久流程。Package／workflow变更仍全数值回归，不放宽源键／中点、绑定保护、故障注入或穿插阈值来加速。
 

@@ -38,7 +38,7 @@ const variants=styles.flatMap(style=>SOLDIER_ARMOR_CLASS_IDS.flatMap(armorClass=
   apply:(r:Recipe)=>applySoldierLoadout(r,style.id,armorClass,identity),
   slots:{...style.slots,...SOLDIER_ARMOR_SLOTS[armorClass],headwear:soldierHelmetFor(style.id,identity,armorClass)},
   helmet:armorClass==='heavy'?`Heavy${style.id[0].toUpperCase()+style.id.slice(1)}Helmet.`:style.helmet,
-  budgets:{...style.budgets,...armorBudgets[armorClass],helmet:armorClass==='heavy'?(identity==='captain'?174:144):identity==='captain'?captainBudgets[style.id]:style.budgets.helmet},
+  budgets:{...style.budgets,...armorBudgets[armorClass],helmet:armorClass==='heavy'?(identity==='captain'?218:188):identity==='captain'?captainBudgets[style.id]:style.budgets.helmet},
   skirt:armorClass==='heavy'?assertHeavyArmorSkirt:armorClass==='medium'?assertMediumArmorSkirt:assertCityTrousers,
 }))));
 assert.equal(variants.length,18);assert.equal(new Set(variants.map(v=>v.id)).size,18);

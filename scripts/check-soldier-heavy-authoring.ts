@@ -70,7 +70,7 @@ assert.equal(rows.length, 6, 'S6-1 必须包含男女 × 三驻地 palette');
 
 const report = {
   passed: true,
-  stage: 'S6-5',
+  stage: 'S6-6',
   // 使用 workflow 实际 checkout 的候选 SHA；本地未指定时不冒用 PR merge SHA。
   sourceSHA: process.env.REVIEW_HEAD_SHA ?? null,
   budgets: HEAVY_ARMOR_BUDGET,
@@ -87,4 +87,4 @@ const report = {
 const outputDirectory = process.env.SOLDIER_CHECK_DIR || 'review';
 mkdirSync(outputDirectory, { recursive: true });
 writeFileSync(join(outputDirectory, 'soldier-heavy-authoring.json'), JSON.stringify(report, null, 2) + '\n');
-console.log('S6-5 HEAVY AUTHORING', JSON.stringify(report));
+console.log('S6-6 HEAVY AUTHORING', JSON.stringify(report));

@@ -15,7 +15,7 @@ function bounds(c: Cage, part: string) {
   return { min, max, width: max[0] - min[0], depth: max[2] - min[2], height: max[1] - min[1] };
 }
 function assertHelmet(c: Cage, captain: boolean) {
-  assert.equal(triCount(c), captain ? 174 : 144); assert.equal(c.vertices.length, captain ? 93 : 76);
+  assert.equal(triCount(c), captain ? 218 : 188); assert.equal(c.vertices.length, captain ? 115 : 98);
   assert.equal(new Set(c.vertices.map(v => v.id)).size, c.vertices.length);
   const edges = new Map<string, number>();
   for (const v of c.vertices) { assert(v.p.every(Number.isFinite)); assert.deepEqual(v.w, [B.Head, B.Head, 1]); }
@@ -27,9 +27,9 @@ function assertHelmet(c: Cage, captain: boolean) {
   assert([...edges.values()].every(n => n === 2), '所有重盔实体必须闭合且无非流形边'); assertComponentWinding(c);
   const dome = bounds(c, '.Shell.Dome.'), low = bounds(c, '.Shell.ForeheadLow.'), high = bounds(c, '.Shell.ForeheadHigh.');
   const guard = bounds(c, '.Guard.OuterLow.');
-  assert(dome.width > .30 && dome.depth > .30, '重盔壳不能收回标准盔的窄薄体量');
-  assert(high.min[1] - low.min[1] >= .040, '厚眉檐不能退化为细装饰线');
-  assert(guard.min[1] <= 1.521 && guard.max[2] > .095 && guard.width >= .35, '长护颈与前颊侧包覆必须真实存在');
+  assert(dome.width > .315 && dome.depth > .34, '重盔壳不能收回标准盔的窄薄体量');
+  assert(high.min[1] - low.min[1] >= .050, '厚眉檐不能退化为细装饰线');
+  assert(guard.min[1] <= 1.491 && guard.max[2] > .15 && guard.width >= .40, '长护颈与前颊侧包覆必须真实存在');
   if (captain) {
     const crest = bounds(c, '.Crest.'), root = bounds(c, '.Crest.Base.'), body = bounds(c, '.Crest.Body.'), upper = bounds(c, '.Crest.Upper.'), summit = bounds(c, '.Shell.Summit.');
     const tip = c.vertices.find(v => v.id.endsWith('.Crest.Tip'))!.p;
@@ -62,6 +62,17 @@ for (const id of HEAVY_HEADWEAR_IDS) {
   );
   for (const fault of faults) { const bad = structuredClone(c); fault(bad); assert.throws(() => assertHelmet(bad, captain)); negativeCases++; }
   const identity = identifySoldierHelmet(id)!;
+  // 同身体、同身份比较真实帽壳和护颈，不把队长顶饰算成 Heavy 的包覆体量。
+  const medium = makeCharacter(applySoldierLoadout(createRecipe(), identity.style, 'medium', identity.identity));
+  const prefix = identity.style[0].toUpperCase() + identity.style.slice(1) + 'Helmet.';
+  const mediumShell = bounds(medium.surface, prefix + 'Shell.'), mediumGuard = bounds(medium.surface, prefix + 'Neck.');
+  const heavyShell = bounds(c, '.Shell.'), heavyGuard = bounds(c, '.Guard.OuterLow.');
+  const comparison = { shellWidthIncrease: heavyShell.width - mediumShell.width,
+    shellHeightIncrease: heavyShell.height - mediumShell.height,
+    browForwardIncrease: heavyShell.max[2] - mediumShell.max[2],
+    napeExtension: mediumGuard.min[1] - heavyGuard.min[1] };
+  assert(comparison.shellWidthIncrease > .025 && comparison.shellHeightIncrease > .020 && comparison.browForwardIncrease > .035 && comparison.napeExtension > .040,
+    '三驻地的 Heavy 帽壳、眉檐和护颈均须实质区别于各自 Medium，不能只换色或加顶饰');
   for (const bodyType of BODY_TYPES) for (const hairStyle of HAIR_STYLE_IDS) {
     const recipe = applySoldierLoadout(createRecipe({ bodyType, hairStyle }), identity.style, 'heavy', identity.identity);
     assert.equal(recipe.slots.headwear, id); assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)), recipe);
@@ -74,7 +85,7 @@ for (const id of HEAVY_HEADWEAR_IDS) {
     assert.equal(randomizeCharacter(recipe, 96, ['headwear']).slots.headwear, id);
     assembledCases++;
   }
-  rows.push({ id, triangles: triCount(c), vertices: c.vertices.length, dome: bounds(c, '.Shell.Dome.'), guard: bounds(c, '.Guard.OuterLow.') });
+  rows.push({ id, triangles: triCount(c), vertices: c.vertices.length, comparison, dome: bounds(c, '.Shell.Dome.'), guard: bounds(c, '.Guard.OuterLow.') });
 }
 assert.equal(assembledCases, 36); assert.equal(negativeCases, 72);
 for (let seed = 0; seed < 384; seed++) assert.equal(identifySoldierHelmet(randomizeCharacter(createRecipe(), seed).slots.headwear), null);
