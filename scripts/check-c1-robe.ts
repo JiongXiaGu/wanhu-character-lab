@@ -37,6 +37,31 @@ function assertSilhouette(c:Cage) {
   assert(beltHeight>.04&&beltHeight<.075,'束带宽度必须能读出腰线，但不能变成胸甲');
   return {hem,ySpan:ySpan(c),cuffWidth:cuff(c,'Robe.Right.Cuff'),hemToChest,waistToChest,waistToChestDepth,beltLip,beltHeight};
 }
+/** 从实际映射后的衣面测量，而不是断言作者参数变小。
+ * 斜率 .43 相当于腰下侧线偏离垂直不超过约 23.3 度。
+ * 后片允许相对腰下—膝上弦线有胸厚 5% 的留量；不是要求纸片或绝对直线。
+ * 旧候选男女侧线斜率约 .442/.560，后片弦外凸出约胸厚 .087/.130。
+ */
+function assertHipDrape(c:Cage) {
+  const outer=(name:string)=>row(c,'Robe.'+name);
+  const y=(name:string)=>outer(name)[0].p[1];
+  const halfWidth=(name:string)=>width(c,'Robe.'+name)/2;
+  const rear=(name:string)=>-Math.min(...outer(name).map(v=>v.p[2]));
+  const depth=(name:string)=>{const z=outer(name).map(v=>v.p[2]);return Math.max(...z)-Math.min(...z);};
+  const chord=(name:string,lower:string,value:(name:string)=>number)=>value('BeltFold')+(value(lower)-value('BeltFold'))*(y('BeltFold')-y(name))/(y('BeltFold')-y(lower));
+  assert(y('BeltFold')>y('Hip')&&y('Hip')>y('Seat')&&y('Seat')>y('KneeUpper'),'腰髋支撑顺序不能折返');
+  const hipSlope=(halfWidth('Hip')-halfWidth('BeltFold'))/(y('BeltFold')-y('Hip'));
+  const sideCorner=(halfWidth('Hip')-chord('Hip','Seat',halfWidth))/width(c,'Robe.Chest');
+  const rearBulge=Math.max(...['Hip','Seat'].map(name=>rear(name)-chord(name,'KneeUpper',rear)))/depth('Chest');
+  const rearReversal=(rear('Hip')-rear('Seat'))/depth('Chest');
+  assert(hipSlope>=0&&hipSlope<=.43,'腰下到髋部突扩，不能用侧臀裙撑换取腰线');
+  assert(sideCorner<=.065,'腰下侧线出现局部台阶，必须检查三分之四与背面');
+  assert(rearBulge<=.05,'后片超出垂落弦线形成硬包，正面宽度通过不能代替后片通过');
+  assert(rearReversal<=.012,'后臀先鼓出再向大腿内扣，不能呈包臀球体');
+  const waistToChest=width(c,'Robe.Waist')/width(c,'Robe.Chest'),waistToChestDepth=depth('Waist')/depth('Chest');
+  assert(waistToChest>=.72&&waistToChest<=.86&&waistToChestDepth>=.70&&waistToChestDepth<=.88,'收回臀部后仍须保留正侧面腰线');
+  return {hipSlope,sideCorner,rearBulge,rearReversal,waistToChest,waistToChestDepth};
+}
 export function checkC1Robe() {
   assert(pierces([.2,.2,-1],[.2,.2,1],[[0,0,0],[1,0,0],[0,1,0]]));
   assert(!pierces([2,2,-1],[2,2,1],[[0,0,0],[1,0,0],[0,1,0]]));
@@ -64,6 +89,21 @@ export function checkC1Robe() {
     if(mutation==='flat-belt')row(bad,'Robe.BeltLower').forEach((v,k)=>{const base=row(bad,'Robe.BeltFold')[k];v.p[0]=base.p[0];v.p[2]=base.p[2];});
     assert.throws(()=>assertSilhouette(bad),`${mutation} 故障必须被轮廓门槛拦截`);
   }
+  // 两种固定映射均测量：女性比例场不能由男性作者截图代替。
+  const hipDrape=[];
+  for(const bodyType of BODY_TYPES) {
+    const mapped=cloneCage(piece.mesh),recipe=createRecipe({bodyType});
+    for(const v of mapped.vertices)v.p=shapePoint(v.p,recipe);
+    hipDrape.push({bodyType,...assertHipDrape(mapped)});
+    for(const mutation of ['hip-step','rear-bulge'] as const) {
+      const bad=cloneCage(mapped);
+      for(const v of row(bad,'Robe.Hip')) {
+        if(mutation==='hip-step')v.p[0]*=1.25;
+        if(mutation==='rear-bulge'&&v.p[2]<0)v.p[2]-=.025;
+      }
+      assert.throws(()=>assertHipDrape(bad),`${bodyType}/${mutation} 必须由真实衣面测量拦截`);
+    }
+  }
   const combinations:unknown[]=[];
   for(const bodyType of BODY_TYPES)for(const bottom of BOTTOM_IDS) {
     const recipe=createRecipe({bodyType,slots:{top:'narrow_long_robe',bottom,headwear:'none',back:'none',leftHand:'none',rightHand:'none',shoes:'cloth_shoes'}});
@@ -84,7 +124,7 @@ export function checkC1Robe() {
     }
     combinations.push({bodyType,bottom,triangles:triCount(d.surface),bones:d.joints.length});
   }
-  const report={passed:true,testedSha:process.env.REVIEW_HEAD_SHA??'local',silhouette,triangles:triCount(piece.mesh),vertices:piece.mesh.vertices.length,covers:piece.covers,combinations,mutationChecks:6,visualApproval:false};
+  const report={passed:true,testedSha:process.env.REVIEW_HEAD_SHA??'local',silhouette,hipDrape,triangles:triCount(piece.mesh),vertices:piece.mesh.vertices.length,covers:piece.covers,combinations,mutationChecks:6,hipMutationChecks:4,visualApproval:false};
   mkdirSync('review-wardrobe-batch',{recursive:true});writeFileSync('review-wardrobe-batch/c1-robe-numeric.json',JSON.stringify(report,null,2));
   console.log('C1_ROBE_NUMERIC',JSON.stringify(report));
   return report;
