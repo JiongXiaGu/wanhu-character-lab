@@ -2,7 +2,7 @@ import type { TopId, BottomId } from '../v3/types';
 
 /** 注册标识和接口尺寸；每个保留款式必须有明确用途或轮廓差异。 */
 export type TopPattern = { id:string; hem:number } & (
-  { asset:'work-shirt'|'cross-shirt'|'half-sleeve'|'work-vest'|'short-jacket'|'medium-top'|'heavy-top'|'city-top' } |
+  { asset:'work-shirt'|'cross-shirt'|'half-sleeve'|'work-vest'|'short-jacket'|'medium-top'|'heavy-top'|'city-top'|'narrow-long-robe' } |
   { asset:'classic'; sleeve:'short'|'long'; width:number; cuff:number }
 );
 export type BottomPattern = { id:string; hem:number; stressOnlyClips?:readonly string[] } & (
@@ -10,6 +10,7 @@ export type BottomPattern = { id:string; hem:number; stressOnlyClips?:readonly s
   { asset:'classic'; thigh:number; knee:number; calf:number; trim:boolean }
 );
 export const TOP_PATTERNS:Record<Exclude<TopId,'body'>,TopPattern>={
+  narrow_long_robe:{id:'narrow-long-robe-v1',asset:'narrow-long-robe',hem:.405},
   medium_armor:{id:'medium-armor-top-v1',asset:'medium-top',hem:1.035},
   heavy_armor:{id:'heavy-armor-top-v1',asset:'heavy-top',hem:1.035},
   city_guard_brigandine:{id:'city-short-brigandine-v1',asset:'city-top',hem:1.060},
