@@ -112,12 +112,16 @@ try {
       }
       await sheet(`${bodyType}-clay-${view}-comparison.png`,`${bodyType==='male'?'男性':'女性'} · 同机位统一素模 · ${view==='front'?'正面':'侧面'}`,[[`${bodyType}-clay-${view}.png`,'目标资产'],...references.map(id=>[`${bodyType}-${id}-clay-${view}.png`,id])]);
     }
+    // 与正侧面使用相同生产模型；后片与侧臀不能只靠正面证明成立。
+    for(const view of ['back','free'])await shot(`${bodyType}-clay-${view}.png`,await load({bodyType,view,display:'clay'}));
     for(const [motion,phase,view]of motionCases)await shot(`${bodyType}-${motion}.png`,await load({bodyType,motion,phase,view}));
+    // 深蹲源首帧曾经阻塞，不能只展示较安全的 .35 相位。
+    if(garment==='narrow_long_robe')await shot(`${bodyType}-snatch-start.png`,await load({bodyType,motion:'snatch',phase:0,view:'side',display:'clay'}));
     if(slot==='top')for(const bottom of ['work_wrap','long_skirt'])await shot(`${bodyType}-bottom-${bottom}.png`,await load({bodyType,bottom,view:'free'}));
     await sheet(`${bodyType}-views.png`,`${bodyType==='male'?'男性':'女性'} · ${garment}`,[[`${bodyType}-beauty-front.png`,'正面'],[`${bodyType}-beauty-free.png`,'三分之四']]);
     await sheet(`${bodyType}-walk-and-sit.png`,`${bodyType==='male'?'男性':'女性'} · 真实 FBX 动作`,[[`${bodyType}-start-walking.png`,'Start Walking · 0.40'],[`${bodyType}-pilot-switches.png`,'Pilot Flips Switches · 0.50']]);
   }
-  const expectedRaw=2*(4+2*(1+references.length)+motionCases.length+(slot==='top'?2:0));
+  const expectedRaw=2*(4+2*(1+references.length)+2+motionCases.length+(garment==='narrow_long_robe'?1:0)+(slot==='top'?2:0));
   assert.equal(records.length,expectedRaw,'最低矩阵不能漏图');
   assert.deepEqual(errors,[]);
   writeFileSync(join(dir,'report.json'),JSON.stringify({passed:true,sourceSHA,slot,garment,references,images,records,visualApproval:false,note:'Production WebGL screenshots; clay uses existing uniform material. Script success is not AI or user art approval.'},null,2));
