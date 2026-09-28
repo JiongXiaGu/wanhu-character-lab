@@ -4,38 +4,29 @@ on:
     types: [opened, synchronize, reopened]
 permissions:
   contents: read
-concurrency:
-  group: c1-remodel-source-${{ github.ref }}
-  cancel-in-progress: true
 jobs:
-  authoring-source:
+  authoring-browser:
     if: github.head_ref == 'c1-narrow-long-robe'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - uses: ./.github/actions/prepare-motion
-      - name: Read-only offline source export without original FBX binaries
+      - run: npx playwright install --only-shell chromium
+      - name: Read-only browser export
         run: |
-          set -euo pipefail
-          mkdir -p /tmp/c1-export
-          git archive HEAD | tar -x -C /tmp/c1-export --exclude='*.fbx' --exclude='*.FBX' --exclude='*.bvh' --exclude='*.BVH' --exclude='*.zip' --exclude='*.mp4'
-          tar -czf /tmp/c1-remodel-code.tgz -C /tmp/c1-export .
-          tar -czf /tmp/c1-remodel-deps.tgz node_modules
-          tar -czf /tmp/c1-remodel-motion.tgz public/mixamo public/system-animator
-          ls -lh /tmp/c1-remodel-*.tgz
+          tar -czf /tmp/c1-headless.tgz -C "$HOME/.cache/ms-playwright" .
+          ls -lh /tmp/c1-headless.tgz
       - uses: actions/upload-artifact@v4
         with:
-          name: c1-remodel-offline-source-small
-          path: /tmp/c1-remodel-*.tgz
+          name: c1-authoring-browser
+          path: /tmp/c1-headless.tgz
           compression-level: 0
           retention-days: 1
