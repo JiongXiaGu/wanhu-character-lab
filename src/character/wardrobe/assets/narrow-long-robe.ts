@@ -98,6 +98,9 @@ export function makeNarrowLongRobe(recipe: Recipe): GarmentPiece {
     previous = next;
   }
   openings.waist = previous;
+  // 先固定面片对角线，再统一朝向；否则反转四边面会改变内外层的对角线。
+  // 抬腿后四点不共面，内外层必须保留一致的作者三角化。
+  c.faces = c.faces.flatMap(f => f.v.slice(1, -1).map((_, i) => ({ ...f, v: [f.v[0], f.v[i + 1], f.v[i + 2]] })));
   orient(c);
   c.anchors = { ...openings, hem: loops[0], chest: loops[8] };
   return {
