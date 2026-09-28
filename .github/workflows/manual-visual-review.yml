@@ -23,10 +23,17 @@ jobs:
       - name: Read-only browser export
         run: |
           tar -czf /tmp/c1-headless.tgz -C "$HOME/.cache/ms-playwright" .
-          ls -lh /tmp/c1-headless.tgz
+          split -b 70m /tmp/c1-headless.tgz /tmp/c1-browser-part-
+          ls -lh /tmp/c1-browser-part-*
       - uses: actions/upload-artifact@v4
         with:
-          name: c1-authoring-browser
-          path: /tmp/c1-headless.tgz
+          name: c1-browser-part-a
+          path: /tmp/c1-browser-part-aa
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: c1-browser-part-b
+          path: /tmp/c1-browser-part-ab
           compression-level: 0
           retention-days: 1
