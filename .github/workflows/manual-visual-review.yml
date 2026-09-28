@@ -24,15 +24,18 @@ jobs:
           cache: npm
       - run: npm ci
       - uses: ./.github/actions/prepare-motion
-      - name: Read-only offline source export
+      - name: Read-only offline source export without original FBX binaries
         run: |
           set -euo pipefail
-          git archive HEAD | gzip > /tmp/c1-remodel-code.tgz
+          mkdir -p /tmp/c1-export
+          git archive HEAD | tar -x -C /tmp/c1-export --exclude='*.fbx' --exclude='*.FBX' --exclude='*.bvh' --exclude='*.BVH' --exclude='*.zip' --exclude='*.mp4'
+          tar -czf /tmp/c1-remodel-code.tgz -C /tmp/c1-export .
           tar -czf /tmp/c1-remodel-deps.tgz node_modules
           tar -czf /tmp/c1-remodel-motion.tgz public/mixamo public/system-animator
+          ls -lh /tmp/c1-remodel-*.tgz
       - uses: actions/upload-artifact@v4
         with:
-          name: c1-remodel-offline-source
+          name: c1-remodel-offline-source-small
           path: /tmp/c1-remodel-*.tgz
           compression-level: 0
           retention-days: 1
