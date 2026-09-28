@@ -10,7 +10,7 @@ export type BottomPattern = { id:string; hem:number; stressOnlyClips?:readonly s
   { asset:'classic'; thigh:number; knee:number; calf:number; trim:boolean }
 );
 export const TOP_PATTERNS:Record<Exclude<TopId,'body'>,TopPattern>={
-  narrow_long_robe:{id:'narrow-long-robe-v1',asset:'narrow-long-robe',hem:.405},
+  narrow_long_robe:{id:'narrow-long-robe-v2',asset:'narrow-long-robe',hem:.400},
   medium_armor:{id:'medium-armor-top-v1',asset:'medium-top',hem:1.035},
   heavy_armor:{id:'heavy-armor-top-v1',asset:'heavy-top',hem:1.035},
   city_guard_brigandine:{id:'city-short-brigandine-v1',asset:'city-top',hem:1.060},

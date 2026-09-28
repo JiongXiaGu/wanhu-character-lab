@@ -27,8 +27,15 @@ function assertSilhouette(c:Cage) {
   const hemToChest=width(c,'Robe.Hem')/width(c,'Robe.Chest');
   const waistToChest=width(c,'Robe.Waist')/width(c,'Robe.Chest');
   assert(hemToChest>=1&&hemToChest<=1.32,'C1 必须是小展 H 型，不能变成大 A 字');
-  assert(waistToChest>=.95&&waistToChest<=1.10,'直身不能缩成收腰礼裙');
-  return {hem,ySpan:ySpan(c),cuffWidth:cuff(c,'Robe.Right.Cuff'),hemToChest,waistToChest};
+  assert(waistToChest>=.72&&waistToChest<=.86,'必须有真实收束腰线：不能是水桶，也不能缩成极端细腰');
+  const depth=(prefix:string)=>{const points=row(c,prefix).map(v=>v.p[2]);return Math.max(...points)-Math.min(...points);};
+  const waistToChestDepth=depth('Robe.Waist')/depth('Robe.Chest');
+  assert(waistToChestDepth>=.70&&waistToChestDepth<=.88,'侧面也必须有腰，不得只收正面宽度');
+  const beltLip=width(c,'Robe.BeltLower')-width(c,'Robe.BeltFold');
+  assert(beltLip>.005&&beltLip<.025,'束带必须有真实折边，不能只改变面颜色');
+  const beltHeight=row(c,'Robe.BeltUpper')[0].p[1]-row(c,'Robe.BeltLower')[0].p[1];
+  assert(beltHeight>.04&&beltHeight<.075,'束带宽度必须能读出腰线，但不能变成胸甲');
+  return {hem,ySpan:ySpan(c),cuffWidth:cuff(c,'Robe.Right.Cuff'),hemToChest,waistToChest,waistToChestDepth,beltLip,beltHeight};
 }
 export function checkC1Robe() {
   assert(pierces([.2,.2,-1],[.2,.2,1],[[0,0,0],[1,0,0],[0,1,0]]));
@@ -47,11 +54,14 @@ export function checkC1Robe() {
   assert.deepEqual(piece.mesh.vertices,redyed.mesh.vertices,'染色不能改变坐标或权重');
   assert.deepEqual(piece.mesh.faces.map(f=>[f.v,f.region]),redyed.mesh.faces.map(f=>[f.v,f.region]),'染色不能改变拓扑或覆盖语义');
   assert.deepEqual(piece.covers,redyed.covers);assert.deepEqual(piece.sealedInterfaces,redyed.sealedInterfaces);
-  for(const mutation of ['short','wide-cuff','wide-hem'] as const) {
+  for(const mutation of ['short','wide-cuff','wide-hem','bucket-waist','bucket-side','flat-belt'] as const) {
     const bad=cloneCage(piece.mesh);
     if(mutation==='short')for(const v of row(bad,'Robe.Hem'))v.p[1]=1.02;
     if(mutation==='wide-hem')for(const v of row(bad,'Robe.Hem'))v.p[0]*=1.7;
     if(mutation==='wide-cuff')for(const v of row(bad,'Robe.Right.Cuff')){v.p[0]=.508+(v.p[0]-.508)*2;v.p[1]=.904+(v.p[1]-.904)*2;}
+    if(mutation==='bucket-waist')for(const v of row(bad,'Robe.Waist'))v.p[0]*=1.28;
+    if(mutation==='bucket-side')for(const v of row(bad,'Robe.Waist'))v.p[2]*=1.28;
+    if(mutation==='flat-belt')row(bad,'Robe.BeltLower').forEach((v,k)=>{const base=row(bad,'Robe.BeltFold')[k];v.p[0]=base.p[0];v.p[2]=base.p[2];});
     assert.throws(()=>assertSilhouette(bad),`${mutation} 故障必须被轮廓门槛拦截`);
   }
   const combinations:unknown[]=[];
@@ -74,7 +84,7 @@ export function checkC1Robe() {
     }
     combinations.push({bodyType,bottom,triangles:triCount(d.surface),bones:d.joints.length});
   }
-  const report={passed:true,testedSha:process.env.REVIEW_HEAD_SHA??'local',silhouette,triangles:triCount(piece.mesh),vertices:piece.mesh.vertices.length,covers:piece.covers,combinations,mutationChecks:3,visualApproval:false};
+  const report={passed:true,testedSha:process.env.REVIEW_HEAD_SHA??'local',silhouette,triangles:triCount(piece.mesh),vertices:piece.mesh.vertices.length,covers:piece.covers,combinations,mutationChecks:6,visualApproval:false};
   mkdirSync('review-wardrobe-batch',{recursive:true});writeFileSync('review-wardrobe-batch/c1-robe-numeric.json',JSON.stringify(report,null,2));
   console.log('C1_ROBE_NUMERIC',JSON.stringify(report));
   return report;
