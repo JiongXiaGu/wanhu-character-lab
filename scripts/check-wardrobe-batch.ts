@@ -4,9 +4,44 @@ import { makeTop } from '../src/character/wardrobe/assets/tops';
 import { makeTrousers } from '../src/character/wardrobe/assets/trousers';
 import { makeCharacter } from '../src/character/v3/outfit';
 import { makeActor } from '../src/character/v3/rig';
-import { createRecipe, emptySlots, type Cage, type Recipe } from '../src/character/v3/types';
+import { BOTTOM_IDS, HEADWEAR_IDS, SHOES_IDS, TOP_IDS, createRecipe, emptySlots, type Cage, type Recipe } from '../src/character/v3/types';
 import { triCount, cloneCage } from '../src/character/v3/cage';
 import { assertGarmentPiece } from './check-garment-assets';
+import { SLOT_OPTIONS } from '../src/character/wardrobe/catalog';
+import { WARDROBE_GAPS, WARDROBE_TAXONOMY, type WearableSlot } from '../src/character/wardrobe/taxonomy';
+
+function assertWardrobeTaxonomy(){
+  const expected:Record<WearableSlot,readonly string[]>={
+    headwear:HEADWEAR_IDS.filter(id=>id!=='none'),
+    top:TOP_IDS.filter(id=>id!=='body'),
+    bottom:BOTTOM_IDS.filter(id=>id!=='body'),
+    shoes:SHOES_IDS.filter(id=>id!=='body'),
+  };
+  const seen=new Set<string>();
+  for(const item of WARDROBE_TAXONOMY){
+    assert(!seen.has(item.id),`服饰版型目录存在重复ID: ${item.id}`);seen.add(item.id);
+    assert(item.name.trim()&&item.family.trim()&&item.silhouette.trim()&&item.length.trim(),'版型目录基础字段不能为空');
+    assert(item.contexts.length>0&&item.visualTraits.length>0,`${item.id} 必须保留检索场景和视觉特征`);
+  }
+  const expectedCount=Object.values(expected).reduce((n,ids)=>n+ids.length,0);
+  assert.equal(WARDROBE_TAXONOMY.length,expectedCount,'每个当前可穿戴ID必须且只能有一条版型档案');
+  for(const [slot,ids] of Object.entries(expected) as [WearableSlot,readonly string[]][]){
+    for(const id of ids){
+      const item=WARDROBE_TAXONOMY.find(entry=>entry.id===id);
+      assert(item,`缺少服饰版型档案: ${slot}/${id}`);assert.equal(item.slot,slot,`${id} 的槽位分类错误`);
+      const option=SLOT_OPTIONS[slot].find(entry=>entry.id===id);
+      assert(option,`衣柜下拉目录缺少 ${slot}/${id}`);assert.equal(item.name,option.name,`${id} 的版型名称必须与衣柜显示名一致`);
+    }
+  }
+  const gapIds=new Set<string>();
+  for(const gap of WARDROBE_GAPS){
+    assert(!gapIds.has(gap.id),`服饰缺口存在重复ID: ${gap.id}`);gapIds.add(gap.id);
+    assert(gap.targetContexts.length>0&&gap.distinguishingTraits.length>0&&gap.whyExistingAssetsDoNotCoverIt.trim(),`${gap.id} 缺口说明不完整`);
+    assert(!seen.has(gap.id),'缺口ID不能伪装成已注册运行时服饰');
+  }
+  return {entries:WARDROBE_TAXONOMY.length,bySlot:Object.fromEntries(Object.entries(expected).map(([slot,ids])=>[slot,ids.length])),gaps:WARDROBE_GAPS.length};
+}
+const taxonomy=assertWardrobeTaxonomy();
 
 const tops=['rough_tunic','cross_jacket','layered_vest'] as const;
 const bottoms=['work_pants','work_wrap'] as const;
@@ -52,5 +87,5 @@ for(const bodyType of ['male','female'] as const)for(const upper of tops)for(con
   assert(!d.surface.vertices.some(v=>/^(CrossCollar|InnerCollar)/.test(v.id)),'新领口不得叠加旧投影条');
   combinations.push({bodyType,top:upper,bottom,bodyTriangles:triCount(d.body),bodyLogicalVertices:d.body.vertices.length,triangles:triCount(d.surface),logicalVertices:d.surface.vertices.length,renderVertices:a.mesh.geometry.attributes.position.count});a.dispose();
 }
-const report={passed:true,sourceSha:process.env.REVIEW_HEAD_SHA??'local',assets,combinations,mutationChecks:1,manualVisualApproval:false,note:'保留三上衣、两实用长裤的制作差异/色区/闭合接口检查；真实动作图片和贯穿检测独立执行。'};
+const report={passed:true,sourceSha:process.env.REVIEW_HEAD_SHA??'local',taxonomy,assets,combinations,mutationChecks:1,manualVisualApproval:false,note:'服饰版型目录覆盖全部当前可穿戴ID并登记后续轮廓缺口；保留三上衣、两实用长裤的制作差异/色区/闭合接口检查，真实动作图片和贯穿检测独立执行。'};
 mkdirSync('review-wardrobe-batch',{recursive:true});writeFileSync('review-wardrobe-batch/numeric.json',JSON.stringify(report,null,2));console.log('PASS retained clothing batch',JSON.stringify(report));
