@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn, execFileSync } from 'node:child_process';
-import { createWriteStream, mkdirSync, writeFileSync } from 'node:fs';
+import { createWriteStream, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 
@@ -116,12 +116,20 @@ try {
     for(const view of ['back','free'])await shot(`${bodyType}-clay-${view}.png`,await load({bodyType,view,display:'clay'}));
     for(const [motion,phase,view]of motionCases)await shot(`${bodyType}-${motion}.png`,await load({bodyType,motion,phase,view}));
     // 深蹲源首帧曾经阻塞，不能只展示较安全的 .35 相位。
-    if(garment==='narrow_long_robe')await shot(`${bodyType}-snatch-start.png`,await load({bodyType,motion:'snatch',phase:0,view:'side',display:'clay'}));
+    if(garment==='narrow_long_robe') {
+      await shot(`${bodyType}-snatch-start.png`,await load({bodyType,motion:'snatch',phase:0,view:'side',display:'clay'}));
+      // 本轮实际失败峰值源时刻，不只截取安全姿态；仍使用生产动作与原相机。
+      for(const [motion,time,view]of [['jogging',2.2,'free'],['snatch',2/30,'side']]) {
+        const source=JSON.parse(readFileSync(`public/mixamo/${motion}.json`,'utf8'));
+        assert(source.duration>=time&&source.duration>0,'压力截图必须落在真实源动作内');
+        await shot(`${bodyType}-${motion}-pressure.png`,await load({bodyType,motion,phase:time/source.duration,view,display:'clay'}));
+      }
+    }
     if(slot==='top')for(const bottom of ['work_wrap','long_skirt'])await shot(`${bodyType}-bottom-${bottom}.png`,await load({bodyType,bottom,view:'free'}));
     await sheet(`${bodyType}-views.png`,`${bodyType==='male'?'男性':'女性'} · ${garment}`,[[`${bodyType}-beauty-front.png`,'正面'],[`${bodyType}-beauty-free.png`,'三分之四']]);
     await sheet(`${bodyType}-walk-and-sit.png`,`${bodyType==='male'?'男性':'女性'} · 真实 FBX 动作`,[[`${bodyType}-start-walking.png`,'Start Walking · 0.40'],[`${bodyType}-pilot-switches.png`,'Pilot Flips Switches · 0.50']]);
   }
-  const expectedRaw=2*(4+2*(1+references.length)+2+motionCases.length+(garment==='narrow_long_robe'?1:0)+(slot==='top'?2:0));
+  const expectedRaw=2*(4+2*(1+references.length)+2+motionCases.length+(garment==='narrow_long_robe'?3:0)+(slot==='top'?2:0));
   assert.equal(records.length,expectedRaw,'最低矩阵不能漏图');
   assert.deepEqual(errors,[]);
   writeFileSync(join(dir,'report.json'),JSON.stringify({passed:true,sourceSHA,slot,garment,references,images,records,visualApproval:false,note:'Production WebGL screenshots; clay uses existing uniform material. Script success is not AI or user art approval.'},null,2));
