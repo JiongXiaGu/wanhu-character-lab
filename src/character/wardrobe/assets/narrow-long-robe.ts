@@ -1,5 +1,5 @@
 import { B, rigid, type Cage, type Recipe, type Region, type Vec3, type Weight } from '../../v3/types';
-import { bridge, face, orient, ring, vertex } from '../../v3/cage';
+import { bridge, face, orient, ring, vertex, cross, sub } from '../../v3/cage';
 import { kneeWeights } from '../../v3/leg-deformation';
 import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from './contract';
 
@@ -108,7 +108,18 @@ export function makeNarrowLongRobe(recipe: Recipe): GarmentPiece {
     const [name, y, width, front, back, flat] = BODY[row];
     const next = PROFILE.map(([x,z],k)=>{
       const [px,pz]=profilePoint(x, z, flat);
-      return vertex(c,`Robe.Inner.${name}.${k}`,[px*(width-.006),y,pz*((z < 0 ? back : front)-.006)],[...c.vertices[loops[row][k]].w]);
+      const outer = c.vertices[loops[row][k]];
+      let point: Vec3 = [px*(width-.006), y, pz*((z < 0 ? back : front)-.006)];
+      // 膝部按作者衣面的法向内收，避免同高度径向缩圈在弯折后翻到外层。
+      // 腰髋仍保留原内收：全段法向内收会新增与独立长裙的行走穿插。
+      if (row <= BODY.findIndex(r => r[0] === 'KneeUpper')) {
+        const tangent = sub(c.vertices[loops[row][(k+1)%SEGMENTS]].p, c.vertices[loops[row][(k+SEGMENTS-1)%SEGMENTS]].p);
+        const along = sub(c.vertices[loops[row+1][k]].p, c.vertices[loops[Math.max(0,row-1)][k]].p);
+        const normal = cross(tangent, along), length = Math.hypot(...normal);
+        if (length < 1e-8) throw new Error('C1 膝部内收不能使用退化衣面法向');
+        point = outer.p.map((v,axis) => v-.006*normal[axis]/length) as Vec3;
+      }
+      return vertex(c, `Robe.Inner.${name}.${k}`, point, [...outer.w]);
     });
     bridge(c, previous, next, regionFor(y), row === 0 ? accent : secondary);
     previous = next;
