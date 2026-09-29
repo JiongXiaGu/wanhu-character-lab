@@ -124,12 +124,18 @@ try {
         assert(source.duration>=time&&source.duration>0,'压力截图必须落在真实源动作内');
         await shot(`${bodyType}-${motion}-pressure.png`,await load({bodyType,motion,phase:time/source.duration,view,display:'clay'}));
       }
+      // 独立 bottom 的数学相交现改为 Warning，必须补同姿态截图确认是否真的从长袍外层露出。
+      const jogging=JSON.parse(readFileSync('public/mixamo/jogging.json','utf8'));
+      for(const [bottom,time]of [['work_wrap',2.2],['long_skirt',19/30]]) {
+        assert(jogging.duration>=time,'分层下装压力截图必须落在真实 jogging 源动作内');
+        await shot(`${bodyType}-${bottom}-jogging-layer.png`,await load({bodyType,bottom,motion:'jogging',phase:time/jogging.duration,view:'free',display:'clay'}));
+      }
     }
     if(slot==='top')for(const bottom of ['work_wrap','long_skirt'])await shot(`${bodyType}-bottom-${bottom}.png`,await load({bodyType,bottom,view:'free'}));
     await sheet(`${bodyType}-views.png`,`${bodyType==='male'?'男性':'女性'} · ${garment}`,[[`${bodyType}-beauty-front.png`,'正面'],[`${bodyType}-beauty-free.png`,'三分之四']]);
     await sheet(`${bodyType}-walk-and-sit.png`,`${bodyType==='male'?'男性':'女性'} · 真实 FBX 动作`,[[`${bodyType}-start-walking.png`,'Start Walking · 0.40'],[`${bodyType}-pilot-switches.png`,'Pilot Flips Switches · 0.50']]);
   }
-  const expectedRaw=2*(4+2*(1+references.length)+2+motionCases.length+(garment==='narrow_long_robe'?3:0)+(slot==='top'?2:0));
+  const expectedRaw=2*(4+2*(1+references.length)+2+motionCases.length+(garment==='narrow_long_robe'?5:0)+(slot==='top'?2:0));
   assert.equal(records.length,expectedRaw,'最低矩阵不能漏图');
   assert.deepEqual(errors,[]);
   writeFileSync(join(dir,'report.json'),JSON.stringify({passed:true,sourceSHA,slot,garment,references,images,records,visualApproval:false,note:'Production WebGL screenshots; clay uses existing uniform material. Script success is not AI or user art approval.'},null,2));
