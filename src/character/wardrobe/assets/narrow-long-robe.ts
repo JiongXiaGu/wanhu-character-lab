@@ -65,7 +65,16 @@ export function makeNarrowLongRobe(recipe: Recipe): GarmentPiece {
   const loops = BODY.map(([name, y, width, front, back, flat]) => PROFILE.map(([x, z], k) => {
     const [px,pz] = profilePoint(x, z, flat);
     const point: Vec3 = [px * width, y, pz * (z < 0 ? back : front)];
-    return vertex(c, `Robe.${name}.${k}`, point, bodyWeight(point, name, pz));
+    const weight=bodyWeight(point,name,pz);
+    // 后中膝上支撑略抬高、后移，并增加少量大腿分担。
+    // 留量放在膝上而不是臀部；固定作者坐标，不读取动作、相位或下装。
+    if (name==='KneeUpper' && pz<-.9) {
+      point[0]+=Math.sign(point[0])*.003;
+      point[1]+=.012;
+      point[2]-=.009;
+      weight[2]+=.015;
+    }
+    return vertex(c, `Robe.${name}.${k}`, point, weight);
   }));
   for (let row = 0; row < loops.length - 1; row++) {
     for (let k = 0; k < SEGMENTS; k++) {
