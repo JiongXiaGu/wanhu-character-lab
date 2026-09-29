@@ -1,6 +1,7 @@
 import type { Cage, Vec3 } from '../../src/character/v3/types';
 
 export type Triangle = [Vec3, Vec3, Vec3];
+export type IntersectionPair = { a:number; b:number };
 const sub = (a: Vec3, b: Vec3): Vec3 => [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
 const dot = (a: Vec3, b: Vec3) => a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 const cross = (a: Vec3, b: Vec3): Vec3 => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
@@ -34,8 +35,11 @@ export function skinPoints(c: Cage, matrices: Float32Array): Vec3[] {
     return p;
   });
 }
-/** focus 只限定“包含本轮 top”的三角对；下装自身仍由原全目录检查负责。 */
-export function findIntersections(c: Cage, points: Vec3[], indices: number[][], focus?: boolean[]) {
+/** focus 只限定“包含本轮 top”的三角对；下装自身仍由原全目录检查负责。
+ * collectPairs 只暴露已经被原算法判为贯穿的三角索引，供调用方做严重级别分类；
+ * 不改变采样、容差、AABB 剔除或贯穿判定本身。
+ */
+export function findIntersections(c: Cage, points: Vec3[], indices: number[][], focus?: boolean[], collectPairs=false) {
   const tris=indices.map(ix=>{
     const p=ix.map(i=>points[i]) as Triangle;
     return {p,lo:[0,1,2].map(a=>Math.min(...p.map(v=>v[a]))),hi:[0,1,2].map(a=>Math.max(...p.map(v=>v[a])))};
@@ -43,6 +47,7 @@ export function findIntersections(c: Cage, points: Vec3[], indices: number[][], 
   const order=tris.map((_,i)=>i).sort((a,b)=>tris[a].lo[0]-tris[b].lo[0]);
   let testedPairs=0, hits=0;
   const examples: {a:string[];b:string[]}[]=[];
+  const pairs: IntersectionPair[]=[];
   for (let ai=0;ai<order.length;ai++) {
     const a=order[ai],x=tris[a];
     for (let bi=ai+1;bi<order.length;bi++) {
@@ -53,8 +58,9 @@ export function findIntersections(c: Cage, points: Vec3[], indices: number[][], 
       testedPairs++;
       if (![0,1,2].some(t=>pierces(x.p[t],x.p[(t+1)%3],y.p)||pierces(y.p[t],y.p[(t+1)%3],x.p))) continue;
       hits++;
+      if (collectPairs) pairs.push({a,b});
       if (examples.length<8) examples.push({a:indices[a].map(i=>c.vertices[i].id),b:indices[b].map(i=>c.vertices[i].id)});
     }
   }
-  return {testedPairs,hits,examples};
+  return {testedPairs,hits,examples,pairs};
 }
