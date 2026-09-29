@@ -44,6 +44,7 @@ export type HeadwearId =
   | "jade_pin";
 export type TopId =
   | "body"
+  | "narrow_long_robe"
   | "medium_armor"
   | "heavy_armor"
   | "city_guard_brigandine"
@@ -150,6 +151,7 @@ export const HEADWEAR_IDS = [
 
 export const TOP_IDS = [
   "body",
+  "narrow_long_robe",
   "medium_armor",
   "heavy_armor",
   "city_guard_brigandine",

@@ -53,6 +53,7 @@ export const WARDROBE_TAXONOMY = [
   entry({id:'city_heavy_helmet',name:'城军重盔',slot:'headwear',family:'military-heavy-city',silhouette:'heavy-city-helmet',length:'head-neck',layer:'head',formality:'military',contexts:['重甲步兵','城市守军'],visualTraits:['厚盔壳','城市守军识别','护颈']}),
   entry({id:'city_heavy_captain_helmet',name:'城军队长重盔',slot:'headwear',family:'military-heavy-city',silhouette:'heavy-city-captain-helmet',length:'head-neck',layer:'head',formality:'military',contexts:['重甲步兵','城市守军','队长'],visualTraits:['厚盔壳','竖向队长识别','护颈']}),
 
+  entry({id:'narrow_long_robe',name:'窄袖直身长袍',slot:'top',family:'civilian-long-robe',silhouette:'straight-h-long-robe',length:'calf',layer:'outer',formality:'formal',sleeve:'long-narrow-tapered',neckline:'close-collar-with-cross-trim',contexts:['士人','官署','官员','太监','内侍','宫廷日常','正式场合'],visualTraits:['膝下长身','窄长袖筒','收敛袖口','H型小展下摆','腰内回折']}),
   entry({id:'work_vest',name:'干活背心',slot:'top',family:'labor-light',silhouette:'sleeveless-short',length:'waist',layer:'base',formality:'labor',sleeve:'none',neckline:'open',contexts:['居民','劳作','夏季'],visualTraits:['无袖','短衣','大面积露臂']}),
   entry({id:'short_work_jacket',name:'短打短褂',slot:'top',family:'labor-light',silhouette:'short-jacket',length:'waist',layer:'base',formality:'labor',sleeve:'short',neckline:'simple',contexts:['居民','劳作','夏季'],visualTraits:['短袖','短衣摆','行动轻便']}),
   entry({id:'farmer_tunic',name:'农户短衣',slot:'top',family:'labor',silhouette:'plain-short-tunic',length:'hip',layer:'base',formality:'labor',sleeve:'short',neckline:'simple',contexts:['农户','劳作'],visualTraits:['朴素','短袖','松量有限']}),
@@ -91,7 +92,6 @@ export interface WardrobeGap {
  * 后续制作应优先填这里的缺口，再决定是否需要新增正式资产。
  */
 export const WARDROBE_GAPS = [
-  {id:'narrow-sleeve-long-robe',slot:'top',label:'窄袖长袍',targetContexts:['官员','太监','宫廷日常'],distinguishingTraits:['纵向长身','窄袖','行动克制'],whyExistingAssetsDoNotCoverIt:'当前正式上装最长仍是臀部附近的短身结构，没有真正长袍轮廓。'},
   {id:'wide-sleeve-ceremonial-robe',slot:'top',label:'宽袖礼服长袍',targetContexts:['皇帝','皇后','高等级礼仪'],distinguishingTraits:['长身','宽大袖体','高礼仪体量'],whyExistingAssetsDoNotCoverIt:'ceremony_robe 是短身礼衣，不能仅靠加宽袖口冒充宫廷大礼服。'},
   {id:'layered-court-outerwear',slot:'top',label:'多层宫廷外服',targetContexts:['皇后','高等级宫廷女性','高级官员'],distinguishingTraits:['明显外层','前后层次','大轮廓边缘'],whyExistingAssetsDoNotCoverIt:'layered_vest 只有半臂叠穿，层次和覆盖面积不足。'},
   {id:'court-formal-skirt',slot:'bottom',label:'宫廷正式长裙/下裳',targetContexts:['皇后','宫女','宫廷女性'],distinguishingTraits:['更正式的长裙量感','层次或缘边','与日常素裙拉开'],whyExistingAssetsDoNotCoverIt:'long_skirt 是素面日常基础裙，缺少正式宫廷层级。'},

@@ -1,3 +1,4 @@
+import { makeNarrowLongRobe } from './narrow-long-robe';
 import { makeCityTop } from './military/city-top';
 import { makeMediumArmorTop } from './military/medium-top';
 import { makeHeavyArmorTop } from './military/heavy-top';
@@ -24,6 +25,7 @@ function makeAuthoredTop(recipe:Recipe):GarmentPiece|undefined {
   if(id==='body')return;
   const pattern=TOP_PATTERNS[id];
   if(!pattern)throw new Error('上衣资产未注册：'+id);
+  if(pattern.asset==='narrow-long-robe')return makeNarrowLongRobe(recipe);
   if(pattern.asset==='medium-top')return makeMediumArmorTop(recipe);
   if(pattern.asset==='heavy-top')return makeHeavyArmorTop(recipe);
   if(pattern.asset==='city-top')return makeCityTop(recipe);

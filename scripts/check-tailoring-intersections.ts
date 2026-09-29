@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {checkC1RobeMotion} from './check-c1-robe-motion';
 import {isClosedHemContact,type ContactTriangle} from './garment-contact-scope';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import * as T from 'three';
@@ -64,3 +65,5 @@ mkdirSync('review-tailoring-v2',{recursive:true});
 writeFileSync('review-tailoring-v2/intersections.json',JSON.stringify(report,null,2));
 console.log('INTERSECTION_SUMMARY',JSON.stringify({passed,checkedFrames,pairsChecked,failedRows:rows.filter(r=>r.scope==='required'&&r.blockingFrames>0),boundaryRows}));
 assert(passed,'V2常用动作主衣面自交；查看intersections.json定位，不得以拓扑闭合代替此检查');
+// 附加本轮真正的长袍 top 组合；不替换以上保留下装矩阵。
+checkC1RobeMotion();

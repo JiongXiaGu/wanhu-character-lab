@@ -14,6 +14,7 @@ on:
           - back-equipment
           - soldier
           - soldier-heavy-fast
+          - garment-focus
           - wardrobe
           - lightwear
           - skirts
@@ -22,6 +23,19 @@ on:
           - horse
           - livestock
           - all
+      garment_slot:
+        description: Existing wearable slot for garment-focus
+        type: choice
+        default: top
+        options: [headwear, top, bottom, shoes]
+      garment_id:
+        description: Exact wearable ID for garment-focus
+        type: string
+        default: narrow_long_robe
+      reference_ids:
+        description: One or two same-slot reference IDs, comma-separated
+        type: string
+        default: ceremony_robe,cross_jacket
       full:
         description: Generate the full screenshot matrix when supported
         required: true
@@ -34,7 +48,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   review:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.title, '[back-visual]') || contains(github.event.pull_request.title, '[soldier-visual]')
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.title, '[back-visual]') || contains(github.event.pull_request.title, '[soldier-visual]') || contains(github.event.pull_request.title, '[garment-visual ')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
@@ -50,11 +64,16 @@ jobs:
         with:
           scope: ${{ inputs.scope == 'soldier-heavy-fast' && 'soldier-heavy-authoring' || 'auto' }}
       - id: visual
-        name: Separate Draft preview from Ready release evidence
+        name: Select exact visual scope and garment IDs
         env:
-          REQUESTED_SCOPE: ${{ inputs.scope || (contains(github.event.pull_request.title, '[soldier-visual]') && 'soldier' || 'back-equipment') }}
+          REQUESTED_SCOPE: ${{ inputs.scope || (contains(github.event.pull_request.title, '[garment-visual ') && 'garment-focus' || (contains(github.event.pull_request.title, '[soldier-visual]') && 'soldier' || 'back-equipment')) }}
           REVIEW_LANE: ${{ steps.lane.outputs.lane }}
           IS_DRAFT: ${{ github.event.pull_request.draft }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          INPUT_SLOT: ${{ inputs.garment_slot }}
+          INPUT_GARMENT: ${{ inputs.garment_id }}
+          INPUT_REFS: ${{ inputs.reference_ids }}
         run: |
           set -euo pipefail
           SCOPE="$REQUESTED_SCOPE"
@@ -62,6 +81,24 @@ jobs:
             SCOPE=soldier-heavy-fast
           elif [[ "$SCOPE" == soldier-heavy-fast && "$REVIEW_LANE" == release ]]; then
             SCOPE=soldier
+          fi
+          if [[ "$SCOPE" == garment-focus ]]; then
+            if [[ "$EVENT_NAME" == pull_request ]]; then
+              pattern='\[garment-visual (headwear|top|bottom|shoes)=([a-z][a-z0-9_]*) ref=([a-z][a-z0-9_]*(,[a-z][a-z0-9_]*)?)\]'
+              if [[ ! "$PR_TITLE" =~ $pattern ]]; then
+                echo 'Expected explicit [garment-visual SLOT=ID ref=ID[,ID]] marker' >&2
+                exit 2
+              fi
+              SLOT="${BASH_REMATCH[1]}"; GARMENT="${BASH_REMATCH[2]}"; REFS="${BASH_REMATCH[3]}"
+            else
+              SLOT="$INPUT_SLOT"; GARMENT="$INPUT_GARMENT"; REFS="$INPUT_REFS"
+            fi
+            [[ "$SLOT" =~ ^(headwear|top|bottom|shoes)$ ]]
+            [[ "$GARMENT" =~ ^[a-z][a-z0-9_]*$ ]]
+            [[ "$REFS" =~ ^[a-z][a-z0-9_]*(,[a-z][a-z0-9_]*)?$ ]]
+            echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
+            echo "garment=$GARMENT" >> "$GITHUB_OUTPUT"
+            echo "references=$REFS" >> "$GITHUB_OUTPUT"
           fi
           echo "scope=$SCOPE" >> "$GITHUB_OUTPUT"
           echo "Visual scope: $SCOPE ($REVIEW_HEAD_SHA)"
@@ -83,6 +120,9 @@ jobs:
         env:
           SCOPE: ${{ steps.visual.outputs.scope }}
           FULL: ${{ inputs.full }}
+          GARMENT_SLOT: ${{ steps.visual.outputs.slot }}
+          GARMENT_ID: ${{ steps.visual.outputs.garment }}
+          GARMENT_REFERENCES: ${{ steps.visual.outputs.references }}
         run: |
           set -euo pipefail
           : > manual-visual-review.log
@@ -91,7 +131,9 @@ jobs:
           run_scope() {
             local scope="$1"
             echo "=== visual scope: $scope ===" | tee -a manual-visual-review.log
-            if [[ "$scope" == back-equipment ]]; then
+            if [[ "$scope" == garment-focus ]]; then
+              node scripts/review-garment-focus.mjs --slot "$GARMENT_SLOT" --garment "$GARMENT_ID" --reference "$GARMENT_REFERENCES" 2>&1 | tee -a manual-visual-review.log
+            elif [[ "$scope" == back-equipment ]]; then
               node scripts/check-back-equipment-browser.mjs --screenshots 2>&1 | tee -a manual-visual-review.log
             elif [[ "$scope" == soldier ]]; then
               npm run review:soldier 2>&1 | tee -a manual-visual-review.log
@@ -106,7 +148,7 @@ jobs:
             fi
           }
           case "$SCOPE" in
-            character|back-equipment|soldier|soldier-heavy-fast|wardrobe|lightwear|skirts|motion|system-animator|horse|livestock)
+            character|back-equipment|soldier|soldier-heavy-fast|garment-focus|wardrobe|lightwear|skirts|motion|system-animator|horse|livestock)
               run_scope "$SCOPE"
               ;;
             all)
@@ -127,6 +169,9 @@ jobs:
             echo "- SHA: $REVIEW_HEAD_SHA"
             echo "- Screenshots were generated only. Human visual approval is still required."
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: C1 exact motion diagnostics with visual evidence
+        if: always() && steps.visual.outputs.scope == 'garment-focus' && steps.visual.outputs.garment == 'narrow_long_robe'
+        run: npm run check:c1-motion
       - name: Review must not mutate tracked source
         run: git diff --exit-code
       - uses: actions/upload-artifact@v4
