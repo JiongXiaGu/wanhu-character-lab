@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRecipe, BODY_TYPES, BOTTOM_IDS, type Cage, type TopId } from '../src/character/v3/types';
-import { cloneCage, triCount } from '../src/character/v3/cage';
+import { cloneCage, cross as cross3, dot, sub, triCount } from '../src/character/v3/cage';
 import { shapePoint } from '../src/character/v3/body';
 import { makeCharacter } from '../src/character/v3/outfit';
 import { makeTop } from '../src/character/wardrobe/assets/tops';
@@ -62,6 +62,27 @@ function assertHipDrape(c:Cage) {
   assert(waistToChest>=.72&&waistToChest<=.86&&waistToChestDepth>=.70&&waistToChestDepth<=.88,'收回臀部后仍须保留正侧面腰线');
   return {hipSlope,sideCorner,rearBulge,rearReversal,waistToChest,waistToChestDepth};
 }
+/** 核对真实膝区厚度和内收方向，不靠某个参数或标识存在判断通过。 */
+function assertKneeLining(c:Cage) {
+  const names=['Hem','Knee','KneeUpper','Seat'];
+  let checked=0;
+  for(let r=0;r<3;r++) {
+    const outer=row(c,'Robe.'+names[r]),inner=row(c,'Robe.Inner.'+names[r]);
+    const below=row(c,'Robe.'+names[Math.max(0,r-1)]),above=row(c,'Robe.'+names[r+1]);
+    assert.equal(inner.length,outer.length);
+    for(let k=0;k<outer.length;k++) {
+      const tangent=sub(outer[(k+1)%outer.length].p,outer[(k+outer.length-1)%outer.length].p);
+      const along=sub(above[k].p,below[k].p),normal=cross3(tangent,along);
+      const delta=sub(outer[k].p,inner[k].p),length=Math.hypot(...normal);
+      assert(length>1e-8,'退化衣面不能生成内收');
+      assert(Math.abs(Math.hypot(...delta)-.006)<1e-8,'膝区必须保留真实 6mm 作者厚度');
+      assert(dot(delta,normal)/(Math.hypot(...delta)*length)>1-1e-8,'内收必须位于作者衣面内侧并沿其法向');
+      assert.deepEqual(inner[k].w,outer[k].w,'内外层仍使用相同制作权重');
+      checked++;
+    }
+  }
+  return {vertices:checked,thickness:.006,mutationChecks:2};
+}
 export function checkC1Robe() {
   assert(pierces([.2,.2,-1],[.2,.2,1],[[0,0,0],[1,0,0],[0,1,0]]));
   assert(!pierces([2,2,-1],[2,2,1],[[0,0,0],[1,0,0],[0,1,0]]));
@@ -69,7 +90,15 @@ export function checkC1Robe() {
   assert(piece.mesh.vertices.every(v=>v.id.startsWith('Robe.')),'不能复制旧上衣/裙装顶点冒充 C1');
   const source=readFileSync('src/character/wardrobe/assets/narrow-long-robe.ts','utf8');
   assert(!/makeCrossShirt|makeHalfSleeve|makeContinuousSkirt|makeAuthoredTop|makeBody|cloneCage/.test(source),'C1 必须拥有自己的几何');
-  const silhouette=assertSilhouette(piece.mesh);
+  const silhouette=assertSilhouette(piece.mesh),kneeLining=assertKneeLining(piece.mesh);
+  for(const mutation of ['radial-return','outside-return'] as const) {
+    const bad=cloneCage(piece.mesh),outer=row(bad,'Robe.KneeUpper'),inner=row(bad,'Robe.Inner.KneeUpper');
+    inner.forEach((v,k)=>{
+      if(mutation==='radial-return')v.p[1]=outer[k].p[1];
+      else v.p=outer[k].p.map((n,a)=>2*n-v.p[a]) as typeof v.p;
+    });
+    assert.throws(()=>assertKneeLining(bad),`${mutation} 必须被内收方向检查拦截`);
+  }
   const t=triangles(piece.mesh),self=findIntersections(piece.mesh,piece.mesh.vertices.map(v=>v.p),t.indices);
   assert.equal(self.hits,0,JSON.stringify({reason:'C1 静态自交',...self}));
   assert.deepEqual([...piece.covers].sort(),['torso','upperArm','forearm','pelvis','thigh'].sort());
@@ -124,7 +153,7 @@ export function checkC1Robe() {
     }
     combinations.push({bodyType,bottom,triangles:triCount(d.surface),bones:d.joints.length});
   }
-  const report={passed:true,testedSha:process.env.REVIEW_HEAD_SHA??'local',silhouette,hipDrape,triangles:triCount(piece.mesh),vertices:piece.mesh.vertices.length,covers:piece.covers,combinations,mutationChecks:6,hipMutationChecks:4,visualApproval:false};
+  const report={passed:true,testedSha:process.env.REVIEW_HEAD_SHA??'local',silhouette,hipDrape,kneeLining,triangles:triCount(piece.mesh),vertices:piece.mesh.vertices.length,covers:piece.covers,combinations,mutationChecks:6,hipMutationChecks:4,visualApproval:false};
   mkdirSync('review-wardrobe-batch',{recursive:true});writeFileSync('review-wardrobe-batch/c1-robe-numeric.json',JSON.stringify(report,null,2));
   console.log('C1_ROBE_NUMERIC',JSON.stringify(report));
   return report;
