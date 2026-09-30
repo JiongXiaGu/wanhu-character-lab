@@ -50,10 +50,18 @@ try {
   for(const bodyType of ['female','male'])for(const [clip,phase] of [['start-walking',.4],['jogging',.25],['pilot-switches',.5],['shooting-arrow',.5],['snatch',.35]]) {
     for(const view of ['side','free'])await shot(`${bodyType}-${clip}-${view}`,{bodyType,clip,phase,view});
   }
+  // 同一重定向坐姿的裸基模对照：只用于定位源姿态/衣形责任，不豁免任何 C2 Hard。
+  // 固定 0.4 秒源关键帧；相同相位、性别和机位，仅移除两件衣物。
+  for(const bodyType of ['female','male'])for(const view of ['side','free']){
+    const options={bodyType,clip:'pilot-switches',phase:.4/(151/30),view,display:'clay'};
+    const clothed=await shot(`source-contact-${bodyType}-clothed-${view}`,options);
+    const bare=await shot(`source-contact-${bodyType}-bare-${view}`,{...options,top:'body',bottom:'body'});
+    assert.deepEqual(clothed.camera,bare.camera);
+  }
   const reportPath=`${dir}/c2-motion.json`;
   const diagnostics=existsSync(reportPath)?JSON.parse(readFileSync(reportPath,'utf8')):null;
   if(!process.env.C2_PREVIEW_ONLY)assert(diagnostics,'正式图包必须附完整 C2 动作报告');
-  // 每个有命中的组合/动作至少截首次及最大命中相位；外层 Hard 和 Warning 不筛安全帧。
+  // 每个有命中的组合/动作截报告中的最严重相位；外层 Hard 和 Warning 不筛安全帧。
   if(diagnostics)for(const [i,item]of diagnostics.visualFrames.entries())for(const view of ['front','side','free'])await shot(`diagnostic-${String(i).padStart(3,'0')}-${view}`,{bodyType:item.bodyType,top:item.top,bottom:item.bottom,clip:item.clip,phase:item.phase,view});
   async function sheet(name,title,items){
     const p=await browser.newPage({viewport:{width:items.length*480,height:790},deviceScaleFactor:1});
