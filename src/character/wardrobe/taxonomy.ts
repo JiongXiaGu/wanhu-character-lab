@@ -34,6 +34,8 @@ const entry = <T extends WardrobeTaxonomyEntry>(value: T): T => value;
  * contexts 仅用于检索和缺口分析；玩家仍可自由混搭。
  */
 export const WARDROBE_TAXONOMY = [
+  entry({id:'court_maid_short_jacket',name:'宫女短襦',slot:'top',family:'court-light-separates',silhouette:'cropped-narrow-long-sleeve',length:'high-waist',layer:'base',formality:'formal',sleeve:'long-narrow-tapered',neckline:'small-centered-facing',contexts:['宫女','宫廷日常','自由混搭'],visualTraits:['高腰短身','窄长袖','小对襟','收口袖缘']}),
+  entry({id:'court_maid_high_waist_skirt',name:'宫女高腰长裙',slot:'bottom',family:'court-light-separates',silhouette:'high-waist-vertical-skirt',length:'ankle',layer:'base',formality:'formal',contexts:['宫女','宫廷日常','自由混搭'],visualTraits:['真实高裙头','纵向浅折棱','踝部长身','克制展开']}),
   entry({id:'cloth_wrap',name:'素布包巾',slot:'headwear',family:'civilian-soft',silhouette:'wrapped-cloth',length:'head',layer:'head',formality:'daily',contexts:['居民','劳作','市井'],visualTraits:['软质包裹','低体量','后结']}),
   entry({id:'scholar_cap',name:'方冠',slot:'headwear',family:'civilian-formal',silhouette:'square-cap',length:'head',layer:'head',formality:'formal',contexts:['士人','官署候选','礼仪'],visualTraits:['方正','硬挺','横向帽翅']}),
   entry({id:'jade_pin',name:'玉色簪饰',slot:'headwear',family:'civilian-jewelry',silhouette:'hair-pin',length:'head',layer:'head',formality:'formal',contexts:['女性','雅居','宫廷候选'],visualTraits:['细长簪体','低体量','依附发髻']}),
@@ -94,7 +96,7 @@ export interface WardrobeGap {
 export const WARDROBE_GAPS = [
   {id:'wide-sleeve-ceremonial-robe',slot:'top',label:'宽袖礼服长袍',targetContexts:['皇帝','皇后','高等级礼仪'],distinguishingTraits:['长身','宽大袖体','高礼仪体量'],whyExistingAssetsDoNotCoverIt:'ceremony_robe 是短身礼衣，不能仅靠加宽袖口冒充宫廷大礼服。'},
   {id:'layered-court-outerwear',slot:'top',label:'多层宫廷外服',targetContexts:['皇后','高等级宫廷女性','高级官员'],distinguishingTraits:['明显外层','前后层次','大轮廓边缘'],whyExistingAssetsDoNotCoverIt:'layered_vest 只有半臂叠穿，层次和覆盖面积不足。'},
-  {id:'court-formal-skirt',slot:'bottom',label:'宫廷正式长裙/下裳',targetContexts:['皇后','宫女','宫廷女性'],distinguishingTraits:['更正式的长裙量感','层次或缘边','与日常素裙拉开'],whyExistingAssetsDoNotCoverIt:'long_skirt 是素面日常基础裙，缺少正式宫廷层级。'},
+  {id:'court-high-rank-ceremonial-skirt',slot:'bottom',label:'高等级宽摆或多层礼裙（C8/C11）',targetContexts:['皇后','高等级宫廷礼仪'],distinguishingTraits:['宽摆高体量或分层裙摆','与宫女日常裙拉开'],whyExistingAssetsDoNotCoverIt:'C2 高腰长裙已覆盖基础宫廷日常正式裙；仍不包含 C8 宽摆宫裙或 C11 多层礼裙。'},
   {id:'official-robe',slot:'top',label:'官员袍服',targetContexts:['官员','官署'],distinguishingTraits:['规整长袍','官署识别','克制而正式'],whyExistingAssetsDoNotCoverIt:'scholar_cap 有士人头部语言，但当前没有与之对应的正式官袍轮廓。'},
   {id:'imperial-crown',slot:'headwear',label:'皇帝冠饰',targetContexts:['皇帝'],distinguishingTraits:['最高等级纵向识别','远景唯一轮廓'],whyExistingAssetsDoNotCoverIt:'现有正式头饰只有方冠与簪饰，军盔不能替代皇室冠饰。'},
   {id:'empress-headdress',slot:'headwear',label:'皇后大型头饰',targetContexts:['皇后'],distinguishingTraits:['更大横向/纵向体量','多层装饰','高识别度'],whyExistingAssetsDoNotCoverIt:'jade_pin 只是低体量簪饰，无法建立皇后剪影。'},

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {checkC2Motion} from './check-c2-motion';
 import {checkC1RobeMotion} from './check-c1-robe-motion';
 import {isClosedHemContact,type ContactTriangle} from './garment-contact-scope';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
@@ -53,11 +54,11 @@ for(const bodyType of ['male','female'] as const)for(const bottom of BOTTOM_IDS)
 }
 // 仅 short_trousers 裤脚 Cap×shin 与两条真裙固定端面属于制作接口；其余交点继续阻塞。
 // 源帧/中点、所有三角对、相交算法和容差不变，不跳过端面计算。
-assert(rows.filter(r=>r.scope==='garment-boundary').every(r=>['true_short_skirt','long_skirt'].includes(r.look)&&r.id==='snatch'));
+assert(rows.filter(r=>r.scope==='garment-boundary').every(r=>['true_short_skirt','long_skirt','court_maid_high_waist_skirt'].includes(r.look)&&r.id==='snatch'));
 const requiredRows=rows.filter(r=>r.scope==='required');
 assert.equal(rows.length,2*BOTTOM_IDS.length*ids.length,'必须覆盖男女 × 全部保留下装 × 全部关键动作');
 assert(requiredRows.length>0&&requiredRows.every(r=>r.samples>0),'每个必检下装动作必须保留源键与中点采样');
-assert(rows.filter(r=>!['short_trousers','true_short_skirt','long_skirt'].includes(r.look)).every(r=>r.closureContactFrames===0&&r.blockingFrames===r.piercedFrames));
+assert(rows.filter(r=>!['short_trousers','true_short_skirt','long_skirt','court_maid_high_waist_skirt'].includes(r.look)).every(r=>r.closureContactFrames===0&&r.blockingFrames===r.piercedFrames));
 const passed=rows.every(r=>r.scope==='garment-boundary'||r.blockingFrames===0);
 const boundaryRows=rows.filter(r=>r.scope==='garment-boundary');
 const report={testedSha:process.env.REVIEW_HEAD_SHA??'local',sampling:'all source keys plus interval midpoints; two fixed body profiles; same source-key and midpoint sampling / geometric thresholds',checkedFrames,pairsChecked,rows,failures,closureContacts,boundaryRows,passed,closureRule:'short_trousers 仅允许 Cuff Cap×皮肤 shin；连续裙装仅允许 HemCenter 与末端裙边或皮肤 shin。原始数学交点全部保留，腰口/Calf/裙身及其他保留款无豁免',scope:'离线腰髋/腿部衣面非共面贯穿；排除共享顶点的邻接三角。不涵盖全部共面接触、手臂/道具、任意体型或连续时间碰撞；仍需实际审图。'};
@@ -67,3 +68,6 @@ console.log('INTERSECTION_SUMMARY',JSON.stringify({passed,checkedFrames,pairsChe
 assert(passed,'V2常用动作主衣面自交；查看intersections.json定位，不得以拓扑闭合代替此检查');
 // 附加本轮真正的长袍 top 组合；不替换以上保留下装矩阵。
 checkC1RobeMotion();
+
+// C2 全身含袖子/高腰接口与三组关键混搭；不替代原全目录下装或 C1。
+checkC2Motion();

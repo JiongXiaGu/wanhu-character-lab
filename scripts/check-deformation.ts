@@ -1,3 +1,4 @@
+import { assertC2Knees } from './check-c2';
 import { assertCityTrousers } from './check-soldier-city';
 import assert from 'node:assert/strict';
 import { mkdirSync,writeFileSync } from 'node:fs';
@@ -77,6 +78,9 @@ for(const bodyType of BODY_TYPES){
       assert.equal(triCount(p.mesh),164);assert.deepEqual(p.covers,['pelvis','thigh']);assert(p.mesh.vertices.every(v=>v.p[1]>=.5),'短装不能暗中恢复长裤管');
       assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','waist'].sort());
       for(const side of ['Right','Left'])assert.equal(p.sealedInterfaces![side+'Cuff'].length,8);
+    }else if(bottom==='court_maid_high_waist_skirt'){
+      assertC2Knees(p.mesh);assert.deepEqual(Object.keys(p.sealedInterfaces??{}),['waist']);
+      assert.equal(p.mesh.anchors.closedHem.length,16);assert(p.mesh.vertices.every(v=>v.id.startsWith('MaidSkirt.')));
     }else if(bottom==='true_short_skirt'||bottom==='long_skirt'){
       assert.deepEqual(Object.keys(p.sealedInterfaces??{}),['waist']);
       assert.equal(triCount(p.mesh),bottom==='long_skirt'?262:190);

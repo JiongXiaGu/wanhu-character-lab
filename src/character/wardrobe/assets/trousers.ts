@@ -1,3 +1,4 @@
+import { makeCourtMaidSkirt } from './court-maid-skirt';
 import { makeCityTrousers } from './military/city-trousers';
 import { makeTrouserShell } from './trouser-shell';
 import { makeMediumArmorSkirt } from './military/medium-skirt';
@@ -19,6 +20,7 @@ export function makeTrousers(recipe:Recipe):GarmentPiece|undefined {
 function makeAuthoredBottom(recipe:Recipe):GarmentPiece|undefined {
   const id=recipe.slots.bottom;if(id==='body')return;
   const pattern=BOTTOM_PATTERNS[id];if(!pattern)throw new Error('下装资产未注册：'+id);
+  if(pattern.asset==='court-maid-skirt')return makeCourtMaidSkirt(recipe);
   if(pattern.asset==='short-trousers')return makeShortBottom(recipe);
   if(pattern.asset==='continuous-short-skirt'||pattern.asset==='continuous-long-skirt')return makeContinuousSkirt(recipe);
   if(pattern.asset==='medium-skirt')return makeMediumArmorSkirt(recipe);

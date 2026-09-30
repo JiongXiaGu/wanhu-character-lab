@@ -2,14 +2,15 @@ import type { TopId, BottomId } from '../v3/types';
 
 /** 注册标识和接口尺寸；每个保留款式必须有明确用途或轮廓差异。 */
 export type TopPattern = { id:string; hem:number; stressOnlyClips?:readonly string[] } & (
-  { asset:'work-shirt'|'cross-shirt'|'half-sleeve'|'work-vest'|'short-jacket'|'medium-top'|'heavy-top'|'city-top'|'narrow-long-robe' } |
+  { asset:'work-shirt'|'cross-shirt'|'half-sleeve'|'work-vest'|'short-jacket'|'medium-top'|'heavy-top'|'city-top'|'narrow-long-robe'|'court-maid-jacket' } |
   { asset:'classic'; sleeve:'short'|'long'; width:number; cuff:number }
 );
 export type BottomPattern = { id:string; hem:number; stressOnlyClips?:readonly string[] } & (
-  { asset:'short-trousers'|'continuous-short-skirt'|'continuous-long-skirt'|'medium-skirt'|'heavy-skirt'|'city-trousers' } |
+  { asset:'short-trousers'|'continuous-short-skirt'|'continuous-long-skirt'|'medium-skirt'|'heavy-skirt'|'city-trousers'|'court-maid-skirt' } |
   { asset:'classic'; thigh:number; knee:number; calf:number; trim:boolean }
 );
 export const TOP_PATTERNS:Record<Exclude<TopId,'body'>,TopPattern>={
+  court_maid_short_jacket:{id:'court-maid-cropped-jacket-v1',asset:'court-maid-jacket',hem:1.162},
   narrow_long_robe:{id:'narrow-long-robe-v3',asset:'narrow-long-robe',hem:.400,stressOnlyClips:['snatch']},
   medium_armor:{id:'medium-armor-top-v1',asset:'medium-top',hem:1.035},
   heavy_armor:{id:'heavy-armor-top-v1',asset:'heavy-top',hem:1.035},
@@ -23,6 +24,7 @@ export const TOP_PATTERNS:Record<Exclude<TopId,'body'>,TopPattern>={
   ceremony_robe:{id:'ceremony-jacket-v2',asset:'classic',sleeve:'long',width:1.045,cuff:1.16,hem:1.035},
 };
 export const BOTTOM_PATTERNS:Record<Exclude<BottomId,'body'>,BottomPattern>={
+  court_maid_high_waist_skirt:{id:'court-maid-high-waist-skirt-v1',asset:'court-maid-skirt',hem:.092,stressOnlyClips:['snatch']},
   medium_armor_skirt:{id:'medium-armor-skirt-v1',asset:'medium-skirt',hem:.095},
   heavy_armor_skirt:{id:'heavy-armor-skirt-v1',asset:'heavy-skirt',hem:.095},
   city_guard_trousers:{id:'city-patrol-trousers-v1',asset:'city-trousers',hem:.095},
