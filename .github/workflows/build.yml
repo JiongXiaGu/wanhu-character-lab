@@ -13,6 +13,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 12
+    permissions:
+      contents: write
     env:
       REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
@@ -26,6 +28,17 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Temporary exact C2 authoring transfer (no ref update)
+        if: github.head_ref == 'c2-court-maid-high-waist-set'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/.c2-transfer.mjs
+      - uses: actions/upload-artifact@v4
+        if: github.head_ref == 'c2-court-maid-high-waist-set'
+        with:
+          name: c2-candidate-commit-${{ env.REVIEW_HEAD_SHA }}
+          path: c2-transfer-result/candidate.json
+          retention-days: 2
       - run: npm ci
       - name: CI graph and coverage guard checks
         run: node scripts/check-ci-graph.mjs
@@ -36,19 +49,6 @@ jobs:
       - name: Back equipment topology, bind and Recipe V5 checks
         run: npx tsx scripts/check-back-equipment.ts
       - uses: ./.github/actions/prepare-motion
-      - name: Stage small C2 offline code input (temporary; not visual evidence)
-        if: github.head_ref == 'c2-court-maid-high-waist-set'
-        run: |
-          mkdir -p "$RUNNER_TEMP/c2-authoring"
-          git ls-files -z '*.ts' '*.tsx' '*.mjs' '*.md' '*.json' '*.yml' '*.css' '*.html' '*.svg' '.gitignore' | tar --null -T - -czf "$RUNNER_TEMP/c2-authoring/source.tgz"
-          tar -czf "$RUNNER_TEMP/c2-authoring/dependencies.tgz" node_modules
-          git rev-parse HEAD > "$RUNNER_TEMP/c2-authoring/source-sha.txt"
-      - uses: actions/upload-artifact@v4
-        if: github.head_ref == 'c2-court-maid-high-waist-set'
-        with:
-          name: c2-offline-code-${{ env.REVIEW_HEAD_SHA }}
-          path: ${{ runner.temp }}/c2-authoring/
-          retention-days: 2
       - name: TypeScript and production build
         run: npm run build --ignore-scripts
       - name: Back equipment source-key animation and riding checks
