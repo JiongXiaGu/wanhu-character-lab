@@ -59,7 +59,7 @@ for(const bodyType of BODY_TYPES){
   }
 }
 assert.equal(BOTTOM_PATTERNS.short_trousers.stressOnlyClips,undefined);
-for(const [id,p]of Object.entries(BOTTOM_PATTERNS))if(p.stressOnlyClips){assert(skirts.includes(id as typeof skirts[number]));assert.deepEqual(p.stressOnlyClips,['snatch']);}
+for(const [id,p]of Object.entries(BOTTOM_PATTERNS))if(p.stressOnlyClips){assert([...skirts,'court_maid_high_waist_skirt'].includes(id as typeof skirts[number]),'未登记的压力版型');assert.deepEqual(p.stressOnlyClips,['snatch']);}
 const original=makeTrousers(createRecipe({slots:{bottom:'true_short_skirt'},dyes:colors}))!;
 const copy=()=>({...original,mesh:cloneCage(original.mesh),openings:structuredClone(original.openings)});
 const hole=copy();hole.mesh.faces.splice(15,1);assert.throws(()=>assertContinuous(hole));

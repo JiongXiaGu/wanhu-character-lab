@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
+import {gzipSync} from 'node:zlib';
 import * as T from 'three';
 import {makeCharacter} from '../src/character/v3/outfit';
 import {makeActor} from '../src/character/v3/rig';
@@ -19,6 +20,7 @@ const combinations:readonly [TopId,BottomId][]=[
 const clips=['start-walking','jogging','pilot-switches','shooting-arrow','snatch'] as const;
 type Kind={ids:string[];part:Face['part'];region:string;cap:boolean;focus:boolean};
 type Frame={bodyType:string;top:TopId;bottom:BottomId;clip:string;time:number;phase:number;sourceKey:boolean;hard:number;warning:number;reasons:Record<string,number>;examples:unknown[]};
+type Pose={bodyType:string;clip:string;time:number;phase:number;sourceKey:boolean;boneMatrices:number[]};
 
 /** 检测完成之后才分级；不更改原非共面相交数学、共享点/AABB排除或采样。
  * 固定接口 Cap 穿过皮肤属于隐藏端面；外衣表面×皮肤绝不一起放行。
@@ -40,7 +42,7 @@ assert.equal(classify({...exterior,cap:true},body,BOTTOM,true,()=>false),'hidden
 assert.equal(classify(exterior,body,BOTTOM,false,()=>false),'midpoint-only');
 
 export function checkC2Motion() {
-  const rows:any[]=[],observedFrames:Frame[]=[],visualFrames:Frame[]=[];
+  const rows:any[]=[],observedFrames:Frame[]=[],visualFrames:Frame[]=[],poses:Pose[]=[];
   let checkedFrames=0,testedPairs=0;
   for(const bodyType of BODY_TYPES)for(const [top,bottom]of combinations){
     const recipe=createRecipe({bodyType,slots:{top,bottom,headwear:'none',back:'none',leftHand:'none',rightHand:'none',shoes:'cloth_shoes'}});
@@ -67,9 +69,12 @@ export function checkC2Motion() {
         try{for(const time of times){
           action.time=time;actor.update(0);actor.mesh.skeleton.update();const points=skinPoints(c,actor.mesh.skeleton.boneMatrices);
           assert(points.every(p=>p.every(Number.isFinite)),'动作出现 NaN/Infinity');checkedFrames++;
+          const sourceKey=[...sourceTimes].some(t=>Math.abs(t-time)<1e-8);
+          // 失败报告附带固定男女的完整姿态矩阵，辅助复现蒙皮；不替代正式动作 Gate。
+          // 配方只影响服饰，不改变固定骨架；每个性别/动作只记录一次，避免混搭重复体积。
+          if(top===TOP&&bottom===BOTTOM)poses.push({bodyType,clip,time,phase:time/source.duration,sourceKey,boneMatrices:Array.from(actor.mesh.skeleton.boneMatrices)});
           const hit=findIntersections(c,points,indices,focus,true);testedPairs+=hit.testedPairs;assert.equal(hit.pairs.length,hit.hits);
           if(!hit.hits)continue;
-          const sourceKey=[...sourceTimes].some(t=>Math.abs(t-time)<1e-8);
           const stress=(k:Kind)=>k.part==='bottom'&&bottom!=='body'&&!!BOTTOM_PATTERNS[bottom].stressOnlyClips?.includes(clip)||k.part==='top'&&top!=='body'&&!!TOP_PATTERNS[top].stressOnlyClips?.includes(clip);
           let hard=0,warning=0;const reasons:Record<string,number>={},examples:unknown[]=[];
           for(const pair of hit.pairs){const a=kinds[pair.a],b=kinds[pair.b],reason=classify(a,b,bottom,sourceKey,stress);reasons[reason]=(reasons[reason]??0)+1;if(reason==='hard')hard++;else warning++;const example={reason,a:a.ids,b:b.ids,parts:[a.part,b.part]};if(reason==='hard'){examples.unshift(example);if(examples.length>12)examples.pop();}else if(examples.length<12)examples.push(example);}
@@ -88,6 +93,7 @@ export function checkC2Motion() {
   const passed=rows.every(r=>r.samples>0&&r.blockingFrames===0);
   const report={testedSha:process.env.REVIEW_HEAD_SHA??'local',passed,checkedFrames,testedPairs,rows,observedFrames,visualFrames,visualApproval:false,policy:'所有源键、相邻中点、端点；全身含高腰/袖子。日常源键外层自身/身体贯穿为 Hard。隐藏接口 Cap、衣层、原窄范围裙底接口、中点、显式资产 stress-only 保留 Warning；截图中任何可见破面升级为阻塞。没有新裙装运动容差。',scope:'非共面三角贯穿与全身有限值，不承诺共面接触或连续时间绝对无穿插。只统计至少一面属于本轮 C2 资产的三角对，其它资产原有检查不减少。'};
   mkdirSync('review/c2',{recursive:true});writeFileSync('review/c2/c2-motion.json',JSON.stringify(report,null,2));
+  if(!passed)writeFileSync('review/c2/c2-pose-replay.json.gz',gzipSync(JSON.stringify({testedSha:report.testedSha,boneCount:20,poses,scope:'失败诊断；固定男女全源键/端点/中点矩阵，不是动作或视觉验收结果。'})));
   console.log('C2_MOTION_SUMMARY',JSON.stringify({passed,checkedFrames,testedPairs,hardRows:rows.filter(r=>r.blockingFrames).length,warningRows:rows.filter(r=>r.warningFrames).length,visualFrames:visualFrames.length}));
   assert(passed,'C2 仍有日常源键外层自交/穿体；见完整 c2-motion.json，不能跳过失败相位');return report;
 }

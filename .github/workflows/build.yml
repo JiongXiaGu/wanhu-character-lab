@@ -22,18 +22,6 @@ jobs:
           persist-credentials: false
       - name: Record exact source
         run: test "$(git rev-parse HEAD)" = "$REVIEW_HEAD_SHA" && echo "$REVIEW_HEAD_SHA"
-      - name: Export exact C2 repair input (temporary, not test evidence)
-        if: github.head_ref == 'c2-court-maid-high-waist-set'
-        run: |
-          mkdir -p "$RUNNER_TEMP/c2-repair"
-          git ls-files -z '*.ts' '*.tsx' '*.mjs' '*.md' '*.json' '*.yml' '*.css' '*.html' '*.svg' '.gitignore' | tar --null -T - -czf "$RUNNER_TEMP/c2-repair/source.tgz"
-          git rev-parse HEAD > "$RUNNER_TEMP/c2-repair/SOURCE_SHA"
-      - uses: actions/upload-artifact@v4
-        if: github.head_ref == 'c2-court-maid-high-waist-set'
-        with:
-          name: c2-repair-source-${{ env.REVIEW_HEAD_SHA }}
-          path: ${{ runner.temp }}/c2-repair/
-          retention-days: 2
       - uses: actions/setup-node@v4
         with:
           node-version: 22
