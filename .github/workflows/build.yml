@@ -36,18 +36,17 @@ jobs:
       - name: Back equipment topology, bind and Recipe V5 checks
         run: npx tsx scripts/check-back-equipment.ts
       - uses: ./.github/actions/prepare-motion
-      - name: Stage C2 offline authoring input (temporary; not visual evidence)
+      - name: Stage small C2 offline code input (temporary; not visual evidence)
         if: github.head_ref == 'c2-court-maid-high-waist-set'
         run: |
           mkdir -p "$RUNNER_TEMP/c2-authoring"
-          git archive --format=tar HEAD | gzip > "$RUNNER_TEMP/c2-authoring/source.tgz"
+          git ls-files -z '*.ts' '*.tsx' '*.mjs' '*.md' '*.json' '*.yml' '*.css' '*.html' '*.svg' '.gitignore' | tar --null -T - -czf "$RUNNER_TEMP/c2-authoring/source.tgz"
           tar -czf "$RUNNER_TEMP/c2-authoring/dependencies.tgz" node_modules
-          tar -czf "$RUNNER_TEMP/c2-authoring/public.tgz" public
           git rev-parse HEAD > "$RUNNER_TEMP/c2-authoring/source-sha.txt"
       - uses: actions/upload-artifact@v4
         if: github.head_ref == 'c2-court-maid-high-waist-set'
         with:
-          name: c2-offline-authoring-${{ env.REVIEW_HEAD_SHA }}
+          name: c2-offline-code-${{ env.REVIEW_HEAD_SHA }}
           path: ${{ runner.temp }}/c2-authoring/
           retention-days: 2
       - name: TypeScript and production build
