@@ -15,13 +15,14 @@ export function makeCourtMaidJacket(recipe:Recipe) {
     ['Facing',1.444,.105,.085,[-.041,-.019,.019,.041],[B.Chest,B.Neck,.60]],
     ['Neck',1.460,.066,.061,[-.039,-.018,.018,.039],torsoNeck],
   ],[solidBand(a),[p,s,p,s,p,p],[p,s,p,s,p,p],[p,s,p,s,p,p],[p,s,p,s,p,p],solidBand(s)]);
+  // 袖山略向内下收，肩根以胸骨/上臂分担，避免收弓时扭回胸侧。
   // 降低独立袖窿下缘，避免手臂贴近身体时袖根挤入胸侧衣片。
   for(const k of [0,5,6,7,9,10])torso.mesh.vertices[torso.chest[k]].p[1]-=.026;
   const cuffs:Record<string,number[]>={};
   for(const side of [1,-1] as const) {
     const [u,l,h]=armBones(side);
     cuffs[side===1?'RightCuff':'LeftCuff']=sewSleeve(torso,side,[
-      ['Shoulder',.295,1.315,0,.035,.054,[B.Chest,u,.16],p],
+      ['Shoulder',.290,1.300,0,.035,.054,[B.Chest,u,.40],p],
       ['Sleeve',.340,1.189,0,.052,.049,[u,l,1],p],
       ['Elbow',.394,1.101,0,.043,.041,[u,l,.5],p],
       ['ElbowLower',.414,1.066,.002,.047,.043,[u,l,.08],p],
