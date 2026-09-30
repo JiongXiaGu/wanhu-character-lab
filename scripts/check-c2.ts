@@ -32,12 +32,19 @@ export function assertC2Shape(j:Cage,s:Cage) {
   assert(height(s,'MaidSkirt.Waist')-height(j,'MaidJacket.Hem')>.025,'两件高腰接口必须实际覆盖');
   assert(width(s,'MaidSkirt.Hem')>.62&&width(s,'MaidSkirt.Hem')<.72,'不做巨大皇后裙摆');
   assert(width(s,'MaidSkirt.Seat')<.48,'臀下不能外鼓成裙撑');
+  // 本轮真实造型回归：旧胸侧台阶、细管袖山、胸背硬壳不可恢复。
+  const chest=loop(j,'MaidJacket.Chest');
+  assert(Math.max(...chest.map(v=>v.p[1]))-Math.min(...chest.map(v=>v.p[1]))<.014,'胸侧不能下挖成袖窿大缺口');
+  assert(chest.every(v=>Math.abs(v.p[2])<.131),'胸背不应鼓成厚板');
+  assert.equal(loop(j,'MaidJacket.UpperRib').length,11,'胸肋必须保留连续过渡截面');
   for(const side of ['Right','Left']){
+    const root=loop(j,`MaidJacket.${side}.Shoulder`);assert.equal(root.length,6);
+    assert(width(j,`MaidJacket.${side}.Shoulder`)>.075,'袖山不能缩成硬插细管');
+    assert(Math.max(...root.map(v=>v.p[2]))-Math.min(...root.map(v=>v.p[2]))>.095,'袖根需保留前后体积');
     const cuff=loop(j,`MaidJacket.${side}.Cuff`);assert.equal(cuff.length,6);
     assert(Math.max(...cuff.map(v=>v.p[2]))-Math.min(...cuff.map(v=>v.p[2]))<.08,'不能恢复宽礼服袖');
     assert(cuff.every(v=>v.p[1]<.95),'必须是长袖而非短劳动袖');
   }
-  // 同高的浅折棱不是圆椭圆柱：实际截面半径交替变化。
   const hem=loop(s,'MaidSkirt.Hem');assert.equal(hem.length,16);
   const r=hem.map(v=>{const t=(Number(v.id.split('.').at(-1))+.5)*2*Math.PI/16;return Math.abs(v.p[0]/Math.sin(t));});
   assert(Math.max(...r)-Math.min(...r)>.008,'丢失了几何纵向折线');
@@ -67,7 +74,6 @@ export function checkC2() {
     for(const p of [j,s])for(const v of p.mesh.vertices){const actual=data.surface.vertices.find(x=>x.id===v.id);assert(actual,'单件顶点在装配中丢失');assert.deepEqual(actual.p,shapePoint(v.p,r),'男女映射不止一次或未执行');assert.deepEqual(actual.w,v.w);}
     const dyed=createRecipe({...r,dyes:{primary:'#897766',secondary:'#453426',accent:'#b3c4d5'}});
     assert.deepEqual(geometry(makeTop(dyed)!.mesh),geometry(j.mesh));assert.deepEqual(geometry(makeTrousers(dyed)!.mesh),geometry(s.mesh));
-    // 全部合法另一槽位均可装配；静态独立性，不宣称所有混搭动作都完美。
     for(const bottom of BOTTOM_IDS){const rr=createRecipe({...r,slots:{...r.slots,bottom}});assert.deepEqual(geometry(makeTop(rr)!.mesh),geometry(j.mesh));const d=makeCharacter(rr);assert(d.surface.vertices.every(v=>v.p.every(Number.isFinite)));assemblies.push({bodyType,top:C2_TOP,bottom});}
     for(const top of TOP_IDS){const rr=createRecipe({...r,slots:{...r.slots,top}});assert.deepEqual(geometry(makeTrousers(rr)!.mesh),geometry(s.mesh));const d=makeCharacter(rr);assert(d.surface.vertices.every(v=>v.p.every(Number.isFinite)));assemblies.push({bodyType,top,bottom:C2_BOTTOM});}
   }
@@ -80,6 +86,9 @@ export function checkC2() {
     (a:Cage,b:Cage)=>{loop(b,'MaidSkirt.Seat').forEach(v=>v.p[0]*=1.6);},
     (a:Cage,b:Cage)=>{loop(a,'MaidJacket.Right.Cuff').forEach(v=>v.p[2]*=3);},
     (a:Cage,b:Cage)=>{loop(b,'MaidSkirt.KneeUpper').forEach(v=>v.w[2]=.5);},
+    (a:Cage,b:Cage)=>{loop(a,'MaidJacket.Chest')[6].p[1]-=.026;},
+    (a:Cage,b:Cage)=>{const r=loop(a,'MaidJacket.Right.Shoulder'),x=r.reduce((n,v)=>n+v.p[0],0)/r.length;r.forEach(v=>v.p[0]=x+(v.p[0]-x)*.5);},
+    (a:Cage,b:Cage)=>{loop(a,'MaidJacket.Chest').forEach(v=>v.p[2]*=1.4);},
   ]){const a=cloneCage(j.mesh),b=cloneCage(s.mesh);mutate(a,b);assert.throws(()=>assertC2Shape(a,b));mutationChecks++;}
   const report={passed:true,testedSha:process.env.REVIEW_HEAD_SHA??'local',jacket:{vertices:j.mesh.vertices.length,triangles:triCount(j.mesh)},skirt:{vertices:s.mesh.vertices.length,triangles:triCount(s.mesh)},assemblies:assemblies.length,mutationChecks,visualApproval:false};
   mkdirSync('review/c2',{recursive:true});writeFileSync('review/c2/c2-numeric.json',JSON.stringify(report,null,2));console.log('C2_NUMERIC',JSON.stringify(report));return report;

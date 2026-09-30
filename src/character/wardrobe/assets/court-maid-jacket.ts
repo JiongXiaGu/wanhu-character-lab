@@ -18,16 +18,17 @@ export function makeCourtMaidJacket(recipe:Recipe) {
     ['Neck',1.460,.066,.061,[-.039,-.018,.018,.039],torsoNeck],
   ],[solidBand(a),front,front,front,front,front,solidBand(s)]);
   // 胸环保持连续，不再把六个胸侧点下挖成台阶。
-  // 只给肩外侧很小的落肩量，前后肩角同步下降，背侧不形成独立硬壳。
+  // 肩外端小幅落肩，前后肩角同步下降，背侧不做独立鼓壳。
   for(const k of [6,10])torso.mesh.vertices[torso.shoulder[k]].p[1]-=.006;
   for(const k of [0,5,7,9])torso.mesh.vertices[torso.shoulder[k]].p[1]-=.003;
   const cuffs:Record<string,number[]>={};
   for(const side of [1,-1] as const) {
     const [u,l,h]=armBones(side);
     cuffs[side===1?'RightCuff':'LeftCuff']=sewSleeve(torso,side,[
-      // 袖山回到腋下附近，用有体积的连续袖根接肩，取消细管远距离硬插。
-      ['Shoulder',.270,1.306,0,.062,.063,[B.Chest,u,.24],p],
-      ['UpperSleeve',.306,1.250,0,.058,.055,[u,l,1],p],
+      // 有体积的袖山上提，与肩线顺接；内下缘保持胸侧留量。
+      // 袖山一半随胸、上袖一成随胸，逐段释放到上臂；避免收臂时折回衣身。
+      ['Shoulder',.290,1.320,0,.050,.063,[B.Chest,u,.50],p],
+      ['UpperSleeve',.320,1.250,0,.050,.055,[B.Chest,u,.10],p],
       ['Sleeve',.340,1.189,0,.052,.049,[u,l,1],p],
       ['Elbow',.394,1.101,0,.043,.041,[u,l,.5],p],
       ['ElbowLower',.414,1.066,.002,.047,.043,[u,l,.08],p],

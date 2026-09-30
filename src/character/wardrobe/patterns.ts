@@ -10,7 +10,7 @@ export type BottomPattern = { id:string; hem:number; stressOnlyClips?:readonly s
   { asset:'classic'; thigh:number; knee:number; calf:number; trim:boolean }
 );
 export const TOP_PATTERNS:Record<Exclude<TopId,'body'>,TopPattern>={
-  court_maid_short_jacket:{id:'court-maid-cropped-jacket-v1',asset:'court-maid-jacket',hem:1.162},
+  court_maid_short_jacket:{id:'court-maid-cropped-jacket-v2',asset:'court-maid-jacket',hem:1.162},
   narrow_long_robe:{id:'narrow-long-robe-v3',asset:'narrow-long-robe',hem:.400,stressOnlyClips:['snatch']},
   medium_armor:{id:'medium-armor-top-v1',asset:'medium-top',hem:1.035},
   heavy_armor:{id:'heavy-armor-top-v1',asset:'heavy-top',hem:1.035},
