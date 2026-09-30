@@ -14,7 +14,6 @@ import {isClosedHemContact} from './garment-contact-scope';
 
 const TOP='court_maid_short_jacket',BOTTOM='court_maid_high_waist_skirt';
 const combinations:readonly [TopId,BottomId][]=[
-  // 套装与三组穿衣混搭；裸上身是静态裙型审查，不冒称已验收裸模动画。
   [TOP,BOTTOM],[TOP,'work_pants'],[TOP,'long_skirt'],['cross_jacket',BOTTOM],
 ];
 const clips=['start-walking','jogging','pilot-switches','shooting-arrow','snatch'] as const;
@@ -22,10 +21,17 @@ type Kind={ids:string[];part:Face['part'];region:string;cap:boolean;focus:boolea
 type Frame={bodyType:string;top:TopId;bottom:BottomId;clip:string;time:number;phase:number;sourceKey:boolean;hard:number;warning:number;reasons:Record<string,number>;examples:unknown[]};
 type Pose={bodyType:string;clip:string;time:number;phase:number;sourceKey:boolean;boneMatrices:number[]};
 
-/** 检测完成之后才分级；不更改原非共面相交数学、共享点/AABB排除或采样。
- * 固定接口 Cap 穿过皮肤属于隐藏端面；外衣表面×皮肤绝不一起放行。
+/** 仅 C2：用户接受的现有动作手/前臂与腿/裙接触。不是整件上衣或整个人体豁免。
+ * 不参与相交数学；保留全部采样、命中和相位，只改变检测后的严重等级。
  */
+function acceptedHandLowerContact(a:Kind,b:Kind):boolean {
+  const distal=(k:Kind)=>k.part==='skin'&&(k.region==='hand'||k.region==='forearm')&&k.ids.every(id=>/^(Right|Left)(Elbow|ElbowLower|Wrist|Fingers)\.\d+$/.test(id))
+    ||k.part==='top'&&k.region==='forearm'&&k.ids.every(id=>/^MaidJacket\.(Right|Left)\.(Elbow|ElbowLower|WristFacing|Cuff)\.\d+$/.test(id));
+  const lower=(k:Kind)=>(k.part==='skin'||k.part==='bottom')&&['pelvis','thigh','shin'].includes(k.region);
+  return distal(a)&&lower(b)||distal(b)&&lower(a);
+}
 function classify(a:Kind,b:Kind,bottom:BottomId,sourceKey:boolean,stress:(kind:Kind)=>boolean):string {
+  if(acceptedHandLowerContact(a,b))return 'accepted-animation-hand-lower-contact';
   if(stress(a)||stress(b))return 'stress-only';
   if(!sourceKey)return 'midpoint-only';
   if(a.part&&b.part&&a.part!==b.part&&a.part!=='skin'&&b.part!=='skin')return 'wearable-layer';
@@ -33,11 +39,19 @@ function classify(a:Kind,b:Kind,bottom:BottomId,sourceKey:boolean,stress:(kind:K
   if(isClosedHemContact(bottom,a,b))return 'closed-hem-interface';
   return 'hard';
 }
-// 分类故障反例：外层×身体、自交仍阻塞，不把整件裙子的 stress 借给上衣。
+// 正反方向与边界反例：不能把身体、自交、肩根或裙子坏形一起放行。
 const exterior:Kind={ids:['MaidJacket.Chest.0'],part:'top',region:'torso',cap:false,focus:true};
 const body:Kind={ids:['Rib.0'],part:'skin',region:'torso',cap:false,focus:false};
+const hand:Kind={ids:['RightWrist.3','RightFingers.3','RightFingers.4'],part:'skin',region:'hand',cap:false,focus:false};
+const sleeve:Kind={ids:['MaidJacket.Right.ElbowLower.0','MaidJacket.Right.Cuff.0','MaidJacket.Right.Cuff.1'],part:'top',region:'forearm',cap:false,focus:true};
+const skirt:Kind={ids:['MaidSkirt.Knee.0','MaidSkirt.Knee.1','MaidSkirt.KneeLower.1'],part:'bottom',region:'thigh',cap:false,focus:true};
+for(const arm of [hand,sleeve])for(const pair of [[arm,skirt],[skirt,arm]])assert.equal(classify(pair[0],pair[1],BOTTOM,true,()=>false),'accepted-animation-hand-lower-contact');
+assert.equal(classify(hand,body,BOTTOM,true,()=>false),'hard');
 assert.equal(classify(exterior,body,BOTTOM,true,()=>false),'hard');
 assert.equal(classify(exterior,exterior,BOTTOM,true,k=>k.part==='bottom'),'hard');
+assert.equal(classify(skirt,skirt,BOTTOM,true,()=>false),'hard');
+assert.equal(classify(skirt,{...body,region:'thigh'},BOTTOM,true,()=>false),'hard');
+assert.equal(classify({...sleeve,ids:['MaidJacket.Right.Shoulder.0'],region:'upperArm'},{...body,region:'thigh'},BOTTOM,true,()=>false),'hard');
 assert.equal(classify({...exterior,cap:true},body,BOTTOM,true,()=>false),'hidden-interface-cap');
 assert.equal(classify(exterior,body,BOTTOM,false,()=>false),'midpoint-only');
 
@@ -50,7 +64,6 @@ export function checkC2Motion() {
     const ports=new Map<string,Set<string>[]>();
     for(const piece of [makeTop(recipe),makeTrousers(recipe)])if(piece)ports.set(piece.slot,Object.values(piece.sealedInterfaces??{}).map(ix=>new Set(ix.map(i=>piece.mesh.vertices[i].id))));
     const indices:number[][]=[],kinds:Kind[]=[];
-    // 含高腰 torso 和双袖，不能只检查膝部。
     for(const f of c.faces)for(let k=1;k<f.v.length-1;k++){
       const ix=[f.v[0],f.v[k],f.v[k+1]],ids=ix.map(i=>c.vertices[i].id);
       indices.push(ix);kinds.push({ids,part:f.part,region:f.region,cap:(ports.get(f.part??'')??[]).some(set=>ids.every(id=>set.has(id))),focus:f.part==='top'&&top===TOP||f.part==='bottom'&&bottom===BOTTOM});
@@ -70,8 +83,6 @@ export function checkC2Motion() {
           action.time=time;actor.update(0);actor.mesh.skeleton.update();const points=skinPoints(c,actor.mesh.skeleton.boneMatrices);
           assert(points.every(p=>p.every(Number.isFinite)),'动作出现 NaN/Infinity');checkedFrames++;
           const sourceKey=[...sourceTimes].some(t=>Math.abs(t-time)<1e-8);
-          // 失败报告附带固定男女的完整姿态矩阵，辅助复现蒙皮；不替代正式动作 Gate。
-          // 配方只影响服饰，不改变固定骨架；每个性别/动作只记录一次，避免混搭重复体积。
           if(top===TOP&&bottom===BOTTOM)poses.push({bodyType,clip,time,phase:time/source.duration,sourceKey,boneMatrices:Array.from(actor.mesh.skeleton.boneMatrices)});
           const hit=findIntersections(c,points,indices,focus,true);testedPairs+=hit.testedPairs;assert.equal(hit.pairs.length,hit.hits);
           if(!hit.hits)continue;
@@ -83,7 +94,6 @@ export function checkC2Motion() {
         }}finally{action.stop();actor.mixer.uncacheClip(bake.clip);}
         const row={bodyType,top,bottom,clip,samples:times.length,blockingFrames,warningFrames,hits,maxPairs};rows.push(row);console.log('C2_MOTION',JSON.stringify(row));
         const found=observedFrames.slice(start);
-        // 每行选择实际最严重相位，不按安全帧取样。报告保留所有命中帧。
         const score=(f:Frame)=>f.hard*100000+Object.entries(f.reasons).reduce((n,[r,k])=>n+k*(r==='hidden-interface-cap'?1:100),0);
         if(found.length)visualFrames.push(found.reduce((a,b)=>score(b)>score(a)?b:a));
       }
@@ -91,10 +101,10 @@ export function checkC2Motion() {
   }
   assert.equal(rows.length,BODY_TYPES.length*combinations.length*clips.length);
   const passed=rows.every(r=>r.samples>0&&r.blockingFrames===0);
-  const report={testedSha:process.env.REVIEW_HEAD_SHA??'local',passed,checkedFrames,testedPairs,rows,observedFrames,visualFrames,visualApproval:false,policy:'所有源键、相邻中点、端点；全身含高腰/袖子。日常源键外层自身/身体贯穿为 Hard。隐藏接口 Cap、衣层、原窄范围裙底接口、中点、显式资产 stress-only 保留 Warning；截图中任何可见破面升级为阻塞。没有新裙装运动容差。',scope:'非共面三角贯穿与全身有限值，不承诺共面接触或连续时间绝对无穿插。只统计至少一面属于本轮 C2 资产的三角对，其它资产原有检查不减少。'};
+  const report={testedSha:process.env.REVIEW_HEAD_SHA??'local',passed,checkedFrames,testedPairs,rows,observedFrames,visualFrames,visualApproval:false,policy:'全部源键/中点/端点，全身含高腰/袖子。仅 C2 的手/前臂与腿/裙动作接触是用户接受的 Warning；不改公共动作。其余日常源键外层自身/身体贯穿仍 Hard。原隐藏接口、衣层、裙底、中点及显式 stress-only 分级保持。模型爆面/翻面/坏形仍阻塞。',scope:'非共面三角贯穿与全身有限值，不承诺共面接触或连续时间绝对无穿插。只统计至少一面属于本轮 C2 资产的三角对，其它资产原有检查不减少。'};
   mkdirSync('review/c2',{recursive:true});writeFileSync('review/c2/c2-motion.json',JSON.stringify(report,null,2));
-  if(!passed)writeFileSync('review/c2/c2-pose-replay.json.gz',gzipSync(JSON.stringify({testedSha:report.testedSha,boneCount:20,poses,scope:'失败诊断；固定男女全源键/端点/中点矩阵，不是动作或视觉验收结果。'})));
+  if(!passed)writeFileSync('review/c2/c2-pose-replay.json.gz',gzipSync(JSON.stringify({testedSha:report.testedSha,boneCount:20,poses,scope:'失败诊断；固定男女完整姿态矩阵，不是动作或视觉验收结果。'})));
   console.log('C2_MOTION_SUMMARY',JSON.stringify({passed,checkedFrames,testedPairs,hardRows:rows.filter(r=>r.blockingFrames).length,warningRows:rows.filter(r=>r.warningFrames).length,visualFrames:visualFrames.length}));
-  assert(passed,'C2 仍有日常源键外层自交/穿体；见完整 c2-motion.json，不能跳过失败相位');return report;
+  assert(passed,'C2 仍有未获接受的外层自交/穿体；见完整 c2-motion.json');return report;
 }
 if(process.argv[1]?.endsWith('check-c2-motion.ts'))checkC2Motion();
