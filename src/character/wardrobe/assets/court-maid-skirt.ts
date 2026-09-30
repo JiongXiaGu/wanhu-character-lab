@@ -7,8 +7,10 @@ import { GARMENT_GEOMETRY_VERSION, type GarmentPiece } from './contract';
 // 前后深度分别制作；臀下不鼓球，不增加实时布料或第三权重。
 type Row=readonly [name:string,y:number,width:number,front:number,back:number,fold:number];
 const ROWS:readonly Row[]=[
-  ['Waist',1.205,.187,.129,.128,0],
-  ['BandMid',1.170,.185,.126,.126,0],
+  // 裙头两圈约一厘米固定留量，包住短襦衣摆；不读取 top 或姿态临时改形。
+  // 纵向高度和 BandFoot 以下原版型不变，避免交界轮廓互切成锯齿露片。
+  ['Waist',1.205,.197,.139,.138,0],
+  ['BandMid',1.170,.196,.137,.137,0],
   ['BandFoot',1.125,.177,.121,.121,0],
   ['Hip',.980,.202,.127,.124,.004],
   ['Seat',.805,.232,.143,.137,.007],
@@ -33,12 +35,10 @@ export function makeCourtMaidSkirt(recipe:Recipe):GarmentPiece {
   ROWS.forEach(([name,y,width,front,back,fold],r)=>{
     const loop=Array.from({length:SEGMENTS},(_,k)=>{
       const t=(k+.5)*2*Math.PI/SEGMENTS,depth=Math.cos(t)>=0?front:back;
-      // 交替折棱从裙头下方释放；真实横截面，不用贴图伪造裙片。
       const inset=(k%2===0?0:fold);
       const exponent=r<3?.75:r===3?.90:1;
       const profile=(v:number)=>Math.sign(v)*Math.pow(Math.abs(v),exponent);
       const p:Vec3=[profile(Math.sin(t))*(width-inset),y,profile(Math.cos(t))*(depth-inset*.6)];
-      // 中央纵向裙片留出跨步宽度；增加的是作者中缝，不是逐帧修形。
       if(r>=5&&Math.abs(Math.sin(t))<.3)p[0]=Math.sign(p[0])*Math.max(Math.abs(p[0]),width*.26);
       return vertex(c,`MaidSkirt.${name}.${k}`,p,weights(p,r));
     });
