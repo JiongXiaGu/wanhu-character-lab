@@ -1,3 +1,4 @@
+import { makeAttendantFittedLongRobe } from './attendant-fitted-long-robe';
 import { makeCourtMaidJacket } from './court-maid-jacket';
 import { makeNarrowLongRobe } from './narrow-long-robe';
 import { makeCityTop } from './military/city-top';
@@ -26,6 +27,7 @@ function makeAuthoredTop(recipe:Recipe):GarmentPiece|undefined {
   if(id==='body')return;
   const pattern=TOP_PATTERNS[id];
   if(!pattern)throw new Error('上衣资产未注册：'+id);
+  if(pattern.asset==='attendant-fitted-long-robe')return makeAttendantFittedLongRobe(recipe);
   if(pattern.asset==='court-maid-jacket')return makeCourtMaidJacket(recipe);
   if(pattern.asset==='narrow-long-robe')return makeNarrowLongRobe(recipe);
   if(pattern.asset==='medium-top')return makeMediumArmorTop(recipe);
