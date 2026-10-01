@@ -51,10 +51,14 @@ for(const bodyType of ['male','female'] as const)for(const bottom of BOTTOM_IDS)
   if(blockingFrames){console.error(scope==='garment-boundary'?'GARMENT_BOUNDARY_DIAGNOSTIC':'INTERSECTION_FAILURE',JSON.stringify(row));for(const item of failures.slice(failureStart))console.error('INTERSECTION_VERTICES',JSON.stringify(item));}
   action.stop();actor.mixer.uncacheClip(bake.clip);
  }
- actor.dispose();
+ actor.dispose();console.log('INTERSECTION',bodyType,look);
 }
-assert(rows.length>0);console.table(rows);
-// 封口接触只能发生在明确登记款式，裤子主体与劳动裤保留原检查强度。
+// 仅 short_trousers 裤脚 Cap×shin 与两条真裙固定端面属于制作接口；其余交点继续阻塞。
+// 源帧/中点、所有三角对、相交算法和容差不变，不跳过端面计算。
+assert(rows.filter(r=>r.scope==='garment-boundary').every(r=>['true_short_skirt','long_skirt','court_maid_high_waist_skirt'].includes(r.look)&&r.id==='snatch'));
+const requiredRows=rows.filter(r=>r.scope==='required');
+assert.equal(rows.length,2*BOTTOM_IDS.length*ids.length,'必须覆盖男女 × 全部保留下装 × 全部关键动作');
+assert(requiredRows.length>0&&requiredRows.every(r=>r.samples>0),'每个必检下装动作必须保留源键与中点采样');
 assert(rows.filter(r=>!['short_trousers','true_short_skirt','long_skirt','court_maid_high_waist_skirt'].includes(r.look)).every(r=>r.closureContactFrames===0&&r.blockingFrames===r.piercedFrames));
 const passed=rows.every(r=>r.scope==='garment-boundary'||r.blockingFrames===0);
 const boundaryRows=rows.filter(r=>r.scope==='garment-boundary');
