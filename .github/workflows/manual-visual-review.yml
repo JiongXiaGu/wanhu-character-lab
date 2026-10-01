@@ -109,6 +109,11 @@ jobs:
       - run: npm ci
       - uses: ./.github/actions/prepare-motion
         if: steps.visual.outputs.scope != 'soldier-heavy-fast'
+      - name: Temporary C4 authoring reproduction context (remove before release)
+        if: github.event.pull_request.draft && steps.visual.outputs.garment == 'attendant_fitted_long_robe'
+        run: |
+          mkdir -p review/garment-focus/top-attendant_fitted_long_robe
+          tar -czf review/garment-focus/top-attendant_fitted_long_robe/c4-authoring-context.tar.gz src scripts node_modules public package.json package-lock.json tsconfig.json vite.config.ts index.html AGENTS.md README.md Documentation .github .gitignore
       - name: Build exact candidate
         run: npm run build --ignore-scripts
       - name: Install browser and Chinese fonts
@@ -146,7 +151,7 @@ jobs:
             elif [[ "$scope" == soldier ]]; then
               npm run review:soldier 2>&1 | tee -a manual-visual-review.log
             elif [[ "$scope" == soldier-heavy-fast ]]; then
-              npm run review:soldier-heavy-fast 2>&1 | tee -a manual-visual-review.log
+              node scripts/review-soldier-heavy-fast.mjs 2>&1 | tee -a manual-visual-review.log
             elif [[ "$scope" == livestock ]]; then
               npm run review:livestock 2>&1 | tee -a manual-visual-review.log
             elif [[ "$scope" == system-animator ]]; then
