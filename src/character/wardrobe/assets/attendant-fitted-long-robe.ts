@@ -79,7 +79,7 @@ export function makeAttendantFittedLongRobe(recipe: Recipe): GarmentPiece {
     const facing=k===2 && r>=6 && r<8;
     if(r===0){
       // 12 列髋圈连接 16 列侧衩根，保留原圆角，并显式接入四个新增端点。
-      const a=ROOT_MAP[k],b=ROOT_MAP[(k+1)%12],path=[a];
+      const a=ROOT_MAP[k],b=ROOT_MAP[(k+1)%12],path:number[]=[a];
       for(let j=(a+1)%16;j!==b;j=(j+1)%16)path.push(j);
       path.push(b);
       face(c,[body[1][k],...path.map(j=>body[0][j]),body[1][(k+1)%12]],regionFor(BODY[0][1]),primary);
