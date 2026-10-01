@@ -64,7 +64,7 @@ try{
     // 原矩阵已有目标 free 素模；补 C1 同机位三分之四原图，并验证相机完全相同。
     const referenceState=await load({bodyType,top:reference});
     const targetRecord=report.records.find(r=>r.file===`${bodyType}-clay-free.png`);assert(targetRecord);
-    assert.deepEqual(referenceState.camera,targetRecord.camera);
+    assert.deepEqual(JSON.parse(JSON.stringify(referenceState.camera)),targetRecord.camera,'与 JSON 保存的相机逐项精确比较（仅规范 -0 的编码，不增加容差）');
     await shot(`${bodyType}-${reference}-clay-free.png`,referenceState,{kind:'same-camera-reference'});
     for(const clip of ['start-walking','jogging','pilot-switches','shooting-arrow','snatch']){
       const found=motion.visualFrames.filter(f=>f.bodyType===bodyType&&f.clip===clip);assert(found.length,'完整检测缺少对应动作诊断');
