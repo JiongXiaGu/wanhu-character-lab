@@ -111,7 +111,8 @@ export async function checkDogBrowser(page,base,dir,screenshots,setPhase) {
     if(count===10||count===100||count===500){await page.getByTestId('livestock-view-farm').click();await shot(`dog-farm-${count}.png`);}
   }
   // 真正跨物种更换较大群体，验证视野缩放而非创建第二个Renderer。
-  const herd=await snap();
+  // 点击相机后等待两个真实RAF，让React提交和场景fit先完成；无截图模式也不能读取旧机位。
+  const herd=await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve(window.__LIVESTOCK_REVIEW__.snapshot())))));
   await page.getByLabel('家畜种类',{exact:true}).selectOption('goose_domestic_white');await page.waitForFunction(()=>window.__LIVESTOCK_REVIEW__.snapshot().animal==='goose_domestic_white');
   await page.getByLabel('家畜种类',{exact:true}).selectOption(animal);await ready();s=await snap();
   assert.equal(s.count,500);assert.equal(s.rendererId,herd.rendererId);assertSameReviewCamera(s.camera,herd.camera);assert.equal(s.lod,herd.lod);
