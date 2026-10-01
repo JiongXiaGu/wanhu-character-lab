@@ -10,8 +10,8 @@ const PROFILE = [
   [1,0],[.85,-.80],[.15,-1],[-.15,-1],[-.85,-.80],[-1,0],
 ] as const;
 const BODY: readonly Row[] = [
-  ['SlitRoot', .820, .190, .142, .146],
-  ['Hip', .940, .184, .126, .123],
+  ['SlitRoot', .880, .212, .135, .140],
+  ['Hip', .940, .198, .130, .130],
   ['WaistLower', 1.052, .176, .110, .106],
   ['Waist', 1.086, .171, .108, .105],
   ['WaistUpper', 1.117, .175, .111, .108],
@@ -23,11 +23,11 @@ const BODY: readonly Row[] = [
 ];
 // 侧开衩下方只有前后片，不生成两侧封筒；前短后长，横向尺寸独立于 C1。
 const SKIRT: readonly Row[] = [
-  ['UpperPanel', .690, .222, .171, .183],
-  ['KneeUpper', .580, .227, .184, .207],
-  ['Knee', .489, .226, .195, .213],
-  ['HemFacing', .365, .222, .189, .208],
-  ['Hem', .350, .220, .188, .206],
+  ['UpperPanel', .715, .218, .140, .145],
+  ['KneeUpper', .580, .220, .145, .160],
+  ['Knee', .489, .220, .148, .170],
+  ['HemFacing', .365, .219, .146, .168],
+  ['Hem', .350, .217, .145, .167],
 ];
 const PANELS = [[0,1,2,3,4,5],[7,8,9,10]] as const;
 const PANEL_COLUMNS = new Set<number>(PANELS.flat());
@@ -42,7 +42,8 @@ function drapeWeight(p: Vec3, name: string): Weight {
   const thigh = p[0] > 0 ? B.RightThigh : B.LeftThigh;
   const shin = p[0] > 0 ? B.RightShin : B.LeftShin;
   if (name === 'Hip') return [B.Hips,thigh,.64];
-  if (name === 'SlitRoot') return [B.Hips,thigh,.28];
+  if (name === 'SlitRoot') return [B.Hips,thigh,.40];
+  if (name === 'UpperPanel') return [B.Hips,thigh,.12];
   return kneeWeights(p,thigh,shin);
 }
 
@@ -54,8 +55,10 @@ export function makeAttendantFittedLongRobe(recipe: Recipe): GarmentPiece {
     const [name,y,width,front,back] = row;
     return PROFILE.map(([px,pz],k) => {
       const upper=['Rib','Chest','Shoulder','Collar','Neck'].includes(name);
-      const x=upper&&Math.abs(px)===.85?Math.sign(px)*.76:px;
-      const z=upper&&[0,5,7,10].includes(k)?Math.sign(pz)*.78:pz;
+      const split=name==='SlitRoot'||partial;
+      // 长片中间两列分担左右腿时保留横向间距，避免长摆中线在迈步中折穿前后片。
+      const x=split&&Math.abs(px)===.85?Math.sign(px)*.99:upper&&Math.abs(px)===.85?Math.sign(px)*.76:!upper&&Math.abs(px)===.15?Math.sign(px)*.35:px;
+      const z=split&&[0,5,7,10].includes(k)?Math.sign(pz)*.10:upper&&[0,5,7,10].includes(k)?Math.sign(pz)*.78:pz;
       if (partial && !PANEL_COLUMNS.has(k)) return -1;
       const rearDrop = z < 0 && name.startsWith('Hem') ? .040 : 0;
       const p: Vec3 = [x*width,y-rearDrop,z*(z<0?back:front)];
@@ -67,7 +70,7 @@ export function makeAttendantFittedLongRobe(recipe: Recipe): GarmentPiece {
     if(BODY[r][0]==='Chest' && [5,6,10,11].includes(k))continue;
     const trim=BODY[r][0]==='Collar';
     // 前襟随衣面共边，不叠一条悬浮装饰；轻窄腰线没有 C1 的凸出束带。
-    const facing=k===2 && r>=3 && r<8;
+    const facing=k===2 && r>=6 && r<8;
     face(c,[body[r][k],body[r][(k+1)%12],body[r+1][(k+1)%12],body[r+1][k]],regionFor(BODY[r][1]),trim?accent:facing?secondary:primary);
   }
   const openings: Record<string,number[]> = {neck:body.at(-1)!};
@@ -78,8 +81,8 @@ export function makeAttendantFittedLongRobe(recipe: Recipe): GarmentPiece {
     let previous=right?[chest[5],chest[6],chest[7],shoulder[7],shoulder[6],shoulder[5]]:[chest[0],chest[11],chest[10],shoulder[10],shoulder[11],shoulder[0]];
     previous.forEach((i,k)=>{c.vertices[i].w=[B.Chest,u,k<3?.87:.62];});
     const rows: readonly [string,number,number,number,number,number,Weight][] = [
-      ['SleeveHead',.290,1.320,0,.038,.059,[B.Chest,u,.50]],
-      ['UpperSleeve',.320,1.251,0,.047,.049,[B.Chest,u,.10]],
+      ['SleeveHead',.273,1.309,0,.038,.056,[B.Chest,u,.50]],
+      ['UpperSleeve',.309,1.244,0,.047,.049,[B.Chest,u,.10]],
       ['Upper',.340,1.189,0,.051,.046,rigid(u)],
       ['Elbow',.394,1.101,0,.044,.041,[u,l,.5]],
       ['ElbowLower',.414,1.066,.002,.039,.037,[u,l,.08]],

@@ -138,6 +138,8 @@ jobs:
                 npm run check:c2-motion 2>&1 | tee -a manual-visual-review.log || motion_status=$?
                 npm run review:c2 2>&1 | tee -a manual-visual-review.log
                 test "$motion_status" -eq 0
+              elif [[ "$GARMENT_SLOT" == top && "$GARMENT_ID" == attendant_fitted_long_robe ]]; then
+                npm run review:c4 2>&1 | tee -a manual-visual-review.log
               else
                 node scripts/review-garment-focus.mjs --slot "$GARMENT_SLOT" --garment "$GARMENT_ID" --reference "$GARMENT_REFERENCES" 2>&1 | tee -a manual-visual-review.log
               fi

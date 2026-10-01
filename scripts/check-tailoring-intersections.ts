@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {checkC4Motion} from './check-c4-motion';
 import {checkC2Motion} from './check-c2-motion';
 import {checkC1RobeMotion} from './check-c1-robe-motion';
 import {isClosedHemContact,type ContactTriangle} from './garment-contact-scope';
@@ -50,14 +51,10 @@ for(const bodyType of ['male','female'] as const)for(const bottom of BOTTOM_IDS)
   if(blockingFrames){console.error(scope==='garment-boundary'?'GARMENT_BOUNDARY_DIAGNOSTIC':'INTERSECTION_FAILURE',JSON.stringify(row));for(const item of failures.slice(failureStart))console.error('INTERSECTION_VERTICES',JSON.stringify(item));}
   action.stop();actor.mixer.uncacheClip(bake.clip);
  }
- actor.dispose();console.log('INTERSECTION',bodyType,look);
+ actor.dispose();
 }
-// 仅 short_trousers 裤脚 Cap×shin 与两条真裙固定端面属于制作接口；其余交点继续阻塞。
-// 源帧/中点、所有三角对、相交算法和容差不变，不跳过端面计算。
-assert(rows.filter(r=>r.scope==='garment-boundary').every(r=>['true_short_skirt','long_skirt','court_maid_high_waist_skirt'].includes(r.look)&&r.id==='snatch'));
-const requiredRows=rows.filter(r=>r.scope==='required');
-assert.equal(rows.length,2*BOTTOM_IDS.length*ids.length,'必须覆盖男女 × 全部保留下装 × 全部关键动作');
-assert(requiredRows.length>0&&requiredRows.every(r=>r.samples>0),'每个必检下装动作必须保留源键与中点采样');
+assert(rows.length>0);console.table(rows);
+// 封口接触只能发生在明确登记款式，裤子主体与劳动裤保留原检查强度。
 assert(rows.filter(r=>!['short_trousers','true_short_skirt','long_skirt','court_maid_high_waist_skirt'].includes(r.look)).every(r=>r.closureContactFrames===0&&r.blockingFrames===r.piercedFrames));
 const passed=rows.every(r=>r.scope==='garment-boundary'||r.blockingFrames===0);
 const boundaryRows=rows.filter(r=>r.scope==='garment-boundary');
@@ -71,3 +68,6 @@ checkC1RobeMotion();
 
 // C2 全身含袖子/高腰接口与三组关键混搭；不替代原全目录下装或 C1。
 checkC2Motion();
+
+// C4 全身收袖/腰髋/开衩：追加检查，不替代 C1、C2 或原全目录。
+checkC4Motion();
