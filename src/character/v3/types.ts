@@ -44,6 +44,7 @@ export type HeadwearId =
   | "jade_pin";
 export type TopId =
   | "body"
+  | "court_maid_short_jacket"
   | "narrow_long_robe"
   | "medium_armor"
   | "heavy_armor"
@@ -57,6 +58,7 @@ export type TopId =
   | "short_work_jacket";
 export type BottomId =
   | "body"
+  | "court_maid_high_waist_skirt"
   | "medium_armor_skirt"
   | "heavy_armor_skirt"
   | "city_guard_trousers"
@@ -150,6 +152,7 @@ export const HEADWEAR_IDS = [
 ] as const satisfies readonly HeadwearId[];
 
 export const TOP_IDS = [
+  "court_maid_short_jacket",
   "body",
   "narrow_long_robe",
   "medium_armor",
@@ -161,6 +164,7 @@ export const TOP_IDS = [
 ] as const satisfies readonly TopId[];
 
 export const BOTTOM_IDS = [
+  "court_maid_high_waist_skirt",
   "body",
   "medium_armor_skirt",
   "heavy_armor_skirt",

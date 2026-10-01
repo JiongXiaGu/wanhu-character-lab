@@ -10,9 +10,10 @@ export function isClosedHemContact(bottom:string,a:ContactTriangle,b:ContactTria
     // 封口短裤的裤脚 Cap 专门允许可见小腿穿过；不放行腰口、裤身或其他部位。
     return cap(a)&&leg(b)||cap(b)&&leg(a);
   }
-  if(bottom!=='true_short_skirt'&&bottom!=='long_skirt')return false;
-  const cap=(t:ContactTriangle)=>t.part==='bottom'&&t.ids.includes('Skirt.HemCenter')&&t.ids.every(id=>id==='Skirt.HemCenter'||/^Skirt\.HemInset\.\d+$/.test(id));
-  const terminal=(t:ContactTriangle)=>t.part==='bottom'&&t.ids.every(id=>/^Skirt\.(Hem|HemInset|HemFacing)\.\d+$/.test(id));
+  if(!['true_short_skirt','long_skirt','court_maid_high_waist_skirt'].includes(bottom))return false;
+  const prefix=bottom==='court_maid_high_waist_skirt'?'MaidSkirt':'Skirt';
+  const cap=(t:ContactTriangle)=>t.part==='bottom'&&t.ids.includes(`${prefix}.HemCenter`)&&t.ids.every(id=>id===`${prefix}.HemCenter`||new RegExp(`^${prefix}\\.HemInset\\.\\d+$`).test(id));
+  const terminal=(t:ContactTriangle)=>t.part==='bottom'&&t.ids.every(id=>new RegExp(`^${prefix}\\.(Hem|HemInset|HemFacing)\\.\\d+$`).test(id));
   // 真裙封底的邻接裙边/腿出口可能数学相交；仍逐对计算和记录。
   return cap(a)&&(terminal(b)||leg(b))||cap(b)&&(terminal(a)||leg(a));
 }

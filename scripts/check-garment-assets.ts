@@ -19,7 +19,7 @@ export function assertGarmentPiece(piece:GarmentPiece):void {
   assert.equal(piece.version,GARMENT_GEOMETRY_VERSION);
   assert(c.vertices.length&&c.faces.length);
   assert.deepEqual(Object.keys(piece.openings),[],`${piece.id}: 正式资产不能保留开放接口`);
-  const ports=piece.slot==='top'?['LeftCuff','RightCuff','neck','waist']:piece.slot==='shoes'?['LeftAnkle','RightAnkle']:['true_short_skirt','long_skirt'].includes(piece.id)?['waist']:['LeftCuff','RightCuff','waist'];
+  const ports=piece.slot==='top'?['LeftCuff','RightCuff','neck','waist']:piece.slot==='shoes'?['LeftAnkle','RightAnkle']:['true_short_skirt','long_skirt','court_maid_high_waist_skirt'].includes(piece.id)?['waist']:['LeftCuff','RightCuff','waist'];
   assert.deepEqual(Object.keys(piece.sealedInterfaces??{}).sort(),ports,`${piece.id}: 封口锚点不完整`);
   for(const v of c.vertices){
     assert(v.p.every(Number.isFinite));

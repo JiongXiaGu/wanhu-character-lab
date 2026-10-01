@@ -553,7 +553,7 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   const [trim, leather] = [colors.accent, colors.accent];
 
   const hasTop = recipe.slots.top !== "body";
-  if (hasTop && !["rough_tunic", "cross_jacket", "layered_vest", "medium_armor", "city_guard_brigandine"].includes(recipe.slots.top)) {
+  if (hasTop && !["court_maid_short_jacket", "rough_tunic", "cross_jacket", "layered_vest", "medium_armor", "city_guard_brigandine"].includes(recipe.slots.top)) {
     ribbon(
       c,
       "CrossCollar",

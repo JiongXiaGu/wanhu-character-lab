@@ -132,7 +132,15 @@ jobs:
             local scope="$1"
             echo "=== visual scope: $scope ===" | tee -a manual-visual-review.log
             if [[ "$scope" == garment-focus ]]; then
-              node scripts/review-garment-focus.mjs --slot "$GARMENT_SLOT" --garment "$GARMENT_ID" --reference "$GARMENT_REFERENCES" 2>&1 | tee -a manual-visual-review.log
+              if [[ "$GARMENT_SLOT" == top && "$GARMENT_ID" == court_maid_short_jacket ]]; then
+                # 数值失败仍生成对应真实姿态，最后保留失败退出码。
+                local motion_status=0
+                npm run check:c2-motion 2>&1 | tee -a manual-visual-review.log || motion_status=$?
+                npm run review:c2 2>&1 | tee -a manual-visual-review.log
+                test "$motion_status" -eq 0
+              else
+                node scripts/review-garment-focus.mjs --slot "$GARMENT_SLOT" --garment "$GARMENT_ID" --reference "$GARMENT_REFERENCES" 2>&1 | tee -a manual-visual-review.log
+              fi
             elif [[ "$scope" == back-equipment ]]; then
               node scripts/check-back-equipment-browser.mjs --screenshots 2>&1 | tee -a manual-visual-review.log
             elif [[ "$scope" == soldier ]]; then
