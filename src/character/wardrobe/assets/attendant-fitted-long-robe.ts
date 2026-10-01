@@ -29,7 +29,13 @@ const SKIRT: readonly Row[] = [
   ['HemFacing', .365, .219, .146, .168],
   ['Hem', .350, .217, .145, .167],
 ];
-const PANELS = [[0,1,2,3,4,5],[7,8,9,10]] as const;
+// 下身保留圆角，并在两侧另加窄衩端点；不能把原圆角拉到侧轴上，造成髋部凹面。
+const LOWER_PROFILE = [
+  [-.99,.10],[-.85,.65],[-.50,.95],[-.35,1],[.35,1],[.50,.95],[.85,.65],[.99,.10],
+  [1,0],[.99,-.10],[.85,-.80],[.35,-1],[-.35,-1],[-.85,-.80],[-.99,-.10],[-1,0],
+] as const;
+const ROOT_MAP = [1,2,3,4,5,6,8,10,11,12,13,15] as const;
+const PANELS = [[0,1,2,3,4,5,6,7],[9,10,11,12,13,14]] as const;
 const PANEL_COLUMNS = new Set<number>(PANELS.flat());
 const THICKNESS = .006;
 const regionFor = (y: number): Region => y >= 1.085 ? 'torso' : y >= .94 ? 'pelvis' : y >= .489 ? 'thigh' : 'shin';
@@ -53,12 +59,12 @@ export function makeAttendantFittedLongRobe(recipe: Recipe): GarmentPiece {
   const {primary,secondary,accent} = recipe.dyes;
   function makeRow(row: Row, partial = false) {
     const [name,y,width,front,back] = row;
-    return PROFILE.map(([px,pz],k) => {
+    const lower=name==='SlitRoot'||partial;
+    return (lower?LOWER_PROFILE:PROFILE).map(([px,pz],k) => {
       const upper=['Rib','Chest','Shoulder','Collar','Neck'].includes(name);
-      const split=name==='SlitRoot'||partial;
       // 长片中间两列分担左右腿时保留横向间距，避免长摆中线在迈步中折穿前后片。
-      const x=split&&Math.abs(px)===.85?Math.sign(px)*.99:upper&&Math.abs(px)===.85?Math.sign(px)*.76:!upper&&Math.abs(px)===.15?Math.sign(px)*.35:px;
-      const z=split&&[0,5,7,10].includes(k)?Math.sign(pz)*.10:upper&&[0,5,7,10].includes(k)?Math.sign(pz)*.78:pz;
+      const x=upper&&Math.abs(px)===.85?Math.sign(px)*.76:!upper&&Math.abs(px)===.15?Math.sign(px)*.35:px;
+      const z=upper&&[0,5,7,10].includes(k)?Math.sign(pz)*.78:pz;
       if (partial && !PANEL_COLUMNS.has(k)) return -1;
       const rearDrop = z < 0 && name.startsWith('Hem') ? .040 : 0;
       const p: Vec3 = [x*width,y-rearDrop,z*(z<0?back:front)];
@@ -71,7 +77,13 @@ export function makeAttendantFittedLongRobe(recipe: Recipe): GarmentPiece {
     const trim=BODY[r][0]==='Collar';
     // 前襟随衣面共边，不叠一条悬浮装饰；轻窄腰线没有 C1 的凸出束带。
     const facing=k===2 && r>=6 && r<8;
-    face(c,[body[r][k],body[r][(k+1)%12],body[r+1][(k+1)%12],body[r+1][k]],regionFor(BODY[r][1]),trim?accent:facing?secondary:primary);
+    if(r===0){
+      // 12 列髋圈连接 16 列侧衩根，保留原圆角，并显式接入四个新增端点。
+      const a=ROOT_MAP[k],b=ROOT_MAP[(k+1)%12],path=[a];
+      for(let j=(a+1)%16;j!==b;j=(j+1)%16)path.push(j);
+      path.push(b);
+      face(c,[body[1][k],...path.map(j=>body[0][j]),body[1][(k+1)%12]],regionFor(BODY[0][1]),primary);
+    }else face(c,[body[r][k],body[r][(k+1)%12],body[r+1][(k+1)%12],body[r+1][k]],regionFor(BODY[r][1]),trim?accent:facing?secondary:primary);
   }
   const openings: Record<string,number[]> = {neck:body.at(-1)!};
   const chest=body[6],shoulder=body[7];
@@ -118,7 +130,7 @@ export function makeAttendantFittedLongRobe(recipe: Recipe): GarmentPiece {
     for(const i of ids)normals.set(i,add(normals.get(i)??[0,0,0],normal));
   }
   const inner=new Map<number,number>();
-  for(const loop of outerRows)for(let k=0;k<12;k++) {
+  for(const loop of outerRows)for(let k=0;k<loop.length;k++) {
     const oi=loop[k];if(oi<0)continue;
     const o=c.vertices[oi],normal=unit(normals.get(oi)!);
     const p:Vec3=o.p.map((v,a)=>v-THICKNESS*normal[a]) as Vec3;
@@ -127,7 +139,7 @@ export function makeAttendantFittedLongRobe(recipe: Recipe): GarmentPiece {
   for(const f of lowerFaces)face(c,f.v.map(i=>inner.get(i)!),f.region,primary);
   // 只连接纸样明确的边界，不扫描/自动修补任意破洞。
   const rim=(a:number,b:number)=>face(c,[a,b,inner.get(b)!,inner.get(a)!],regionFor(Math.min(c.vertices[a].p[1],c.vertices[b].p[1])),accent);
-  for(const [a,b]of [[5,6],[6,7],[10,11],[11,0]])rim(body[0][a],body[0][b]);
+  for(const [a,b]of [[7,8],[8,9],[14,15],[15,0]])rim(body[0][a],body[0][b]);
   for(const columns of PANELS) {
     for(let r=0;r<panels.length-1;r++)for(const k of [columns[0],columns.at(-1)!])rim(panels[r][k],panels[r+1][k]);
     const hem=panels.at(-1)!;

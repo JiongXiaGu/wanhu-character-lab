@@ -33,14 +33,20 @@ function silhouette(c:Cage,reference:Cage,body:Cage){
   assert(frontY-backY>.02&&frontY-backY<.06,'必须有真实、克制的前短后长');
   assert(frontY<row(reference,'Robe.Hem')[0].p[1]-.02,'不能回缩成短衣');
   assert(row(c,'Attendant.SlitRoot')[0].p[1]-frontY>.3,'两侧开衩必须有实际纵向开口');
-  assert(!c.vertices.some(v=>/^Attendant\.(UpperPanel|KneeUpper|Knee|HemFacing|Hem)\.(6|11)$/.test(v.id)),'开衩下方不得恢复封筒侧列');
+  assert(!c.vertices.some(v=>/^Attendant\.(UpperPanel|KneeUpper|Knee|HemFacing|Hem)\.(8|15)$/.test(v.id)),'开衩下方不得恢复封筒侧列');
   const hipSlope=(span(c,'Attendant.Hip')-span(c,'Attendant.WaistLower'))/2/(row(c,'Attendant.WaistLower')[0].p[1]-row(c,'Attendant.Hip')[0].p[1]);
   const bodyHipWidth=body.vertices.find(v=>v.id==='SkinPelvis.Right.Root.2')!.p[0]-body.vertices.find(v=>v.id==='SkinPelvis.Left.Root.2')!.p[0];
   const hipClearance=span(c,'Attendant.Hip')/bodyHipWidth;
   assert(hipClearance>1.025&&hipClearance<1.09,'髋部必须跟随固定人体留量，不能挤进人体或膨胀成水桶');
   assert(hipSlope>=0&&hipSlope<.6,'男女腰髋连续过渡，不以收腰为由削穿人体');
-  const hem=row(c,'Attendant.Hem'),ventGap=Math.abs(hem.find(v=>v.id.endsWith('.5'))!.p[2]-hem.find(v=>v.id.endsWith('.7'))!.p[2])/span(c,'Attendant.Hem',2);
+  const hem=row(c,'Attendant.Hem'),ventGap=Math.abs(hem.find(v=>v.id.endsWith('.7'))!.p[2]-hem.find(v=>v.id.endsWith('.9'))!.p[2])/span(c,'Attendant.Hem',2);
   assert(ventGap>.06&&ventGap<.14,'侧开衩应是窄缝，不是大面积开口围片');
+  const root=row(c,'Attendant.SlitRoot');
+  assert.equal(root.length,16,'髋部圆角和窄衩端点必须独立保留');
+  assert.equal(hem.length,14,'前后片保留原圆角，不以压扁圆角制造窄侧衩');
+  const zMax=Math.max(...root.map(v=>v.p[2])),zMin=Math.min(...root.map(v=>v.p[2]));
+  for(const k of [1,6])assert(root.find(v=>v.id.endsWith('.'+k))!.p[2]>zMax*.55,'前髋圆角塌陷会露出下装');
+  for(const k of [10,13])assert(root.find(v=>v.id.endsWith('.'+k))!.p[2]<zMin*.65,'后髋圆角塌陷会露出下装');
   return{shoulderRatio,shoulderCapRatio,cuffRatio,waistRatio,hemRatio,waistToChest,waistDepth,frontY,backY,hipSlope,hipClearance,ventGap};
 }
 export function checkC4Robe(){
@@ -63,7 +69,7 @@ export function checkC4Robe(){
   const entries=WARDROBE_TAXONOMY.filter(x=>x.id===ID);assert.equal(entries.length,1);assert.equal(entries[0].slot,'top');
   assert.deepEqual(parseRecipeFile(JSON.stringify(recipe)),recipe);assert.equal(Object.keys(recipe).length,6);assert.equal(Object.keys(recipe.slots).length,7);
   for(let seed=0;seed<200;seed++)assert.notEqual(randomizeCharacter(createRecipe(),seed).slots.top,ID,'不能进入默认平民随机池');
-  const mutations=['wide-shoulder','wide-cuff','barrel-waist','wide-hem','same-length','hip-bulge','wide-cap','wide-slit'] as const;
+  const mutations=['wide-shoulder','wide-cuff','barrel-waist','wide-hem','same-length','hip-bulge','wide-cap','wide-slit','collapsed-hip-corner'] as const;
   for(const name of mutations){
     const bad=cloneCage(piece.mesh);
     if(name==='wide-shoulder')row(bad,'Attendant.Shoulder').forEach(v=>v.p[0]*=1.2);
@@ -73,7 +79,8 @@ export function checkC4Robe(){
     if(name==='same-length')row(bad,'Attendant.Hem').forEach(v=>v.p[1]=.35);
     if(name==='hip-bulge')row(bad,'Attendant.Hip').forEach(v=>v.p[0]*=1.4);
     if(name==='wide-cap')row(bad,'Attendant.Right.SleeveHead').forEach(v=>v.p[0]*=1.25);
-    if(name==='wide-slit')row(bad,'Attendant.Hem').filter(v=>/\.(0|5|7|10)$/.test(v.id)).forEach(v=>v.p[2]*=7);
+    if(name==='wide-slit')row(bad,'Attendant.Hem').filter(v=>/\.(0|7|9|14)$/.test(v.id)).forEach(v=>v.p[2]*=7);
+    if(name==='collapsed-hip-corner')row(bad,'Attendant.SlitRoot').filter(v=>/\.(1|6|10|13)$/.test(v.id)).forEach(v=>v.p[2]*=.15);
     assert.throws(()=>silhouette(bad,ref,body),`${name} 必须拦截`);
   }
   const hole={...piece,mesh:cloneCage(piece.mesh)};hole.mesh.faces.splice(hole.mesh.faces.findIndex(f=>f.v.some(i=>hole.mesh.vertices[i].id==='Attendant.SlitRoot.6')),1);assert.throws(()=>assertGarmentPiece(hole),'开衩根部丢面仍阻塞');
@@ -94,7 +101,7 @@ export function checkC4Robe(){
       rows.push({bodyType,bottom,measurements});
     }
   }
-  const report={passed:true,testedSha:process.env.REVIEW_HEAD_SHA??'local',id:ID,vertices:piece.mesh.vertices.length,triangles:triCount(piece.mesh),authored,rows,mutationChecks:10,staticSelfIntersections:self.hits,visualApproval:false};
+  const report={passed:true,testedSha:process.env.REVIEW_HEAD_SHA??'local',id:ID,vertices:piece.mesh.vertices.length,triangles:triCount(piece.mesh),authored,rows,mutationChecks:11,staticSelfIntersections:self.hits,visualApproval:false};
   for(const dir of ['review-wardrobe-batch','review/garment-focus/top-'+ID]){mkdirSync(dir,{recursive:true});writeFileSync(`${dir}/c4-numeric.json`,JSON.stringify(report,null,2));}
   console.log('C4_NUMERIC',JSON.stringify(report));return report;
 }
