@@ -41,6 +41,7 @@ export type HeadwearId =
   | "archer_headband"
   | "cloth_wrap"
   | "scholar_cap"
+  | "official_winged_cap"
   | "jade_pin";
 export type TopId =
   | "body"
@@ -148,7 +149,7 @@ export const HEADWEAR_IDS = [
   "city_captain_helmet",
   "guard_helmet",
   "archer_headband",
-  "cloth_wrap", "scholar_cap", "jade_pin",
+  "cloth_wrap", "scholar_cap", "official_winged_cap", "jade_pin",
 ] as const satisfies readonly HeadwearId[];
 
 export const TOP_IDS = [

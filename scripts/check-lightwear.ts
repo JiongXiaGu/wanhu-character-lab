@@ -1,3 +1,4 @@
+import { checkC3Headwear } from './check-c3-headwear';
 import assert from 'node:assert/strict';
 import { mkdirSync,writeFileSync } from 'node:fs';
 import { makeCharacter } from '../src/character/v3/outfit';
@@ -52,13 +53,15 @@ function pierces(a:Vec3,b:Vec3,p:Vec3[]){
 function triangles(c:Cage,accept:(id:string)=>boolean){
   return c.faces.filter(f=>f.v.every(i=>accept(c.vertices[i].id))).flatMap(f=>f.v.slice(1,-1).map((_,k)=>[f.v[0],f.v[k+1],f.v[k+2]]));
 }
-const hatVertex=(id:string)=>/^(HeavyPalaceHelmet|HeavyFrontierHelmet|HeavyCityHelmet|PalaceHelmet|FrontierHelmet|CityHelmet|Helmet|WardrobeCap|CapTablet|CapWings|WrapKnot|Straw|Headband|JadePin|JadeFinial)/.test(id);
+const hatVertex=(id:string)=>/^(OfficialCap|HeavyPalaceHelmet|HeavyFrontierHelmet|HeavyCityHelmet|PalaceHelmet|FrontierHelmet|CityHelmet|Helmet|WardrobeCap|CapTablet|CapWings|WrapKnot|Straw|Headband|JadePin|JadeFinial)/.test(id);
 const headwearTriangles:Record<Exclude<HeadwearId,'none'>,number>={
+  official_winged_cap:84,
   palace_heavy_helmet:188,palace_heavy_captain_helmet:218,frontier_heavy_helmet:188,frontier_heavy_captain_helmet:218,city_heavy_helmet:188,city_heavy_captain_helmet:218,
   palace_guard_helmet:126,frontier_guard_helmet:112,city_guard_helmet:144,palace_captain_helmet:142,frontier_captain_helmet:142,city_captain_helmet:166,farmer_straw_hat:24,guard_helmet:28,archer_headband:36,cloth_wrap:40,scholar_cap:52,jade_pin:24,
 };
-// 所有实心帽壳共用原来的同色封底、头发贯穿和包覆规则；重盔不另设豁免。
-const militaryShellPrefixes:Partial<Record<HeadwearId,string>>={
+// 所有实心帽壳共用原来的同色封底、头发贯穿和包覆规则；新增官帽不另设豁免。
+const closedShellPrefixes:Partial<Record<HeadwearId,string>>={
+  official_winged_cap:'OfficialCap.Shell',
   palace_guard_helmet:'PalaceHelmet.Shell',palace_captain_helmet:'PalaceHelmet.Shell',
   frontier_guard_helmet:'FrontierHelmet.Shell',frontier_captain_helmet:'FrontierHelmet.Shell',
   city_guard_helmet:'CityHelmet.Shell',city_captain_helmet:'CityHelmet.Shell',
@@ -66,8 +69,8 @@ const militaryShellPrefixes:Partial<Record<HeadwearId,string>>={
   frontier_heavy_helmet:'HeavyFrontierHelmet.Shell',frontier_heavy_captain_helmet:'HeavyFrontierHelmet.Shell',
   city_heavy_helmet:'HeavyCityHelmet.Shell',city_heavy_captain_helmet:'HeavyCityHelmet.Shell',
 };
-const shellPrefix=(id:HeadwearId)=>militaryShellPrefixes[id]??(id==='guard_helmet'?'Helmet':id==='cloth_wrap'||id==='scholar_cap'?'WardrobeCap':undefined);
-const baseCapPrefix=(id:HeadwearId)=>militaryShellPrefixes[id]?militaryShellPrefixes[id]+'.Base':id==='guard_helmet'?'HelmetBrim':id==='cloth_wrap'||id==='scholar_cap'?'WardrobeCapBase':undefined;
+const shellPrefix=(id:HeadwearId)=>closedShellPrefixes[id]??(id==='guard_helmet'?'Helmet':id==='cloth_wrap'||id==='scholar_cap'?'WardrobeCap':undefined);
+const baseCapPrefix=(id:HeadwearId)=>closedShellPrefixes[id]?closedShellPrefixes[id]+'.Base':id==='guard_helmet'?'HelmetBrim':id==='cloth_wrap'||id==='scholar_cap'?'WardrobeCapBase':undefined;
 const isBaseCapTriangle=(c:Cage,id:HeadwearId,tri:number[])=>{
   const prefix=baseCapPrefix(id);return !!prefix&&tri.every(i=>c.vertices[i].id.startsWith(prefix+'.'));
 };
@@ -195,6 +198,7 @@ for(const id of HEADWEAR_IDS.filter((id):id is Exclude<HeadwearId,'none'>=>id!==
   const base=wrong.faces.find(f=>f.v.every(i=>wrong.vertices[i].id.startsWith(prefix+'.')));assert(base);base.color='#c8956e';
   assert.throws(()=>assertHeadwearClosed(wrong,id),id+' 帽底使用肤色必须失败');headwearCapColorMutations++;
 }
+checkC3Headwear();
 const report={passed:true,headwearVersion:HEADWEAR_GEOMETRY_VERSION,rows,mixes,hats,mutationChecks:3,capContactScopeCases:2,capColorChecks:24,capColorMutationChecks,headwearTopologyChecks:hats.length,headwearHoleMutations,headwearCapColorMutations,scope:'绑定空间资产、固定露肤、染色、服装Cap主布色、头饰零开放边/同色帽底、窄范围帽底×头发制作接触与V5契约；动画源帧/中点及真实网页图片另行检查。'};
 mkdirSync('review-wardrobe-batch',{recursive:true});writeFileSync('review-wardrobe-batch/lightwear-numeric.json',JSON.stringify(report,null,2));
 console.log('LIGHTWEAR_NUMERIC',JSON.stringify(report));
