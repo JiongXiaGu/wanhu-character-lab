@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {checkC4Motion} from './check-c4-motion';
 import {checkC2Motion} from './check-c2-motion';
 import {checkC1RobeMotion} from './check-c1-robe-motion';
 import {isClosedHemContact,type ContactTriangle} from './garment-contact-scope';
@@ -71,3 +72,6 @@ checkC1RobeMotion();
 
 // C2 全身含袖子/高腰接口与三组关键混搭；不替代原全目录下装或 C1。
 checkC2Motion();
+
+// C4 全身收袖/腰髋/开衩：追加检查，不替代 C1、C2 或原全目录。
+checkC4Motion();
