@@ -45,6 +45,7 @@ export type HeadwearId =
   | "jade_pin";
 export type TopId =
   | "attendant_fitted_long_robe"
+  | "fairy_jacket"
   | "body"
   | "court_maid_short_jacket"
   | "narrow_long_robe"
@@ -59,6 +60,7 @@ export type TopId =
   | "work_vest"
   | "short_work_jacket";
 export type BottomId =
+  | "fairy_long_skirt"
   | "body"
   | "court_maid_high_waist_skirt"
   | "medium_armor_skirt"
@@ -109,6 +111,8 @@ export interface Vertex {
 }
 export interface Face {
   v: number[];
+  /** 与面角点一一对应的作者法线；程序资产省略时使用原面法线。 */
+  authoredNormals?: Vec3[];
   region: Region;
   color?: string;
   part?: "skin" | "top" | "bottom" | "shoes";
@@ -155,6 +159,7 @@ export const HEADWEAR_IDS = [
 
 export const TOP_IDS = [
   "attendant_fitted_long_robe",
+  "fairy_jacket",
   "court_maid_short_jacket",
   "body",
   "narrow_long_robe",
@@ -167,6 +172,7 @@ export const TOP_IDS = [
 ] as const satisfies readonly TopId[];
 
 export const BOTTOM_IDS = [
+  "fairy_long_skirt",
   "court_maid_high_waist_skirt",
   "body",
   "medium_armor_skirt",

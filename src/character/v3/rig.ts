@@ -30,10 +30,12 @@ export function makeActor(data: CharacterData): Actor {
     const start = p.length / 3,
       normal = polygonNormal(c, f);
     color.set(f.color ?? "#b79773");
-    for (const vi of f.v) {
+    if(f.authoredNormals && f.authoredNormals.length!==f.v.length)throw new Error("作者法线与面角点数量不符");
+    if(f.authoredNormals?.some(value=>value.length!==3 || !value.every(Number.isFinite) || Math.abs(Math.hypot(...value)-1)>.005))throw new Error("作者法线必须为有限单位向量");
+    for (const [corner,vi] of f.v.entries()) {
       const v = c.vertices[vi];
       p.push(...v.p);
-      n.push(...normal);
+      n.push(...(f.authoredNormals?.[corner] ?? normal));
       col.push(color.r, color.g, color.b);
       si.push(v.w[0], v.w[1], 0, 0);
       sw.push(v.w[2], 1 - v.w[2], 0, 0);

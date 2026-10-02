@@ -1,3 +1,4 @@
+import { fairyColor } from '../src/character/wardrobe/assets/fairy-assets';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { makeTop } from '../src/character/wardrobe/assets/tops';
@@ -19,7 +20,7 @@ export function assertGarmentPiece(piece:GarmentPiece):void {
   assert.equal(piece.version,GARMENT_GEOMETRY_VERSION);
   assert(c.vertices.length&&c.faces.length);
   assert.deepEqual(Object.keys(piece.openings),[],`${piece.id}: 正式资产不能保留开放接口`);
-  const ports=piece.slot==='top'?['LeftCuff','RightCuff','neck','waist']:piece.slot==='shoes'?['LeftAnkle','RightAnkle']:['true_short_skirt','long_skirt','court_maid_high_waist_skirt'].includes(piece.id)?['waist']:['LeftCuff','RightCuff','waist'];
+  const ports=piece.slot==='top'?['LeftCuff','RightCuff','neck','waist']:piece.slot==='shoes'?['LeftAnkle','RightAnkle']:['fairy_long_skirt','true_short_skirt','long_skirt','court_maid_high_waist_skirt'].includes(piece.id)?['waist']:['LeftCuff','RightCuff','waist'];
   assert.deepEqual(Object.keys(piece.sealedInterfaces??{}).sort(),ports,`${piece.id}: 封口锚点不完整`);
   for(const v of c.vertices){
     assert(v.p.every(Number.isFinite));
@@ -82,7 +83,7 @@ function assertCapRollout(){
       const p=makeTop(recipe)??makeTrousers(recipe)??makeFootwear(recipe)!;
       assertGarmentPiece(p);const ports=p.sealedInterfaces!;
       // 上衣封面跟随主布；长裤与裙腰跟随原裤布/腰头色。已认可短裤、布鞋保持原方案。
-      const expected=(name:string)=>p.slot==='top'?dyes.primary:p.slot==='shoes'?'#414441':p.id==='short_trousers'?(name==='waist'?dyes.primary:dyes.accent):dyes.secondary;
+      const expected=(name:string)=>p.id==='fairy_jacket'?fairyColor('top',name==='waist'?8:9,dyes):p.id==='fairy_long_skirt'?fairyColor('bottom',10,dyes):p.slot==='top'?dyes.primary:p.slot==='shoes'?'#414441':p.id==='short_trousers'?(name==='waist'?dyes.primary:dyes.accent):dyes.secondary;
       colorChecks+=assertCapColors(p.mesh,ports,expected);
       const d=makeCharacter(recipe),assembled=Object.fromEntries(Object.keys(ports).map(name=>[name,d.surface.anchors[p.slot+'.'+name]]));
       colorChecks+=assertCapColors(d.surface,assembled,expected);

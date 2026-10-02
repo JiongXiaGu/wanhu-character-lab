@@ -78,6 +78,11 @@ for(const bodyType of BODY_TYPES){
       assert.equal(triCount(p.mesh),164);assert.deepEqual(p.covers,['pelvis','thigh']);assert(p.mesh.vertices.every(v=>v.p[1]>=.5),'短装不能暗中恢复长裤管');
       assert.deepEqual(Object.keys(p.sealedInterfaces??{}).sort(),['LeftCuff','RightCuff','waist'].sort());
       for(const side of ['Right','Left'])assert.equal(p.sealedInterfaces![side+'Cuff'].length,8);
+    }else if(bottom==='fairy_long_skirt'){
+      assert.equal(triCount(p.mesh),346);
+      assert.equal(p.mesh.vertices.length,175);
+      assert.deepEqual(Object.keys(p.sealedInterfaces??{}),['waist']);
+      for(const v of p.mesh.vertices)if(v.p[1]<.7*1.76/1.66)assert(!v.w.slice(0,2).includes(B.Hips),'仙裙下摆不应恢复骨盆固定');
     }else if(bottom==='court_maid_high_waist_skirt'){
       assertC2Knees(p.mesh);assert.deepEqual(Object.keys(p.sealedInterfaces??{}),['waist']);
       assert.equal(p.mesh.anchors.closedHem.length,16);assert(p.mesh.vertices.every(v=>v.id.startsWith('MaidSkirt.')));

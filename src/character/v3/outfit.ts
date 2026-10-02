@@ -1,3 +1,4 @@
+import { shapeAuthoredNormal } from './authored-normals';
 import { addMilitarySpear } from '../wardrobe/military-equipment';
 import { addBackEquipment } from '../wardrobe/back-equipment';
 import { applyHeadwearClearance } from "../wardrobe/headwear-fit";
@@ -553,7 +554,7 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   const [trim, leather] = [colors.accent, colors.accent];
 
   const hasTop = recipe.slots.top !== "body";
-  if (hasTop && !["attendant_fitted_long_robe", "court_maid_short_jacket", "rough_tunic", "cross_jacket", "layered_vest", "medium_armor", "city_guard_brigandine"].includes(recipe.slots.top)) {
+  if (hasTop && !["fairy_jacket", "attendant_fitted_long_robe", "court_maid_short_jacket", "rough_tunic", "cross_jacket", "layered_vest", "medium_armor", "city_guard_brigandine"].includes(recipe.slots.top)) {
     ribbon(
       c,
       "CrossCollar",
@@ -600,6 +601,9 @@ export function makeCharacter(input: RecipeInput): CharacterData {
   addRightHand(c, recipe.slots.rightHand, recipe);
   const joints = makeJoints(recipe);
   const baseJoints = makeJoints(createRecipe({ bodyType:"male" }));
+  for(const f of c.faces){
+    if(f.authoredNormals)f.authoredNormals=f.authoredNormals.map((normal,i)=>shapeAuthoredNormal(normal,c.vertices[f.v[i]].p,recipe));
+  }
   c.vertices.forEach((v,i) => {
     v.p = i < rigidStart ? shapePoint(v.p,recipe) : shapeRigidPoint(v.p,v.w[0],recipe,baseJoints,joints);
   });

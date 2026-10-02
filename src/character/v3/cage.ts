@@ -96,6 +96,10 @@ export const edgeKey = (a: number, b: number) =>
   a < b ? `${a}:${b}` : `${b}:${a}`;
 /** 建立时为固定面图确定一致的方向；不按屏幕投影猜正反面。 */
 export function orient(c: Cage) {
+  const reverseFace=(f:Face)=>{
+    f.v.reverse();
+    if(f.authoredNormals)f.authoredNormals=f.authoredNormals.reverse().map(normal=>mul(normal,-1));
+  };
   const edges = new Map<string, { f: number; a: number; b: number }[]>();
   c.faces.forEach((f, fi) =>
     f.v.forEach((a, i) => {
@@ -133,19 +137,19 @@ export function orient(c: Cage) {
     let vol = 0;
     for (const fi of component) {
       const f = c.faces[fi];
-      if (flips.get(fi)) f.v.reverse();
+      if (flips.get(fi)) reverseFace(f);
       const a = c.vertices[f.v[0]].p;
       for (let k = 1; k < f.v.length - 1; k++)
         vol +=
           dot(a, cross(c.vertices[f.v[k]].p, c.vertices[f.v[k + 1]].p)) / 6;
     }
-    if (vol < 0) for (const fi of component) c.faces[fi].v.reverse();
+    if (vol < 0) for (const fi of component) reverseFace(c.faces[fi]);
   }
 }
 export function cloneCage(c: Cage): Cage {
   return {
     vertices: c.vertices.map((v) => ({ id: v.id, p: [...v.p], w: [...v.w] })),
-    faces: c.faces.map((f) => ({ ...f, v: [...f.v] })),
+    faces: c.faces.map((f) => ({ ...f, v: [...f.v], ...(f.authoredNormals?{authoredNormals:f.authoredNormals.map(normal=>[...normal] as Vec3)}:{}) })),
     anchors: Object.fromEntries(
       Object.entries(c.anchors).map(([k, v]) => [k, [...v]]),
     ),

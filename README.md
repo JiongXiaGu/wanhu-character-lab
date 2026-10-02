@@ -194,3 +194,22 @@ node scripts/review-camel-torso.mjs
 旧review:local各入口与--full保留按需使用；生成截图、自动通过和人工视觉认可分开记录。有限采样不是全时域零穿插。尚无跪下／起身、上下坐骑、导航、玩家移动、地形贴蹄、袋子物理、连续身材、儿童老人、人物或坐骑多档LOD、Unity正式坐骑运行时或GPU Crowd。本项目不部署Vercel。
 
 文档：[V5契约](Documentation/固定基模与换装V5.md) · [服装架构](Documentation/服装生成架构.md) · [人物动画](Documentation/Mixamo动画接入.md) · [新宝岛MediaPipe片段](Documentation/新宝岛MediaPipe片段接入.md) · [抓个锅盖头MediaPipe全片](Documentation/抓个锅盖头MediaPipe全片接入.md) · [多坐骑](Documentation/多坐骑与灰驴.md) · [双峰骆驼](Documentation/双峰骆驼.md) · [黄牛](Documentation/黄牛.md) · [牦牛](Documentation/牦牛.md) · [Unity迁移](Documentation/GPU骨骼动画迁移契约.md)。
+
+## 桃粉仙裙与Blender同步
+
+本地人物页选择女体型，再点击“桃粉仙裙”搭配；也可独立选择“桃粉仙衣”和“桃粉长裙”，使用原动画浏览器、暂停相位、换装、染色与配方保存。快捷入口为 `/?bodyType=female&look=fairy-pink&pose=bind`。原宫女两件仍保留作对照，新款沿用Recipe V5七槽位，没有套装锁定。
+
+作者源为Unity模型包内现有CourtMaidJacket／CourtMaidSkirt女体型Blend，网页ID为`fairy_jacket`／`fairy_long_skirt`。网页消费`src/character/wardrobe/assets/published/fairy.generated.json`，不独立重画，也不在运行时读取Blend。发布保留340／346三角面、172／175逻辑顶点、20骨及最多双权重。发布脚本把女体型坐标转换回网页基准，装配仅执行原有一次体型映射；所有女体型顶点与源坐标回导校验通过才写入。男性沿原比例场适配，仅为网页参考，不表示Unity男版仙裙已制作。
+
+默认颜色来自作者Palette预览快照，两件色表差异保留；网页三色染色相对“桃粉仙裙”默认色调整。网页程序资产继续使用原面法线；仙衣发布作者角点法线，经体型局部逆转置变换后进入同一Three.js材质。裙沿原法线策略，光照与Unity不同，不承诺截图像素相同。完整仙衣覆盖躯干／上臂／前臂，裙覆盖骨盆／大腿／小腿；源覆盖改变、骨架不符、预算变化或封口索引失效会阻止发布。
+
+更新Blend及Unity正式Palette后，先导出原人物配色预览快照，再在网页目录执行：
+
+```powershell
+node --import tsx scripts/sync-fairy-assets.ts --source-package "D:/Works/Unity/JiongXiaXia.WanHu/Packages/com.jiongxiaxia.wanhu-character-animal-content" --blender "D:/Program Files/Blender Foundation/Blender 5.2/blender.exe"
+node --import tsx scripts/check-fairy-published.ts
+```
+
+仙衣已局部修顺肩袖／腋下，保持172逻辑顶点／340三角面，袖窿分区双权重与局部法线过渡。可用`--jacket-source "<候选Blend绝对路径>"`只读审查候选，快照sourceMode会明确为candidate；不带此参数才从正式Blend发布并标为published。候选审查不代替Unity正式资源应用。
+
+发布器为源包`Tools/export-fairy-web.py`，只读两件Blend；接口索引对应当前版型，改拓扑后须重新标记，不能放宽失败检查。网页服务启动后可用`node scripts/check-fairy-browser.mjs`，默认地址5178，也可用REVIEW_URL指定实际地址。输出为真实WebGL图与加载／换装检查，用户视觉验收及完整贯穿扫描仍为独立状态；极端深蹲衣装折叠保留为待审查限制。
