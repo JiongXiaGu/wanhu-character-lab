@@ -1,4 +1,3 @@
-import { makeAttendantFittedLongRobe } from './attendant-fitted-long-robe';
 import { makeFairyGarment } from './fairy-assets';
 import { makeCourtMaidJacket } from './court-maid-jacket';
 import { makeNarrowLongRobe } from './narrow-long-robe';
@@ -28,7 +27,6 @@ function makeAuthoredTop(recipe:Recipe):GarmentPiece|undefined {
   if(id==='body')return;
   const pattern=TOP_PATTERNS[id];
   if(!pattern)throw new Error('上衣资产未注册：'+id);
-  if(pattern.asset==='attendant-fitted-long-robe')return makeAttendantFittedLongRobe(recipe);
   if(pattern.asset==='fairy-jacket')return makeFairyGarment(recipe,'top');
   if(pattern.asset==='court-maid-jacket')return makeCourtMaidJacket(recipe);
   if(pattern.asset==='narrow-long-robe')return makeNarrowLongRobe(recipe);

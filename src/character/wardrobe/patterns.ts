@@ -2,7 +2,7 @@ import type { TopId, BottomId } from '../v3/types';
 
 /** 注册标识和接口尺寸；每个保留款式必须有明确用途或轮廓差异。 */
 export type TopPattern = { id:string; hem:number; stressOnlyClips?:readonly string[] } & (
-  { asset:'work-shirt'|'cross-shirt'|'half-sleeve'|'work-vest'|'short-jacket'|'medium-top'|'heavy-top'|'city-top'|'narrow-long-robe'|'court-maid-jacket'|'attendant-fitted-long-robe'|'fairy-jacket' } |
+  { asset:'work-shirt'|'cross-shirt'|'half-sleeve'|'work-vest'|'short-jacket'|'medium-top'|'heavy-top'|'city-top'|'narrow-long-robe'|'court-maid-jacket'|'fairy-jacket' } |
   { asset:'classic'; sleeve:'short'|'long'; width:number; cuff:number }
 );
 export type BottomPattern = { id:string; hem:number; stressOnlyClips?:readonly string[] } & (
@@ -10,7 +10,6 @@ export type BottomPattern = { id:string; hem:number; stressOnlyClips?:readonly s
   { asset:'classic'; thigh:number; knee:number; calf:number; trim:boolean }
 );
 export const TOP_PATTERNS:Record<Exclude<TopId,'body'>,TopPattern>={
-  attendant_fitted_long_robe:{id:'attendant-fitted-long-robe-v1',asset:'attendant-fitted-long-robe',hem:.310,stressOnlyClips:['snatch']},
   fairy_jacket:{id:'blender-fairy-jacket-v1',asset:'fairy-jacket',hem:1.0959773063659668*1.76/1.66},
   court_maid_short_jacket:{id:'court-maid-cropped-jacket-v2',asset:'court-maid-jacket',hem:1.162},
   narrow_long_robe:{id:'narrow-long-robe-v3',asset:'narrow-long-robe',hem:.400,stressOnlyClips:['snatch']},

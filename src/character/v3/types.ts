@@ -44,7 +44,6 @@ export type HeadwearId =
   | "official_winged_cap"
   | "jade_pin";
 export type TopId =
-  | "attendant_fitted_long_robe"
   | "fairy_jacket"
   | "body"
   | "court_maid_short_jacket"
@@ -158,7 +157,6 @@ export const HEADWEAR_IDS = [
 ] as const satisfies readonly HeadwearId[];
 
 export const TOP_IDS = [
-  "attendant_fitted_long_robe",
   "fairy_jacket",
   "court_maid_short_jacket",
   "body",
